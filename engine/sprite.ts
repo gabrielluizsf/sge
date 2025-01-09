@@ -1,4 +1,4 @@
-import { Image, Canvas } from "./canvas.ts";
+import { type Image, Canvas } from "./canvas.ts";
 
 // Sprite class represents a 2D sprite with position, size, and image
 export class Sprite {
