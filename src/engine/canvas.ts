@@ -54,13 +54,20 @@ export class ErrCannotCreateFile extends CanvasError {
   }
 }
 
-export type CanvasContext2D = {
+export class ErrCannotDeleteFile extends CanvasError {
+  constructor(cause?: unknown) {
+    super("ErrCannotCreateFile", "Cannot create file", cause);
+  }
+}
+
+export interface CanvasContext2D  {
   drawImage: (image: CanvasImageSource | EmulatedCanvas2D, x: number, y: number, width: number, height: number) => void;
   getImageData: (x: number, y: number, width: number, height: number) => ImageData;
-  setFilePath(filePath: string): void;
+  setFilePath(filePath: string): CanvasContext2D;
   putImageData: (imageData: ImageData, x: number, y: number) => void;
   beginPath: () => void;
   createFile(): Error | null;
+  deleteFile(): Error | null;
   arc: (x: number, y: number, radius: number, startAngle: number, endAngle: number) => void;
   fill: () => void;
   fillRect: (x: number, y: number, width: number, height: number) => void;
@@ -84,12 +91,13 @@ class Context2D implements CanvasContext2D {
     this.initialFilePath = "";
   }
 
-  setFilePath(filePath: string): void {
+  setFilePath(filePath: string): CanvasContext2D {
     this.filePath = filePath;
     if (!this.filePathDefined) {
       this.initialFilePath = filePath;
       this.filePathDefined = true;
     }
+    return this;
   }
 
   beginPath(): void {
@@ -101,6 +109,14 @@ class Context2D implements CanvasContext2D {
       return new ErrCannotCreateFile("File path not defined");
     }
     Deno.writeFileSync(this.filePath, this.buffer);
+    return null;
+  }
+
+  deleteFile(): Error | null {
+    if (this.filePath === "") {
+      return new ErrCannotDeleteFile("File path not defined");
+    }
+    Deno.removeSync(this.filePath);
     return null;
   }
 
@@ -245,4 +261,20 @@ export class Canvas {
     ctx.putImageData(imageData, 0, 0);
     return canvas;
   }
+}
+
+export function convertImageToUint8Array(source: CanvasImageSource | EmulatedCanvas2D): Uint8Array {
+  if ('toBuffer' in source) {
+    return source.toBuffer();
+  }
+  
+  const width = source.width;
+  const height = source.height;
+  const canvas = Canvas.create(width, height);
+  const ctx = canvas.getContext("2d");
+  
+  ctx.drawImage(source, 0, 0, width, height);
+  
+
+  return canvas.toBuffer();
 }
