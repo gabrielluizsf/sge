@@ -25,3 +25,32 @@ export function fillArray(n: number, zero: () => any): any[] {
   for (let i = 0; i < n; i++) a[i] = zero();
   return a;
 }
+
+// arrayPtr is (*[n]T)(s): the n elements of s as an array that shares
+// its storage, which a typed array's subarray does and a proxy does for a
+// plain array.
+export function arrayPtr(s: any, n: number): any {
+  if (s === null) {
+    if (n === 0) return null;
+    throw new RangeError(`cannot convert slice with length 0 to array or pointer to array with length ${n}`);
+  }
+  if (s.n < n) throw new RangeError(`cannot convert slice with length ${s.n} to array or pointer to array with length ${n}`);
+  if (!Array.isArray(s.a)) return s.a.subarray(s.o, s.o + n);
+  if (s.o === 0 && s.a.length === n) return s.a;
+  const a = s.a, o = s.o;
+  return new Proxy([], {
+    get(_t, k) {
+      if (k === "length") return n;
+      if (typeof k === "string" && /^\d+$/.test(k)) return a[o + Number(k)];
+      return (Array.prototype as any)[k];
+    },
+    set(_t, k, v) {
+      if (typeof k === "string" && /^\d+$/.test(k)) a[o + Number(k)] = v;
+      return true;
+    },
+    has(_t, k) {
+      if (typeof k === "string" && /^\d+$/.test(k)) return Number(k) < n;
+      return k in Array.prototype;
+    },
+  });
+}

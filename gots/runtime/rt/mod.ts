@@ -12,3 +12,4 @@ export * as int from "./int.ts";
 export * as str from "./string.ts";
 export * as unsafe from "./unsafe.ts";
 export * as cplx from "./cplx.ts";
+import "./window.ts";

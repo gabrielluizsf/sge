@@ -67,3 +67,24 @@ func main() {
 	lit := []int{5: 1, 2, 0: 3}
 	fmt.Println(lit, len(lit))
 }
+
+func init() {
+	// A slice converted to an array pointer shares its storage.
+	freq := make([]uint16, 8)
+	hist := [4]uint16{1, 2, 3, 4}
+	*(*[4]uint16)(freq[2:]) = hist
+	p := (*[2]uint16)(freq)
+	p[1] = 9
+	fmt.Println(freq, len(p))
+	names := []string{"a", "b", "c", "d"}
+	q := (*[2]string)(names[1:])
+	q[0] = "B"
+	fmt.Println(names, *q)
+	arr := [3]int(names2ints([]int{7, 8, 9, 10}))
+	arr[0] = 0
+	fmt.Println(arr)
+	defer func() { fmt.Println("short slice:", recover() != nil) }()
+	_ = (*[5]uint16)(freq[6:])
+}
+
+func names2ints(s []int) []int { return s }

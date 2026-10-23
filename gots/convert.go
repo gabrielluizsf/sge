@@ -3,6 +3,7 @@ package gots
 import (
 	"go/ast"
 	"go/types"
+	"strconv"
 	"strings"
 )
 
@@ -48,6 +49,17 @@ func (e *emitter) convert(x ast.Expr, to types.Type) string {
 	}
 	if isNumeric(to) && isNumeric(from) {
 		return numConvert(js, from, to)
+	}
+	if _, ok := fu.(*types.Slice); ok {
+		// Go 1.17's slice to array pointer, and Go 1.20's slice to array.
+		if p, ok := tu.(*types.Pointer); ok {
+			if a, ok := p.Elem().Underlying().(*types.Array); ok {
+				return "$.arrayPtr(" + js + ", " + strconv.FormatInt(a.Len(), 10) + ")"
+			}
+		}
+		if a, ok := tu.(*types.Array); ok {
+			return e.cloneOf("$.arrayPtr("+js+", "+strconv.FormatInt(a.Len(), 10)+")", to)
+		}
 	}
 	if isStruct(to) && !e.sameClass(to, from) {
 		return e.structConvert(js, structOf(from), to)
