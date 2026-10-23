@@ -31,7 +31,7 @@ func (e *emitter) varSpec(w *writer, vs *ast.ValueSpec) {
 				continue
 			}
 			v := e.info.Defs[id].(*types.Var)
-			e.declareVar(w, v, e.zero(v.Type()))
+			e.declareVar(w, v, e.zero(e.varType(v)))
 		}
 	case len(vs.Values) == 1 && len(vs.Names) > 1:
 		lhs := make([]ast.Expr, len(vs.Names))
@@ -46,7 +46,7 @@ func (e *emitter) varSpec(w *writer, vs *ast.ValueSpec) {
 				continue
 			}
 			v := e.info.Defs[id].(*types.Var)
-			e.declareVar(w, v, e.value(vs.Values[i], v.Type()))
+			e.declareVar(w, v, e.value(vs.Values[i], e.varType(v)))
 		}
 	}
 }

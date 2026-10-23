@@ -53,7 +53,7 @@ func (e *emitter) needsCopy(x ast.Expr) bool {
 		return true
 	case *ast.CallExpr:
 		if tv, ok := e.info.Types[x.Fun]; ok && tv.IsType() && len(x.Args) == 1 {
-			to, from := tv.Type, e.typeOf(x.Args[0])
+			to, from := e.T(tv.Type), e.typeOf(x.Args[0])
 			return isStruct(to) && e.sameClass(to, from) && e.needsCopy(x.Args[0]) || isArray(to) && e.needsCopy(x.Args[0])
 		}
 	}

@@ -9,7 +9,7 @@ import (
 // nothing is put in an interface (see value for that).
 func (e *emitter) expr(x ast.Expr) string {
 	if tv, ok := e.info.Types[x]; ok && tv.Value != nil {
-		return e.constant(tv.Value, tv.Type)
+		return e.constant(tv.Value, e.T(tv.Type))
 	}
 	switch x := x.(type) {
 	case *ast.ParenExpr:
@@ -52,7 +52,14 @@ func (e *emitter) ident(x *ast.Ident) string {
 		return "null"
 	case *types.Var:
 		return e.varRef(obj)
-	case *types.Func, *types.TypeName:
+	case *types.Func:
+		if e.generic(obj) {
+			if inst, ok := e.info.Instances[x]; ok {
+				return e.instName(obj, inst.TypeArgs)
+			}
+		}
+		return e.objName(obj)
+	case *types.TypeName:
 		return e.objName(obj)
 	case nil:
 		if x.Name == "_" {

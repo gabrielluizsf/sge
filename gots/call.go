@@ -9,7 +9,7 @@ import (
 func (e *emitter) call(c *ast.CallExpr) string {
 	if tv, ok := e.info.Types[c.Fun]; ok {
 		if tv.IsType() {
-			return e.convert(c.Args[0], tv.Type)
+			return e.convert(c.Args[0], e.T(tv.Type))
 		}
 		if tv.IsBuiltin() {
 			return e.builtin(c)

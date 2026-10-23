@@ -11,7 +11,7 @@ import (
 func (e *emitter) structClass(t types.Type) string {
 	t = types.Unalias(t)
 	if n, ok := t.(*types.Named); ok {
-		return e.objName(n.Obj())
+		return e.namedRef(n)
 	}
 	return e.anonClass(t.Underlying().(*types.Struct))
 }

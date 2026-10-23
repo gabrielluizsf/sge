@@ -57,7 +57,7 @@ func (e *emitter) place(w *writer, x ast.Expr) lvalue {
 	case *ast.SelectorExpr:
 		if s := e.info.Selections[x]; s != nil {
 			base := e.hoist(w, x.X)
-			get, _ := e.fieldPath(base, s.Recv(), s.Index())
+			get, _ := e.fieldPath(base, e.T(s.Recv()), s.Index())
 			return inPlace(get)
 		}
 		obj := e.info.ObjectOf(x.Sel)

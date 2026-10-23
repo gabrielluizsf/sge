@@ -55,10 +55,10 @@ func (e *emitter) descInline(t types.Type) string {
 			}
 			return `$.ifaceType("comparable", [])`
 		}
-		if t.TypeArgs().Len() > 0 {
-			return fmt.Sprintf("$.named(%q, %s, null)", typeString(t), e.descInline(t.Underlying()))
+		if t.TypeArgs().Len() > 0 && isInterface(t) {
+			return fmt.Sprintf("$.ifaceType(%q, %s)", typeString(t), methodList(t.Underlying().(*types.Interface)))
 		}
-		name := e.objName(t.Obj())
+		name := e.namedRef(t)
 		if isStruct(t) {
 			return name + ".$type"
 		}

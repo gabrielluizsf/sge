@@ -9,7 +9,10 @@ import (
 // function named Type$Method taking the receiver first.
 func (e *emitter) method(w *writer, fd *ast.FuncDecl, inClass bool) {
 	fn := e.info.Defs[fd.Name].(*types.Func)
-	sig := fn.Type().(*types.Signature)
+	if e.methodSubst != nil {
+		e.methodSubst(fn)
+	}
+	sig := e.T(fn.Type()).(*types.Signature)
 	recvField := fd.Recv.List[0]
 	var recvObj types.Object
 	if len(recvField.Names) > 0 {
@@ -38,7 +41,7 @@ func (e *emitter) method(w *writer, fd *ast.FuncDecl, inClass bool) {
 	params := types.NewTuple(append([]*types.Var{recvParam}, tupleVars(sig.Params())...)...)
 	withRecv := types.NewSignatureType(nil, nil, nil, params, sig.Results(), sig.Variadic())
 	ft := &ast.FuncType{Params: &ast.FieldList{List: append([]*ast.Field{recvField}, fd.Type.Params.List...)}, Results: fd.Type.Results}
-	name := e.objName(namedOf(derefType(sig.Recv().Type())).Obj()) + "$" + fn.Name()
+	name := e.namedRef(types.Unalias(derefType(sig.Recv().Type())).(*types.Named)) + "$" + fn.Name()
 	e.functionIn(w, "export function "+name, withRecv, ft, fd.Body, nil)
 }
 

@@ -34,10 +34,10 @@ func (e *emitter) tsType(t types.Type) string {
 			}
 			return "any"
 		}
-		if t.TypeArgs().Len() > 0 {
-			return e.tsType(t.Underlying())
+		if t.TypeArgs().Len() > 0 && isInterface(t) {
+			return "any"
 		}
-		name := e.objName(t.Obj())
+		name := e.namedRef(t)
 		if isInterface(t) {
 			if t.Underlying().(*types.Interface).Empty() {
 				return "any"

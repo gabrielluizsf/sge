@@ -14,7 +14,7 @@ func (e *emitter) selector(x *ast.SelectorExpr) string {
 	}
 	switch s.Kind() {
 	case types.FieldVal:
-		js, _ := e.fieldPath(e.expr(x.X), s.Recv(), s.Index())
+		js, _ := e.fieldPath(e.expr(x.X), e.T(s.Recv()), s.Index())
 		return js
 	case types.MethodVal:
 		return e.methodValue(x, s)
@@ -39,8 +39,8 @@ func (e *emitter) fieldPath(base string, t types.Type, path []int) (string, type
 // methodFunc is the standalone function implementing a method of a named
 // type that is not a struct, which has no class to hold it.
 func (e *emitter) methodFunc(fn *types.Func) string {
-	recv := derefType(fn.Type().(*types.Signature).Recv().Type())
-	return e.objName(namedOf(recv).Obj()) + "$" + fn.Name()
+	recv := types.Unalias(derefType(e.recvType(fn))).(*types.Named)
+	return e.namedRef(recv) + "$" + fn.Name()
 }
 
 func namedOf(t types.Type) *types.Named {
@@ -64,7 +64,7 @@ func (e *emitter) methodValue(x *ast.SelectorExpr, s *types.Selection) string {
 	fn := s.Obj().(*types.Func)
 	recv := e.receiver(x, s)
 	if onClass(fn) {
-		if !isPointer(fn.Type().(*types.Signature).Recv().Type()) && !isInterface(fn.Type().(*types.Signature).Recv().Type()) {
+		if !isPointer(e.recvType(fn)) && !isInterface(e.recvType(fn)) {
 			recv = e.cloneOf(recv, derefType(e.typeOf(x.X)))
 		}
 		return "((r) => (...a: any[]) => r." + fieldName(fn.Name()) + "(...a))(" + recv + ")"
@@ -78,7 +78,7 @@ func (e *emitter) methodExpr(s *types.Selection) string {
 	if len(s.Index()) > 1 || onClass(fn) {
 		path := ""
 		if len(s.Index()) > 1 {
-			p, _ := e.fieldPath("", s.Recv(), s.Index()[:len(s.Index())-1])
+			p, _ := e.fieldPath("", e.T(s.Recv()), s.Index()[:len(s.Index())-1])
 			path = p
 		}
 		return "((r: any, ...a: any[]) => r" + path + "." + fieldName(fn.Name()) + "(...a))"
@@ -92,16 +92,16 @@ func (e *emitter) methodExpr(s *types.Selection) string {
 func (e *emitter) receiver(x *ast.SelectorExpr, s *types.Selection) string {
 	fn := s.Obj().(*types.Func)
 	path := s.Index()[:len(s.Index())-1]
-	if e.handWritten(s.Recv()) {
+	if e.handWritten(e.T(s.Recv())) {
 		// The TypeScript standard library has promoted methods on the
 		// outer type itself.
 		path = nil
 	}
-	base, t := e.fieldPath(e.expr(x.X), s.Recv(), path)
+	base, t := e.fieldPath(e.expr(x.X), e.T(s.Recv()), path)
 	if onClass(fn) {
 		return base
 	}
-	_, ptrRecv := fn.Type().(*types.Signature).Recv().Type().(*types.Pointer)
+	_, ptrRecv := e.recvType(fn).(*types.Pointer)
 	switch {
 	case ptrRecv && isPointer(t):
 		return base

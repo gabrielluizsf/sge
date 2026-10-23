@@ -56,10 +56,10 @@ func (e *emitter) newVar(x ast.Expr, define bool) *types.Var {
 func (e *emitter) declareVar(w *writer, v *types.Var, js string) {
 	n := e.declare(v)
 	if e.boxed[v] {
-		w.line("const %s = new $.Cell<%s>(%s);", n, e.tsType(v.Type()), js)
+		w.line("const %s = new $.Cell<%s>(%s);", n, e.tsType(e.varType(v)), js)
 		return
 	}
-	w.line("let %s: %s = %s;", n, e.tsType(v.Type()), js)
+	w.line("let %s: %s = %s;", n, e.tsType(e.varType(v)), js)
 }
 
 // store writes the already converted value js into x.
@@ -74,7 +74,7 @@ func (e *emitter) store(w *writer, x ast.Expr, js string, define bool) {
 
 func (e *emitter) assignOne(w *writer, l, r ast.Expr, define bool) {
 	if v := e.newVar(l, define); v != nil {
-		e.declareVar(w, v, e.value(r, v.Type()))
+		e.declareVar(w, v, e.value(r, e.varType(v)))
 		return
 	}
 	lv := e.place(w, l)
@@ -119,7 +119,7 @@ func (e *emitter) assignTuple(w *writer, lhs []ast.Expr, r ast.Expr, define bool
 			names = append(names, "")
 			continue
 		}
-		if v == nil || e.boxed[v] || isInterface(v.Type()) != isInterface(types_[len(names)]) {
+		if v == nil || e.boxed[v] || isInterface(e.varType(v)) != isInterface(types_[len(names)]) {
 			allNew = false
 		}
 		names = append(names, "?")
@@ -145,7 +145,7 @@ func (e *emitter) assignTuple(w *writer, lhs []ast.Expr, r ast.Expr, define bool
 		}
 		to := e.typeOf(l)
 		if v := e.newVar(l, define); v != nil {
-			to = v.Type()
+			to = e.varType(v)
 		}
 		e.store(w, l, e.convertValue(t+"["+itoa(i)+"]", types_[i], to, false), define)
 	}

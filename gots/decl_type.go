@@ -1,6 +1,7 @@
 package gots
 
 import (
+	"fmt"
 	"go/ast"
 	"go/types"
 	"sort"
@@ -25,7 +26,7 @@ func (e *emitter) methodsOf(files []*ast.File) map[*types.TypeName][]*ast.FuncDe
 				continue
 			}
 			fn := e.info.Defs[fd.Name].(*types.Func)
-			n := namedOf(derefType(fn.Type().(*types.Signature).Recv().Type()))
+			n := namedOf(derefType(e.recvType(fn)))
 			out[n.Obj()] = append(out[n.Obj()], fd)
 		}
 	}
@@ -77,7 +78,8 @@ func (e *emitter) structTypeDecl(td *typeDecls, name string, t *types.Named, st 
 		}
 		w.close("}")
 	}
-	td.descs.line("%s.$type = $.structType(%q, true, %s, %s, () => %s);", name, typeString(t), name, valCls, e.fieldDescs(st))
+	desc := fmt.Sprintf("$.structType(%q, true, %s, %s, () => %s)", typeString(t), name, valCls, e.fieldDescs(st))
+	td.descs.line("%s.$type = %s;", name, e.canonical(t, desc))
 }
 
 // promoted writes forwarding methods for methods a struct gets from its
@@ -89,14 +91,14 @@ func (e *emitter) promoted(w *writer, ms *types.MethodSet, self string) {
 			continue
 		}
 		fn := sel.Obj().(*types.Func)
-		path, t := e.fieldPath(self, sel.Recv(), sel.Index()[:len(sel.Index())-1])
+		path, t := e.fieldPath(self, e.T(sel.Recv()), sel.Index()[:len(sel.Index())-1])
 		m := fieldName(fn.Name())
 		if onClass(fn) {
 			w.line("%s(...a: any[]): any { return %s.%s(...a); }", m, path, m)
 			continue
 		}
 		recv := path
-		_, ptrRecv := fn.Type().(*types.Signature).Recv().Type().(*types.Pointer)
+		_, ptrRecv := e.recvType(fn).(*types.Pointer)
 		switch {
 		case ptrRecv && !isPointer(t):
 			dot := strings.LastIndex(path, ".")
@@ -138,7 +140,8 @@ func (e *emitter) namedTypeDecl(td *typeDecls, name string, t *types.Named, meth
 		valCls = name + "$Val"
 		e.valClass(&td.classes, valCls, vms, "this.v")
 	}
-	td.descs.line("export const %s$type = $.named(%q, %s, %s);", name, typeString(t), e.descInline(t.Underlying()), valCls)
+	desc := fmt.Sprintf("$.named(%q, %s, %s)", typeString(t), e.descInline(t.Underlying()), valCls)
+	td.descs.line("export const %s$type = %s;", name, e.canonical(t, desc))
 	if pms := types.NewMethodSet(types.NewPointer(t)); pms.Len() > 0 {
 		e.valClass(&td.classes, name+"$PtrVal", pms, "this.v")
 		td.descs.line("$.ptrTo(%s$type).valCls = %s$PtrVal;", name, name)
@@ -151,7 +154,7 @@ func (e *emitter) valClass(w *writer, cls string, ms *types.MethodSet, v string)
 	w.open("export class %s extends $.Val {", cls)
 	for i := 0; i < ms.Len(); i++ {
 		fn := ms.At(i).Obj().(*types.Func)
-		_, ptrRecv := fn.Type().(*types.Signature).Recv().Type().(*types.Pointer)
+		_, ptrRecv := e.recvType(fn).(*types.Pointer)
 		recv := v
 		if !ptrRecv && ms.At(i).Indirect() {
 			recv = v + ".v"
@@ -175,4 +178,14 @@ func sortedTypes(scope *types.Scope) []*types.TypeName {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Pos() < out[j].Pos() })
 	return out
+}
+
+// canonical wraps the descriptor of a generic type's instance so every
+// module instantiating it shares one: instances are emitted by each module
+// that uses them, but they are one type.
+func (e *emitter) canonical(t *types.Named, desc string) string {
+	if t.TypeArgs().Len() == 0 {
+		return desc
+	}
+	return fmt.Sprintf("$.canonical(%q, () => %s)", types.TypeString(t, nil), desc)
 }

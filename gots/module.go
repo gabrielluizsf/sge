@@ -27,12 +27,14 @@ func (e *emitter) module(files []*ast.File) string {
 			}
 		}
 	}
+	e.files = files
 	e.findBoxed(files)
+	e.boxedDone = map[*types.Info]bool{e.info: true}
 
 	var td typeDecls
 	methods := e.methodsOf(files)
 	for _, tn := range sortedTypes(scope) {
-		if !inFiles(e.prog.Fset, tn.Pos(), files) {
+		if !inFiles(e.prog.Fset, tn.Pos(), files) || e.generic(tn) {
 			continue
 		}
 		e.typeDecl(&td, tn, methods[tn])
@@ -45,7 +47,7 @@ func (e *emitter) module(files []*ast.File) string {
 		for _, d := range f.Decls {
 			switch d := d.(type) {
 			case *ast.FuncDecl:
-				if d.Recv != nil {
+				if d.Recv != nil || d.Type.TypeParams != nil {
 					continue
 				}
 				fn := e.info.Defs[d.Name].(*types.Func)
@@ -67,6 +69,8 @@ func (e *emitter) module(files []*ast.File) string {
 		}
 	}
 	e.varDecls(&vars, &inits, files)
+	var instFuncs writer
+	e.emitInstances(&td, &instFuncs)
 	for _, n := range initFuncs {
 		inits.line("%s();", n)
 	}
@@ -110,6 +114,7 @@ func (e *emitter) module(files []*ast.File) string {
 	}
 	section(&consts)
 	section(&td.funcs)
+	section(&instFuncs)
 	section(&funcs)
 	section(&vars)
 	section(&inits)

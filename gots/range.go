@@ -17,7 +17,7 @@ func (e *emitter) bindRange(w *writer, x ast.Expr, js string, from types.Type, t
 	}
 	if tok == token.DEFINE {
 		v := e.newVar(x, true)
-		e.declareVar(w, v, e.convertValue(js, from, v.Type(), false))
+		e.declareVar(w, v, e.convertValue(js, from, e.varType(v), false))
 		return
 	}
 	lv := e.place(w, x)

@@ -61,7 +61,7 @@ func (e *emitter) forInit(s ast.Stmt) (string, bool) {
 		if v == nil || e.boxed[v] {
 			return "", false
 		}
-		parts = append(parts, e.declare(v)+": "+e.tsType(v.Type())+" = "+e.value(as.Rhs[i], v.Type()))
+		parts = append(parts, e.declare(v)+": "+e.tsType(e.varType(v))+" = "+e.value(as.Rhs[i], e.varType(v)))
 	}
 	return "let " + strings.Join(parts, ", "), true
 }

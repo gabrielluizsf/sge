@@ -155,6 +155,19 @@ export function named(str: string, under: Type, valCls: any): Type {
   return t;
 }
 
+const canon = new Map<string, Type>();
+
+// canonical is the one descriptor for the generic instance key, made by
+// the first module to ask for it.
+export function canonical(key: string, make: () => Type): Type {
+  let t = canon.get(key);
+  if (t === undefined) {
+    t = make();
+    canon.set(key, t);
+  }
+  return t;
+}
+
 export function field(name: string, type: Type, embedded = false): Field {
   const c = name.charCodeAt(0);
   return { name, type, embedded, exported: c >= 65 && c <= 90 };

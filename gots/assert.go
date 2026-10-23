@@ -31,7 +31,7 @@ func (e *emitter) holds(v string, t types.Type) string {
 	case isInterface(t):
 		return "$.implementsI(" + v + ", " + methodList(t.Underlying().(*types.Interface)) + ")"
 	case isStructPtr(t):
-		return "(" + v + " instanceof " + e.structClass(derefType(t)) + ")"
+		return "$.isPtrTo(" + v + ", " + e.structClass(derefType(t)) + ")"
 	}
 	return "$.is(" + v + ", " + e.desc(t) + ")"
 }

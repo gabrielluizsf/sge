@@ -49,9 +49,16 @@ export function assertVal(x: any, t: Type): any {
   throw new TypeAssertionError(x, t.str);
 }
 
+// isPtrTo reports whether interface value x holds a *S, for the struct
+// class ctor of S. Descriptors are compared rather than classes, since an
+// instance of a generic struct has a class in every module that uses it.
+export function isPtrTo(x: any, ctor: any): boolean {
+  return x !== null && !(x instanceof Val) && x.constructor.$type === ctor.$type;
+}
+
 // assertPtr is x.(*S) for a struct S: the object, or a panic.
 export function assertPtr(x: any, ctor: any): any {
-  if (x instanceof ctor && !(x instanceof Val)) return x;
+  if (isPtrTo(x, ctor)) return x;
   throw new TypeAssertionError(x, "*" + ctor.$type.str);
 }
 

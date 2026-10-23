@@ -9,7 +9,14 @@ import (
 // whose address is taken, explicitly with & or implicitly by calling a
 // pointer method on them, unless they are structs or arrays, which are
 // objects and pointed at directly.
-func (e *emitter) findBoxed(files []*ast.File) {
+func (e *emitter) findBoxed(files []*ast.File) { e.findBoxedIn(files, e.info) }
+
+// findBoxedIn is findBoxed over another package's files, whose generic
+// code this module may instantiate.
+func (e *emitter) findBoxedIn(files []*ast.File, info *types.Info) {
+	saved := e.info
+	e.info = info
+	defer func() { e.info = saved }()
 	for _, f := range files {
 		ast.Inspect(f, func(n ast.Node) bool {
 			switch n := n.(type) {
@@ -43,7 +50,7 @@ func (e *emitter) markBoxed(x ast.Expr) {
 		return
 	}
 	v, ok := e.info.ObjectOf(id).(*types.Var)
-	if !ok || isPackageLevel(v) || isValue(v.Type()) {
+	if !ok || isPackageLevel(v) || isValue(e.varType(v)) {
 		return
 	}
 	e.boxed[v] = true

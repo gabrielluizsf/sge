@@ -18,20 +18,28 @@ type emitter struct {
 	lay  layout
 	dir  string
 
-	imports     map[string]string // import path → module alias
-	importOrder []string
-	pkgNames    map[string]bool            // names taken at module level
-	names       map[types.Object]string    // bindings handed out so far
-	boxed       map[types.Object]bool      // variables kept in a Cell
-	anon        map[string]string          // anonymous struct type → class
-	anonDecls   writer                     // classes for anonymous structs
-	typeConsts  map[string]string          // descriptor expression → const
-	typeOrder   []string                   // typeConsts in creation order
-	localTypes  map[*types.TypeName]string // types declared in functions
-	fn          *funcState
-	sc          *scope
-	tmp         int
-	errs        []error
+	imports      map[string]string // import path → module alias
+	importOrder  []string
+	pkgNames     map[string]bool            // names taken at module level
+	names        map[types.Object]string    // bindings handed out so far
+	boxed        map[types.Object]bool      // variables kept in a Cell
+	anon         map[string]string          // anonymous struct type → class
+	anonDecls    writer                     // classes for anonymous structs
+	typeConsts   map[string]string          // descriptor expression → const
+	typeOrder    []string                   // typeConsts in creation order
+	localTypes   map[*types.TypeName]string // types declared in functions
+	fn           *funcState
+	boxedDone    map[*types.Info]bool // packages findBoxed has been run on
+	files        []*ast.File          // the module's own files
+	info0        *types.Info          // their type information
+	subst        map[*types.TypeParam]types.Type
+	ctxt         *types.Context
+	insts        map[string]*instance
+	pendingInsts []*instance
+	methodSubst  func(fn *types.Func) // binds a generic type's method parameters
+	sc           *scope
+	tmp          int
+	errs         []error
 }
 
 // funcState is what the emitter tracks inside one function body.
@@ -63,6 +71,9 @@ func newEmitter(prog *Program, pkg *Package, info *types.Info, tpkg *types.Packa
 		anon:       map[string]string{},
 		typeConsts: map[string]string{},
 		localTypes: map[*types.TypeName]string{},
+		ctxt:       types.NewContext(),
+		insts:      map[string]*instance{},
+		info0:      info,
 	}
 }
 
@@ -84,11 +95,11 @@ func (e *emitter) newTmp() string {
 
 func (e *emitter) typeOf(x ast.Expr) types.Type {
 	if tv, ok := e.info.Types[x]; ok {
-		return tv.Type
+		return e.T(tv.Type)
 	}
 	if id, ok := x.(*ast.Ident); ok {
 		if obj := e.info.ObjectOf(id); obj != nil {
-			return obj.Type()
+			return e.T(obj.Type())
 		}
 	}
 	return nil
