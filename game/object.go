@@ -26,4 +26,10 @@ type Object struct {
 	game      *Game
 	started   bool
 	destroyed bool
+
+	// world is WorldCollider's last answer, for worldFrom placed at
+	// worldX, worldY: collisions ask for it once per pair.
+	world          collider.Collider
+	worldFrom      collider.Collider
+	worldX, worldY float64
 }
