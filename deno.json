@@ -1,9 +1,20 @@
 {
   "name": "@gabrielluizsf/sge",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "license": "MIT",
-  "exports": "./sge.ts",
-  "imports": {
-    "@std/assert": "jsr:@std/assert@1"
-  }
+  "exports": {
+    ".": "./deno/mod.ts",
+    "./vector": "./deno/vector/mod.ts",
+    "./transform": "./deno/transform/mod.ts",
+    "./collider": "./deno/collider/mod.ts",
+    "./clock": "./deno/clock/mod.ts",
+    "./sprite": "./deno/sprite/mod.ts",
+    "./animation": "./deno/animation/mod.ts",
+    "./game": "./deno/game/mod.ts"
+  },
+  "publish": {
+    "include": ["deno/**/*.ts", "README.md", "LICENSE"],
+    "exclude": ["!deno", "deno/**/*_test.ts"]
+  },
+  "lock": false
 }
