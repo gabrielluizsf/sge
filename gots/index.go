@@ -24,7 +24,7 @@ func (e *emitter) index(x *ast.IndexExpr) string {
 		}
 		return "$.at(" + e.expr(x.X) + ", " + i + ")"
 	case *types.Basic:
-		return e.expr(x.X) + ".charCodeAt(" + e.expr(x.Index) + ")"
+		return "$.str.byteAt(" + e.expr(x.X) + ", " + e.expr(x.Index) + ")"
 	}
 	// An array, or a pointer to one.
 	return e.expr(x.X) + "[" + e.expr(x.Index) + "]"

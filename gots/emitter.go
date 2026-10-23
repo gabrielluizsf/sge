@@ -32,19 +32,20 @@ type emitter struct {
 	boxedDone   map[*types.Info]bool // packages findBoxed has been run on
 	// predeclared are variables a goto state machine declares ahead of its
 	// loop, whose Go declarations become assignments.
-	predeclared  map[types.Object]bool
-	files        []*ast.File // the module's own files
-	info0        *types.Info // their type information
-	subst        map[*types.TypeParam]types.Type
-	ctxt         *types.Context
-	insts        map[string]*instance
-	pendingInsts []*instance
-	methodSubst  func(fn *types.Func) // binds a generic type's method parameters
-	sc           *scope
-	tmp          int
-	errs         []error
-	Skipped      []error // reasons test functions were left out
-	skippedTests map[string]bool
+	predeclared   map[types.Object]bool
+	publicStructs map[*types.Struct]bool // structs with TypeScript-facing text fields
+	files         []*ast.File            // the module's own files
+	info0         *types.Info            // their type information
+	subst         map[*types.TypeParam]types.Type
+	ctxt          *types.Context
+	insts         map[string]*instance
+	pendingInsts  []*instance
+	methodSubst   func(fn *types.Func) // binds a generic type's method parameters
+	sc            *scope
+	tmp           int
+	errs          []error
+	Skipped       []error // reasons test functions were left out
+	skippedTests  map[string]bool
 }
 
 // funcState is what the emitter tracks inside one function body.

@@ -3,6 +3,7 @@
 // a slice's backing array still means something.
 import { IndexPtr } from "./ptr.ts";
 import { Slice } from "./slice.ts";
+import { byte, byteStr } from "./string.ts";
 
 export function sliceData(s: Slice<any> | null): IndexPtr<any> | null {
   return s === null ? null : new IndexPtr(s.a, s.o);
@@ -18,16 +19,14 @@ export function string(p: any, n: number): string {
   if (n === 0) return "";
   if (!(p instanceof IndexPtr)) throw new Error("gots: unsafe.String of a pointer that is not to bytes");
   let s = "";
-  for (let i = 0; i < n; i += 8192) {
-    s += String.fromCharCode.apply(null, p.a.subarray(p.i + i, p.i + Math.min(n, i + 8192)));
-  }
+  for (let i = 0; i < n; i++) s += byteStr(p.a[p.i + i]);
   return s;
 }
 
 export function stringData(s: string): IndexPtr<number> | null {
   if (s.length === 0) return null;
   const b = new Uint8Array(s.length);
-  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
+  for (let i = 0; i < s.length; i++) b[i] = byte(s.charCodeAt(i));
   return new IndexPtr(b, 0);
 }
 

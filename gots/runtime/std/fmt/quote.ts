@@ -36,8 +36,8 @@ export function quote(s: string, ascii = false): string {
   let out = '"';
   for (let i = 0; i < s.length;) {
     const [r, w] = $.str.decodeRune(s, i);
-    if (r === 0xfffd && w === 1 && s.charCodeAt(i) !== 0xef) {
-      out += "\\x" + hex(s.charCodeAt(i), 2);
+    if (r === 0xfffd && w === 1 && $.str.byte(s.charCodeAt(i)) !== 0xef) {
+      out += "\\x" + hex($.str.byte(s.charCodeAt(i)), 2);
     } else {
       out += escape(r, 0x22, ascii);
     }

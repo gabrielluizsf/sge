@@ -58,6 +58,9 @@ func (e *emitter) ident(x *ast.Ident) string {
 				return e.instName(obj, inst.TypeArgs)
 			}
 		}
+		if e.wrapped(obj) {
+			return e.objName(obj) + "$g"
+		}
 		return e.objName(obj)
 	case *types.TypeName:
 		return e.objName(obj)

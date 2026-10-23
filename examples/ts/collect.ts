@@ -2,7 +2,7 @@
 // same game as examples/collect, scripts and all, in the other language.
 //
 //   deno run --allow-ffi --allow-env --allow-read examples/ts/collect.ts
-import { antui, canvas, collider, game, goString, sprite, vector } from "../../deno/mod.ts";
+import { antui, canvas, collider, game, sprite, vector } from "../../deno/mod.ts";
 
 const width = 480, height = 320;
 
@@ -34,7 +34,7 @@ class Player {
   }
 
   Paint(_o: game.Object, cv: canvas.Canvas): void {
-    cv.Text(new canvas.Point(8, 8), goString(`pontos ${this.score}`), canvas.RGB(240, 240, 240));
+    cv.Text(new canvas.Point(8, 8), `pontuação ${this.score}`, canvas.RGB(240, 240, 240));
   }
 }
 
@@ -65,6 +65,6 @@ for (let i = 0; i < 5; i++) {
   place(c);
 }
 
-const runErr = g.Run(goString("sge collect (TypeScript)"), width, height);
+const runErr = g.Run("sge collect — TypeScript", width, height);
 if (runErr !== null) console.error(runErr.Error());
 console.log("score:", player.score);

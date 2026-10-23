@@ -54,20 +54,25 @@ func (e *emitter) structClassDecl(w *writer, name string, st *types.Struct, expo
 		kw = "export class"
 	}
 	w.open("%s %s {", kw, name)
-	var params, assigns, clones, sets, eqs, keys []string
+	var params, assigns, clones, sets, eqs, keys, texts []string
 	for i := 0; i < st.NumFields(); i++ {
 		f := st.Field(i)
-		js := fieldJS(st, i)
+		js := e.fieldJS(st, i)
 		ts := e.tsType(f.Type())
 		w.line("%s: %s;", js, ts)
 		// A parameter named like a module-level binding (an embedded
 		// field is named after its type) would hide it from the defaults.
-		param := mangle(js)
-		if e.pkgNames[param] || param != js {
+		param := mangle(fieldJS(st, i))
+		if e.pkgNames[param] || param != fieldJS(st, i) {
 			param += "$"
 		}
 		params = append(params, fmt.Sprintf("%s: %s = %s", param, ts, e.zero(f.Type())))
-		assigns = append(assigns, fmt.Sprintf("this.%s = %s;", js, param))
+		if e.textField(st, i) {
+			assigns = append(assigns, fmt.Sprintf("this.%s = $.str.toGo(%s);", js, param))
+			texts = append(texts, fieldName(f.Name()))
+		} else {
+			assigns = append(assigns, fmt.Sprintf("this.%s = %s;", js, param))
+		}
 		clones = append(clones, e.cloneOf("this."+js, f.Type()))
 		sets = append(sets, e.setOf("this."+js, "o."+js, f.Type()))
 		if f.Name() != "_" {
@@ -81,6 +86,12 @@ func (e *emitter) structClassDecl(w *writer, name string, st *types.Struct, expo
 		w.line("%s", a)
 	}
 	w.close("}")
+	for _, t := range texts {
+		// The text a TypeScript caller reads and writes; Go code uses the
+		// bytes in t$s.
+		w.line("get %s(): string { return $.str.fromGo(this.%s$s); }", t, t)
+		w.line("set %s(v: string) { this.%s$s = $.str.toGo(v); }", t, t)
+	}
 	w.open("$clone(): %s {", name)
 	w.line("return new %s(%s);", name, strings.Join(clones, ", "))
 	w.close("}")
@@ -119,7 +130,14 @@ func (e *emitter) fieldDescs(st *types.Struct) string {
 		if f.Embedded() {
 			emb = ", true"
 		}
-		fs = append(fs, fmt.Sprintf("$.field(%q, %s%s)", fieldJS(st, i), e.descInline(f.Type()), emb))
+		prop := ""
+		if js := e.fieldJS(st, i); js != fieldJS(st, i) {
+			prop = fmt.Sprintf(", %q", js)
+			if emb == "" {
+				prop = ", false" + prop
+			}
+		}
+		fs = append(fs, fmt.Sprintf("$.field(%q, %s%s%s)", fieldJS(st, i), e.descInline(f.Type()), emb, prop))
 	}
 	return "[" + strings.Join(fs, ", ") + "]"
 }

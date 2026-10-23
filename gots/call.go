@@ -36,10 +36,15 @@ func (e *emitter) callWith(c *ast.CallExpr, args []string) string {
 				if list != "" {
 					list = ", " + list
 				}
-				return cls + ".prototype." + fieldName(fn.Name()) + ".call(" + recv + list + ")"
+				return cls + ".prototype." + e.goName(fn) + ".call(" + recv + list + ")"
 			}
 			if onClass(fn) {
-				return recv + "." + fieldName(fn.Name()) + "(" + list + ")"
+				if isInterface(e.recvType(fn)) {
+					// The object behind an interface may be TypeScript's,
+					// which knows only the TypeScript-facing names.
+					return fromIface(recv+"."+fieldName(fn.Name())+"("+list+")", fn.Type().(*types.Signature))
+				}
+				return recv + "." + e.goName(fn) + "(" + list + ")"
 			}
 			if list != "" {
 				list = ", " + list

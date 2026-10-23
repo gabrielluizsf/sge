@@ -21,9 +21,13 @@ function noFlags(): Flags {
   return { plusV: false, sharpV: false, plus: false, minus: false, sharp: false, space: false, zero: false, width: -1, prec: -1 };
 }
 
+function byteOf(s: string, i: number): number {
+  return $.str.byte(s.charCodeAt(i));
+}
+
 function runeCount(s: string): number {
   let n = 0;
-  for (let i = 0; i < s.length; i++) if ((s.charCodeAt(i) & 0xc0) !== 0x80) n++;
+  for (let i = 0; i < s.length; i++) if ((byteOf(s, i) & 0xc0) !== 0x80) n++;
   return n;
 }
 
@@ -116,7 +120,7 @@ function hexOfBytes(s: string, upper: boolean, f: Flags): string {
   for (let i = 0; i < s.length; i++) {
     if (i > 0 && f.space) out += " ";
     if (f.sharp && (i === 0 || f.space)) out += upper ? "0X" : "0x";
-    const h = s.charCodeAt(i).toString(16).padStart(2, "0");
+    const h = byteOf(s, i).toString(16).padStart(2, "0");
     out += upper ? h.toUpperCase() : h;
   }
   return out;
@@ -154,8 +158,10 @@ function methodOf(t: $.Type, v: any): (() => string) | null {
     recv = new t.valCls(t, v);
   }
   if (recv === null) return null;
-  if (typeof recv.Error === "function") return () => recv.Error();
-  if (typeof recv.String === "function") return () => recv.String();
+  // TypeScript-facing methods hand back text; toGo makes it a Go string
+  // either way.
+  if (typeof recv.Error === "function") return () => $.str.toGo(recv.Error());
+  if (typeof recv.String === "function") return () => $.str.toGo(recv.String());
   return null;
 }
 
@@ -252,8 +258,8 @@ class Printer {
     const parts: string[] = [];
     for (const fl of t.fields) {
       const name = f.plusV || f.sharpV ? fl.name + ":" : "";
-      const inner = fl.exported || !"vsq".includes(verb) ? this.value(fl.type, v[fl.name], verb, { ...f, width: -1 }, depth + 1)
-        : this.plain(fl.type, v[fl.name], verb, f, depth + 1);
+      const inner = fl.exported || !"vsq".includes(verb) ? this.value(fl.type, v[fl.prop], verb, { ...f, width: -1 }, depth + 1)
+        : this.plain(fl.type, v[fl.prop], verb, f, depth + 1);
       parts.push(name + inner);
     }
     if (f.sharpV && verb === "v") return t.str + "{" + parts.join(", ") + "}";
@@ -280,7 +286,7 @@ class Printer {
     if (t.kind === "slice" && v === null && f.sharpV && verb === "v") return t.str + "(nil)";
     const items: any[] = t.kind === "slice" ? (v === null ? [] : v.toArray()) : Array.from(v);
     if (e.kind === "uint8" && "sqxX".includes(verb)) {
-      return fmtString(globalThis.String.fromCharCode(...items), verb, f);
+      return fmtString($.str.bytesToStr($.slice(Uint8Array.from(items))), verb, f);
     }
     const parts = items.map((x) => this.value(e, x, verb, { ...f, width: f.width }, depth + 1));
     if (f.sharpV && verb === "v") return t.str + "{" + parts.join(", ") + "}";
@@ -407,7 +413,7 @@ function compareKeys(t: $.Type, a: any, b: any): number {
   }
   if (t.kind === "struct") {
     for (const f of t.fields) {
-      const c = compareKeys(f.type, a[f.name], b[f.name]);
+      const c = compareKeys(f.type, a[f.prop], b[f.prop]);
       if (c !== 0) return c;
     }
     return 0;

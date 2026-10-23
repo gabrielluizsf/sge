@@ -82,7 +82,7 @@ func (e *emitter) rangeStmt(w *writer, s *ast.RangeStmt, label string) {
 func (e *emitter) rangeString(w *writer, s *ast.RangeStmt, head string) {
 	str, i, wd, r := e.sc.fresh("$str"), e.sc.fresh("$i"), e.sc.fresh("$w"), e.sc.fresh("$r")
 	e.loop(w, head+"for (let "+str+" = "+e.expr(s.X)+", "+i+" = 0, "+wd+" = 0; "+i+" < "+str+".length; "+i+" += "+wd+")", func() {
-		w.line("let %s = %s.charCodeAt(%s);", r, str, i)
+		w.line("let %s = $.str.byte(%s.charCodeAt(%s));", r, str, i)
 		w.line("%s = 1;", wd)
 		w.line("if (%s >= 128) [%s, %s] = $.str.decodeRune(%s, %s);", r, r, wd, str, i)
 		e.bindRange(w, s.Key, i, types.Typ[types.Int], s.Tok)

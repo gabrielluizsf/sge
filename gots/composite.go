@@ -103,13 +103,13 @@ func (e *emitter) promotedSet(o string, t types.Type, name string, v ast.Expr) s
 	cur := t
 	for _, i := range index[:len(index)-1] {
 		fs := structOf(cur).Field(i)
-		path += "." + fieldJS(structOf(cur), i)
+		path += "." + e.fieldJS(structOf(cur), i)
 		if p, isPtr := fs.Type().Underlying().(*types.Pointer); isPtr {
 			steps = append(steps, "if ("+path+" === null) "+path+" = "+e.zero(p.Elem())+";")
 		}
 		cur = fs.Type()
 	}
-	path += "." + fieldJS(structOf(cur), index[len(index)-1])
+	path += "." + e.fieldJS(structOf(cur), index[len(index)-1])
 	steps = append(steps, e.setOf(path, e.value(v, f.Type()), f.Type())+";")
 	return strings.Join(steps, " ")
 }

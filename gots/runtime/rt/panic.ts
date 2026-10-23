@@ -1,3 +1,5 @@
+import { fromGo } from "./string.ts";
+
 // Panic is a Go panic travelling up the JavaScript stack as an exception.
 export class Panic extends Error {
   value: any;
@@ -9,7 +11,7 @@ export class Panic extends Error {
 
 function describe(v: any): string {
   if (v === null) return "panic: nil";
-  if (typeof v?.Error === "function") return "panic: " + v.Error();
+  if (typeof v?.Error === "function") return "panic: " + fromGo(v.Error());
   if (v !== null && typeof v === "object" && "v" in v) return "panic: " + globalThis.String(v.v);
   return "panic: " + globalThis.String(v);
 }

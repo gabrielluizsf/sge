@@ -6,7 +6,9 @@ export type Kind =
   | "float32" | "float64" | "complex64" | "complex128" | "string" | "unsafeptr"
   | "slice" | "array" | "map" | "ptr" | "func" | "iface" | "struct" | "chan" | "nil";
 
-export type Field = { name: string; type: Type; embedded: boolean; exported: boolean };
+// Field is a struct field: its Go name, and prop, the property the value
+// is kept in, which differs for text fields (see string.ts).
+export type Field = { name: string; type: Type; embedded: boolean; exported: boolean; prop: string };
 
 export class Type {
   kind: Kind;
@@ -168,7 +170,7 @@ export function canonical(key: string, make: () => Type): Type {
   return t;
 }
 
-export function field(name: string, type: Type, embedded = false): Field {
+export function field(name: string, type: Type, embedded = false, prop = name): Field {
   const c = name.charCodeAt(0);
-  return { name, type, embedded, exported: c >= 65 && c <= 90 };
+  return { name, type, embedded, exported: c >= 65 && c <= 90, prop };
 }

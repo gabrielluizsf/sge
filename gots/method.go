@@ -33,7 +33,10 @@ func (e *emitter) method(w *writer, fd *ast.FuncDecl, inClass bool) {
 			}
 			prologue = append(prologue, "let "+n+" = "+self+";")
 		}
-		e.functionIn(w, fieldName(fn.Name()), sig, fd.Type, fd.Body, prologue)
+		if e.wrapped(fn) {
+			e.wrapper(w, fieldName(fn.Name()), "this."+e.goName(fn), sig)
+		}
+		e.functionIn(w, e.goName(fn), sig, fd.Type, fd.Body, prologue)
 		return
 	}
 	// A receiver parameter, first; Cell-boxed if the body takes its address.

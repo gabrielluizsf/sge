@@ -60,11 +60,16 @@ func (e *emitter) module(files []*ast.File) string {
 				if isTest(d, fn) {
 					tests = append(tests, name)
 				}
+				impl := name
+				if e.wrapped(fn) {
+					impl = name + "$g"
+					e.wrapper(&funcs, "export function "+name, impl, fn.Type().(*types.Signature))
+				}
 				if e.testFile(d) {
-					e.testFunction(&funcs, name, fn, d)
+					e.testFunction(&funcs, impl, fn, d)
 					continue
 				}
-				e.function(&funcs, "export function "+name, fn.Type().(*types.Signature), d.Type, d.Body, nil, false, true)
+				e.function(&funcs, "export function "+impl, fn.Type().(*types.Signature), d.Type, d.Body, nil, false, true)
 				funcs.line("")
 			case *ast.GenDecl:
 				if d.Tok == token.CONST {

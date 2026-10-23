@@ -43,6 +43,9 @@ type Program struct {
 	Roots []*Package
 	// Module is the module the roots belong to.
 	Module string
+	// Public are the requested packages outside the standard library:
+	// those TypeScript code calls, which get a TypeScript-facing surface.
+	Public map[string]bool
 	order  []string
 }
 
@@ -93,9 +96,13 @@ func Load(dir string, withTests bool, patterns ...string) (*Program, error) {
 			return nil, err
 		}
 	}
+	prog.Public = map[string]bool{}
 	for _, r := range roots {
 		if p := prog.Packages[r.ImportPath]; p != nil {
 			prog.Roots = append(prog.Roots, p)
+			if !p.Std {
+				prog.Public[p.Path] = true
+			}
 		}
 		if r.Module != nil && prog.Module == "" {
 			prog.Module = r.Module.Path

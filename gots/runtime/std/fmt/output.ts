@@ -2,7 +2,10 @@
 export function write(s: string, toStderr = false): void {
   const g: any = globalThis;
   const bytes = new Uint8Array(s.length);
-  for (let i = 0; i < s.length; i++) bytes[i] = s.charCodeAt(i);
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    bytes[i] = c >= 0xf700 ? c - 0xf700 : c;
+  }
   if (g.Deno !== undefined) {
     const out = toStderr ? g.Deno.stderr : g.Deno.stdout;
     for (let n = 0; n < bytes.length;) n += out.writeSync(bytes.subarray(n));

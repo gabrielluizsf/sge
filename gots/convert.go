@@ -72,7 +72,7 @@ func (e *emitter) convert(x ast.Expr, to types.Type) string {
 func (e *emitter) structConvert(js string, st *types.Struct, to types.Type) string {
 	var fs []string
 	for i := 0; i < st.NumFields(); i++ {
-		fs = append(fs, e.cloneOf("o."+fieldJS(st, i), st.Field(i).Type()))
+		fs = append(fs, e.cloneOf("o."+e.fieldJS(st, i), st.Field(i).Type()))
 	}
 	return "((o: any) => new " + e.structClass(to) + "(" + strings.Join(fs, ", ") + "))(" + js + ")"
 }

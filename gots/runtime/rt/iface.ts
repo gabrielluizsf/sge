@@ -84,7 +84,7 @@ export function ifaceEq(a: any, b: any): boolean {
 export function equal(t: Type, a: any, b: any): boolean {
   switch (t.kind) {
     case "struct":
-      for (const f of t.fields) if (!equal(f.type, a[f.name], b[f.name])) return false;
+      for (const f of t.fields) if (!equal(f.type, a[f.prop], b[f.prop])) return false;
       return true;
     case "array":
       for (let i = 0; i < t.len; i++) if (!equal(t.elem!, a[i], b[i])) return false;

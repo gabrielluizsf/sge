@@ -74,7 +74,7 @@ class joinError {
     this.errs = errs;
   }
   Error(): string {
-    return this.errs.toArray().map((e) => e.Error()).join("\n");
+    return this.errs.toArray().map((e) => $.str.toGo(e.Error())).join("\n");
   }
   Unwrap(): $.Slice<any> {
     return this.errs;

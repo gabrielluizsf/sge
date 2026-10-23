@@ -39,7 +39,7 @@ function deep(t: $.Type, a: any, b: any): boolean {
       for (let i = 0; i < t.len; i++) if (!deep(t.elem!, a[i], b[i])) return false;
       return true;
     case "struct":
-      for (const f of t.fields) if (!deep(f.type, a[f.name], b[f.name])) return false;
+      for (const f of t.fields) if (!deep(f.type, a[f.prop], b[f.prop])) return false;
       return true;
     case "map": {
       if (a === null || b === null) return a === b;

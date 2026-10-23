@@ -131,6 +131,9 @@ func (e *emitter) promoted(w *writer, ms *types.MethodSet, self string) {
 		m := fieldName(fn.Name())
 		if onClass(fn) {
 			w.line("%s(...a: any[]): any { return %s.%s(...a); }", m, path, m)
+			if g := e.goName(fn); g != m {
+				w.line("%s(...a: any[]): any { return %s.%s(...a); }", g, path, g)
+			}
 			continue
 		}
 		recv := path
@@ -158,6 +161,10 @@ func (e *emitter) ifaceTypeDecl(td *typeDecls, name string, t *types.Named, u *t
 			m := u.Method(i)
 			w.line("%s%s;", fieldName(m.Name()), e.tsMethodType(m.Type().(*types.Signature)))
 		}
+		// A Go interface asks for these methods and no fewer, never for no
+		// more: an object with others (as an optional interface, say Painter
+		// beside Script, looks for) still is one.
+		w.line("[more: string]: any;")
 		w.close("}")
 	}
 	td.descs.line("export const %s$type: $.Type = $.ifaceType(%q, %s);", name, typeString(t), methodList(u))

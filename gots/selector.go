@@ -30,7 +30,7 @@ func (e *emitter) selector(x *ast.SelectorExpr) string {
 func (e *emitter) fieldPath(base string, t types.Type, path []int) (string, types.Type) {
 	for _, i := range path {
 		st := structOf(t)
-		base += "." + fieldJS(st, i)
+		base += "." + e.fieldJS(st, i)
 		t = st.Field(i).Type()
 	}
 	return base, t
@@ -64,13 +64,16 @@ func (e *emitter) methodValue(x *ast.SelectorExpr, s *types.Selection) string {
 	fn := s.Obj().(*types.Func)
 	recv := e.receiver(x, s)
 	if cls, ok := e.nilableReceiver(s); ok {
-		return "((r) => (...a: any[]) => " + cls + ".prototype." + fieldName(fn.Name()) + ".call(r, ...a))(" + recv + ")"
+		return "((r) => (...a: any[]) => " + cls + ".prototype." + e.goName(fn) + ".call(r, ...a))(" + recv + ")"
 	}
 	if onClass(fn) {
 		if !isPointer(e.recvType(fn)) && !isInterface(e.recvType(fn)) {
 			recv = e.cloneOf(recv, derefType(e.typeOf(x.X)))
 		}
-		return "((r) => (...a: any[]) => r." + fieldName(fn.Name()) + "(...a))(" + recv + ")"
+		if isInterface(e.recvType(fn)) {
+			return "((r) => (...a: any[]) => " + fromIface("r."+fieldName(fn.Name())+"(...a)", fn.Type().(*types.Signature)) + ")(" + recv + ")"
+		}
+		return "((r) => (...a: any[]) => r." + e.goName(fn) + "(...a))(" + recv + ")"
 	}
 	return "((r) => (...a: any[]) => " + e.methodFunc(fn) + "(r, ...a))(" + recv + ")"
 }
@@ -84,7 +87,7 @@ func (e *emitter) methodExpr(s *types.Selection) string {
 			p, _ := e.fieldPath("", e.T(s.Recv()), s.Index()[:len(s.Index())-1])
 			path = p
 		}
-		return "((r: any, ...a: any[]) => r" + path + "." + fieldName(fn.Name()) + "(...a))"
+		return "((r: any, ...a: any[]) => r" + path + "." + e.goName(fn) + "(...a))"
 	}
 	return e.methodFunc(fn)
 }

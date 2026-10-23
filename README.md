@@ -44,7 +44,7 @@ A script is any value with `Update(o *Object, dt float64)`; it may also have
 ## TypeScript (Deno)
 
 ```ts
-import { antui, canvas, game, sprite, vector, goString } from "jsr:@gabrielluizsf/sge";
+import { antui, canvas, game, sprite, vector } from "jsr:@gabrielluizsf/sge";
 
 const g = game.New();
 const [look] = sprite.Rect(24, 24, canvas.RGB(80, 170, 255));
@@ -55,7 +55,7 @@ hero.AddScript({
     if (o.Game()?.Window()?.KeyDown(antui.KeyRight)) o.Transform.Translate(new vector.Vector3(200 * dt));
   },
 });
-g.Run(goString("my game"), 480, 320);
+g.Run("my game", 480, 320);
 ```
 
 Run it with `deno run --allow-ffi --allow-env --allow-read`. Windows open
@@ -64,9 +64,10 @@ nor `--allow-ffi`. See [`examples/ts/collect.ts`](examples/ts/collect.ts) for a
 whole game.
 
 The TypeScript API is the Go API, transpiled: the same names, structs as
-classes, multiple results as tuples, `nil` as `null`. Go strings are bytes, so
-text other than ASCII goes in through `goString` and comes out through
-`jsString`; `goSlice` makes a Go slice of an array.
+classes, multiple results as tuples, `nil` as `null`. Text crosses as plain
+JavaScript strings — function arguments and results, string fields, and the
+strings a TypeScript script hands back to Go — and `goSlice` makes a Go slice
+of an array.
 
 ## How it works
 

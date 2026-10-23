@@ -24,7 +24,7 @@ export function Errno$Error(e: Errno): string {
 }
 
 export function Errno$Is(e: Errno, target: any): boolean {
-  const msg = typeof target?.Error === "function" ? target.Error() : "";
+  const msg = typeof target?.Error === "function" ? $.str.fromGo(target.Error()) : "";
   switch (e) {
     case 1:
     case 13:

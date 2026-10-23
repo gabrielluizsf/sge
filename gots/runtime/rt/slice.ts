@@ -1,3 +1,5 @@
+import { byte } from "./string.ts";
+
 // A Go slice: a window [o, o+n) over a backing array that can grow to c.
 // The backing array is a typed array for numeric element types, so stores
 // wrap the way Go's do, and a plain array for everything else.
@@ -102,7 +104,7 @@ export function appendSlice<T>(s: Slice<T> | null, backing: any, t: Slice<T> | n
 export function appendString(s: Slice<number> | null, str: string): Slice<number> | null {
   if (str.length === 0) return s;
   const b = new Uint8Array(str.length);
-  for (let i = 0; i < str.length; i++) b[i] = str.charCodeAt(i);
+  for (let i = 0; i < str.length; i++) b[i] = byte(str.charCodeAt(i));
   return appendArray(s, Uint8Array, b, 0, b.length);
 }
 
@@ -148,7 +150,7 @@ export function copy(dst: Slice<any> | null, src: Slice<any> | null): number {
 export function copyString(dst: Slice<number> | null, str: string): number {
   if (dst === null) return 0;
   const k = Math.min(dst.n, str.length);
-  for (let i = 0; i < k; i++) dst.a[dst.o + i] = str.charCodeAt(i);
+  for (let i = 0; i < k; i++) dst.a[dst.o + i] = byte(str.charCodeAt(i));
   return k;
 }
 
