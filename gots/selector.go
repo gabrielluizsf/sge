@@ -36,10 +36,14 @@ func (e *emitter) fieldPath(base string, t types.Type, path []int) (string, type
 	return base, t
 }
 
-// methodFunc is the standalone function implementing a method of a named
-// type that is not a struct, which has no class to hold it.
+// methodFunc is the standalone function implementing a method: of a named
+// type that is not a struct, which has no class to hold it, or a pointer
+// method of a struct, which Go code calls without its class.
 func (e *emitter) methodFunc(fn *types.Func) string {
 	recv := types.Unalias(derefType(e.recvType(fn))).(*types.Named)
+	if isStruct(recv) {
+		return e.namedRef(recv) + "$$" + fn.Name()
+	}
 	return e.namedRef(recv) + "$" + fn.Name()
 }
 
@@ -63,10 +67,7 @@ func onClass(fn *types.Func) bool {
 func (e *emitter) methodValue(x *ast.SelectorExpr, s *types.Selection) string {
 	fn := s.Obj().(*types.Func)
 	recv := e.receiver(x, s)
-	if cls, ok := e.nilableReceiver(s); ok {
-		return "((r) => (...a: any[]) => " + cls + ".prototype." + e.goName(fn) + ".call(r, ...a))(" + recv + ")"
-	}
-	if onClass(fn) {
+	if onClass(fn) && !e.freeMethod(s) {
 		if !isPointer(e.recvType(fn)) && !isInterface(e.recvType(fn)) {
 			recv = e.cloneOf(recv, derefType(e.typeOf(x.X)))
 		}

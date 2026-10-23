@@ -99,7 +99,7 @@ func (e *emitter) structTypeDecl(td *typeDecls, name string, t *types.Named, st 
 	w := &td.classes
 	e.structClassDecl(w, name, st, true, func() {
 		for _, fd := range methods {
-			e.method(w, fd, true)
+			e.method(w, &td.funcs, fd, true)
 		}
 		e.promoted(w, types.NewMethodSet(types.NewPointer(t)), "this")
 	})
@@ -176,7 +176,7 @@ func (e *emitter) ifaceTypeDecl(td *typeDecls, name string, t *types.Named, u *t
 func (e *emitter) namedTypeDecl(td *typeDecls, name string, t *types.Named, methods []*ast.FuncDecl) {
 	td.classes.line("export type %s = %s;", name, e.tsType(t.Underlying()))
 	for _, fd := range methods {
-		e.method(&td.funcs, fd, false)
+		e.method(&td.funcs, &td.funcs, fd, false)
 	}
 	valCls := "null"
 	if vms := types.NewMethodSet(t); vms.Len() > 0 {

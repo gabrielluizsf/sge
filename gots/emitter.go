@@ -33,9 +33,10 @@ type emitter struct {
 	// predeclared are variables a goto state machine declares ahead of its
 	// loop, whose Go declarations become assignments.
 	predeclared   map[types.Object]bool
-	publicStructs map[*types.Struct]bool // structs with TypeScript-facing text fields
-	files         []*ast.File            // the module's own files
-	info0         *types.Info            // their type information
+	publicStructs map[*types.Struct]bool   // structs with TypeScript-facing text fields
+	files         []*ast.File              // the module's own files
+	info0         *types.Info              // their type information
+	localDecls    map[*types.Func]funcDecl // built by funcDeclOf on first use
 	subst         map[*types.TypeParam]types.Type
 	ctxt          *types.Context
 	insts         map[string]*instance
@@ -43,6 +44,7 @@ type emitter struct {
 	methodSubst   func(fn *types.Func) // binds a generic type's method parameters
 	sc            *scope
 	tmp           int
+	deferring     bool // writing a deferred call's arguments, which must be copies
 	errs          []error
 	Skipped       []error // reasons test functions were left out
 	skippedTests  map[string]bool
@@ -51,8 +53,10 @@ type emitter struct {
 // funcState is what the emitter tracks inside one function body.
 type funcState struct {
 	sig     *types.Signature
-	results []string // binding of each named result, if they are named
-	frame   string   // the defer Frame, if the function defers
+	ft      *ast.FuncType  // the function's own parameters and results
+	body    *ast.BlockStmt // and body, which stableArg looks through
+	results []string       // binding of each named result, if they are named
+	frame   string         // the defer Frame, if the function defers
 	breaks  []*breakable
 	gotos   map[string]gotoCase // labels a goto state machine jumps to
 	parent  *funcState

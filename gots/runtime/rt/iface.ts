@@ -26,8 +26,9 @@ export function typeOf(x: any): Type {
 }
 
 // is reports whether interface value x holds a value of the non-pointer type t.
+// Only a Val has a $t, which spares the instanceof walking its classes.
 export function is(x: any, t: Type): boolean {
-  return x instanceof Val && x.$t === t;
+  return x != null && x.$t === t;
 }
 
 // implements reports whether x has every method an interface asks for.

@@ -12,6 +12,9 @@ type lvalue struct {
 	set   func(v string) string
 	t     types.Type
 	blank bool
+	// stores is set when set keeps the value it is given rather than
+	// copying it into storage already there, as a map entry does.
+	stores bool
 }
 
 // hoist is x as an expression that can be written twice: x itself when
@@ -79,9 +82,10 @@ func (e *emitter) place(w *writer, x ast.Expr) lvalue {
 				k = kt
 			}
 			return lvalue{
-				get: "(" + m + "?.get(" + k + ") ?? " + e.zero(u.Elem()) + ")",
-				t:   t,
-				set: func(v string) string { return "$.mapSet(" + m + ", " + k + ", " + v + ")" },
+				get:    "(" + m + "?.get(" + k + ") ?? " + e.zero(u.Elem()) + ")",
+				t:      t,
+				set:    func(v string) string { return "$.mapSet(" + m + ", " + k + ", " + v + ")" },
+				stores: true,
 			}
 		case *types.Slice:
 			s := e.hoist(w, x.X)

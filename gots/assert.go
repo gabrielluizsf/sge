@@ -33,7 +33,8 @@ func (e *emitter) holds(v string, t types.Type) string {
 	case isStructPtr(t):
 		return "$.isPtrTo(" + v + ", " + e.structClass(derefType(t)) + ")"
 	}
-	return "$.is(" + v + ", " + e.desc(t) + ")"
+	// Inline, without instanceof: only a Val has a $t.
+	return "(" + v + "?.$t === " + e.desc(t) + ")"
 }
 
 // unboxed is the T held by the interface value in the binding v, once
@@ -43,13 +44,6 @@ func (e *emitter) unboxed(v string, t types.Type) string {
 		return v
 	}
 	return e.cloneOf(v+".v", t)
-}
-
-// assertOk is v, ok := x.(T) as an expression for the pair.
-func (e *emitter) assertOk(x *ast.TypeAssertExpr) string {
-	t := e.typeOf(x.Type)
-	v := e.newTmp()
-	return "((" + v + ": any) => " + e.holds(v, t) + " ? [" + e.unboxed(v, t) + ", true] : [" + e.zero(t) + ", false])(" + e.expr(x.X) + ")"
 }
 
 // mapOk is v, ok := m[k] as an expression for the pair.

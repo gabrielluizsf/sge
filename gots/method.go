@@ -5,14 +5,20 @@ import (
 	"go/types"
 )
 
-// method writes a method: inside its class when onClass, otherwise as a
-// function named Type$Method taking the receiver first.
-func (e *emitter) method(w *writer, fd *ast.FuncDecl, inClass bool) {
+// method writes a method: inside its class when inClass, otherwise as a
+// function taking the receiver first, named as methodFunc says.
+// A pointer method of a struct is both: the function, which Go code
+// calls, written to funcs, and a class method forwarding to it.
+func (e *emitter) method(w, funcs *writer, fd *ast.FuncDecl, inClass bool) {
 	fn := e.info.Defs[fd.Name].(*types.Func)
 	if e.methodSubst != nil {
 		e.methodSubst(fn)
 	}
 	sig := e.T(fn.Type()).(*types.Signature)
+	if _, ptr := sig.Recv().Type().(*types.Pointer); ptr && inClass {
+		e.forward(w, fn, sig)
+		w, inClass = funcs, false
+	}
 	recvField := fd.Recv.List[0]
 	var recvObj types.Object
 	if len(recvField.Names) > 0 {
@@ -44,8 +50,7 @@ func (e *emitter) method(w *writer, fd *ast.FuncDecl, inClass bool) {
 	params := types.NewTuple(append([]*types.Var{recvParam}, tupleVars(sig.Params())...)...)
 	withRecv := types.NewSignatureType(nil, nil, nil, params, sig.Results(), sig.Variadic())
 	ft := &ast.FuncType{Params: &ast.FieldList{List: append([]*ast.Field{recvField}, fd.Type.Params.List...)}, Results: fd.Type.Results}
-	name := e.namedRef(types.Unalias(derefType(sig.Recv().Type())).(*types.Named)) + "$" + fn.Name()
-	e.functionIn(w, "export function "+name, withRecv, ft, fd.Body, nil)
+	e.functionIn(w, "export function "+e.methodFunc(fn), withRecv, ft, fd.Body, nil)
 }
 
 func tupleVars(t *types.Tuple) []*types.Var {

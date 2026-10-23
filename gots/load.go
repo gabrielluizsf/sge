@@ -47,6 +47,7 @@ type Program struct {
 	// those TypeScript code calls, which get a TypeScript-facing surface.
 	Public map[string]bool
 	order  []string
+	decls  map[*types.Func]funcDecl // built by declOf on first use
 }
 
 // buildEnv is the environment packages are listed and checked under: js/wasm

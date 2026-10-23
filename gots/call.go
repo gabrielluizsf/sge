@@ -29,16 +29,7 @@ func (e *emitter) callWith(c *ast.CallExpr, args []string) string {
 		if s := e.info.Selections[sel]; s != nil && s.Kind() == types.MethodVal {
 			fn := s.Obj().(*types.Func)
 			recv := e.receiver(sel, s)
-			if cls, ok := e.nilableReceiver(s); ok {
-				// A pointer method may be called on nil, which Go allows and
-				// the method checks for: call it from the class, with this
-				// null.
-				if list != "" {
-					list = ", " + list
-				}
-				return cls + ".prototype." + e.goName(fn) + ".call(" + recv + list + ")"
-			}
-			if onClass(fn) {
+			if onClass(fn) && !e.freeMethod(s) {
 				if isInterface(e.recvType(fn)) {
 					// The object behind an interface may be TypeScript's,
 					// which knows only the TypeScript-facing names.
@@ -73,7 +64,12 @@ func (e *emitter) args(c *ast.CallExpr, sig *types.Signature) []string {
 	if sig.Variadic() {
 		n--
 	}
+	callee := e.staticCallee(c)
 	for i := 0; i < n && i < len(c.Args); i++ {
+		if e.sharedArg(callee, i, c.Args[i], params.At(i).Type()) {
+			out = append(out, e.expr(c.Args[i]))
+			continue
+		}
 		out = append(out, e.value(c.Args[i], params.At(i).Type()))
 	}
 	if !sig.Variadic() {
@@ -135,23 +131,12 @@ func (e *emitter) arrayLit(elem types.Type, vals []string) string {
 	return "[" + strings.Join(vals, ", ") + "]"
 }
 
-// nilableReceiver reports whether the method selection s calls a pointer
-// method of a struct through a pointer, which may be nil, and gives the
-// struct's class.
-func (e *emitter) nilableReceiver(s *types.Selection) (string, bool) {
-	fn := s.Obj().(*types.Func)
-	recvT := e.recvType(fn)
-	p, ok := recvT.(*types.Pointer)
-	if !ok || !isStruct(p.Elem()) {
-		return "", false
-	}
-	// The receiver's type as written, after embedded fields are followed.
-	t := e.T(s.Recv())
-	for _, i := range s.Index()[:len(s.Index())-1] {
-		t = structOf(t).Field(i).Type()
-	}
-	if !isPointer(t) || e.handWritten(p.Elem()) {
-		return "", false
-	}
-	return e.structClass(p.Elem()), true
+// freeMethod reports whether calls of the method selection s go to the
+// method's standalone function: a pointer method of a struct gots writes.
+// Called so, rather than through its class, it costs V8 what a plain call
+// does, a third of Class.prototype.M.call, and it may be called on nil, as
+// Go allows.
+func (e *emitter) freeMethod(s *types.Selection) bool {
+	p, ok := e.recvType(s.Obj().(*types.Func)).(*types.Pointer)
+	return ok && isStruct(p.Elem()) && !e.handWritten(p.Elem())
 }

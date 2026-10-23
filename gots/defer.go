@@ -21,7 +21,10 @@ func (e *emitter) deferStmt(w *writer, s *ast.DeferStmt) {
 		return
 	}
 	sig := e.typeOf(c.Fun).Underlying().(*types.Signature)
-	for _, a := range e.args(c, sig) {
+	e.deferring = true
+	deferred := e.args(c, sig)
+	e.deferring = false
+	for _, a := range deferred {
 		t := e.newTmp()
 		w.line("const %s = %s;", t, a)
 		args = append(args, t)

@@ -38,6 +38,12 @@ func (e *emitter) typeSwitch(w *writer, s *ast.TypeSwitchStmt, label string) {
 			js := v
 			if len(cc.List) == 1 {
 				js = e.unboxed(v, e.typeOf(cc.List[0]))
+				// An interface's value never changes, so a case that only
+				// reads its variable can have the value itself.
+				body := &ast.BlockStmt{List: cc.Body}
+				if t := e.typeOf(cc.List[0]); isValue(t) && !mutates(e.info, body, obj) && !pinned(e.info, body, obj) {
+					js = v + ".v"
+				}
 			}
 			e.declareVar(w, obj, js)
 		}

@@ -91,7 +91,7 @@ func (e *emitter) assignOne(w *writer, l, r ast.Expr, define bool) {
 		w.line("%s;", e.expr(r))
 		return
 	}
-	if isValue(lv.t) {
+	if isValue(lv.t) && !lv.stores {
 		// $set copies, so the value need not be copied first.
 		w.line("%s;", lv.set(e.expr(r)))
 		return
@@ -105,8 +105,8 @@ func (e *emitter) assignTuple(w *writer, lhs []ast.Expr, r ast.Expr, define bool
 	var types_ []types.Type
 	switch r := ast.Unparen(r).(type) {
 	case *ast.TypeAssertExpr:
-		tuple = e.assertOk(r)
-		types_ = []types.Type{e.typeOf(r.Type), types.Typ[types.Bool]}
+		e.assertOkStmt(w, lhs, r, define)
+		return
 	case *ast.IndexExpr:
 		tuple = e.mapOk(r)
 		types_ = []types.Type{e.typeOf(r.X).Underlying().(*types.Map).Elem(), types.Typ[types.Bool]}

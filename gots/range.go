@@ -59,7 +59,7 @@ func (e *emitter) rangeStmt(w *writer, s *ast.RangeStmt, label string) {
 			elem = u.(*types.Pointer).Elem().Underlying().(*types.Array).Elem()
 		}
 		a := e.sc.fresh("$a")
-		e.loop(w, head+"for (let "+a+" = "+e.expr(s.X)+", "+i+" = 0; "+i+" < "+a+".length; "+i+"++)", func() {
+		e.loop(w, head+"for (let "+a+" = "+e.rangedArray(s.X)+", "+i+" = 0; "+i+" < "+a+".length; "+i+"++)", func() {
 			e.bindRange(w, s.Key, i, types.Typ[types.Int], s.Tok)
 			e.bindRange(w, s.Value, e.cloneOf(a+"["+i+"]", elem), elem, s.Tok)
 			e.stmts(w, s.Body.List)

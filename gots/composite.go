@@ -118,6 +118,12 @@ func (e *emitter) promotedSet(o string, t types.Type, name string, v ast.Expr) s
 // elements, n < 0 meaning as many as the literal reaches. Elements may name
 // their index.
 func (e *emitter) indexedLit(lit *ast.CompositeLit, elem types.Type, n int) string {
+	return e.indexedLitIn(lit, elem, n, backing(elem))
+}
+
+// indexedLitIn is indexedLit held in a b typed array, or a plain array if
+// b is "".
+func (e *emitter) indexedLitIn(lit *ast.CompositeLit, elem types.Type, n int, b string) string {
 	type entry struct {
 		i int
 		v string
@@ -150,10 +156,13 @@ func (e *emitter) indexedLit(lit *ast.CompositeLit, elem types.Type, n int) stri
 		for i, en := range entries {
 			vals[i] = en.v
 		}
-		return e.arrayLit(elem, vals)
+		if b != "" {
+			return b + ".of(" + strings.Join(vals, ", ") + ")"
+		}
+		return "[" + strings.Join(vals, ", ") + "]"
 	}
 	var zero string
-	if b := backing(elem); b != "" {
+	if b != "" {
 		zero = "new " + b + "(" + itoa(n) + ")"
 	} else {
 		zero = "$.fillArray(" + itoa(n) + ", () => " + e.zero(elem) + ")"

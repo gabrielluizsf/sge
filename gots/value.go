@@ -32,6 +32,10 @@ func (e *emitter) box(js string, t types.Type) string {
 	if p, ok := t.Underlying().(*types.Pointer); ok && isStruct(p.Elem()) {
 		return js
 	}
+	if cls := e.valClassOf(t); cls != "" {
+		// What $.val would pick, named here: a construction V8 can inline.
+		return "new " + cls + "(" + e.desc(t) + ", " + js + ")"
+	}
 	return "$.val(" + e.desc(t) + ", " + js + ")"
 }
 
