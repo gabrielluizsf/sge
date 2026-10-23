@@ -13,3 +13,4 @@ export * as str from "./string.ts";
 export * as unsafe from "./unsafe.ts";
 export * as cplx from "./cplx.ts";
 import "./window.ts";
+import "./fetch.ts";

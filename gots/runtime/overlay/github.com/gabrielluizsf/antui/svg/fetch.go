@@ -61,31 +61,23 @@ func finishPicture(target string, e *pictureBytes, data []byte, fetchErr error) 
 	}
 }
 
+// pictureTimeout is antui's pictureHTTP timeout, in milliseconds.
+const pictureTimeout = 10000
+
+// fetchPictureAsync reads target through the runtime's gotsFetchBytes,
+// which holds getPicture's limits: a 200 answer only, at most
+// maxPictureBytes read, and the timeout.
 func fetchPictureAsync(target string, e *pictureBytes) {
-	var onBody, onAnswer, onError js.Func
+	var onBody, onError js.Func
 	onError = js.FuncOf(func(this js.Value, args []js.Value) any {
 		finishPicture(target, e, nil, fmt.Errorf("%s", args[0].Get("message").String()))
 		return nil
 	})
 	onBody = js.FuncOf(func(this js.Value, args []js.Value) any {
-		buf := js.Global().Get("Uint8Array").New(args[0])
-		if buf.Length() > maxPictureBytes {
-			finishPicture(target, e, nil, fmt.Errorf("it is bigger than %d bytes", maxPictureBytes))
-			return nil
-		}
-		data := make([]byte, buf.Length())
-		js.CopyBytesToGo(data, buf)
+		data := make([]byte, args[0].Length())
+		js.CopyBytesToGo(data, args[0])
 		finishPicture(target, e, data, nil)
 		return nil
 	})
-	onAnswer = js.FuncOf(func(this js.Value, args []js.Value) any {
-		resp := args[0]
-		if !resp.Get("ok").Bool() {
-			finishPicture(target, e, nil, fmt.Errorf("it answered %d %s", resp.Get("status").Int(), resp.Get("statusText").String()))
-			return nil
-		}
-		resp.Call("arrayBuffer").Call("then", onBody, onError)
-		return nil
-	})
-	js.Global().Call("fetch", target).Call("then", onAnswer, onError)
+	js.Global().Call("gotsFetchBytes", target, maxPictureBytes, pictureTimeout).Call("then", onBody, onError)
 }

@@ -63,6 +63,15 @@ through SDL2, which has to be installed; drawing off screen needs neither SDL2
 nor `--allow-ffi`. See [`examples/ts/collect.ts`](examples/ts/collect.ts) for a
 whole game.
 
+Grant no more than the game needs. `--allow-ffi` lets native code run outside
+Deno's sandbox, so give it only to games you trust, and scope the rest:
+`--allow-read=./assets` rather than `--allow-read`, and `--allow-net` only
+with the hosts an SVG may load pictures from (`--allow-net=cdn.example.com`),
+since antui's SVG renderer follows the `href` of the pictures it draws (an
+SVG that came from the network may not name local files, but one read from
+disk may name both). Never use `-A` for SVGs or other assets you did not
+write.
+
 The TypeScript API is the Go API, transpiled: the same names, structs as
 classes, multiple results as tuples, `nil` as `null`. Text crosses as plain
 JavaScript strings — function arguments and results, string fields, and the
