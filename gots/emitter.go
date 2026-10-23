@@ -43,6 +43,8 @@ type emitter struct {
 	sc           *scope
 	tmp          int
 	errs         []error
+	Skipped      []error // reasons test functions were left out
+	skippedTests map[string]bool
 }
 
 // funcState is what the emitter tracks inside one function body.

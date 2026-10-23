@@ -99,3 +99,15 @@ export function keyMapOf<K, V>(entries: [K, V][]): KeyMap<K, V> {
   for (const [k, v] of entries) m.set(k, v);
   return m;
 }
+
+// entries is what a range over m walks: a snapshot of its keys, read
+// back as the loop reaches them, so an entry deleted before it is reached
+// is not produced and one written during the loop is not produced twice.
+export function* entries<K, V>(m: GoMap<K, V> | null): IterableIterator<[K, V]> {
+  if (m === null || m.size === 0) return;
+  const keys: K[] = [];
+  for (const [k] of m as Iterable<[K, V]>) keys.push(k);
+  for (const k of keys) {
+    if (m.has(k)) yield [k, m.get(k) as V];
+  }
+}

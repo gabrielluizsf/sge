@@ -139,10 +139,10 @@ function report(t: T): string {
 const queued: Array<[string, (t: T) => void]> = [];
 
 // register is how a transpiled test file announces each of its tests.
-export function register(name: string, f: (t: T) => void): void {
+export function register(name: string, f: (t: T) => void, skipped = false): void {
   const g: any = globalThis;
   if (g.Deno?.test !== undefined) {
-    g.Deno.test(name, () => {
+    g.Deno.test({ name, ignore: skipped }, () => {
       const t = new T(name);
       run(t, f);
       if (t.failed) throw new Error("\n" + report(t));

@@ -12,8 +12,44 @@ import (
 // the module can put classes before the descriptors that refer to them.
 type typeDecls struct {
 	classes writer // classes, interfaces and type aliases
-	descs   writer // descriptors and their registration
+	descs   writer // descriptors of structs and interfaces
 	funcs   writer // methods of types that are not structs
+	// named are the descriptors of other named types, which are built
+	// from their underlying types' at once and so go in dependency order.
+	named []namedDesc
+}
+
+type namedDesc struct {
+	name  string   // the type's binding
+	lines []string // its descriptor and registrations
+	deps  []string // bindings of the package's named types it is made of
+}
+
+// writeNamed writes the named type descriptors, each after those it uses.
+func (td *typeDecls) writeNamed(w *writer) {
+	byName := map[string]*namedDesc{}
+	for i := range td.named {
+		byName[td.named[i].name] = &td.named[i]
+	}
+	done := map[string]bool{}
+	var visit func(d *namedDesc)
+	visit = func(d *namedDesc) {
+		if done[d.name] {
+			return
+		}
+		done[d.name] = true
+		for _, dep := range d.deps {
+			if o := byName[dep]; o != nil {
+				visit(o)
+			}
+		}
+		for _, l := range d.lines {
+			w.line("%s", l)
+		}
+	}
+	for i := range td.named {
+		visit(&td.named[i])
+	}
 }
 
 // methodsOf groups a package's method declarations by receiver type.
@@ -141,11 +177,13 @@ func (e *emitter) namedTypeDecl(td *typeDecls, name string, t *types.Named, meth
 		e.valClass(&td.classes, valCls, vms, "this.v")
 	}
 	desc := fmt.Sprintf("$.named(%q, %s, %s)", typeString(t), e.descInline(t.Underlying()), valCls)
-	td.descs.line("export const %s$type = %s;", name, e.canonical(t, desc))
+	nd := namedDesc{name: name, deps: e.namedDeps(t.Underlying())}
+	nd.lines = append(nd.lines, fmt.Sprintf("export const %s$type = %s;", name, e.canonical(t, desc)))
 	if pms := types.NewMethodSet(types.NewPointer(t)); pms.Len() > 0 {
 		e.valClass(&td.classes, name+"$PtrVal", pms, "this.v")
-		td.descs.line("$.ptrTo(%s$type).valCls = %s$PtrVal;", name, name)
+		nd.lines = append(nd.lines, fmt.Sprintf("$.ptrTo(%s$type).valCls = %s$PtrVal;", name, name))
 	}
+	td.named = append(td.named, nd)
 }
 
 // valClass writes the Val subclass carrying the method set ms for values
@@ -188,4 +226,33 @@ func (e *emitter) canonical(t *types.Named, desc string) string {
 		return desc
 	}
 	return fmt.Sprintf("$.canonical(%q, () => %s)", types.TypeString(t, nil), desc)
+}
+
+// namedDeps are the bindings of this module's named non-struct types that
+// t is built from directly, not through a struct (whose fields are read
+// lazily).
+func (e *emitter) namedDeps(t types.Type) []string {
+	var out []string
+	var walk func(t types.Type)
+	walk = func(t types.Type) {
+		switch t := types.Unalias(t).(type) {
+		case *types.Named:
+			if t.Obj().Pkg() == e.tpkg && !isStruct(t) && !isInterface(t) {
+				out = append(out, e.namedRef(t))
+			}
+		case *types.Pointer:
+			walk(t.Elem())
+		case *types.Slice:
+			walk(t.Elem())
+		case *types.Array:
+			walk(t.Elem())
+		case *types.Map:
+			walk(t.Key())
+			walk(t.Elem())
+		case *types.Chan:
+			walk(t.Elem())
+		}
+	}
+	walk(t)
+	return out
 }

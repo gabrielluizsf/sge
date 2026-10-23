@@ -26,6 +26,7 @@ type listed struct {
 	XTestGoFiles []string
 	Imports      []string
 	Module       *struct{ Path string }
+	ImportMap    map[string]string
 	TestImports  []string
 	XTestImports []string
 	Error        *struct{ Err string }
@@ -81,7 +82,7 @@ func Load(dir string, withTests bool, patterns ...string) (*Program, error) {
 		p := &Package{
 			Path: l.ImportPath, Name: l.Name, Dir: l.Dir, Std: l.Standard,
 			GoFiles: l.GoFiles, TestFiles: l.TestGoFiles, XTestFiles: l.XTestGoFiles,
-			Imports: l.Imports, fset: prog.Fset, Transpile: fromSource[l.ImportPath],
+			Imports: l.Imports, ImportMap: l.ImportMap, fset: prog.Fset, Transpile: fromSource[l.ImportPath],
 		}
 		prog.Packages[p.Path] = p
 		prog.order = append(prog.order, p.Path)
@@ -166,16 +167,26 @@ func (prog *Program) check(p *Package) error {
 	}
 	p.Files = files
 	p.Info = newInfo()
-	p.Types, err = prog.typeCheck(p.Path, files, p.Info, p.Std && !p.Transpile)
+	p.Types, err = prog.typeCheckMapped(p.Path, files, p.Info, p.Std && !p.Transpile, p.ImportMap)
 	return err
 }
 
 // typeCheck checks files as the package path. Function bodies are skipped
 // for packages that are only needed for their declarations.
 func (prog *Program) typeCheck(path string, files []*ast.File, info *types.Info, declsOnly bool) (*types.Package, error) {
+	return prog.typeCheckMapped(path, files, info, declsOnly, nil)
+}
+
+// typeCheckMapped is typeCheck resolving imports through importMap first.
+func (prog *Program) typeCheckMapped(path string, files []*ast.File, info *types.Info, declsOnly bool, importMap map[string]string) (*types.Package, error) {
 	var errs []error
 	conf := types.Config{
-		Importer:         importerFunc(prog.importPackage),
+		Importer: importerFunc(func(p string) (*types.Package, error) {
+			if m, ok := importMap[p]; ok {
+				p = m
+			}
+			return prog.importPackage(p)
+		}),
 		Sizes:            types.SizesFor("gc", "wasm"),
 		IgnoreFuncBodies: declsOnly,
 		Error: func(err error) {
@@ -259,8 +270,17 @@ func stdFromSource(all []listed, roots map[string]bool) map[string]bool {
 			imports = append(append(imports, l.TestImports...), l.XTestImports...)
 		}
 		for _, imp := range imports {
-			visit(imp)
+			if !unsupportedStd[imp] {
+				visit(imp)
+			}
 		}
 	}
 	return need
+}
+
+// unsupportedStd are standard packages built on goroutines through and
+// through, which are never transpiled. Test files importing them are left
+// out of the transpiled tests.
+var unsupportedStd = map[string]bool{
+	"net": true, "net/http": true, "net/http/httptest": true, "crypto/tls": true,
 }

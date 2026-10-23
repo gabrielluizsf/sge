@@ -162,3 +162,28 @@ func main() {
 	_, wrong := anyPair.(Pair[int, int])
 	fmt.Println(wrong)
 }
+
+// Container is a generic interface whose methods mention its own type
+// parameter, used from inside generic code.
+type Container[T any] interface {
+	Put(T)
+	All() []T
+}
+
+type bag[T any] struct{ items []T }
+
+func (b *bag[T]) Put(v T)  { b.items = append(b.items, v) }
+func (b *bag[T]) All() []T { return b.items }
+
+func fill[T any](c Container[T], vs ...T) Container[T] {
+	for _, v := range vs {
+		c.Put(v)
+	}
+	var anon interface{ All() []T } = c
+	_ = anon
+	return c
+}
+
+func init() {
+	fmt.Println(fill[int](&bag[int]{}, 1, 2, 3).All())
+}

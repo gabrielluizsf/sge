@@ -56,11 +56,15 @@ func (e *emitter) module(files []*ast.File) string {
 					name = "init$" + itoa(len(initFuncs)+1)
 					initFuncs = append(initFuncs, name)
 				}
-				e.function(&funcs, "export function "+name, fn.Type().(*types.Signature), d.Type, d.Body, nil, false, true)
-				funcs.line("")
 				if isTest(d, fn) {
 					tests = append(tests, name)
 				}
+				if e.testFile(d) {
+					e.testFunction(&funcs, name, fn, d)
+					continue
+				}
+				e.function(&funcs, "export function "+name, fn.Type().(*types.Signature), d.Type, d.Body, nil, false, true)
+				funcs.line("")
 			case *ast.GenDecl:
 				if d.Tok == token.CONST {
 					e.constDecl(&vars, d)
@@ -80,6 +84,10 @@ func (e *emitter) module(files []*ast.File) string {
 	if len(tests) > 0 {
 		alias := e.imports["testing"]
 		for _, t := range tests {
+			if e.skippedTests[t] {
+				inits.line("%s.register(%q, %s, true);", alias, t, t)
+				continue
+			}
 			inits.line("%s.register(%q, %s);", alias, t, t)
 		}
 	}
@@ -112,6 +120,9 @@ func (e *emitter) module(files []*ast.File) string {
 	section(&e.anonDecls)
 	section(&td.classes)
 	section(&td.descs)
+	var named writer
+	td.writeNamed(&named)
+	section(&named)
 	var consts writer
 	for _, d := range e.typeOrder {
 		consts.line("const %s = %s;", e.typeConsts[d], d)
@@ -209,4 +220,65 @@ func (e *emitter) varDecls(decls, inits *writer, files []*ast.File) {
 		}
 	}
 	e.sc, e.fn = nil, nil
+}
+
+// testFile reports whether d is declared in a _test.go file.
+func (e *emitter) testFile(d ast.Node) bool {
+	return strings.HasSuffix(e.prog.Fset.Position(d.Pos()).Filename, "_test.go")
+}
+
+// testFunction emits a function of a test file. One that uses what the
+// transpiler cannot do yet does not stop the rest of the tests: a test
+// becomes a skipped test saying why, a helper panics with the reason.
+func (e *emitter) testFunction(w *writer, name string, fn *types.Func, d *ast.FuncDecl) {
+	if pkg := e.usesUnsupported(d); pkg != "" && isTest(d, fn) {
+		alias := e.imports["testing"]
+		e.Skipped = append(e.Skipped, errorf("%s uses %s", name, pkg))
+		e.skipTest(name)
+		w.line("export function %s(t: %s.T): void { t.Skip($.slice([$.val($.String, %s)])); }", name, alias, jsString("gots: "+pkg+" needs goroutines, which are not supported yet"))
+		w.line("")
+		return
+	}
+	before := len(e.errs)
+	var body writer
+	body.indent = w.indent
+	e.function(&body, "export function "+name, fn.Type().(*types.Signature), d.Type, d.Body, nil, false, true)
+	if len(e.errs) == before {
+		w.b.WriteString(body.String())
+		w.line("")
+		return
+	}
+	reason := e.errs[before].Error()
+	e.Skipped = append(e.Skipped, e.errs[before:]...)
+	e.errs = e.errs[:before]
+	if isTest(d, fn) {
+		alias := e.imports["testing"]
+		e.skipTest(name)
+		w.line("export function %s(t: %s.T): void { t.Skip($.slice([$.val($.String, %s)])); }", name, alias, jsString("gots: "+reason))
+	} else {
+		w.line("export function %s(...a: any[]): any { $.panic(%s); }", name, jsString("gots: "+reason))
+	}
+	w.line("")
+}
+
+// usesUnsupported is the package gots does not transpile that d refers
+// to, if any.
+func (e *emitter) usesUnsupported(d *ast.FuncDecl) string {
+	found := ""
+	ast.Inspect(d, func(n ast.Node) bool {
+		if id, ok := n.(*ast.Ident); ok {
+			if obj := e.info.Uses[id]; obj != nil && obj.Pkg() != nil && unsupportedStd[obj.Pkg().Path()] {
+				found = obj.Pkg().Path()
+			}
+		}
+		return found == ""
+	})
+	return found
+}
+
+func (e *emitter) skipTest(name string) {
+	if e.skippedTests == nil {
+		e.skippedTests = map[string]bool{}
+	}
+	e.skippedTests[name] = true
 }

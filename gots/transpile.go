@@ -71,9 +71,14 @@ func Transpile(opts Options) ([]string, error) {
 			}
 		}
 	}
+	for p := range needStd {
+		if unsupportedStd[p] {
+			write("_gots/std/"+p+"/mod.ts", stubModule(prog.Packages[p]))
+		}
+	}
 	var missing []string
 	for p := range needStd {
-		if p != "unsafe" && !hasStd(p) {
+		if p != "unsafe" && !hasStd(p) && !unsupportedStd[p] {
 			missing = append(missing, p)
 		}
 	}
@@ -119,6 +124,9 @@ func emitTests(prog *Program, p *Package, lay layout, needStd map[string]bool) (
 		e := newEmitter(prog, p, info, tpkg, lay)
 		out[filepath.ToSlash(filepath.Join(lay.dir(p), name))] = e.module(files)
 		errs = append(errs, e.errs...)
+		for _, s := range e.Skipped {
+			fmt.Fprintf(os.Stderr, "gots: skipping a test function: %v\n", s)
+		}
 	}
 	if len(p.TestFiles) > 0 {
 		emit("mod_test.ts", p.Path, p.TestFiles, true)

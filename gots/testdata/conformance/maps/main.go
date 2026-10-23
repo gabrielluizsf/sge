@@ -53,3 +53,27 @@ func main() {
 	nested["x"] = append(nested["x"], 1, 2)
 	fmt.Println(nested)
 }
+
+func init() {
+	// Entries deleted and written again while ranging are not seen twice,
+	// and entries deleted before they are reached are not seen at all.
+	attrs := map[string]string{"xml:space": "preserve", "id": "g"}
+	seen := 0
+	for k, v := range attrs {
+		seen++
+		delete(attrs, k)
+		attrs[k] = v + "!"
+	}
+	fmt.Println(seen, len(attrs), attrs["id"])
+	m := map[int]int{1: 1, 2: 2, 3: 3, 4: 4}
+	visits := 0
+	for k := range m {
+		visits++
+		for j := range m {
+			if j != k {
+				delete(m, j)
+			}
+		}
+	}
+	fmt.Println(visits, len(m))
+}

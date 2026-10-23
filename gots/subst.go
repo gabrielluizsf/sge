@@ -82,8 +82,12 @@ func subst(t types.Type, m map[*types.TypeParam]types.Type, ctxt *types.Context)
 	case *types.Interface:
 		var methods []*types.Func
 		for i := 0; i < t.NumExplicitMethods(); i++ {
+			// A method's receiver is the interface itself: substituting it
+			// would go round for ever, and NewInterfaceType sets it anew.
 			fn := t.ExplicitMethod(i)
-			methods = append(methods, types.NewFunc(fn.Pos(), fn.Pkg(), fn.Name(), s(fn.Type()).(*types.Signature)))
+			sig := fn.Type().(*types.Signature)
+			methods = append(methods, types.NewFunc(fn.Pos(), fn.Pkg(), fn.Name(),
+				types.NewSignatureType(nil, nil, nil, substTuple(sig.Params(), m, ctxt), substTuple(sig.Results(), m, ctxt), sig.Variadic())))
 		}
 		var embeds []types.Type
 		for i := 0; i < t.NumEmbeddeds(); i++ {

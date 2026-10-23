@@ -24,6 +24,12 @@ var reserved = map[string]bool{
 	"Int16Array": true, "Int8Array": true, "Uint32Array": true,
 	"Uint16Array": true, "Uint8Array": true, "BigUint64Array": true,
 	"BigInt64Array": true, "type": true, "as": true, "of": true,
+	// TypeScript keywords that, as an import alias, would be read as an
+	// operator where a type is written.
+	"unique": true, "keyof": true, "infer": true, "readonly": true,
+	"asserts": true, "is": true, "never": true, "unknown": true,
+	"symbol": true, "object": true, "declare": true, "abstract": true,
+	"namespace": true, "module": true, "global": true, "satisfies": true,
 }
 
 // mangle makes a Go identifier safe as a JavaScript binding. Names starting

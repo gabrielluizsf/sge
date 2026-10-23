@@ -26,5 +26,8 @@ type Package struct {
 	XTestFiles []string
 	GoFiles    []string
 	Imports    []string
-	fset       *token.FileSet
+	// ImportMap maps an import path as written to the package it means,
+	// for the standard library's vendored packages.
+	ImportMap map[string]string
+	fset      *token.FileSet
 }

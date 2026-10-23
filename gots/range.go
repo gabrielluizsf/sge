@@ -66,7 +66,7 @@ func (e *emitter) rangeStmt(w *writer, s *ast.RangeStmt, label string) {
 		})
 	case *types.Map:
 		k, v := e.sc.fresh("$k"), e.sc.fresh("$v")
-		e.loop(w, head+"for (const ["+k+", "+v+"] of ("+e.expr(s.X)+" ?? []))", func() {
+		e.loop(w, head+"for (const ["+k+", "+v+"] of $.entries("+e.expr(s.X)+"))", func() {
 			e.bindRange(w, s.Key, k, u.Key(), s.Tok)
 			e.bindRange(w, s.Value, e.cloneOf(v, u.Elem()), u.Elem(), s.Tok)
 			e.stmts(w, s.Body.List)
