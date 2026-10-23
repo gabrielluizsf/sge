@@ -120,3 +120,4 @@ export function Errorf(format: string, a: $.Slice<any> | null): any {
   if (wrapped.length > 1) return new wrapErrors(s, $.slice(wrapped));
   return new plainError(s);
 }
+export { Fscan, Fscanf, Fscanln, Sscan, Sscanf, Sscanln } from "./scan.ts";

@@ -35,3 +35,25 @@ func main() {
 	f := none.Length
 	fmt.Println(f())
 }
+
+type loc struct{ name string }
+
+var utc = &loc{"UTC"}
+
+// get swaps a nil receiver for a default, reassigning the receiver itself.
+func (l *loc) get() *loc {
+	if l == nil {
+		return utc
+	}
+	return l
+}
+
+func (l *loc) String() string {
+	l = l.get()
+	return l.name
+}
+
+func init() {
+	var none *loc
+	fmt.Println(none.String(), (&loc{"Local"}).String())
+}

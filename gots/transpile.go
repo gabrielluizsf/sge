@@ -72,13 +72,13 @@ func Transpile(opts Options) ([]string, error) {
 		}
 	}
 	for p := range needStd {
-		if unsupportedStd[p] {
+		if unsupportedStd[p] != "" {
 			write("_gots/std/"+p+"/mod.ts", stubModule(prog.Packages[p]))
 		}
 	}
 	var missing []string
 	for p := range needStd {
-		if p != "unsafe" && !hasStd(p) && !unsupportedStd[p] {
+		if p != "unsafe" && !hasStd(p) && unsupportedStd[p] == "" {
 			missing = append(missing, p)
 		}
 	}

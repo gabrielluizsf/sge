@@ -31,7 +31,7 @@ func (e *emitter) method(w *writer, fd *ast.FuncDecl, inClass bool) {
 			if !ptr && mutates(e.info, fd.Body, recvObj) {
 				self = "this.$clone()"
 			}
-			prologue = append(prologue, "const "+n+" = "+self+";")
+			prologue = append(prologue, "let "+n+" = "+self+";")
 		}
 		e.functionIn(w, fieldName(fn.Name()), sig, fd.Type, fd.Body, prologue)
 		return

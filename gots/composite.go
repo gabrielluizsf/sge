@@ -54,13 +54,19 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 		return "Object.assign(new " + e.structClass(t) + "(), { " + strings.Join(sets, ", ") + " })"
 	}
 	vals := make([]string, st.NumFields())
+	var promoted []string
 	for i, el := range lit.Elts {
 		if kv, ok := el.(*ast.KeyValueExpr); ok {
 			name := kv.Key.(*ast.Ident).Name
+			direct := false
 			for j := 0; j < st.NumFields(); j++ {
 				if st.Field(j).Name() == name {
 					vals[j] = e.value(kv.Value, st.Field(j).Type())
+					direct = true
 				}
+			}
+			if !direct {
+				promoted = append(promoted, e.promotedSet("o", t, name, kv.Value))
 			}
 			continue
 		}
@@ -75,7 +81,37 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 			vals[i] = e.zero(st.Field(i).Type())
 		}
 	}
-	return "new " + e.structClass(t) + "(" + strings.Join(vals[:n], ", ") + ")"
+	made := "new " + e.structClass(t) + "(" + strings.Join(vals[:n], ", ") + ")"
+	if len(promoted) == 0 {
+		return made
+	}
+	return "((o: any) => { " + strings.Join(promoted, " ") + " return o; })(" + made + ")"
+}
+
+// promotedSet is the statement setting the field name that the struct
+// type t gets from an embedded field, on the object o: the literal form
+// Go 1.27 allows. An embedded pointer on the way that is nil is given a
+// value to hold the field.
+func (e *emitter) promotedSet(o string, t types.Type, name string, v ast.Expr) string {
+	obj, index, _ := types.LookupFieldOrMethod(t, false, e.tpkg, name)
+	f, ok := obj.(*types.Var)
+	if !ok {
+		return ""
+	}
+	var steps []string
+	path := o
+	cur := t
+	for _, i := range index[:len(index)-1] {
+		fs := structOf(cur).Field(i)
+		path += "." + fieldJS(structOf(cur), i)
+		if p, isPtr := fs.Type().Underlying().(*types.Pointer); isPtr {
+			steps = append(steps, "if ("+path+" === null) "+path+" = "+e.zero(p.Elem())+";")
+		}
+		cur = fs.Type()
+	}
+	path += "." + fieldJS(structOf(cur), index[len(index)-1])
+	steps = append(steps, e.setOf(path, e.value(v, f.Type()), f.Type())+";")
+	return strings.Join(steps, " ")
 }
 
 // indexedLit is the backing array of an array or slice literal of n

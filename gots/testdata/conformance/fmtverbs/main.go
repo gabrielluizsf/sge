@@ -36,3 +36,21 @@ func main() {
 	var e error
 	fmt.Println(ip, e, []int(nil), map[string]int(nil))
 }
+
+func init() {
+	var x, d int
+	var f float64
+	var s string
+	var u8 uint8
+	var u64 uint64
+	n, err := fmt.Sscanf("ff 42 2.5e1 word", "%x %d %g %s", &x, &d, &f, &s)
+	fmt.Println(n, err, x, d, f, s)
+	n, err = fmt.Sscanf("7,8", "%d,%d", &x, &d)
+	fmt.Println(n, err, x, d)
+	n, err = fmt.Sscan("  10\n 0x1F  -3.25 str", &u8, &u64, &f, &s)
+	fmt.Println(n, err, u8, u64, f, s)
+	n, err = fmt.Sscanf("300", "%d", &u8)
+	fmt.Println(n, err != nil, u8)
+	n, err = fmt.Sscanf("abc", "%d", &x)
+	fmt.Println(n, err != nil)
+}

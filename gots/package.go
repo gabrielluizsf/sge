@@ -29,5 +29,8 @@ type Package struct {
 	// ImportMap maps an import path as written to the package it means,
 	// for the standard library's vendored packages.
 	ImportMap map[string]string
-	fset      *token.FileSet
+	// EmbedFiles are the files //go:embed directives in the package name,
+	// relative to Dir.
+	EmbedFiles []string
+	fset       *token.FileSet
 }

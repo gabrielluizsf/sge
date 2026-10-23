@@ -6,6 +6,18 @@ import { Sprintf, Sprintln } from "../fmt/mod.ts";
 class failNow {}
 class skipNow {}
 
+export function Short(): boolean {
+  return false;
+}
+
+export function Verbose(): boolean {
+  return false;
+}
+
+export function Testing(): boolean {
+  return true;
+}
+
 export class T {
   name: string;
   failed = false;

@@ -61,3 +61,15 @@ func main() {
 	fmt.Println(p.name)
 	fmt.Printf("%v\n%+v\n", p, b.Player.Base)
 }
+
+type inner struct{ W, H int }
+type outer struct {
+	inner
+	Name string
+}
+
+func init() {
+	// Go 1.27 allows a struct literal to set promoted fields.
+	o := outer{W: 3, Name: "box", H: 4}
+	fmt.Println(o.W, o.H, o.Name, o.inner)
+}

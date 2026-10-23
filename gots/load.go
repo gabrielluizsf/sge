@@ -27,6 +27,7 @@ type listed struct {
 	Imports      []string
 	Module       *struct{ Path string }
 	ImportMap    map[string]string
+	EmbedFiles   []string
 	TestImports  []string
 	XTestImports []string
 	Error        *struct{ Err string }
@@ -82,7 +83,7 @@ func Load(dir string, withTests bool, patterns ...string) (*Program, error) {
 		p := &Package{
 			Path: l.ImportPath, Name: l.Name, Dir: l.Dir, Std: l.Standard,
 			GoFiles: l.GoFiles, TestFiles: l.TestGoFiles, XTestFiles: l.XTestGoFiles,
-			Imports: l.Imports, ImportMap: l.ImportMap, fset: prog.Fset, Transpile: fromSource[l.ImportPath],
+			Imports: l.Imports, ImportMap: l.ImportMap, EmbedFiles: l.EmbedFiles, fset: prog.Fset, Transpile: fromSource[l.ImportPath],
 		}
 		prog.Packages[p.Path] = p
 		prog.order = append(prog.order, p.Path)
@@ -270,7 +271,7 @@ func stdFromSource(all []listed, roots map[string]bool) map[string]bool {
 			imports = append(append(imports, l.TestImports...), l.XTestImports...)
 		}
 		for _, imp := range imports {
-			if !unsupportedStd[imp] {
+			if unsupportedStd[imp] == "" {
 				visit(imp)
 			}
 		}
@@ -278,9 +279,17 @@ func stdFromSource(all []listed, roots map[string]bool) map[string]bool {
 	return need
 }
 
-// unsupportedStd are standard packages built on goroutines through and
-// through, which are never transpiled. Test files importing them are left
-// out of the transpiled tests.
-var unsupportedStd = map[string]bool{
-	"net": true, "net/http": true, "net/http/httptest": true, "crypto/tls": true,
+// unsupportedStd are standard packages built on what gots does not have
+// yet, with what that is. They are never transpiled: their modules are
+// stubs, and the tests that use them are skipped.
+var unsupportedStd = map[string]string{
+	"net":               "goroutines",
+	"net/http":          "goroutines",
+	"net/http/httptest": "goroutines",
+	"crypto/tls":        "goroutines",
+	"encoding/json":     "reflect",
+	"encoding/xml":      "reflect",
+	"encoding/gob":      "reflect",
+	"text/template":     "reflect",
+	"html/template":     "reflect",
 }

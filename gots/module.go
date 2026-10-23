@@ -47,7 +47,8 @@ func (e *emitter) module(files []*ast.File) string {
 		for _, d := range f.Decls {
 			switch d := d.(type) {
 			case *ast.FuncDecl:
-				if d.Recv != nil || d.Type.TypeParams != nil {
+				if d.Recv != nil || d.Type.TypeParams != nil || d.Name.Name == "_" {
+					// Blank functions are compile-time checks nothing can call.
 					continue
 				}
 				fn := e.info.Defs[d.Name].(*types.Func)
@@ -191,8 +192,14 @@ func (e *emitter) varDecls(decls, inits *writer, files []*ast.File) {
 		}
 	}
 	sort.SliceStable(vs, func(i, j int) bool { return vs[i].Pos() < vs[j].Pos() })
+	embedded := e.embeddedVars(files)
 	for _, v := range vs {
 		n := mangle(v.Name())
+		if js, ok := embedded[v]; ok {
+			decls.line("export let %s: %s = %s;", n, e.tsType(v.Type()), js)
+			decls.line("export function %s$set(v: %s): void { %s = v; }", n, e.tsType(v.Type()), n)
+			continue
+		}
 		decls.line("export let %s: %s = %s;", n, e.tsType(v.Type()), e.zero(v.Type()))
 		decls.line("export function %s$set(v: %s): void { %s = v; }", n, e.tsType(v.Type()), n)
 	}
@@ -231,11 +238,11 @@ func (e *emitter) testFile(d ast.Node) bool {
 // transpiler cannot do yet does not stop the rest of the tests: a test
 // becomes a skipped test saying why, a helper panics with the reason.
 func (e *emitter) testFunction(w *writer, name string, fn *types.Func, d *ast.FuncDecl) {
-	if pkg := e.usesUnsupported(d); pkg != "" && isTest(d, fn) {
+	if what, why := e.usesUnsupported(d); what != "" && isTest(d, fn) {
 		alias := e.imports["testing"]
-		e.Skipped = append(e.Skipped, errorf("%s uses %s", name, pkg))
+		e.Skipped = append(e.Skipped, errorf("%s uses %s", name, what))
 		e.skipTest(name)
-		w.line("export function %s(t: %s.T): void { t.Skip($.slice([$.val($.String, %s)])); }", name, alias, jsString("gots: "+pkg+" needs goroutines, which are not supported yet"))
+		w.line("export function %s(t: %s.T): void { t.Skip($.slice([$.val($.String, %s)])); }", name, alias, jsString("gots: "+what+" needs "+why+", which gots does not support yet"))
 		w.line("")
 		return
 	}
@@ -261,19 +268,28 @@ func (e *emitter) testFunction(w *writer, name string, fn *types.Func, d *ast.Fu
 	w.line("")
 }
 
-// usesUnsupported is the package gots does not transpile that d refers
-// to, if any.
-func (e *emitter) usesUnsupported(d *ast.FuncDecl) string {
-	found := ""
+// unsupportedFuncs are functions a test can call that measure what a
+// JavaScript program cannot, with what that is.
+var unsupportedFuncs = map[string]string{
+	"testing.AllocsPerRun": "counting allocations",
+}
+
+// usesUnsupported is what d refers to that gots does not support, and the
+// reason, if anything.
+func (e *emitter) usesUnsupported(d *ast.FuncDecl) (what, why string) {
 	ast.Inspect(d, func(n ast.Node) bool {
 		if id, ok := n.(*ast.Ident); ok {
-			if obj := e.info.Uses[id]; obj != nil && obj.Pkg() != nil && unsupportedStd[obj.Pkg().Path()] {
-				found = obj.Pkg().Path()
+			if obj := e.info.Uses[id]; obj != nil && obj.Pkg() != nil {
+				if r := unsupportedStd[obj.Pkg().Path()]; r != "" {
+					what, why = obj.Pkg().Path(), r
+				} else if r := unsupportedFuncs[obj.Pkg().Path()+"."+obj.Name()]; r != "" {
+					what, why = obj.Pkg().Path()+"."+obj.Name(), r
+				}
 			}
 		}
-		return found == ""
+		return what == ""
 	})
-	return found
+	return what, why
 }
 
 func (e *emitter) skipTest(name string) {

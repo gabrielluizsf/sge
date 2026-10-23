@@ -15,7 +15,7 @@ func stubModule(p *Package) string {
 	w.line("// @ts-nocheck")
 	w.line("// deno-lint-ignore-file")
 	w.line("import * as $ from %q;", rel("_gots/std/"+p.Path, path.Join(runtimeDir, "mod.ts")))
-	msg := jsString("gots: package " + p.Path + " needs goroutines, which are not supported yet")
+	msg := jsString("gots: package " + p.Path + " needs " + unsupportedStd[p.Path] + ", which gots does not support yet")
 	w.line("const unsupported = (..._a: any[]): any => $.panic(%s);", msg)
 	scope := p.Types.Scope()
 	for _, n := range scope.Names() {
