@@ -40,6 +40,12 @@ func (e *emitter) convert(x ast.Expr, to types.Type) string {
 		}
 		return "$.slice($.str.strToBytes(" + js + "))"
 	}
+	if isComplex(to) {
+		if basicKind(to) == types.Complex64 {
+			return "$.cplx.c64(" + js + ")"
+		}
+		return js
+	}
 	if isNumeric(to) && isNumeric(from) {
 		return numConvert(js, from, to)
 	}

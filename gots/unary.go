@@ -1,6 +1,7 @@
 package gots
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -25,6 +26,9 @@ func (e *emitter) unary(x *ast.UnaryExpr) string {
 	case token.SUB:
 		if isFloat(t) {
 			return "(-" + a + ")"
+		}
+		if k == types.Complex64 || k == types.Complex128 {
+			return "$.cplx.neg(" + a + ")"
 		}
 		if k == types.Uint64 || small(k) {
 			return wrap(k, "-"+a)
@@ -98,8 +102,34 @@ func (e *emitter) setPackageVar(obj types.Object, v string) string {
 
 // deref is *p.
 func (e *emitter) deref(x *ast.StarExpr) string {
+	if js, ok := e.reinterpret(x); ok {
+		return js
+	}
 	if isValue(e.typeOf(x)) {
 		return e.expr(x.X)
 	}
 	return e.expr(x.X) + ".v"
+}
+
+// reinterpret recognizes *(*T)(unsafe.Pointer(&v)), reading the bits of a
+// number as another number type of the same size, and does it the way Go
+// does: through memory, here a DataView.
+func (e *emitter) reinterpret(x *ast.StarExpr) (string, bool) {
+	conv, ok := ast.Unparen(x.X).(*ast.CallExpr)
+	if !ok || len(conv.Args) != 1 {
+		return "", false
+	}
+	inner, ok := ast.Unparen(conv.Args[0]).(*ast.CallExpr)
+	if !ok || len(inner.Args) != 1 || basicKind(e.typeOf(inner)) != types.UnsafePointer {
+		return "", false
+	}
+	addr, ok := ast.Unparen(inner.Args[0]).(*ast.UnaryExpr)
+	if !ok || addr.Op != token.AND {
+		return "", false
+	}
+	from, to := e.typeOf(addr.X), e.typeOf(x)
+	if !isNumeric(from) || !isNumeric(to) || wasmSizes.Sizeof(from) != wasmSizes.Sizeof(to) {
+		return "", false
+	}
+	return fmt.Sprintf("$.unsafe.reinterpret(%s, %q, %q)", e.expr(addr.X), types.Typ[defaultKind(basicKind(from))].Name(), types.Typ[defaultKind(basicKind(to))].Name()), true
 }

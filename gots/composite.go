@@ -39,6 +39,20 @@ func (e *emitter) composite(lit *ast.CompositeLit) string {
 // structLit is new C(...) with the fields in declaration order, leaving
 // trailing fields to the constructor's zero defaults.
 func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struct) string {
+	if e.handWritten(t) {
+		// A hand-written class has its own fields: set the named ones.
+		var sets []string
+		for _, el := range lit.Elts {
+			kv := el.(*ast.KeyValueExpr)
+			name := kv.Key.(*ast.Ident).Name
+			for j := 0; j < st.NumFields(); j++ {
+				if st.Field(j).Name() == name {
+					sets = append(sets, fieldName(name)+": "+e.value(kv.Value, st.Field(j).Type()))
+				}
+			}
+		}
+		return "Object.assign(new " + e.structClass(t) + "(), { " + strings.Join(sets, ", ") + " })"
+	}
 	vals := make([]string, st.NumFields())
 	for i, el := range lit.Elts {
 		if kv, ok := el.(*ast.KeyValueExpr); ok {

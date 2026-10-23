@@ -66,6 +66,7 @@ func (e *emitter) function(w *writer, prefix string, sig *types.Signature, ft *a
 		e.namedResults(w, ft.Results)
 	}
 	if body == nil {
+		e.errorf(ft.Pos(), "%s has no body: it needs an overlay", strings.TrimPrefix(prefix, "export function "))
 		w.line(`$.panic("gots: %s has no body");`, prefix)
 	} else if defers(body) {
 		e.deferringBody(w, body)

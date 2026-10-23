@@ -64,6 +64,7 @@ func Load(dir string, withTests bool, patterns ...string) (*Program, error) {
 		return nil, err
 	}
 	prog := &Program{Fset: token.NewFileSet(), Packages: map[string]*Package{}}
+	fromSource := stdFromSource(all)
 	for _, l := range all {
 		if l.Error != nil {
 			return nil, fmt.Errorf("%s: %s", l.ImportPath, l.Error.Err)
@@ -74,7 +75,7 @@ func Load(dir string, withTests bool, patterns ...string) (*Program, error) {
 		p := &Package{
 			Path: l.ImportPath, Name: l.Name, Dir: l.Dir, Std: l.Standard,
 			GoFiles: l.GoFiles, TestFiles: l.TestGoFiles, XTestFiles: l.XTestGoFiles,
-			Imports: l.Imports, fset: prog.Fset,
+			Imports: l.Imports, fset: prog.Fset, Transpile: fromSource[l.ImportPath],
 		}
 		prog.Packages[p.Path] = p
 		prog.order = append(prog.order, p.Path)
@@ -152,9 +153,14 @@ func (prog *Program) check(p *Package) error {
 	if err != nil {
 		return err
 	}
+	if p.Transpile {
+		if files, err = prog.overlay(p.Path, files); err != nil {
+			return err
+		}
+	}
 	p.Files = files
 	p.Info = newInfo()
-	p.Types, err = prog.typeCheck(p.Path, files, p.Info, p.Std)
+	p.Types, err = prog.typeCheck(p.Path, files, p.Info, p.Std && !p.Transpile)
 	return err
 }
 
@@ -193,3 +199,34 @@ func (prog *Program) importPackage(path string) (*types.Package, error) {
 type importerFunc func(path string) (*types.Package, error)
 
 func (f importerFunc) Import(path string) (*types.Package, error) { return f(path) }
+
+// stdFromSource is the standard library packages to transpile from source:
+// those the program's own packages import, and what those import in turn,
+// stopping at the packages that have a hand-written TypeScript version.
+func stdFromSource(all []listed) map[string]bool {
+	byPath := map[string]*listed{}
+	for i := range all {
+		byPath[all[i].ImportPath] = &all[i]
+	}
+	need := map[string]bool{}
+	var visit func(path string)
+	visit = func(path string) {
+		l := byPath[path]
+		if l == nil || !l.Standard || path == "unsafe" || hasStd(path) || need[path] {
+			return
+		}
+		need[path] = true
+		for _, imp := range l.Imports {
+			visit(imp)
+		}
+	}
+	for _, l := range all {
+		if l.Standard {
+			continue
+		}
+		for _, imp := range append(append(l.Imports, l.TestImports...), l.XTestImports...) {
+			visit(imp)
+		}
+	}
+	return need
+}

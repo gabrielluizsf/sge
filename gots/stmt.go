@@ -6,6 +6,10 @@ import (
 )
 
 func (e *emitter) stmts(w *writer, list []ast.Stmt) {
+	if regions := gotoRegions(list); len(regions) > 0 {
+		e.stmtsWithGotos(w, list, regions)
+		return
+	}
 	for _, s := range list {
 		e.stmt(w, s)
 	}
@@ -134,6 +138,10 @@ func (e *emitter) branch(w *writer, s *ast.BranchStmt) {
 	case token.FALLTHROUGH:
 		// Handled by the switch, which joins the clauses.
 	case token.GOTO:
-		w.line("%s;", e.unsupported(s, "goto"))
+		if obj := e.info.Uses[s.Label]; obj != nil && obj.Pos() > s.Pos() {
+			w.line("break %s;", gotoLabel(s.Label.Name))
+			return
+		}
+		w.line("%s;", e.unsupported(s, "backward goto"))
 	}
 }

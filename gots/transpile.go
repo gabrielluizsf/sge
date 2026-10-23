@@ -49,7 +49,7 @@ func Transpile(opts Options) ([]string, error) {
 	needStd := map[string]bool{}
 	for _, path := range prog.order {
 		p := prog.Packages[path]
-		if p.Std || p.Path == "unsafe" {
+		if p.Std && !p.Transpile || p.Path == "unsafe" {
 			continue
 		}
 		e := newEmitter(prog, p, p.Info, p.Types, lay)
@@ -57,7 +57,7 @@ func Transpile(opts Options) ([]string, error) {
 		errs = append(errs, e.errs...)
 		write(lay.file(p), src)
 		for _, imp := range p.Imports {
-			if q := prog.Packages[imp]; q != nil && q.Std {
+			if q := prog.Packages[imp]; q != nil && q.Std && !q.Transpile {
 				needStd[imp] = true
 			}
 		}
@@ -111,7 +111,7 @@ func emitTests(prog *Program, p *Package, lay layout, needStd map[string]bool) (
 		}
 		for _, f := range extra {
 			for _, imp := range f.Imports {
-				if q := prog.Packages[importPath(imp)]; q != nil && q.Std {
+				if q := prog.Packages[importPath(imp)]; q != nil && q.Std && !q.Transpile {
 					needStd[q.Path] = true
 				}
 			}

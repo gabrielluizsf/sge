@@ -8,9 +8,26 @@ import (
 
 // builtin is a call to one of Go's predeclared functions.
 func (e *emitter) builtin(c *ast.CallExpr) string {
-	name := ast.Unparen(c.Fun).(*ast.Ident).Name
+	var name string
+	switch f := ast.Unparen(c.Fun).(type) {
+	case *ast.Ident:
+		name = f.Name
+	case *ast.SelectorExpr:
+		// unsafe.String and friends.
+		name = "unsafe." + f.Sel.Name
+	}
 	arg := func(i int) string { return e.expr(c.Args[i]) }
 	switch name {
+	case "unsafe.SliceData":
+		return "$.unsafe.sliceData(" + arg(0) + ")"
+	case "unsafe.Slice":
+		return "$.unsafe.slice(" + arg(0) + ", " + arg(1) + ")"
+	case "unsafe.String":
+		return "$.unsafe.string(" + arg(0) + ", " + arg(1) + ")"
+	case "unsafe.StringData":
+		return "$.unsafe.stringData(" + arg(0) + ")"
+	case "unsafe.Add":
+		return "$.unsafe.add(" + arg(0) + ", " + arg(1) + ")"
 	case "len":
 		switch u := e.typeOf(c.Args[0]).Underlying().(type) {
 		case *types.Basic:
@@ -77,8 +94,20 @@ func (e *emitter) builtin(c *ast.CallExpr) string {
 		}
 	case "close":
 		return e.unsupported(c, "channels")
-	case "complex", "real", "imag":
-		return e.unsupported(c, "complex numbers")
+	case "complex":
+		js := "{ re: " + arg(0) + ", im: " + arg(1) + " }"
+		if basicKind(e.typeOf(c)) == types.Complex64 {
+			return "$.cplx.c64(" + js + ")"
+		}
+		return js
+	case "real":
+		return arg(0) + ".re"
+	case "imag":
+		return arg(0) + ".im"
+	case "unsafe.Sizeof":
+		return itoa(int(wasmSizes.Sizeof(e.typeOf(c.Args[0]))))
+	case "unsafe.Alignof":
+		return itoa(int(wasmSizes.Alignof(e.typeOf(c.Args[0]))))
 	}
 	return e.unsupported(c, "builtin "+name)
 }
@@ -148,3 +177,5 @@ func byValue(t types.Type) bool {
 	}
 	return false
 }
+
+var wasmSizes = types.SizesFor("gc", "wasm")

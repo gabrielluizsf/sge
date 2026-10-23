@@ -106,7 +106,7 @@ function fmtFloatVerb(v: number, bits: number, verb: string, f: Flags): string {
   let s = formatFloat(v, fmt, prec, bits);
   if (f.plus && s[0] !== "-" && s[0] !== "+") s = "+" + s;
   else if (f.space && s[0] !== "-") s = " " + s;
-  else if (s[0] === "+" && !f.plus) s = s.slice(1);
+  else if (s[0] === "+" && !f.plus && s !== "+Inf") s = s.slice(1);
   if (s.endsWith("Inf") || s.endsWith("NaN")) return pad(s, { ...f, zero: false });
   return pad(s, f, true);
 }

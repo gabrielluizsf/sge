@@ -91,6 +91,10 @@ func (e *emitter) module(files []*ast.File) string {
 	out.line("// deno-lint-ignore-file")
 	out.line("import * as $ from %q;", rel(e.dir, path.Join(runtimeDir, "mod.ts")))
 	for _, p := range e.importOrder {
+		if p == "unsafe" {
+			// unsafe's functions are written out inline.
+			continue
+		}
 		dep := e.prog.Packages[p]
 		target := "_gots/std/" + p + "/mod.ts"
 		if dep != nil {

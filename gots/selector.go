@@ -132,5 +132,5 @@ func (e *emitter) handWritten(t types.Type) bool {
 		return false
 	}
 	p := e.prog.Packages[n.Obj().Pkg().Path()]
-	return p != nil && p.Std
+	return p != nil && p.Std && !p.Transpile
 }

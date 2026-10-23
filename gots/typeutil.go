@@ -126,3 +126,8 @@ func derefType(t types.Type) types.Type {
 	}
 	return t
 }
+
+func isComplex(t types.Type) bool {
+	b, ok := t.Underlying().(*types.Basic)
+	return ok && b.Info()&types.IsComplex != 0
+}

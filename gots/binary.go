@@ -70,7 +70,12 @@ func (e *emitter) arith(op token.Token, a, b string, t types.Type, count *int) s
 	case isFloat(t):
 		return bin
 	case k == types.Complex64 || k == types.Complex128:
-		return "$.panic(\"gots: complex arithmetic is not supported\")"
+		names := map[token.Token]string{token.ADD: "add", token.SUB: "sub", token.MUL: "mul", token.QUO: "div"}
+		js := "$.cplx." + names[op] + "(" + a + ", " + b + ")"
+		if k == types.Complex64 {
+			return "$.cplx.c64(" + js + ")"
+		}
+		return js
 	case k == types.Uint64:
 		return e.arithBig(op, a, b, count)
 	case small(k):
