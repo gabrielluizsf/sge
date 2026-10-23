@@ -81,7 +81,7 @@ func (e *emitter) builtin(c *ast.CallExpr) string {
 		if isString(e.typeOf(c)) || isBig(e.typeOf(c)) {
 			return "$." + name + "Of(" + strings.Join(parts, ", ") + ")"
 		}
-		return "Math." + name + "(" + strings.Join(parts, ", ") + ")"
+		return "$Math." + name + "(" + strings.Join(parts, ", ") + ")"
 	case "clear":
 		switch u := e.typeOf(c.Args[0]).Underlying().(type) {
 		case *types.Map:
@@ -154,9 +154,9 @@ func (e *emitter) makeCall(c *ast.CallExpr) string {
 func (e *emitter) newMap(m *types.Map, entries string) string {
 	if byValue(m.Key()) {
 		if entries == "" {
-			return "new Map()"
+			return "new $Map()"
 		}
-		return "new Map(" + entries + ")"
+		return "new $Map(" + entries + ")"
 	}
 	if entries == "" {
 		return "new $.KeyMap($.keyOf)"

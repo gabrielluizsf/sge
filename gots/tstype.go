@@ -99,16 +99,26 @@ func (e *emitter) tsParams(sig *types.Signature) string {
 	return "(" + strings.Join(ps, ", ") + ")"
 }
 
+// tsResults is a function's result type. A pointer to a struct comes back
+// typed as the object, without "| null": functions handing out a new or
+// existing object are most of what returns one, and TypeScript code would
+// otherwise assert each away.
 func (e *emitter) tsResults(r *types.Tuple) string {
+	result := func(t types.Type) string {
+		if isStructPtr(t) {
+			return e.tsType(derefType(t))
+		}
+		return e.tsType(t)
+	}
 	switch r.Len() {
 	case 0:
 		return "void"
 	case 1:
-		return e.tsType(r.At(0).Type())
+		return result(r.At(0).Type())
 	}
 	var ts []string
 	for i := 0; i < r.Len(); i++ {
-		ts = append(ts, e.tsType(r.At(i).Type()))
+		ts = append(ts, result(r.At(i).Type()))
 	}
 	return "[" + strings.Join(ts, ", ") + "]"
 }

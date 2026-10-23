@@ -51,7 +51,7 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 				}
 			}
 		}
-		return "Object.assign(new " + e.structClass(t) + "(), { " + strings.Join(sets, ", ") + " })"
+		return "$Object.assign(new " + e.structClass(t) + "(), { " + strings.Join(sets, ", ") + " })"
 	}
 	vals := make([]string, st.NumFields())
 	var promoted []string

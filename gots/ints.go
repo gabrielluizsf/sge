@@ -50,7 +50,7 @@ func wrap(k types.BasicKind, js string) string {
 	case types.Uint64:
 		return "$.int.u64(" + js + ")"
 	case types.Float32:
-		return "Math.fround(" + js + ")"
+		return "$Math.fround(" + js + ")"
 	}
 	return js
 }

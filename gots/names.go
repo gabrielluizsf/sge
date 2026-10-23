@@ -3,7 +3,10 @@ package gots
 import "strconv"
 
 // reserved are words a JavaScript binding cannot be named, and globals the
-// emitted code relies on and must not be shadowed.
+// emitted code relies on and must not be shadowed. The globals it calls
+// most (Math, Number, BigInt, Object, Map) it reaches through aliases made
+// at the top of every module, so Go names like Map and Object stay as
+// they are.
 var reserved = map[string]bool{
 	"arguments": true, "await": true, "break": true, "case": true, "catch": true,
 	"class": true, "const": true, "continue": true, "debugger": true,
@@ -16,10 +19,8 @@ var reserved = map[string]bool{
 	"static": true, "super": true, "switch": true, "this": true, "throw": true,
 	"true": true, "try": true, "typeof": true, "var": true, "void": true,
 	"while": true, "with": true, "yield": true, "undefined": true, "NaN": true,
-	"Infinity": true, "Math": true, "Array": true, "Object": true,
-	"Number": true, "String": true, "Boolean": true, "BigInt": true,
-	"Symbol": true, "Error": true, "Map": true, "Set": true, "Promise": true,
-	"globalThis": true, "console": true, "Deno": true, "constructor": true,
+	"Infinity": true, "globalThis": true, "console": true, "Deno": true,
+	"constructor":  true,
 	"Float64Array": true, "Float32Array": true, "Int32Array": true,
 	"Int16Array": true, "Int8Array": true, "Uint32Array": true,
 	"Uint16Array": true, "Uint8Array": true, "BigUint64Array": true,

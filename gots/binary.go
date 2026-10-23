@@ -33,7 +33,7 @@ func (e *emitter) binary(x *ast.BinaryExpr) string {
 	}
 	b := e.expr(x.Y)
 	if (x.Op == token.SHL || x.Op == token.SHR) && isBig(rt) {
-		b = "Number(" + b + ")"
+		b = "$Number(" + b + ")"
 	}
 	return e.arith(x.Op, e.expr(x.X), b, e.typeOf(x), count)
 }
@@ -66,7 +66,7 @@ func (e *emitter) arith(op token.Token, a, b string, t types.Type, count *int) s
 	case isString(t):
 		return bin
 	case k == types.Float32:
-		return "Math.fround" + bin
+		return "$Math.fround" + bin
 	case isFloat(t):
 		return bin
 	case k == types.Complex64 || k == types.Complex128:
@@ -101,7 +101,7 @@ func (e *emitter) arith(op token.Token, a, b string, t types.Type, count *int) s
 		return "$.int.shl(" + a + ", " + b + ")"
 	case token.SHR:
 		if count != nil && *count < 53 {
-			return "Math.floor(" + a + " / " + strconv.FormatUint(1<<*count, 10) + ")"
+			return "$Math.floor(" + a + " / " + strconv.FormatUint(1<<*count, 10) + ")"
 		}
 		return "$.int.shr(" + a + ", " + b + ")"
 	}
@@ -117,9 +117,9 @@ func (e *emitter) arithSmall(op token.Token, k types.BasicKind, a, b string, cou
 		return wrap(k, a+" "+op.String()+" "+b)
 	case token.MUL:
 		if k == types.Int32 {
-			return "Math.imul(" + a + ", " + b + ")"
+			return "$Math.imul(" + a + ", " + b + ")"
 		}
-		return wrap(k, "Math.imul("+a+", "+b+")")
+		return wrap(k, "$Math.imul("+a+", "+b+")")
 	case token.QUO:
 		return wrap(k, a+" / "+b)
 	case token.REM:

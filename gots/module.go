@@ -99,6 +99,7 @@ func (e *emitter) module(files []*ast.File) string {
 	out.line("// annotations are for the TypeScript that imports it.")
 	out.line("// deno-lint-ignore-file")
 	out.line("import * as $ from %q;", rel(e.dir, path.Join(runtimeDir, "mod.ts")))
+	out.line("const $Math = globalThis.Math, $Number = globalThis.Number, $BigInt = globalThis.BigInt, $Object = globalThis.Object, $Map = globalThis.Map;")
 	for _, p := range e.importOrder {
 		if p == "unsafe" {
 			// unsafe's functions are written out inline.

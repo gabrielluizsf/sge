@@ -101,7 +101,7 @@ export class Pool extends $.Native {
 }
 $.nativeType("sync.Pool", Pool);
 
-export class Map$ extends $.Native {
+export class Map extends $.Native {
   m = new $.KeyMap<any, any>($.keyOf);
   Load(key: any): [any, boolean] {
     return this.m.has(key) ? [this.m.get(key), true] : [null, false];
@@ -144,7 +144,7 @@ export class Map$ extends $.Native {
     this.m.clear();
   }
 }
-$.nativeType("sync.Map", Map$);
+$.nativeType("sync.Map", Map);
 
 export class Cond extends $.Native {
   L: Locker | null = null;

@@ -23,7 +23,7 @@ func (e *emitter) convert(x ast.Expr, to types.Type) string {
 		case *types.Basic:
 			if f.Info()&types.IsInteger != 0 {
 				if isBig(from) {
-					js = "Number(" + js + ")"
+					js = "$Number(" + js + ")"
 				}
 				return "$.str.runeStr(" + js + ")"
 			}
@@ -90,16 +90,16 @@ func numConvert(js string, from, to types.Type) string {
 	case fk == types.Uint64:
 		switch {
 		case toFloat:
-			return wrap(tk, "Number("+js+")")
+			return wrap(tk, "$Number("+js+")")
 		case small(tk) && unsigned(tk):
-			return "Number(BigInt.asUintN(" + itoa(width(tk)) + ", " + js + "))"
+			return "$Number($BigInt.asUintN(" + itoa(width(tk)) + ", " + js + "))"
 		case small(tk):
-			return "Number(BigInt.asIntN(" + itoa(width(tk)) + ", " + js + "))"
+			return "$Number($BigInt.asIntN(" + itoa(width(tk)) + ", " + js + "))"
 		}
 		return "$.int.fromU64(" + js + ")"
 	case toFloat:
 		if tk == types.Float32 {
-			return "Math.fround(" + js + ")"
+			return "$Math.fround(" + js + ")"
 		}
 		return js
 	case fromFloat:

@@ -187,13 +187,13 @@ export function FuncOf(fn: (this_: Value, args: $.Slice<Value> | null) => any): 
   return f;
 }
 
-export class Error$ extends $.Native {
+export class Error extends $.Native {
   Value: Value = new Value();
   Error(): string {
     return "JavaScript error: " + $.str.toGo(String(this.Value.v?.message ?? this.Value.v));
   }
 }
-$.nativeType("js.Error", Error$);
+$.nativeType("js.Error", Error);
 
 export class ValueError extends $.Native {
   Method: string;

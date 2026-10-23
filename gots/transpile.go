@@ -22,6 +22,9 @@ type Options struct {
 	// Tests also transpiles the packages' tests, as *_test.ts files that
 	// run under deno test.
 	Tests bool
+	// Index writes a mod.ts at the top of Out exporting each requested
+	// package under its name, for TypeScript code to import the lot from.
+	Index bool
 }
 
 // Transpile writes the TypeScript for the packages in opts and returns the
@@ -85,6 +88,9 @@ func Transpile(opts Options) ([]string, error) {
 	sort.Strings(missing)
 	if len(missing) > 0 {
 		errs = append(errs, fmt.Errorf("no TypeScript version of standard package(s) %v yet", missing))
+	}
+	if opts.Index {
+		write("mod.ts", indexModule(prog, lay))
 	}
 	if err := writeRuntime(opts.Out); err != nil {
 		errs = append(errs, err)

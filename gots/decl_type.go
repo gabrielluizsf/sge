@@ -160,7 +160,7 @@ func (e *emitter) ifaceTypeDecl(td *typeDecls, name string, t *types.Named, u *t
 		}
 		w.close("}")
 	}
-	td.descs.line("export const %s$type = $.ifaceType(%q, %s);", name, typeString(t), methodList(u))
+	td.descs.line("export const %s$type: $.Type = $.ifaceType(%q, %s);", name, typeString(t), methodList(u))
 }
 
 // namedTypeDecl writes a named type that is not a struct: a type alias for
@@ -178,7 +178,7 @@ func (e *emitter) namedTypeDecl(td *typeDecls, name string, t *types.Named, meth
 	}
 	desc := fmt.Sprintf("$.named(%q, %s, %s)", typeString(t), e.descInline(t.Underlying()), valCls)
 	nd := namedDesc{name: name, deps: e.namedDeps(t.Underlying())}
-	nd.lines = append(nd.lines, fmt.Sprintf("export const %s$type = %s;", name, e.canonical(t, desc)))
+	nd.lines = append(nd.lines, fmt.Sprintf("export const %s$type: $.Type = %s;", name, e.canonical(t, desc)))
 	if pms := types.NewMethodSet(types.NewPointer(t)); pms.Len() > 0 {
 		e.valClass(&td.classes, name+"$PtrVal", pms, "this.v")
 		nd.lines = append(nd.lines, fmt.Sprintf("$.ptrTo(%s$type).valCls = %s$PtrVal;", name, name))
