@@ -42,7 +42,7 @@ func (e *emitter) module(files []*ast.File) string {
 
 	var funcs, vars, inits writer
 	var initFuncs []string
-	var tests []string
+	var tests, benches []string
 	for _, f := range files {
 		for _, d := range f.Decls {
 			switch d := d.(type) {
@@ -59,6 +59,9 @@ func (e *emitter) module(files []*ast.File) string {
 				}
 				if isTest(d, fn) {
 					tests = append(tests, name)
+				}
+				if isBenchmark(d, fn) {
+					benches = append(benches, name)
 				}
 				impl := name
 				if e.wrapped(fn) {
@@ -84,7 +87,7 @@ func (e *emitter) module(files []*ast.File) string {
 	for _, n := range initFuncs {
 		inits.line("%s();", n)
 	}
-	if e.tpkg.Name() == "main" && len(tests) == 0 {
+	if e.tpkg.Name() == "main" && len(tests) == 0 && len(benches) == 0 {
 		inits.line("main();")
 	}
 	if len(tests) > 0 {
@@ -96,6 +99,9 @@ func (e *emitter) module(files []*ast.File) string {
 			}
 			inits.line("%s.register(%q, %s);", alias, t, t)
 		}
+	}
+	for _, b := range benches {
+		inits.line("%s.registerBench(%q, %s, %v);", e.imports["testing"], b, b, e.skippedTests[b])
 	}
 
 	var out writer
@@ -244,7 +250,7 @@ func (e *emitter) testFile(d ast.Node) bool {
 // transpiler cannot do yet does not stop the rest of the tests: a test
 // becomes a skipped test saying why, a helper panics with the reason.
 func (e *emitter) testFunction(w *writer, name string, fn *types.Func, d *ast.FuncDecl) {
-	if what, why := e.usesUnsupported(d); what != "" && isTest(d, fn) {
+	if what, why := e.usesUnsupported(d); what != "" && (isTest(d, fn) || isBenchmark(d, fn)) {
 		alias := e.imports["testing"]
 		e.Skipped = append(e.Skipped, errorf("%s uses %s", name, what))
 		e.skipTest(name)
@@ -264,7 +270,7 @@ func (e *emitter) testFunction(w *writer, name string, fn *types.Func, d *ast.Fu
 	reason := e.errs[before].Error()
 	e.Skipped = append(e.Skipped, e.errs[before:]...)
 	e.errs = e.errs[:before]
-	if isTest(d, fn) {
+	if isTest(d, fn) || isBenchmark(d, fn) {
 		alias := e.imports["testing"]
 		e.skipTest(name)
 		w.line("export function %s(t: %s.T): void { t.Skip($.slice([$.val($.String, %s)])); }", name, alias, jsString("gots: "+reason))
