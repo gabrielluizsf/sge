@@ -1,0 +1,136 @@
+package gots
+
+import (
+	"go/ast"
+	"go/types"
+	"strings"
+)
+
+func (e *emitter) selector(x *ast.SelectorExpr) string {
+	s := e.info.Selections[x]
+	if s == nil {
+		// A qualified identifier: pkg.Name.
+		return e.ident(x.Sel)
+	}
+	switch s.Kind() {
+	case types.FieldVal:
+		js, _ := e.fieldPath(e.expr(x.X), s.Recv(), s.Index())
+		return js
+	case types.MethodVal:
+		return e.methodValue(x, s)
+	case types.MethodExpr:
+		return e.methodExpr(s)
+	}
+	return e.unsupported(x, "selector")
+}
+
+// fieldPath follows the field indices path from base, of type t, through
+// embedded fields; pointers on the way need no step, as a pointer to a
+// struct is the struct.
+func (e *emitter) fieldPath(base string, t types.Type, path []int) (string, types.Type) {
+	for _, i := range path {
+		st := structOf(t)
+		base += "." + fieldJS(st, i)
+		t = st.Field(i).Type()
+	}
+	return base, t
+}
+
+// methodFunc is the standalone function implementing a method of a named
+// type that is not a struct, which has no class to hold it.
+func (e *emitter) methodFunc(fn *types.Func) string {
+	recv := derefType(fn.Type().(*types.Signature).Recv().Type())
+	return e.objName(namedOf(recv).Obj()) + "$" + fn.Name()
+}
+
+func namedOf(t types.Type) *types.Named {
+	n, _ := types.Unalias(t).(*types.Named)
+	if n != nil && n.Origin() != nil {
+		return n.Origin()
+	}
+	return n
+}
+
+// onClass reports whether calls to fn are method calls on an object: its
+// receiver is a struct or an interface.
+func onClass(fn *types.Func) bool {
+	recv := derefType(fn.Type().(*types.Signature).Recv().Type())
+	return isStruct(recv) || isInterface(recv)
+}
+
+// methodValue is x.M used as a function value. The receiver is evaluated,
+// and copied for a value method, when the value is made.
+func (e *emitter) methodValue(x *ast.SelectorExpr, s *types.Selection) string {
+	fn := s.Obj().(*types.Func)
+	recv := e.receiver(x, s)
+	if onClass(fn) {
+		if !isPointer(fn.Type().(*types.Signature).Recv().Type()) && !isInterface(fn.Type().(*types.Signature).Recv().Type()) {
+			recv = e.cloneOf(recv, derefType(e.typeOf(x.X)))
+		}
+		return "((r) => (...a: any[]) => r." + fieldName(fn.Name()) + "(...a))(" + recv + ")"
+	}
+	return "((r) => (...a: any[]) => " + e.methodFunc(fn) + "(r, ...a))(" + recv + ")"
+}
+
+// methodExpr is T.M or (*T).M: a function taking the receiver first.
+func (e *emitter) methodExpr(s *types.Selection) string {
+	fn := s.Obj().(*types.Func)
+	if len(s.Index()) > 1 || onClass(fn) {
+		path := ""
+		if len(s.Index()) > 1 {
+			p, _ := e.fieldPath("", s.Recv(), s.Index()[:len(s.Index())-1])
+			path = p
+		}
+		return "((r: any, ...a: any[]) => r" + path + "." + fieldName(fn.Name()) + "(...a))"
+	}
+	return e.methodFunc(fn)
+}
+
+// receiver is the receiver argument of a call to the method selected by x:
+// for a method on a class, the object to call it on; otherwise the value or
+// pointer the standalone method function takes first.
+func (e *emitter) receiver(x *ast.SelectorExpr, s *types.Selection) string {
+	fn := s.Obj().(*types.Func)
+	path := s.Index()[:len(s.Index())-1]
+	if e.handWritten(s.Recv()) {
+		// The TypeScript standard library has promoted methods on the
+		// outer type itself.
+		path = nil
+	}
+	base, t := e.fieldPath(e.expr(x.X), s.Recv(), path)
+	if onClass(fn) {
+		return base
+	}
+	_, ptrRecv := fn.Type().(*types.Signature).Recv().Type().(*types.Pointer)
+	switch {
+	case ptrRecv && isPointer(t):
+		return base
+	case ptrRecv:
+		if len(path) == 0 {
+			return e.addr(x.X)
+		}
+		dot := strings.LastIndex(base, ".")
+		return "new $.FieldPtr(" + base[:dot] + ", " + jsQuote(base[dot+1:]) + ")"
+	case isPointer(t):
+		return base + ".v"
+	}
+	return base
+}
+
+func isPointer(t types.Type) bool {
+	_, ok := t.Underlying().(*types.Pointer)
+	return ok
+}
+
+func jsQuote(s string) string { return `"` + s + `"` }
+
+// handWritten reports whether t is a type of the TypeScript standard
+// library rather than of a transpiled package.
+func (e *emitter) handWritten(t types.Type) bool {
+	n := namedOf(derefType(t))
+	if n == nil || n.Obj().Pkg() == nil {
+		return false
+	}
+	p := e.prog.Packages[n.Obj().Pkg().Path()]
+	return p != nil && p.Std
+}
