@@ -62,8 +62,8 @@ $.nativeType("runtime.MemStats", MemStats);
 
 export function ReadMemStats(_m: MemStats | null): void {}
 
-export interface Error {
+export interface Error$ {
   Error(): string;
   RuntimeError(): void;
 }
-export const Error$type = $.ifaceType("runtime.Error", ["Error", "RuntimeError"]);
+export const Error$$type = $.ifaceType("runtime.Error", ["Error", "RuntimeError"]);

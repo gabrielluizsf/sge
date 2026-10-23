@@ -63,6 +63,9 @@ func onClass(fn *types.Func) bool {
 func (e *emitter) methodValue(x *ast.SelectorExpr, s *types.Selection) string {
 	fn := s.Obj().(*types.Func)
 	recv := e.receiver(x, s)
+	if cls, ok := e.nilableReceiver(s); ok {
+		return "((r) => (...a: any[]) => " + cls + ".prototype." + fieldName(fn.Name()) + ".call(r, ...a))(" + recv + ")"
+	}
 	if onClass(fn) {
 		if !isPointer(e.recvType(fn)) && !isInterface(e.recvType(fn)) {
 			recv = e.cloneOf(recv, derefType(e.typeOf(x.X)))

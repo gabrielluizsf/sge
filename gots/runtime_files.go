@@ -4,7 +4,10 @@ import (
 	"embed"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 // runtimeFS holds the TypeScript runtime and standard library every
@@ -36,4 +39,28 @@ func writeRuntime(out string) error {
 		}
 		return os.WriteFile(dst, data, 0o644)
 	})
+}
+
+var tsImport = regexp.MustCompile(`from "((?:\.\./)+)([a-z0-9/]+)/mod\.ts"`)
+
+// stdDeps are the standard packages a hand-written package's TypeScript
+// imports, which must be there too, transpiled if they are not hand-written.
+func stdDeps(pkgPath string) []string {
+	src, err := runtimeFS.ReadFile("runtime/std/" + pkgPath + "/mod.ts")
+	if err != nil {
+		return nil
+	}
+	var out []string
+	for _, m := range tsImport.FindAllStringSubmatch(string(src), -1) {
+		up := strings.Count(m[1], "../")
+		dir := strings.Split(pkgPath, "/")
+		if up > len(dir) {
+			continue
+		}
+		p := path.Join(append(dir[:len(dir)-up], m[2])...)
+		if !strings.HasPrefix(p, "rt") || up < len(dir)+1 {
+			out = append(out, p)
+		}
+	}
+	return out
 }

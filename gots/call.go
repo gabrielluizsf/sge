@@ -29,6 +29,15 @@ func (e *emitter) callWith(c *ast.CallExpr, args []string) string {
 		if s := e.info.Selections[sel]; s != nil && s.Kind() == types.MethodVal {
 			fn := s.Obj().(*types.Func)
 			recv := e.receiver(sel, s)
+			if cls, ok := e.nilableReceiver(s); ok {
+				// A pointer method may be called on nil, which Go allows and
+				// the method checks for: call it from the class, with this
+				// null.
+				if list != "" {
+					list = ", " + list
+				}
+				return cls + ".prototype." + fieldName(fn.Name()) + ".call(" + recv + list + ")"
+			}
 			if onClass(fn) {
 				return recv + "." + fieldName(fn.Name()) + "(" + list + ")"
 			}
@@ -119,4 +128,25 @@ func (e *emitter) arrayLit(elem types.Type, vals []string) string {
 		return b + ".of(" + strings.Join(vals, ", ") + ")"
 	}
 	return "[" + strings.Join(vals, ", ") + "]"
+}
+
+// nilableReceiver reports whether the method selection s calls a pointer
+// method of a struct through a pointer, which may be nil, and gives the
+// struct's class.
+func (e *emitter) nilableReceiver(s *types.Selection) (string, bool) {
+	fn := s.Obj().(*types.Func)
+	recvT := e.recvType(fn)
+	p, ok := recvT.(*types.Pointer)
+	if !ok || !isStruct(p.Elem()) {
+		return "", false
+	}
+	// The receiver's type as written, after embedded fields are followed.
+	t := e.T(s.Recv())
+	for _, i := range s.Index()[:len(s.Index())-1] {
+		t = structOf(t).Field(i).Type()
+	}
+	if !isPointer(t) || e.handWritten(p.Elem()) {
+		return "", false
+	}
+	return e.structClass(p.Elem()), true
 }

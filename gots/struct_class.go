@@ -60,8 +60,14 @@ func (e *emitter) structClassDecl(w *writer, name string, st *types.Struct, expo
 		js := fieldJS(st, i)
 		ts := e.tsType(f.Type())
 		w.line("%s: %s;", js, ts)
-		params = append(params, fmt.Sprintf("%s: %s = %s", js, ts, e.zero(f.Type())))
-		assigns = append(assigns, fmt.Sprintf("this.%s = %s;", js, js))
+		// A parameter named like a module-level binding (an embedded
+		// field is named after its type) would hide it from the defaults.
+		param := mangle(js)
+		if e.pkgNames[param] || param != js {
+			param += "$"
+		}
+		params = append(params, fmt.Sprintf("%s: %s = %s", param, ts, e.zero(f.Type())))
+		assigns = append(assigns, fmt.Sprintf("this.%s = %s;", js, param))
 		clones = append(clones, e.cloneOf("this."+js, f.Type()))
 		sets = append(sets, e.setOf("this."+js, "o."+js, f.Type()))
 		if f.Name() != "_" {

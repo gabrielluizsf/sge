@@ -59,12 +59,18 @@ func Load(dir string, withTests bool, patterns ...string) (*Program, error) {
 	if err != nil {
 		return nil, err
 	}
-	all, err := goList(dir, true, withTests, patterns)
+	// syscall/js is listed whatever the program imports: overlays reach
+	// JavaScript through it.
+	all, err := goList(dir, true, withTests, append(patterns[:len(patterns):len(patterns)], "syscall/js"))
 	if err != nil {
 		return nil, err
 	}
 	prog := &Program{Fset: token.NewFileSet(), Packages: map[string]*Package{}}
-	fromSource := stdFromSource(all)
+	rootPaths := map[string]bool{}
+	for _, r := range roots {
+		rootPaths[r.ImportPath] = true
+	}
+	fromSource := stdFromSource(all, rootPaths)
 	for _, l := range all {
 		if l.Error != nil {
 			return nil, fmt.Errorf("%s: %s", l.ImportPath, l.Error.Err)
@@ -153,7 +159,7 @@ func (prog *Program) check(p *Package) error {
 	if err != nil {
 		return err
 	}
-	if p.Transpile {
+	if p.Transpile || !p.Std {
 		if files, err = prog.overlay(p.Path, files); err != nil {
 			return err
 		}
@@ -201,18 +207,35 @@ type importerFunc func(path string) (*types.Package, error)
 func (f importerFunc) Import(path string) (*types.Package, error) { return f(path) }
 
 // stdFromSource is the standard library packages to transpile from source:
-// those the program's own packages import, and what those import in turn,
+// those the program's own packages import (and the roots' tests), and what
+// those import in turn,
 // stopping at the packages that have a hand-written TypeScript version.
-func stdFromSource(all []listed) map[string]bool {
+func stdFromSource(all []listed, roots map[string]bool) map[string]bool {
 	byPath := map[string]*listed{}
 	for i := range all {
 		byPath[all[i].ImportPath] = &all[i]
 	}
 	need := map[string]bool{}
+	seenHand := map[string]bool{}
+	var visitHandWritten func(path string)
 	var visit func(path string)
+	from := ""
 	visit = func(path string) {
+		if os.Getenv("GOTS_DEBUG_STD") != "" && !need[path] && byPath[path] != nil && byPath[path].Standard {
+			fmt.Fprintf(os.Stderr, "std: %s <- %s\n", path, from)
+		}
+		saved := from
+		from = path
+		defer func() { from = saved }()
 		l := byPath[path]
-		if l == nil || !l.Standard || path == "unsafe" || hasStd(path) || need[path] {
+		if l == nil || !l.Standard || path == "unsafe" || need[path] {
+			return
+		}
+		if hasStd(path) {
+			if !seenHand[path] {
+				seenHand[path] = true
+				visitHandWritten(path)
+			}
 			return
 		}
 		need[path] = true
@@ -220,11 +243,22 @@ func stdFromSource(all []listed) map[string]bool {
 			visit(imp)
 		}
 	}
+	visitHandWritten = func(path string) {
+		for _, dep := range stdDeps(path) {
+			visit(dep)
+		}
+	}
 	for _, l := range all {
-		if l.Standard {
+		if l.Standard || strings.Contains(l.ImportPath, " [") || strings.HasSuffix(l.ImportPath, ".test") {
+			// Test variants and test mains are go list's, not the program's.
 			continue
 		}
-		for _, imp := range append(append(l.Imports, l.TestImports...), l.XTestImports...) {
+		imports := l.Imports
+		if roots[l.ImportPath] {
+			// Only the requested packages have their tests transpiled.
+			imports = append(append(imports, l.TestImports...), l.XTestImports...)
+		}
+		for _, imp := range imports {
 			visit(imp)
 		}
 	}

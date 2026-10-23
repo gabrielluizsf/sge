@@ -63,7 +63,7 @@ export function Inf(sign: number): number {
   return sign >= 0 ? Infinity : -Infinity;
 }
 
-export function NaN(): number {
+export function NaN$(): number {
   return globalThis.NaN;
 }
 
