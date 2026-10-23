@@ -30,3 +30,15 @@ func TestCircleBounds(t *testing.T) {
 		t.Errorf("Bounds = %v, want %v", got, want)
 	}
 }
+
+func TestOffsetMovesEachShape(t *testing.T) {
+	if got := Offset(Box{1, 2, 3, 4}, 10, 20); got != (Box{11, 22, 3, 4}) {
+		t.Errorf("box moved to %v", got)
+	}
+	if got := Offset(Circle{1, 2, 3}, 10, 20); got != (Circle{11, 22, 3}) {
+		t.Errorf("circle moved to %v", got)
+	}
+	if Offset(nil, 1, 1) != nil {
+		t.Error("moving no collider made one")
+	}
+}

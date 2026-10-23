@@ -1,0 +1,24 @@
+// Package game runs a world of objects: each frame their scripts run,
+// their animations move on, the ones that touch are told, and they are
+// drawn in order onto an antui window, or any canvas.
+package game
+
+import (
+	"github.com/gabrielluizsf/antui"
+	"github.com/gabrielluizsf/antui/canvas"
+)
+
+// Game is the world and, while it runs, the window it is shown in.
+type Game struct {
+	// Background is what the canvas is cleared to before each frame.
+	Background canvas.Color
+	// FixedStep, when above zero, is the seconds every frame of Run steps
+	// the world by, instead of the time the frame took: the same run
+	// every time, for physics and replays.
+	FixedStep float64
+
+	objects []*Object
+	window  *antui.Window
+	time    float64
+	quit    bool
+}

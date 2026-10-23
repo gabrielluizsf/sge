@@ -53,3 +53,14 @@ func TestCopiesAreIndependent(t *testing.T) {
 		t.Errorf("moving a copy moved the original to %v", a.Position)
 	}
 }
+
+func TestAngleIsTheTurnAroundZ(t *testing.T) {
+	tr := New()
+	tr.Rotate(vector.Vector3{Z: 1}, 0.75)
+	if got := tr.Angle(); math.Abs(got-0.75) > 1e-9 {
+		t.Errorf("Angle = %v, want 0.75", got)
+	}
+	if got := New().Angle(); got != 0 {
+		t.Errorf("Angle of New = %v, want 0", got)
+	}
+}
