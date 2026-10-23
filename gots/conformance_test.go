@@ -13,7 +13,7 @@ import (
 // installed, node otherwise.
 func jsRuntime(t *testing.T) []string {
 	if p, err := exec.LookPath("deno"); err == nil {
-		return []string{p, "run", "-q", "--no-config", "--no-lock", "--allow-read", "--allow-env"}
+		return []string{p, "run", "-q", "--no-config", "--no-lock", "--allow-read", "--allow-write", "--allow-env", "--allow-run"}
 	}
 	if p, err := exec.LookPath("node"); err == nil {
 		return []string{p, "--no-warnings"}

@@ -399,7 +399,12 @@ export function TempDir(): string {
   return go(deno().env.get("TMPDIR") ?? "/tmp");
 }
 
+// errPatternHasSeparator refuses a temporary name pattern that would
+// reach outside its directory, as Go does.
+const errPatternHasSeparator = new osError("pattern contains path separator");
+
 export function MkdirTemp(dir: string, pattern: string): [string, any] {
+  if (pattern.includes("/")) return ["", new fs.PathError("mkdirtemp", pattern, errPatternHasSeparator)];
   const d = dir === "" ? TempDir() : dir;
   const star = pattern.lastIndexOf("*");
   const opts = star < 0 ? { dir: js(d), prefix: js(pattern) } : { dir: js(d), prefix: js(pattern.slice(0, star)), suffix: js(pattern.slice(star + 1)) };
@@ -407,6 +412,7 @@ export function MkdirTemp(dir: string, pattern: string): [string, any] {
 }
 
 export function CreateTemp(dir: string, pattern: string): [File | null, any] {
+  if (pattern.includes("/")) return [null, new fs.PathError("createtemp", pattern, errPatternHasSeparator)];
   const d = dir === "" ? TempDir() : dir;
   const star = pattern.lastIndexOf("*");
   const opts = star < 0 ? { dir: js(d), prefix: js(pattern) } : { dir: js(d), prefix: js(pattern.slice(0, star)), suffix: js(pattern.slice(star + 1)) };
