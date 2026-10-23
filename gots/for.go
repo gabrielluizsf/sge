@@ -13,13 +13,36 @@ func labelPrefix(label string) string {
 	return label + ": "
 }
 
-// loop writes a loop's body with the loop on the break stack.
+// loop writes a loop's body with the loop on the break stack. head may
+// start with the loop's Go label; a loop without one is given a label
+// only when a break or continue inside has to name it, so the body is
+// written first and the head after.
 func (e *emitter) loop(w *writer, head string, body func()) {
-	e.fn.breaks = append(e.fn.breaks, &breakable{})
-	w.open("%s {", head)
+	b := &breakable{}
+	if i := strings.Index(head, ": "); i > 0 && !strings.ContainsAny(head[:i], " (") {
+		b.label = head[:i]
+		b.used = true
+		head = head[i+2:]
+	} else {
+		b.label = e.sc.fresh("$loop")
+	}
+	e.fn.breaks = append(e.fn.breaks, b)
+	before := w.b.String()
+	w.b.Reset()
+	w.indent++
 	body()
-	w.close("}")
+	text := w.b.String()
+	w.indent--
+	w.b.Reset()
+	w.b.WriteString(before)
 	e.fn.breaks = e.fn.breaks[:len(e.fn.breaks)-1]
+	if b.used {
+		w.line("%s: %s {", b.label, head)
+	} else {
+		w.line("%s {", head)
+	}
+	w.b.WriteString(text)
+	w.line("}")
 }
 
 func (e *emitter) forStmt(w *writer, s *ast.ForStmt, label string) {

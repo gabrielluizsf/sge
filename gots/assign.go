@@ -54,6 +54,15 @@ func (e *emitter) newVar(x ast.Expr, define bool) *types.Var {
 
 // declareVar writes the declaration of v holding the value js.
 func (e *emitter) declareVar(w *writer, v *types.Var, js string) {
+	if e.predeclared[v] {
+		n := e.objName(v)
+		if e.boxed[v] {
+			w.line("%s = new $.Cell<%s>(%s);", n, e.tsType(e.varType(v)), js)
+			return
+		}
+		w.line("%s = %s;", n, js)
+		return
+	}
 	n := e.declare(v)
 	if e.boxed[v] {
 		w.line("const %s = new $.Cell<%s>(%s);", n, e.tsType(e.varType(v)), js)
@@ -119,7 +128,7 @@ func (e *emitter) assignTuple(w *writer, lhs []ast.Expr, r ast.Expr, define bool
 			names = append(names, "")
 			continue
 		}
-		if v == nil || e.boxed[v] || isInterface(e.varType(v)) != isInterface(types_[len(names)]) {
+		if v == nil || e.boxed[v] || e.predeclared[v] || isInterface(e.varType(v)) != isInterface(types_[len(names)]) {
 			allNew = false
 		}
 		names = append(names, "?")

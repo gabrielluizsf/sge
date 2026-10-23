@@ -18,20 +18,23 @@ type emitter struct {
 	lay  layout
 	dir  string
 
-	imports      map[string]string // import path → module alias
-	importOrder  []string
-	pkgNames     map[string]bool            // names taken at module level
-	names        map[types.Object]string    // bindings handed out so far
-	boxed        map[types.Object]bool      // variables kept in a Cell
-	anon         map[string]string          // anonymous struct type → class
-	anonDecls    writer                     // classes for anonymous structs
-	typeConsts   map[string]string          // descriptor expression → const
-	typeOrder    []string                   // typeConsts in creation order
-	localTypes   map[*types.TypeName]string // types declared in functions
-	fn           *funcState
-	boxedDone    map[*types.Info]bool // packages findBoxed has been run on
-	files        []*ast.File          // the module's own files
-	info0        *types.Info          // their type information
+	imports     map[string]string // import path → module alias
+	importOrder []string
+	pkgNames    map[string]bool            // names taken at module level
+	names       map[types.Object]string    // bindings handed out so far
+	boxed       map[types.Object]bool      // variables kept in a Cell
+	anon        map[string]string          // anonymous struct type → class
+	anonDecls   writer                     // classes for anonymous structs
+	typeConsts  map[string]string          // descriptor expression → const
+	typeOrder   []string                   // typeConsts in creation order
+	localTypes  map[*types.TypeName]string // types declared in functions
+	fn          *funcState
+	boxedDone   map[*types.Info]bool // packages findBoxed has been run on
+	// predeclared are variables a goto state machine declares ahead of its
+	// loop, whose Go declarations become assignments.
+	predeclared  map[types.Object]bool
+	files        []*ast.File // the module's own files
+	info0        *types.Info // their type information
 	subst        map[*types.TypeParam]types.Type
 	ctxt         *types.Context
 	insts        map[string]*instance
@@ -48,6 +51,7 @@ type funcState struct {
 	results []string // binding of each named result, if they are named
 	frame   string   // the defer Frame, if the function defers
 	breaks  []*breakable
+	gotos   map[string]gotoCase // labels a goto state machine jumps to
 	parent  *funcState
 }
 
@@ -58,6 +62,9 @@ type breakable struct {
 	label    string
 	isSwitch bool
 	used     bool
+	// barrier is the loop a goto state machine runs in: a break or
+	// continue meant for a statement outside it has to name its label.
+	barrier bool
 }
 
 func newEmitter(prog *Program, pkg *Package, info *types.Info, tpkg *types.Package, lay layout) *emitter {

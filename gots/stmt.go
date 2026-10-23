@@ -6,6 +6,10 @@ import (
 )
 
 func (e *emitter) stmts(w *writer, list []ast.Stmt) {
+	if backwardGoto(list) {
+		e.stmtsStateMachine(w, list)
+		return
+	}
 	if regions := gotoRegions(list); len(regions) > 0 {
 		e.stmtsWithGotos(w, list, regions)
 		return
@@ -115,33 +119,48 @@ func (e *emitter) labeled(w *writer, s *ast.LabeledStmt) {
 	}
 }
 
+// target finds the statement a bare break (loops and switches) or continue
+// (loops only) leaves, and whether a goto state machine's loop lies in
+// between, in which case the jump has to name it.
+func (e *emitter) target(forContinue bool) (b *breakable, crossed bool) {
+	for i := len(e.fn.breaks) - 1; i >= 0; i-- {
+		t := e.fn.breaks[i]
+		switch {
+		case t.barrier:
+			crossed = true
+		case t.isSwitch && forContinue:
+		default:
+			return t, crossed
+		}
+	}
+	return nil, crossed
+}
+
 func (e *emitter) branch(w *writer, s *ast.BranchStmt) {
 	switch s.Tok {
-	case token.BREAK:
+	case token.BREAK, token.CONTINUE:
+		kw := "break"
+		if s.Tok == token.CONTINUE {
+			kw = "continue"
+		}
 		if s.Label != nil {
-			w.line("break %s;", mangle(s.Label.Name))
+			w.line("%s %s;", kw, mangle(s.Label.Name))
 			return
 		}
-		if n := len(e.fn.breaks); n > 0 && e.fn.breaks[n-1].isSwitch {
-			b := e.fn.breaks[n-1]
-			b.used = true
-			w.line("break %s;", b.label)
+		t, crossed := e.target(s.Tok == token.CONTINUE)
+		if t != nil && (t.isSwitch || crossed) {
+			t.used = true
+			w.line("%s %s;", kw, t.label)
 			return
 		}
-		w.line("break;")
-	case token.CONTINUE:
-		if s.Label != nil {
-			w.line("continue %s;", mangle(s.Label.Name))
-			return
-		}
-		w.line("continue;")
+		w.line("%s;", kw)
 	case token.FALLTHROUGH:
 		// Handled by the switch, which joins the clauses.
 	case token.GOTO:
-		if obj := e.info.Uses[s.Label]; obj != nil && obj.Pos() > s.Pos() {
-			w.line("break %s;", gotoLabel(s.Label.Name))
+		if gc, ok := e.fn.gotos[s.Label.Name]; ok {
+			w.line("{ %s = %d; continue %s; }", gc.state, gc.index, gc.loop)
 			return
 		}
-		w.line("%s;", e.unsupported(s, "backward goto"))
+		w.line("break %s;", gotoLabel(s.Label.Name))
 	}
 }
