@@ -11,6 +11,8 @@ func (m *Map) paint(col, row int) {
 	if id == m.painted[i] {
 		return
 	}
+	m.count(m.painted[i], -1)
+	m.count(id, 1)
 	m.painted[i] = id
 	img := m.picture.Image
 	if img == nil {

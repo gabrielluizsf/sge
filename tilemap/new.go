@@ -21,7 +21,7 @@ func New(name string, tiles *TileSet, cols, rows int) (*Map, error) {
 		m.painted[i] = Empty
 	}
 	m.AddScript(clock{m})
-	m.AddScript(sparse{m})
+	m.AddScript(drawing{m})
 	m.picture = &sprite.Sprite{}
 	m.Collider = &solidTiles{m}
 	return m, nil

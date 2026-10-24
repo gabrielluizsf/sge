@@ -5,6 +5,7 @@ import (
 
 	"github.com/gabrielluizsf/antui/canvas"
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
@@ -20,31 +21,53 @@ func drawn(t testing.TB, m *Map, w, h int) *canvas.Canvas {
 	return cv
 }
 
-// A map with few tiles draws them one by one rather than its whole
-// picture, and the pixels come out the same, wherever it is placed.
-func TestASparseMapDrawsAsItsPicture(t *testing.T) {
-	for _, at := range []vector.Vector3{{}, {X: 3.4, Y: 1.6}, {X: -2.5, Y: 7.5}} {
-		m, _ := New("things", tiles(t), 10, 10)
-		m.Set(1, 1, 1)
-		m.Set(8, 3, 0)
-		m.Set(9, 9, 1)
-		m.Transform.Position = at
-		if m.Sprite != nil {
-			t.Fatal("a map with 3 of 100 cells drawn as a whole picture")
-		}
-		got := drawn(t, m, 48, 48)
-		want, _ := canvas.NewCanvas(48, 48)
-		want.Clear(game.New().Background)
-		m.Picture()
-		m.picture.Draw(want, m.Transform)
-		for y := range 48 {
-			for x := range 48 {
-				if got.At(x, y) != want.At(x, y) {
-					t.Fatalf("at %v, pixel %d,%d: %v, not %v", at, x, y, got.At(x, y), want.At(x, y))
+// However full a map is, of opaque tiles or not, it draws the pixels its
+// whole picture would, wherever it is placed: tile by tile, or copied
+// whole when every cell is opaque.
+func TestAMapDrawsAsItsPicture(t *testing.T) {
+	fills := map[string]func(m *Map){
+		"sparse": func(m *Map) { m.Set(1, 1, 1); m.Set(8, 3, 0); m.Set(9, 9, 1) },
+		"half":   func(m *Map) { m.Fill(0, 0, 10, 6, 0); m.Set(2, 2, Empty) },
+		"opaque": func(m *Map) { m.Fill(0, 0, 10, 10, 0); m.Set(4, 4, 1) },
+		"glass":  func(m *Map) { m.Fill(0, 0, 10, 10, 2) },
+		"mixed":  func(m *Map) { m.Fill(0, 0, 10, 4, 2); m.Fill(0, 4, 10, 3, 1) },
+	}
+	for name, fill := range fills {
+		for _, at := range []vector.Vector3{{}, {X: 3.4, Y: 1.6}, {X: -2.5, Y: 7.5}} {
+			m, _ := New("things", glassy(t), 10, 10)
+			fill(m)
+			m.Transform.Position = at
+			got := drawn(t, m, 48, 48)
+			want, _ := canvas.NewCanvas(48, 48)
+			want.Clear(game.New().Background)
+			(&sprite.Sprite{Image: m.Picture()}).Draw(want, m.Transform)
+			for y := range 48 {
+				for x := range 48 {
+					if got.At(x, y) != want.At(x, y) {
+						t.Fatalf("%s at %v, pixel %d,%d: %v, not %v", name, at, x, y, got.At(x, y), want.At(x, y))
+					}
 				}
 			}
 		}
 	}
+}
+
+// glassy is tiles with a tile 2 half transparent.
+func glassy(t *testing.T) *TileSet {
+	sheet, _ := canvas.NewCanvas(12, 4)
+	sheet.FillRect(canvas.Area{Width: 4, Height: 4}, grass)
+	sheet.FillRect(canvas.Area{X: 4, Width: 4, Height: 4}, wall)
+	// Put, as filling would blend onto the transparent sheet.
+	for y := range 4 {
+		for x := 8; x < 12; x++ {
+			sheet.Put(x, y, canvas.RGBA(canvas.RGBAParams{R: 200, A: 100}))
+		}
+	}
+	s, err := NewTileSet(sheet, 4, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return s
 }
 
 // The camera moves a sparse map as it moves any picture.
@@ -61,15 +84,22 @@ func TestASparseMapFollowsTheCamera(t *testing.T) {
 	}
 }
 
-func TestAFullMapDrawsItsPicture(t *testing.T) {
+// Only a map that is copied whole needs its picture: one wholly of opaque
+// tiles. One with a cell empty or see-through draws tile by tile.
+func TestOnlyAnOpaqueMapIsCopiedWhole(t *testing.T) {
 	m, _ := New("ground", tiles(t), 4, 4)
-	m.Fill(0, 0, 4, 2, 0)
-	if m.Sprite == nil || m.Sprite.Image != m.Picture() {
-		t.Fatal("a half full map is not drawn as its picture")
+	m.Fill(0, 0, 4, 4, 0)
+	if !m.opaque() {
+		t.Fatal("a map of grass and walls is not opaque")
 	}
 	m.Set(0, 0, Empty)
-	if m.Sprite != nil {
-		t.Fatal("a map under half full is still drawn as its picture")
+	if m.opaque() {
+		t.Fatal("a map with an empty cell is opaque")
+	}
+	g, _ := New("glass", glassy(t), 2, 1)
+	g.Fill(0, 0, 2, 1, 2)
+	if g.opaque() {
+		t.Fatal("a map of see-through tiles is opaque")
 	}
 }
 
@@ -92,17 +122,20 @@ func BenchmarkDrawSparseMap(b *testing.B) {
 	}
 }
 
-// A sparse map has no picture until it needs one: a world made of many
-// layers of chunks, mostly empty, would hold a megabyte each otherwise.
-func TestASparseMapHoldsNoPicture(t *testing.T) {
+// A map has no picture until it needs one: a world made of many layers
+// of chunks, mostly empty, would hold a megabyte each otherwise.
+func TestAMapHoldsNoPictureUntilCopiedWhole(t *testing.T) {
 	m, _ := New("things", tiles(t), 100, 100)
 	m.Set(3, 3, 1)
-	if m.picture.Image != nil {
-		t.Fatal("a map with one tile allocated its picture")
-	}
 	m.Fill(0, 0, 100, 50, 0)
-	if m.Sprite == nil || m.Picture().At(3*4+1, 3*4+1) != grass || m.Picture().At(1, 60*4) != 0 {
-		t.Fatal("once half full, the picture does not show the cells")
+	drawn(t, m, 8, 8)
+	if m.picture.Image != nil {
+		t.Fatal("a map drawn tile by tile allocated its picture")
+	}
+	m.Fill(0, 50, 100, 50, 1)
+	drawn(t, m, 8, 8)
+	if m.picture.Image == nil || m.Picture().At(3*4+1, 3*4+1) != grass || m.Picture().At(1, 60*4+1) != wall {
+		t.Fatal("copied whole, the picture does not show the cells")
 	}
 	if _, err := New("huge", tiles(t), 1<<16, 1<<16); err == nil {
 		t.Error("a map too big for a canvas was made")

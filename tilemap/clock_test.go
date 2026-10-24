@@ -33,11 +33,18 @@ func TestAMapOutOfViewIsNotAnimatedUntilSeen(t *testing.T) {
 func TestPaintKeepsATilesTransparency(t *testing.T) {
 	sheet, _ := canvas.NewCanvas(4, 4)
 	half := canvas.RGBA(canvas.RGBAParams{R: 200, A: 128})
-	sheet.FillRect(canvas.Area{Width: 4, Height: 4}, half)
+	for y := range 4 {
+		for x := range 4 {
+			sheet.Put(x, y, half) // filling would blend it opaque
+		}
+	}
 	s, _ := NewTileSet(sheet, 4, 4)
 	m, _ := New("glass", s, 1, 1)
 	m.Set(0, 0, 0)
-	if got := m.Picture().At(1, 1); got.A() != sheet.At(1, 1).A() || got != sheet.At(1, 1) {
+	if sheet.At(1, 1).A() != 128 {
+		t.Fatal("the tile is not see-through")
+	}
+	if got := m.Picture().At(1, 1); got != sheet.At(1, 1) {
 		t.Errorf("painted %v, the tile is %v", got, sheet.At(1, 1))
 	}
 }

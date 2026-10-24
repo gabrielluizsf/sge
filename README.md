@@ -54,8 +54,9 @@ screen: `Game.ToScreen` says where a point of the world is.
 A `tilemap.Map` is a `game.Object` whose sprite is its tiles: build one from a
 tile set and text, animate tiles (grass that sways, cell by cell, or water that
 ripples all together), mark tiles solid, and walk an object through several
-layers at once with `tilemap.Move`. A layer with few tiles, the things standing
-on the ground, draws only those.
+layers at once with `tilemap.Move`. A map of opaque tiles, the ground, is
+copied onto the window with antui's `Copy` instead of blended; a layer of
+things standing on it draws only its tiles.
 
 `terrain` makes maps that never end. The ground covers everything, and named
 areas lie over it, each on its layer, worked out for any cell from a seed:

@@ -9,18 +9,6 @@ func (m *Map) Set(col, row, id int) {
 	if id < Empty || id >= len(m.Tiles.Tiles) {
 		id = Empty
 	}
-	i := row*m.Cols + col
-	switch {
-	case m.cells[i] == Empty && id != Empty:
-		m.filled++
-	case m.cells[i] != Empty && id == Empty:
-		m.filled--
-	}
-	m.cells[i] = id
+	m.cells[row*m.Cols+col] = id
 	m.paint(col, row)
-	m.Sprite = nil
-	if 2*m.filled >= len(m.cells) {
-		m.Picture()
-		m.Sprite = m.picture
-	}
 }

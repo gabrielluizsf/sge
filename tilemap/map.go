@@ -13,10 +13,11 @@ const Empty = -1
 // Hidden work as for any object, and its scale stretches it. Rotating a
 // map turns its picture, not its collisions.
 //
-// A map at least half full of tiles is drawn as one picture of them all,
-// its Sprite; a sparser one, such as a layer of things over the ground,
-// has no Sprite and draws its tiles one by one, sparing the blending of
-// all the empty cells.
+// A map draws itself: one wholly of opaque tiles, ground, is copied in
+// one go from a picture of them all, and one mostly of tiles with
+// transparent pixels is blended in one go; any other, such as a layer of
+// things over the ground, draws its tiles one by one, copying the opaque
+// ones and blending only those that let the layers under them show.
 type Map struct {
 	*game.Object
 	Tiles      *TileSet
@@ -25,5 +26,6 @@ type Map struct {
 	painted    []int   // the tile each cell shows now
 	time       float64 // seconds the map has been in a world, for animations
 	picture    *sprite.Sprite
-	filled     int // cells holding a tile
+	opaques    int // cells showing a tile with no transparent pixel
+	glassy     int // cells showing a tile with some
 }
