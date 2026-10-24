@@ -25,6 +25,11 @@ func (e *emitter) call(c *ast.CallExpr) string {
 // callWith is the call c with its arguments already written.
 func (e *emitter) callWith(c *ast.CallExpr, args []string) string {
 	list := strings.Join(args, ", ")
+	if fn := e.staticCallee(c); fn != nil {
+		if js, ok := intrinsics[nativeName(fn)]; ok {
+			return js + "(" + list + ")"
+		}
+	}
 	if sel, ok := ast.Unparen(c.Fun).(*ast.SelectorExpr); ok {
 		if s := e.info.Selections[sel]; s != nil && s.Kind() == types.MethodVal {
 			fn := s.Obj().(*types.Func)

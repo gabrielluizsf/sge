@@ -31,9 +31,33 @@ export function is(x: any, t: Type): boolean {
   return x != null && x.$t === t;
 }
 
+// methodSet marks a method list the emitter writes once, as a module
+// constant, with a symbol implementsI keeps its answers under.
+export function methodSet(methods: string[]): string[] {
+  (methods as any).$key = Symbol(methods.join(","));
+  return methods;
+}
+
 // implements reports whether x has every method an interface asks for.
+// For a Go value and a marked list the answer is kept on the value's
+// class, where reading it again is a property V8 caches; a plain
+// TypeScript object is asked every time, as all of them share one
+// prototype.
 export function implementsI(x: any, methods: string[]): boolean {
   if (x === null) return false;
+  const key = (methods as any).$key;
+  if (key === undefined) return has(x, methods);
+  const known = x[key];
+  if (known !== undefined) return known;
+  const r = has(x, methods);
+  const proto = Object.getPrototypeOf(x);
+  if (proto !== Object.prototype && proto !== null && (x instanceof Val || proto.constructor?.$type !== undefined)) {
+    Object.defineProperty(proto, key, { value: r });
+  }
+  return r;
+}
+
+function has(x: any, methods: string[]): boolean {
   for (const m of methods) if (typeof x[m] !== "function") return false;
   return true;
 }
