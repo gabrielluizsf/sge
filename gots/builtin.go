@@ -134,14 +134,23 @@ func (e *emitter) appendCall(c *ast.CallExpr) string {
 	return "$.append(" + strings.Join(parts, ", ") + ")"
 }
 
+// sizeArg is a length or capacity make is given, as the number the
+// runtime takes: a uint64 one is a BigInt.
+func (e *emitter) sizeArg(x ast.Expr) string {
+	if isBig(e.typeOf(x)) {
+		return "$Number(" + e.expr(x) + ")"
+	}
+	return e.expr(x)
+}
+
 func (e *emitter) makeCall(c *ast.CallExpr) string {
 	t := e.typeOf(c.Args[0])
 	switch u := t.Underlying().(type) {
 	case *types.Slice:
-		n := e.expr(c.Args[1])
+		n := e.sizeArg(c.Args[1])
 		cp := n
 		if len(c.Args) > 2 {
-			cp = e.expr(c.Args[2])
+			cp = e.sizeArg(c.Args[2])
 		}
 		if z := e.zeroFn(u.Elem()); z != "" {
 			return "$.make(null, " + n + ", " + cp + ", " + z + ")"
@@ -152,7 +161,7 @@ func (e *emitter) makeCall(c *ast.CallExpr) string {
 	case *types.Chan:
 		n := "0"
 		if len(c.Args) > 1 {
-			n = e.expr(c.Args[1])
+			n = e.sizeArg(c.Args[1])
 		}
 		return "new $.ch.Chan(" + n + ", () => " + e.zero(u.Elem()) + ")"
 	}
