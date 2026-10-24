@@ -10,7 +10,7 @@ import (
 )
 
 // benchWorld is a busy frame: n spinning, moving objects with sprites and
-// colliders, the way a small game has them.
+// colliders, each told what it bumps into, the way a small game has them.
 func benchWorld(b *testing.B, n int) *Game {
 	g := New()
 	look, err := sprite.Rect(12, 12, canvas.RGB(250, 200, 40))
@@ -25,6 +25,7 @@ func benchWorld(b *testing.B, n int) *Game {
 			o.Transform.Rotate(vector.Vector3{Z: 1}, 2*dt)
 			o.Transform.Translate(vector.Vector3{X: 10 * dt})
 		}))
+		o.AddScript(&bumps{})
 	}
 	return g
 }
@@ -48,3 +49,9 @@ func BenchmarkDraw(b *testing.B) {
 		g.Draw(cv)
 	}
 }
+
+// bumps counts what its object touches.
+type bumps struct{ n int }
+
+func (b *bumps) Update(*Object, float64)    {}
+func (b *bumps) Collision(o, other *Object) { b.n++ }

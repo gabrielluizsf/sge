@@ -6,6 +6,7 @@ package game
 import (
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/vector"
 )
 
 // Game is the world and, while it runs, the window it is shown in.
@@ -16,9 +17,17 @@ type Game struct {
 	// the world by, instead of the time the frame took: the same run
 	// every time, for physics and replays.
 	FixedStep float64
+	// Covered says the world draws over the whole canvas every frame, as
+	// an endless terrain does, so the canvas is not cleared first.
+	Covered bool
+	// Camera is the point of the world drawn at the canvas's top-left
+	// corner; objects fixed to the Screen ignore it.
+	Camera vector.Vector3
 
 	objects []*Object
 	window  *antui.Window
 	time    float64
 	quit    bool
+
+	viewW, viewH int
 }

@@ -21,8 +21,12 @@ type Object struct {
 	// Z orders drawing: lower first, so higher is on top.
 	Z      int
 	Hidden bool
+	// Screen fixes the object to the screen: its position is a point of
+	// the canvas, where the camera does not move it, as a HUD's is.
+	Screen bool
 
 	scripts   []Script
+	handles   bool // a script wants to be told what the object touches
 	game      *Game
 	started   bool
 	destroyed bool

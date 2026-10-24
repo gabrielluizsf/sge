@@ -1,11 +1,12 @@
 package game
 
 // collide tells every pair of touching objects about each other, through
-// the scripts of each that handle collisions.
+// the scripts of each that handle collisions. A pair neither of which
+// handles them is not tested: no one would be told.
 func (g *Game) collide(objs []*Object) {
 	for i, a := range objs {
 		for _, b := range objs[i+1:] {
-			if a.destroyed || b.destroyed || !a.Collides(b) {
+			if !a.handles && !b.handles || a.destroyed || b.destroyed || !a.Collides(b) {
 				continue
 			}
 			tell(a, b)
