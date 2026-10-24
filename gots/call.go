@@ -33,21 +33,21 @@ func (e *emitter) callWith(c *ast.CallExpr, args []string) string {
 				if isInterface(e.recvType(fn)) {
 					// The object behind an interface may be TypeScript's,
 					// which knows only the TypeScript-facing names.
-					return fromIface(recv+"."+fieldName(fn.Name())+"("+list+")", fn.Type().(*types.Signature))
+					return fromIface(e.awaited(c, recv+"."+fieldName(fn.Name())+"("+list+")"), fn.Type().(*types.Signature))
 				}
-				return recv + "." + e.goName(fn) + "(" + list + ")"
+				return e.awaited(c, recv+"."+e.goName(fn)+"("+list+")")
 			}
 			if list != "" {
 				list = ", " + list
 			}
-			return e.methodFunc(fn) + "(" + recv + list + ")"
+			return e.awaited(c, e.methodFunc(fn)+"("+recv+list+")")
 		}
 	}
 	fun := e.expr(c.Fun)
 	if _, isLit := ast.Unparen(c.Fun).(*ast.FuncLit); isLit {
 		fun = "(" + fun + ")"
 	}
-	return fun + "(" + list + ")"
+	return e.awaited(c, fun+"("+list+")")
 }
 
 // args writes a call's arguments as the callee's parameters receive them:

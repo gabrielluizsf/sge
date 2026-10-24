@@ -47,8 +47,10 @@ func (e *emitter) goName(fn *types.Func) string {
 }
 
 // wrapper writes the TypeScript-facing function or method head(params)
-// calling target with its strings converted.
-func (e *emitter) wrapper(w *writer, head, target string, sig *types.Signature) {
+// calling target, fn's Go body, with its strings converted: an async one,
+// awaiting it, when fn may block.
+func (e *emitter) wrapper(w *writer, head, target string, sig *types.Signature, fn *types.Func) {
+	async := e.blocks(fn)
 	var params, args []string
 	for i := 0; i < sig.Params().Len(); i++ {
 		p := sig.Params().At(i)
@@ -62,7 +64,11 @@ func (e *emitter) wrapper(w *writer, head, target string, sig *types.Signature) 
 	}
 	call := target + "(" + strings.Join(args, ", ") + ")"
 	results := sig.Results()
-	w.open("%s(%s): %s {", head, strings.Join(params, ", "), e.tsResults(results))
+	ret := e.tsResults(results)
+	if async {
+		head, ret, call = asyncPrefix(head), "Promise<"+ret+">", "(await "+call+")"
+	}
+	w.open("%s(%s): %s {", head, strings.Join(params, ", "), ret)
 	switch {
 	case results.Len() == 0:
 		w.line("%s;", call)

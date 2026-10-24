@@ -33,7 +33,7 @@ func TestBenchmarksOnDeno(t *testing.T) {
 	}
 	// Each prints its line as go test -bench does, b.N grown until the
 	// loop takes long enough to time.
-	for _, name := range []string{"BenchmarkSumLoop", "BenchmarkSumN"} {
+	for _, name := range []string{"BenchmarkSumLoop", "BenchmarkSumN", "BenchmarkChanPingPong", "BenchmarkChanBuffered", "BenchmarkWaitGroup"} {
 		m := regexp.MustCompile(`(?m)^` + name + `\s+(\d+)\s+[\d.]+ ns/op$`).FindSubmatch(got)
 		if m == nil {
 			t.Errorf("deno bench did not report %s in Go's format:\n%s", name, got)

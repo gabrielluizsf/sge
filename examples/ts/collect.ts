@@ -65,6 +65,6 @@ for (let i = 0; i < 5; i++) {
   place(c);
 }
 
-const runErr = g.Run("sge collect — TypeScript", width, height);
+const runErr = await g.Run("sge collect — TypeScript", width, height);
 if (runErr !== null) console.error(runErr.Error());
 console.log("score:", player.score);

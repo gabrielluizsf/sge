@@ -109,10 +109,11 @@ export class T {
     return g.Deno?.makeTempDirSync() ?? "/tmp";
   }
 
-  // Run runs f as a subtest, reporting under this test's name.
-  Run(name: string, f: (t: T) => void): boolean {
+  // Run runs f as a subtest, reporting under this test's name. It may
+  // block, as f may, so Go code awaits it.
+  async Run(name: string, f: (t: T) => any): Promise<boolean> {
     const sub = new T(this.name + "/" + name.replaceAll(" ", "_"), this);
-    run(sub, f);
+    await runAsync(sub, f);
     for (const l of sub.logs) this.logs.push("    " + sub.name + ": " + l);
     return !sub.failed;
   }
@@ -160,42 +161,50 @@ export class B extends T {
 
   // Run would need its sub-benchmarks timed apart; the benchmark is
   // skipped instead of timing them together.
-  override Run(name: string, _f: (t: any) => void): boolean {
-    this.Skip($.slice([$.val($.String, $.str.toGo("gots: sub-benchmark " + name + " needs b.Run, which gots does not support yet"))]));
-    return false;
+  // It skips at once, not in a promise, so the skip is not lost.
+  override Run(name: string, _f: (t: any) => any): Promise<boolean> {
+    return this.Skip($.slice([$.val($.String, $.str.toGo("gots: sub-benchmark " + name + " needs b.Run, which gots does not support yet"))]));
   }
 }
 
 const benchtime = 1000; // milliseconds, go test's -benchtime default
 
-// runN runs f once with b.N = n and gives the B, its time spent.
-function runN(name: string, f: (b: B) => void, n: number): B {
+// runN runs f once with b.N = n and gives the B, its time spent. A
+// benchmark that blocks is awaited; one that does not is run as it is,
+// with no promise in its way.
+function runN(name: string, f: (b: B) => any, n: number): B | Promise<B> {
   const b = new B(name);
   b.N = n;
   b.StartTimer();
+  if (f.constructor.name === "AsyncFunction") {
+    return runAsync(b, f as (t: T) => any).then(() => {
+      b.StopTimer();
+      return b;
+    });
+  }
   run(b, f as (t: T) => void);
   b.StopTimer();
   return b;
 }
 
 // benchmark times f as go test -bench does and prints its line.
-function benchmark(name: string, f: (b: B) => void): void {
+async function benchmark(name: string, f: (b: B) => any): Promise<void> {
   let n = 1;
-  let b = runN(name, f, n);
+  let b = await runN(name, f, n);
   while (!b.failed && !b.skipped && b.Elapsed() < benchtime * 1e6 && n < 1e9) {
     // Go's prediction: aim for benchtime with 20% to spare, growing at
     // most a hundredfold a round and at least by one.
     const per = b.Elapsed() / n;
     const want = per > 0 ? (benchtime * 1e6 * 1.2) / per : n * 100;
     n = Math.max(Math.min(Math.floor(want), n * 100), n + 1);
-    b = runN(name, f, n);
+    b = await runN(name, f, n);
   }
   // The round that settles b.N is often the one V8 recompiles the
   // benchmark during, and it runs to its end in the code it started in,
   // up to three times slower. Go has no JIT to wait for; here the round
   // is run again, warm, and the faster of the two kept.
   if (!b.failed && !b.skipped) {
-    const again = runN(name, f, n);
+    const again = await runN(name, f, n);
     if (again.failed || again.Elapsed() < b.Elapsed()) b = again;
   }
   if (b.failed) throw new Error("\n" + report(b));
@@ -226,10 +235,10 @@ export function registerBench(name: string, f: (b: B) => void, skipped = false):
     ignore: skipped,
     n: 1,
     warmup: 0,
-    fn: () => {
+    fn: async () => {
       if (done) return;
       done = true;
-      benchmark(name, f);
+      await benchmark(name, f);
     },
   });
 }
@@ -237,6 +246,23 @@ export function registerBench(name: string, f: (b: B) => void, skipped = false):
 function run(t: T, f: (t: T) => void): void {
   try {
     f(t);
+  } catch (e) {
+    if (!(e instanceof failNow) && !(e instanceof skipNow)) {
+      t.logs.push("panic: " + (e instanceof Error ? e.message : globalThis.String(e)));
+      if (e instanceof Error && e.stack) t.logs.push(e.stack);
+      t.Fail();
+    }
+  } finally {
+    for (let i = t.cleanups.length - 1; i >= 0; i--) t.cleanups[i]();
+  }
+}
+
+// runAsync is run for a test that may block: f's promise is waited for
+// before its cleanups run.
+async function runAsync(t: T, f: (t: T) => any): Promise<void> {
+  try {
+    const r = f(t);
+    if (r instanceof Promise) await r;
   } catch (e) {
     if (!(e instanceof failNow) && !(e instanceof skipNow)) {
       t.logs.push("panic: " + (e instanceof Error ? e.message : globalThis.String(e)));
@@ -258,9 +284,9 @@ const queued: Array<[string, (t: T) => void]> = [];
 export function register(name: string, f: (t: T) => void, skipped = false): void {
   const g: any = globalThis;
   if (g.Deno?.test !== undefined) {
-    g.Deno.test({ name, ignore: skipped }, () => {
+    g.Deno.test({ name, ignore: skipped }, async () => {
       const t = new T(name);
-      run(t, f);
+      await runAsync(t, f);
       if (t.failed) throw new Error("\n" + report(t));
       if (t.skipped) console.log(report(t));
     });

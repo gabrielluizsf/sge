@@ -57,9 +57,11 @@ func (e *emitter) stmt(w *writer, s ast.Stmt) {
 		e.deferStmt(w, s)
 	case *ast.EmptyStmt:
 	case *ast.GoStmt:
-		w.line("%s;", e.unsupported(s, "go statements"))
-	case *ast.SendStmt, *ast.SelectStmt:
-		w.line("%s;", e.unsupported(s, "channels"))
+		e.goStmt(w, s)
+	case *ast.SendStmt:
+		e.sendStmt(w, s)
+	case *ast.SelectStmt:
+		e.selectStmt(w, s, "")
 	default:
 		w.line("%s;", e.unsupported(s, "statement"))
 	}
@@ -112,6 +114,8 @@ func (e *emitter) labeled(w *writer, s *ast.LabeledStmt) {
 		e.switchStmt(w, inner, label)
 	case *ast.TypeSwitchStmt:
 		e.typeSwitch(w, inner, label)
+	case *ast.SelectStmt:
+		e.selectStmt(w, inner, label)
 	default:
 		w.open("%s: {", label)
 		e.stmt(w, s.Stmt)

@@ -21,7 +21,10 @@ export function NumGoroutine(): number {
   return 1;
 }
 
-export function Gosched(): void {}
+// Gosched lets the goroutines waiting to run go first.
+export function Gosched(): Promise<void> {
+  return new Promise((resolve) => queueMicrotask(resolve));
+}
 export function GC(): void {}
 export function KeepAlive(_x: any): void {}
 export function SetFinalizer(_obj: any, _finalizer: any): void {}

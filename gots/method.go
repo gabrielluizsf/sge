@@ -40,7 +40,7 @@ func (e *emitter) method(w, funcs *writer, fd *ast.FuncDecl, inClass bool) {
 			prologue = append(prologue, "let "+n+" = "+self+";")
 		}
 		if e.wrapped(fn) {
-			e.wrapper(w, fieldName(fn.Name()), "this."+e.goName(fn), sig)
+			e.wrapper(w, fieldName(fn.Name()), "this."+e.goName(fn), sig, fn)
 		}
 		e.functionIn(w, e.goName(fn), sig, fd.Type, fd.Body, prologue)
 		return
@@ -49,7 +49,7 @@ func (e *emitter) method(w, funcs *writer, fd *ast.FuncDecl, inClass bool) {
 	recvParam := types.NewParam(recvField.Pos(), e.tpkg, "", sig.Recv().Type())
 	params := types.NewTuple(append([]*types.Var{recvParam}, tupleVars(sig.Params())...)...)
 	withRecv := types.NewSignatureType(nil, nil, nil, params, sig.Results(), sig.Variadic())
-	ft := &ast.FuncType{Params: &ast.FieldList{List: append([]*ast.Field{recvField}, fd.Type.Params.List...)}, Results: fd.Type.Results}
+	ft := &ast.FuncType{Func: fd.Type.Func, Params: &ast.FieldList{List: append([]*ast.Field{recvField}, fd.Type.Params.List...)}, Results: fd.Type.Results}
 	e.functionIn(w, "export function "+e.methodFunc(fn), withRecv, ft, fd.Body, nil)
 }
 

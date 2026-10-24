@@ -8,6 +8,8 @@ export * from "./map.ts";
 export * from "./array.ts";
 export * from "./builtin.ts";
 export * from "./native.ts";
+export * as ch from "./chan.ts";
+export { go, runMain, crash } from "./go.ts";
 export * as int from "./int.ts";
 export * as str from "./string.ts";
 export * as unsafe from "./unsafe.ts";

@@ -59,6 +59,8 @@ func (e *emitter) tsType(t types.Type) string {
 		return e.tsType(t.Elem()) + "[]"
 	case *types.Map:
 		return "$.GoMap<" + e.tsType(t.Key()) + ", " + e.tsType(t.Elem()) + "> | null"
+	case *types.Chan:
+		return "$.ch.Chan<" + e.tsType(t.Elem()) + "> | null"
 	case *types.Signature:
 		return "(" + e.tsSignature(t) + ") | null"
 	case *types.Interface:

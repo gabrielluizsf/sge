@@ -66,7 +66,7 @@ func (e *emitter) module(files []*ast.File) string {
 				impl := name
 				if e.wrapped(fn) {
 					impl = name + "$g"
-					e.wrapper(&funcs, "export function "+name, impl, fn.Type().(*types.Signature))
+					e.wrapper(&funcs, "export function "+name, impl, fn.Type().(*types.Signature), fn)
 				}
 				if e.testFile(d) {
 					e.testFunction(&funcs, impl, fn, d)
@@ -88,7 +88,7 @@ func (e *emitter) module(files []*ast.File) string {
 		inits.line("%s();", n)
 	}
 	if e.tpkg.Name() == "main" && len(tests) == 0 && len(benches) == 0 {
-		inits.line("main();")
+		inits.line("$.runMain(main);")
 	}
 	if len(tests) > 0 {
 		alias := e.imports["testing"]

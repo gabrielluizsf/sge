@@ -10,7 +10,7 @@ import (
 // and TypeScript call methods on the object.
 func (e *emitter) forward(w *writer, fn *types.Func, sig *types.Signature) {
 	if e.wrapped(fn) {
-		e.wrapper(w, fieldName(fn.Name()), "this."+e.goName(fn), sig)
+		e.wrapper(w, fieldName(fn.Name()), "this."+e.goName(fn), sig, fn)
 	}
 	params, args := []string{}, []string{"this"}
 	for i := 0; i < sig.Params().Len(); i++ {
@@ -19,8 +19,12 @@ func (e *emitter) forward(w *writer, fn *types.Func, sig *types.Signature) {
 		args = append(args, p)
 	}
 	ret := "return "
-	if sig.Results().Len() == 0 {
+	if sig.Results().Len() == 0 && !e.blocks(fn) {
 		ret = ""
 	}
-	w.line("%s(%s): %s { %s%s(%s); }", e.goName(fn), strings.Join(params, ", "), e.tsResults(sig.Results()), ret, e.methodFunc(fn), strings.Join(args, ", "))
+	results := e.tsResults(sig.Results())
+	if e.blocks(fn) {
+		results = "Promise<" + results + ">"
+	}
+	w.line("%s(%s): %s { %s%s(%s); }", e.goName(fn), strings.Join(params, ", "), results, ret, e.methodFunc(fn), strings.Join(args, ", "))
 }

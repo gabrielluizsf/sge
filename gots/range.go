@@ -64,6 +64,18 @@ func (e *emitter) rangeStmt(w *writer, s *ast.RangeStmt, label string) {
 			e.bindRange(w, s.Value, e.cloneOf(a+"["+i+"]", elem), elem, s.Tok)
 			e.stmts(w, s.Body.List)
 		})
+	case *types.Chan:
+		if e.fn == nil || !e.fn.async {
+			w.line("%s;", e.unsupported(s, "range over a channel outside a function that can wait"))
+			return
+		}
+		c, r := e.sc.fresh("$c"), e.sc.fresh("$r")
+		e.loop(w, head+"for (const "+c+" = "+e.expr(s.X)+";;)", func() {
+			w.line("const %s = %s;", r, e.awaitIfPromise("$.ch.recv("+c+")"))
+			w.line("if (!%s[1]) break;", r)
+			e.bindRange(w, s.Key, r+"[0]", u.Elem(), s.Tok)
+			e.stmts(w, s.Body.List)
+		})
 	case *types.Map:
 		k, v := e.sc.fresh("$k"), e.sc.fresh("$v")
 		e.loop(w, head+"for (const ["+k+", "+v+"] of $.entries("+e.expr(s.X)+"))", func() {

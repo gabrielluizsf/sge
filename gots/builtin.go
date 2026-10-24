@@ -39,10 +39,15 @@ func (e *emitter) builtin(c *ast.CallExpr) string {
 		case *types.Pointer, *types.Array:
 			_ = u
 			return arg(0) + ".length"
+		case *types.Chan:
+			return "$.ch.chanLen(" + arg(0) + ")"
 		}
 	case "cap":
-		if _, ok := e.typeOf(c.Args[0]).Underlying().(*types.Slice); ok {
+		switch e.typeOf(c.Args[0]).Underlying().(type) {
+		case *types.Slice:
 			return "$.cap(" + arg(0) + ")"
+		case *types.Chan:
+			return "$.ch.chanCap(" + arg(0) + ")"
 		}
 		return arg(0) + ".length"
 	case "append":
@@ -93,7 +98,7 @@ func (e *emitter) builtin(c *ast.CallExpr) string {
 			return "$.clear(" + arg(0) + ", () => 0)"
 		}
 	case "close":
-		return e.unsupported(c, "channels")
+		return "$.ch.close(" + arg(0) + ")"
 	case "complex":
 		js := "{ re: " + arg(0) + ", im: " + arg(1) + " }"
 		if basicKind(e.typeOf(c)) == types.Complex64 {
@@ -145,7 +150,11 @@ func (e *emitter) makeCall(c *ast.CallExpr) string {
 	case *types.Map:
 		return e.newMap(u, "")
 	case *types.Chan:
-		return e.unsupported(c, "channels")
+		n := "0"
+		if len(c.Args) > 1 {
+			n = e.expr(c.Args[1])
+		}
+		return "new $.ch.Chan(" + n + ", () => " + e.zero(u.Elem()) + ")"
 	}
 	return e.unsupported(c, "make of this type")
 }

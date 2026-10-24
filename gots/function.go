@@ -15,7 +15,7 @@ func (e *emitter) function(w *writer, prefix string, sig *types.Signature, ft *a
 	if fresh || e.sc == nil {
 		e.sc = newScope(e.pkgNames)
 	}
-	e.fn = &funcState{sig: sig, ft: ft, body: body, parent: outerFn}
+	e.fn = &funcState{sig: sig, ft: ft, body: body, parent: outerFn, async: e.asyncFunc(ft)}
 	defer func() { e.sc, e.fn = outerSc, outerFn }()
 
 	var params, boxes []string
@@ -50,11 +50,22 @@ func (e *emitter) function(w *writer, prefix string, sig *types.Signature, ft *a
 		}
 	}
 	ret := e.tsResults(sig.Results())
+	if e.fn.async {
+		ret = "Promise<" + ret + ">"
+		prefix = asyncPrefix(prefix)
+	}
 	head := "(" + strings.Join(params, ", ") + "): " + ret
 	if arrow {
+		if e.fn.async {
+			head = "async " + head
+		}
 		w.open("%s => {", head)
 	} else {
 		w.open("%s%s {", prefix, head)
+	}
+	if e.fn.async {
+		e.fn.scratch = e.sc.fresh("$p")
+		w.line("let %s: any;", e.fn.scratch)
 	}
 	for _, p := range prologue {
 		w.line("%s", p)
@@ -127,7 +138,11 @@ func (e *emitter) deferringBody(w *writer, body *ast.BlockStmt) {
 	w.line("%s.fail($e);", e.fn.frame)
 	w.close("} finally {")
 	w.indent++
-	w.line("%s.unwind();", e.fn.frame)
+	if e.fn.async {
+		w.line("await %s.unwindAsync();", e.fn.frame)
+	} else {
+		w.line("%s.unwind();", e.fn.frame)
+	}
 	results := e.fn.sig.Results()
 	switch {
 	case len(e.fn.results) > 0:

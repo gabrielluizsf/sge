@@ -37,6 +37,8 @@ type emitter struct {
 	files         []*ast.File              // the module's own files
 	info0         *types.Info              // their type information
 	localDecls    map[*types.Func]funcDecl // built by funcDeclOf on first use
+	blk           *blocking                // built by blockingOf on first use
+	bindingCall   bool                     // writing a call a defer or go statement makes later
 	subst         map[*types.TypeParam]types.Type
 	ctxt          *types.Context
 	insts         map[string]*instance
@@ -54,6 +56,8 @@ type emitter struct {
 type funcState struct {
 	sig     *types.Signature
 	ft      *ast.FuncType  // the function's own parameters and results
+	async   bool           // it may block, and is an async function
+	scratch string         // its temporary for calls that may hand back a promise
 	body    *ast.BlockStmt // and body, which stableArg looks through
 	results []string       // binding of each named result, if they are named
 	frame   string         // the defer Frame, if the function defers

@@ -55,7 +55,7 @@ hero.AddScript({
     if (o.Game()?.Window()?.KeyDown(antui.KeyRight)) o.Transform.Translate(new vector.Vector3(200 * dt));
   },
 });
-g.Run("my game", 480, 320);
+await g.Run("my game", 480, 320);
 ```
 
 Run it with `deno run --allow-ffi --allow-env --allow-read`. Windows open
@@ -92,16 +92,34 @@ overlays replace the handful of functions that need assembly or the runtime.
 the Go tests, conformance programs that must print the same under `go run` and
 Deno, and the engine's tests transpiled to Deno.
 
+## Goroutines and channels
+
+Goroutines, channels, `select`, `sync.WaitGroup`, `sync.Cond` and the
+timers of `time` work as in Go, on JavaScript's one thread: a function that
+may block (a send, a receive, a `select` that waits, `time.Sleep`,
+`WaitGroup.Wait`, or a call of a function that blocks) becomes an `async`
+function its callers await, and everything else stays as fast as plain
+JavaScript. A goroutine is a microtask; a program ends when `main` returns,
+dies of a panic no goroutine recovers, and reports a deadlock as Go does.
+
+From TypeScript, the functions that block return promises:
+`await g.Run(...)`, and the game loop lets Deno's event loop run between
+frames.
+
+What blocks is worked out from the calls gots can see. A function value or
+interface method that blocks is awaited when it is called from a function
+that may block; called from one that never does, it is not waited for. A
+`sync.Mutex` does not wait either: locking one that another goroutine holds
+while it waits panics, rather than deadlock.
+
 ## Limitations
 
-- Goroutines and channels are not supported yet.
 - `reflect` is not supported, and so neither are `encoding/json` and the
   packages built on it.
+- `net` and `net/http` are not supported: Deno's sockets are not wired in.
 - `int` and `int64` are JavaScript numbers, exact up to 2^53; `uint64` is a
   `bigint`.
-- Only Deno opens windows; on Deno a game loop holds the event loop, so
-  promises (such as antui fetching an SVG's remote pictures) settle once it
-  ends.
+- Only Deno opens windows.
 
 ## License
 

@@ -111,8 +111,8 @@ func (e *emitter) assignTuple(w *writer, lhs []ast.Expr, r ast.Expr, define bool
 		tuple = e.mapOk(r)
 		types_ = []types.Type{e.typeOf(r.X).Underlying().(*types.Map).Elem(), types.Typ[types.Bool]}
 	case *ast.UnaryExpr:
-		w.line("%s;", e.unsupported(r, "channel receive"))
-		return
+		tuple = e.recvExpr(r)
+		types_ = []types.Type{e.typeOf(r.X).Underlying().(*types.Chan).Elem(), types.Typ[types.Bool]}
 	default:
 		tuple = e.expr(r)
 		tup := e.typeOf(r).(*types.Tuple)

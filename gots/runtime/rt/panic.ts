@@ -70,6 +70,27 @@ export class Frame {
     }
     if (this.panicking && !this.recovered) throw this.thrown;
   }
+
+  // unwindAsync is unwind for a function that may block, whose deferred
+  // calls may too. Goroutines run while one waits, pushing and popping
+  // frames of their own, so this one leaves the stack by name.
+  async unwindAsync(): Promise<void> {
+    while (this.defers.length > 0) {
+      const f = this.defers.pop()!;
+      frames.push(this);
+      try {
+        const r: any = f();
+        if (r instanceof Promise) await r;
+      } catch (e) {
+        this.recovered = false;
+        this.fail(e);
+      } finally {
+        const i = frames.lastIndexOf(this);
+        if (i >= 0) frames.splice(i, 1);
+      }
+    }
+    if (this.panicking && !this.recovered) throw this.thrown;
+  }
 }
 
 const frames: Frame[] = [];

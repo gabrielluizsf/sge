@@ -62,3 +62,13 @@ Deno.test("a TypeScript script's text reaches Go through an interface", () => {
   g.Draw(cv);
   assertEquals(painted, "Ícaro", "painted name");
 });
+
+// A Go function that may block is a promise to TypeScript, the class
+// method calling it included: Run paces its frames with time.Sleep.
+type RunResult = ReturnType<game.Game["Run"]>;
+const runIsAPromise: RunResult extends Promise<unknown> ? true : false = true;
+type StepResult = ReturnType<game.Game["Step"]>;
+const stepIsNot: StepResult extends Promise<unknown> ? false : true = true;
+Deno.test("blocking functions are typed as promises", () => {
+  if (!runIsAPromise || !stepIsNot) throw new Error("unreachable");
+});

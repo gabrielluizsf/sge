@@ -13,7 +13,7 @@ func (e *emitter) unary(x *ast.UnaryExpr) string {
 	case token.AND:
 		return e.addr(x.X)
 	case token.ARROW:
-		return e.unsupported(x, "channel receive")
+		return e.recvExpr(x) + "[0]"
 	}
 	a := e.expr(x.X)
 	t := e.typeOf(x)

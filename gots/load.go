@@ -48,6 +48,7 @@ type Program struct {
 	Public map[string]bool
 	order  []string
 	decls  map[*types.Func]funcDecl // built by declOf on first use
+	blk    *blocking                // built by blockingAll on first use
 }
 
 // buildEnv is the environment packages are listed and checked under: js/wasm
@@ -291,10 +292,10 @@ func stdFromSource(all []listed, roots map[string]bool) map[string]bool {
 // yet, with what that is. They are never transpiled: their modules are
 // stubs, and the tests that use them are skipped.
 var unsupportedStd = map[string]string{
-	"net":               "goroutines",
-	"net/http":          "goroutines",
-	"net/http/httptest": "goroutines",
-	"crypto/tls":        "goroutines",
+	"net":               "sockets",
+	"net/http":          "sockets",
+	"net/http/httptest": "sockets",
+	"crypto/tls":        "sockets",
 	"encoding/json":     "reflect",
 	"encoding/xml":      "reflect",
 	"encoding/gob":      "reflect",

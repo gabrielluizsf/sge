@@ -1,5 +1,8 @@
-// Go's sync package. A transpiled program runs on one thread, so locks
-// never wait and a WaitGroup has always finished when it is waited on.
+// Go's sync package. Goroutines take turns on JavaScript's one thread and
+// only change hands where one waits, so a lock is free whenever nobody
+// holds it across a wait: Lock does not wait, and refuses, loudly, the
+// lock another goroutine kept while it waited. WaitGroup.Wait and
+// Cond.Wait wait, and Go code awaits them.
 import * as $ from "../../rt/mod.ts";
 
 export interface Locker {
@@ -8,9 +11,14 @@ export interface Locker {
 }
 export const Locker$type = $.ifaceType("sync.Locker", ["Lock", "Unlock"]);
 
+function contended(): never {
+  $.panic($.val($.String, $.str.toGo("gots: Lock of a lock another goroutine holds while it waits, which gots cannot wait for")));
+}
+
 export class Mutex extends $.Native {
   locked = false;
   Lock(): void {
+    if (this.locked) contended();
     this.locked = true;
   }
   TryLock(): boolean {
@@ -29,6 +37,7 @@ export class RWMutex extends $.Native {
   writer = false;
   readers = 0;
   Lock(): void {
+    if (this.writer || this.readers > 0) contended();
     this.writer = true;
   }
   TryLock(): boolean {
@@ -40,6 +49,7 @@ export class RWMutex extends $.Native {
     this.writer = false;
   }
   RLock(): void {
+    if (this.writer) contended();
     this.readers++;
   }
   TryRLock(): boolean {
@@ -68,22 +78,35 @@ $.nativeType("sync.Once", Once);
 
 export class WaitGroup extends $.Native {
   n = 0;
+  waiters: Array<() => void> = [];
   Add(delta: number): void {
     this.n += delta;
-    if (this.n < 0) $.panic($.val($.String, "sync: negative WaitGroup counter"));
+    if (this.n < 0) $.panic($.val($.String, $.str.toGo("sync: negative WaitGroup counter")));
+    if (this.n === 0) {
+      const ws = this.waiters;
+      this.waiters = [];
+      for (const w of ws) w();
+    }
   }
   Done(): void {
     this.Add(-1);
   }
-  Wait(): void {}
-  // Go runs f and marks it done; without goroutines it runs now.
-  Go(f: () => void): void {
+  // Wait waits until the counter is back at zero.
+  Wait(): Promise<void> {
+    if (this.n === 0) return Promise.resolve();
+    return new Promise((resolve) => this.waiters.push(resolve));
+  }
+  // Go runs f in a goroutine, counted until it returns.
+  Go(f: () => any): void {
     this.Add(1);
-    try {
-      f();
-    } finally {
-      this.Done();
-    }
+    $.go(async () => {
+      try {
+        const r = f();
+        if (r instanceof Promise) await r;
+      } finally {
+        this.Done();
+      }
+    });
   }
 }
 $.nativeType("sync.WaitGroup", WaitGroup);
@@ -148,9 +171,22 @@ $.nativeType("sync.Map", Map);
 
 export class Cond extends $.Native {
   L: Locker | null = null;
-  Wait(): void {}
-  Signal(): void {}
-  Broadcast(): void {}
+  waiters: Array<() => void> = [];
+  // Wait unlocks L, waits for Signal or Broadcast, and locks L again.
+  async Wait(): Promise<void> {
+    const woken = new Promise<void>((resolve) => this.waiters.push(resolve));
+    this.L!.Unlock();
+    await woken;
+    this.L!.Lock();
+  }
+  Signal(): void {
+    this.waiters.shift()?.();
+  }
+  Broadcast(): void {
+    const ws = this.waiters;
+    this.waiters = [];
+    for (const w of ws) w();
+  }
 }
 $.nativeType("sync.Cond", Cond);
 
