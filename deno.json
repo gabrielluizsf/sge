@@ -10,7 +10,9 @@
     "./clock": "./deno/clock/mod.ts",
     "./sprite": "./deno/sprite/mod.ts",
     "./animation": "./deno/animation/mod.ts",
-    "./game": "./deno/game/mod.ts"
+    "./game": "./deno/game/mod.ts",
+    "./tilemap": "./deno/tilemap/mod.ts",
+    "./terrain": "./deno/terrain/mod.ts"
   },
   "publish": {
     "include": ["deno/**/*.ts", "README.md", "LICENSE"],

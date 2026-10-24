@@ -4,11 +4,13 @@
 //
 // The engine is in its packages: vector (3D math), transform (position,
 // rotation, scale), collider (overlap tests), clock (frame time), sprite
-// (antui canvases drawn with a pivot, scale and rotation), animation
-// (frames by name) and game (the world, its objects and scripts, and the
-// window loop).
+// (antui canvases drawn with a pivot, scale and rotation, from PNG or
+// SVG), animation (frames by name), game (the world, its objects and
+// scripts, the camera and the window loop), tilemap (grids of tiles,
+// animated, walked through) and terrain (endless tile maps of named
+// areas, made around the camera).
 //
 // go generate writes the TypeScript to deno/.
 package sge
 
-//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas
+//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game ./tilemap ./terrain github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas

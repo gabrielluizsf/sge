@@ -39,4 +39,4 @@ jobs:
         run: go generate .
 
       - name: Type-check the TypeScript example
-        run: deno check examples/ts/collect.ts
+        run: deno check examples/collect/collect.ts
