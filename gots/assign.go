@@ -133,21 +133,22 @@ func (e *emitter) assignTuple(w *writer, lhs []ast.Expr, r ast.Expr, define bool
 		}
 		names = append(names, "?")
 	}
-	if allNew {
-		// let [a, b] = f();
-		var ns []string
-		for i, l := range lhs {
-			if names[i] == "" {
-				ns = append(ns, "")
-				continue
-			}
-			ns = append(ns, e.declare(e.newVar(l, define)))
-		}
-		w.line("let [%s] = %s;", strings.Join(ns, ", "), tuple)
-		return
-	}
 	t := e.newTmp()
 	w.line("const %s = %s;", t, tuple)
+	if allNew {
+		// let a = $t[0], b = $t[1]; not let [a, b] = f(), which V8 runs
+		// through the iterator protocol.
+		var ns []string
+		for i, l := range lhs {
+			if names[i] != "" {
+				ns = append(ns, e.declare(e.newVar(l, define))+" = "+t+"["+itoa(i)+"]")
+			}
+		}
+		if len(ns) > 0 {
+			w.line("let %s;", strings.Join(ns, ", "))
+		}
+		return
+	}
 	for i, l := range lhs {
 		if names[i] == "" {
 			continue

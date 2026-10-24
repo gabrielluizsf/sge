@@ -63,7 +63,7 @@ func (e *emitter) forStmt(w *writer, s *ast.ForStmt, label string) {
 	}
 	post := ""
 	if s.Post != nil {
-		post = e.postExpr(s.Post)
+		post = e.postExpr(w, s.Post)
 	}
 	e.loop(w, labelPrefix(label)+"for ("+init+"; "+cond+"; "+post+")", func() { e.stmts(w, s.Body.List) })
 	if wrapped {
@@ -89,11 +89,13 @@ func (e *emitter) forInit(s ast.Stmt) (string, bool) {
 	return "let " + strings.Join(parts, ", "), true
 }
 
-// postExpr is a loop's post statement as the expression a for head needs.
-func (e *emitter) postExpr(s ast.Stmt) string {
+// postExpr is a loop's post statement as the expression a for head needs;
+// the temporaries it uses are declared on w, ahead of the loop.
+func (e *emitter) postExpr(w *writer, s ast.Stmt) string {
 	if as, ok := s.(*ast.AssignStmt); ok && as.Tok == token.ASSIGN && len(as.Lhs) > 1 && len(as.Lhs) == len(as.Rhs) {
-		// a, b = b, a as a destructuring assignment, which evaluates every
-		// right-hand side before storing.
+		// a, b = b, a as temporaries, every right-hand side evaluated
+		// before anything is stored: not [a, b] = [b, a], which makes an
+		// array and takes it apart through the iterator protocol.
 		var pre writer
 		var gets, vals []string
 		for i, l := range as.Lhs {
@@ -107,7 +109,15 @@ func (e *emitter) postExpr(s ast.Stmt) string {
 		if pre.String() != "" {
 			return e.unsupported(s, "post statement with effects")
 		}
-		return "[" + strings.Join(gets, ", ") + "] = [" + strings.Join(vals, ", ") + "]"
+		var tmps, evals, stores []string
+		for i, v := range vals {
+			t := e.newTmp()
+			tmps = append(tmps, t+": any")
+			evals = append(evals, t+" = "+v)
+			stores = append(stores, gets[i]+" = "+t)
+		}
+		w.line("let %s;", strings.Join(tmps, ", "))
+		return "(" + strings.Join(append(evals, stores...), ", ") + ")"
 	}
 	var out writer
 	e.stmt(&out, s)
