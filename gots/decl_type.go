@@ -76,7 +76,9 @@ func (e *emitter) typeDecl(td *typeDecls, tn *types.TypeName, methods []*ast.Fun
 		td.classes.line("export type %s = %s;", name, e.tsType(target))
 		if isStruct(target) {
 			if _, named := target.(*types.Named); named {
-				td.classes.line("export const %s = %s;", name, e.structClass(target))
+				// With the descriptors, after every class: an instance of a
+				// generic struct has its class written after the declarations.
+				td.descs.line("export const %s = %s;", name, e.structClass(target))
 			}
 		}
 		return
