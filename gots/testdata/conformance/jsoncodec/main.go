@@ -30,16 +30,16 @@ func (l *Level) UnmarshalText(b []byte) error {
 
 type User struct {
 	Base
-	Name     string            `json:"name"`
-	Email    string            `json:"email,omitempty"`
-	Age      int               `json:"age,string"`
-	Admin    bool              `json:"-"`
-	Address  *Address          `json:"address"`
-	Tags     []string          `json:"tags"`
+	Name     string             `json:"name"`
+	Email    string             `json:"email,omitempty"`
+	Age      int                `json:"age,string"`
+	Admin    bool               `json:"-"`
+	Address  *Address           `json:"address"`
+	Tags     []string           `json:"tags"`
 	Scores   map[string]float64 `json:"scores"`
-	Level    Level             `json:"level"`
-	Extra    any               `json:"extra"`
-	Raw      json.RawMessage   `json:"raw"`
+	Level    Level              `json:"level"`
+	Extra    any                `json:"extra"`
+	Raw      json.RawMessage    `json:"raw"`
 	internal int
 }
 

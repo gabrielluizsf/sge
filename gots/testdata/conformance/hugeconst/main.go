@@ -21,7 +21,7 @@ func main() {
 	a := abs(sec + unix - far)
 	fmt.Println(a, int64(a)+toUnix, int64(uint64(a))+far-unix == sec)
 	x := int64(7)
-	fmt.Println(x*86400+toUnix-toUnix, -(x - far) + far, (x<<60)>>58)
+	fmt.Println(x*86400+toUnix-toUnix, -(x-far)+far, (x<<60)>>58)
 
 	t := time.Date(2026, 10, 24, 12, 0, 0, 0, time.UTC)
 	fmt.Println(t.Format(time.RFC3339), t.Unix(), t.Weekday(), t.YearDay())

@@ -98,7 +98,7 @@ func main() {
 type box struct{ v V }
 
 var (
-	list []V
+	list   []V
 	byName = map[string]V{}
 )
 

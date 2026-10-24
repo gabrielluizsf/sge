@@ -16,7 +16,7 @@ type Item struct {
 	Tags  []string
 }
 
-func (i Item) Label() string             { return strings.ToUpper(i.Name) }
+func (i Item) Label() string               { return strings.ToUpper(i.Name) }
 func (i *Item) Discount(p float64) float64 { return i.Price * (1 - p/100) }
 
 type Page struct {

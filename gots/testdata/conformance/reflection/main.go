@@ -14,8 +14,8 @@ type Celsius float64
 func (c Celsius) String() string { return fmt.Sprintf("%.1fC", float64(c)) }
 
 type Point struct {
-	X, Y   int     `json:"x" db:"px"`
-	Label  string  `json:"label,omitempty"`
+	X, Y   int    `json:"x" db:"px"`
+	Label  string `json:"label,omitempty"`
 	hidden bool
 	Temp   Celsius
 	Tags   []string
