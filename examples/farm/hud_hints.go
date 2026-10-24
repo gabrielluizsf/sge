@@ -13,6 +13,7 @@ func (h *hud) hints(cv *canvas.Canvas) {
 		at := h.farmer.Game().ToScreen(h.farmer.Transform.Position)
 		cv.Blit(int(at.X)-t.Width/2, int(at.Y)-tile, t)
 	}
+	// The keys at the top right, out of the way of the purse and the bar.
 	t := text("SETAS: ANDAR  1-3: ITEM  ESPACO: USAR", 'w')
-	cv.Blit(8, cv.Height-t.Height-8-24*scale, t)
+	cv.Blit(cv.Width-t.Width-8, 8, t)
 }
