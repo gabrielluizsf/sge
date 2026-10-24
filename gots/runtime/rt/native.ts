@@ -1,5 +1,6 @@
 import { Type, structType } from "./types.ts";
 import { Val } from "./iface.ts";
+import { RuntimeError } from "./panic.ts";
 
 // Native is the base of hand-written standard library structs, giving them
 // the value methods transpiled code calls on every struct: a copy is a
@@ -44,3 +45,7 @@ function valClassOf(ctor: any): any {
   }
   return V;
 }
+
+// A fault recovered from JavaScript is Go's runtime.Error, and an error
+// fmt and interfaces can take like any other.
+nativeType("runtime.Error", RuntimeError);
