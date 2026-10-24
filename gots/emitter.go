@@ -76,6 +76,9 @@ type breakable struct {
 	// barrier is the loop a goto state machine runs in: a break or
 	// continue meant for a statement outside it has to name its label.
 	barrier bool
+	// yield is set on a range over a function: its body is the yield
+	// callback, which leaves the loop by returning.
+	yield *yieldState
 }
 
 func newEmitter(prog *Program, pkg *Package, info *types.Info, tpkg *types.Package, lay layout) *emitter {

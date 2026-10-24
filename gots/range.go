@@ -105,33 +105,6 @@ func (e *emitter) rangeString(w *writer, s *ast.RangeStmt, head string) {
 
 // rangeFunc is range over an iterator function: the body becomes the yield
 // callback, returning false to stop.
-func (e *emitter) rangeFunc(w *writer, s *ast.RangeStmt, sig *types.Signature, head string) {
-	if head != "" || hasBranchOut(s.Body) {
-		w.line("%s;", e.unsupported(s, "break, continue or return inside range over a function"))
-		return
-	}
-	params := sig.Params().At(0).Type().(*types.Signature).Params()
-	vars := []string{}
-	for i := 0; i < params.Len(); i++ {
-		vars = append(vars, e.sc.fresh("$y"))
-	}
-	list := ""
-	for i, v := range vars {
-		if i > 0 {
-			list += ", "
-		}
-		list += v + ": any"
-	}
-	w.open("%s((%s) => {", e.expr(s.X), list)
-	keys := []ast.Expr{s.Key, s.Value}
-	for i, v := range vars {
-		e.bindRange(w, keys[i], v, params.At(i).Type(), s.Tok)
-	}
-	e.stmts(w, s.Body.List)
-	w.line("return true;")
-	w.close("});")
-}
-
 // hasBranchOut reports whether body leaves the loop it is in by any way
 // other than finishing an iteration.
 func hasBranchOut(body *ast.BlockStmt) bool {

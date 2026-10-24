@@ -9,9 +9,9 @@ func (e *emitter) returnStmt(w *writer, s *ast.ReturnStmt) {
 	results := e.fn.sig.Results()
 	if len(s.Results) == 0 {
 		if len(e.fn.results) > 0 {
-			w.line("return %s;", e.resultTuple(e.fn.results))
+			e.finishReturn(w, e.resultTuple(e.fn.results), false)
 		} else {
-			w.line("return;")
+			e.finishReturn(w, "", false)
 		}
 		return
 	}
@@ -35,8 +35,8 @@ func (e *emitter) returnStmt(w *writer, s *ast.ReturnStmt) {
 		for i, v := range vals {
 			w.line("%s = %s;", e.fn.results[i], v)
 		}
-		w.line("return %s;", e.resultTuple(e.fn.results))
+		e.finishReturn(w, e.resultTuple(e.fn.results), false)
 		return
 	}
-	w.line("return %s;", e.resultTuple(vals))
+	e.finishReturn(w, e.resultTuple(vals), false)
 }

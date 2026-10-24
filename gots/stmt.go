@@ -143,6 +143,9 @@ func (e *emitter) target(forContinue bool) (b *breakable, crossed bool) {
 func (e *emitter) branch(w *writer, s *ast.BranchStmt) {
 	switch s.Tok {
 	case token.BREAK, token.CONTINUE:
+		if e.yieldBranch(w, s) {
+			return
+		}
 		kw := "break"
 		if s.Tok == token.CONTINUE {
 			kw = "continue"
