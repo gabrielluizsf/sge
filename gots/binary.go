@@ -22,6 +22,10 @@ func (e *emitter) binary(x *ast.BinaryExpr) string {
 	case token.LSS, token.LEQ, token.GTR, token.GEQ:
 		return "(" + e.expr(x.X) + " " + x.Op.String() + " " + e.expr(x.Y) + ")"
 	}
+	if e.hugeTree(x) {
+		// Exact, and a number again once the constants are spent.
+		return "$Number(" + e.bigTree(x) + ")"
+	}
 	var count *int
 	if x.Op == token.SHL || x.Op == token.SHR {
 		if tv := e.info.Types[x.Y]; tv.Value != nil {

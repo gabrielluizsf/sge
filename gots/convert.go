@@ -48,6 +48,9 @@ func (e *emitter) convert(x ast.Expr, to types.Type) string {
 		return js
 	}
 	if isNumeric(to) && isNumeric(from) {
+		if isBig(to) && e.hugeTree(x) {
+			return "$BigInt.asUintN(64, " + e.bigTree(x) + ")"
+		}
 		return numConvert(js, from, to)
 	}
 	if _, ok := fu.(*types.Slice); ok {
