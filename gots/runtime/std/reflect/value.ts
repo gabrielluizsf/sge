@@ -7,6 +7,7 @@ import * as $ from "../../rt/mod.ts";
 import { isComplex, isFloat, isInt, isObject, isUint, Kind, kindOf } from "./kinds.ts";
 import { overflowFloat, overflowInt, overflowUint, rtype, toType, unsupported } from "./rtype.ts";
 import { backing, box, copyOf, makeMap, makeSlice, setIn, zero } from "./zero.ts";
+import { bound, call, methodsOf } from "./call.ts";
 
 const addressable = 1, readOnly = 2;
 
@@ -416,14 +417,145 @@ export class Value extends $.Native {
     return this.t === u.t && $.equal(this.t, this.get(), u.get());
   }
 
-  Method(_i: number): Value {
-    return unsupported("Value.Method");
+  // methods is v's exported method set: its type's, or for an interface
+  // the interface's, typed by the value it holds.
+  private methods(): $.Method[] {
+    const t = this.must("Method");
+    if (t.kind !== "iface") return methodsOf(t);
+    const x = this.get();
+    if (x === null) fail("reflect: Method on nil interface value");
+    return ifaceMethods(t);
   }
-  MethodByName(_name: string): Value {
-    return unsupported("Value.MethodByName");
+
+  // Method is the i-th method bound to v, a func Value.
+  Method(i: number): Value {
+    const m = this.methods()[i];
+    if (m === undefined) fail("reflect: Method index out of range");
+    return Value.of(m.type, bound(this.t!, this.get(), m.name), this.f & readOnly);
   }
-  Call(_in: any): any {
-    return unsupported("Value.Call");
+  MethodByName(name: string): Value {
+    const ms = this.methods();
+    const i = ms.findIndex((m) => m.name === $.str.fromGo(name));
+    return i < 0 ? new Value() : this.Method(i);
+  }
+
+  // Call calls the func v with in, packing a variadic function's extra
+  // arguments into a slice, and gives its results as Values.
+  Call(in_: $.Slice<Value> | null): $.Slice<Value> | null {
+    return this.callWith(in_, false);
+  }
+  // CallSlice is Call for a variadic function with its last argument
+  // the slice itself.
+  CallSlice(in_: $.Slice<Value> | null): $.Slice<Value> | null {
+    return this.callWith(in_, true);
+  }
+  private callWith(in_: $.Slice<Value> | null, asSlice: boolean): $.Slice<Value> | null {
+    const t = this.kind("Call", "func");
+    exported(this, "reflect.Value.Call");
+    const ins = in_ === null ? [] : in_.toArray();
+    for (const v of ins) {
+      v.must("Call");
+      exported(v, "reflect.Value.Call");
+    }
+    const outs = call(t, this.get(), ins, asSlice);
+    return $.slice(outs.map((x, i) => Value.of(t.outs[i], x)));
+  }
+
+  // Seq and Seq2 range over v as a for range statement would.
+  Seq(): (yield_: (v: Value) => boolean) => void {
+    const t = this.must("Seq");
+    const x = this.get();
+    if (t.kind === "func") return (y) => x((e: any) => y(Value.of(t.ins[0].ins[0], e)));
+    if (isInt(t) || isUint(t)) {
+      const n = Number(x);
+      return (y) => {
+        for (let i = 0; i < n; i++) if (!y(Value.of(t, typeof x === "bigint" ? BigInt(i) : i))) return;
+      };
+    }
+    const n = t.kind === "map" ? -1 : this.Len();
+    if (t.kind === "map") return (y) => {
+      for (const [k] of $.entries(x)) if (!y(keyValue(t, k, this.f))) return;
+    };
+    if (t.kind === "chan") fail("gots: reflect cannot range over a channel, which may block");
+    return (y) => {
+      for (let i = 0; i < n; i++) if (!y(Value.of($.Int, i))) return;
+    };
+  }
+  Seq2(): (yield_: (k: Value, v: Value) => boolean) => void {
+    const t = this.must("Seq2");
+    const x = this.get();
+    if (t.kind === "func") return (y) => x((a: any, b: any) => y(Value.of(t.ins[0].ins[0], a), Value.of(t.ins[0].ins[1], b)));
+    if (t.kind === "map") return (y) => {
+      for (const [k, v] of $.entries(x)) if (!y(keyValue(t, k, this.f), Value.of(t.elem!, v, this.f & readOnly))) return;
+    };
+    if (t.kind === "string") return (y) => {
+      for (let i = 0; i < x.length;) {
+        const [r, w] = $.str.decodeRune(x, i);
+        if (!y(Value.of($.Int, i), Value.of($.Int32, r))) return;
+        i += w;
+      }
+    };
+    const base: Value = t.kind === "ptr" ? this.Elem() : this;
+    return (y) => {
+      for (let i = 0; i < base.Len(); i++) if (!y(Value.of($.Int, i), base.Index(i))) return;
+    };
+  }
+
+  // FieldByIndexErr is FieldByIndex, with an error rather than a panic
+  // for an embedded pointer that is nil.
+  FieldByIndexErr(index: $.Slice<number> | null): [Value, any] {
+    let v: Value = this;
+    for (const i of index ?? []) {
+      if (v.Kind() === 22 && v.t!.elem!.kind === "struct") {
+        if (v.IsNil()) return [new Value(), new reflectError("reflect: indirection through nil pointer to embedded struct field " + v.t!.elem!.fields[i]?.name)];
+        v = v.Elem();
+      }
+      v = v.Field(i);
+    }
+    return [v, null];
+  }
+
+  Slice(i: number, j: number): Value {
+    const t = this.kind("Slice", "slice", "array", "string");
+    const x = this.get();
+    if (t.kind === "string") return Value.of(t, x.slice(i, j), this.f & readOnly);
+    if (t.kind === "array") {
+      if (!(this.f & addressable)) fail("reflect.Value.Slice: slice of unaddressable array");
+      return Value.of($.sliceOf(t.elem!), $.subArray(x, i, j), this.f & readOnly);
+    }
+    return Value.of(t, $.sub(x, i, j), this.f & readOnly);
+  }
+  Slice3(i: number, j: number, k: number): Value {
+    const t = this.kind("Slice3", "slice", "array");
+    const x = this.get();
+    if (t.kind === "array") return Value.of($.sliceOf(t.elem!), $.subArray(x, i, j, k), this.f & readOnly);
+    return Value.of(t, $.sub(x, i, j, k), this.f & readOnly);
+  }
+
+  // The channel operations that need no waiting; Recv and Send that would
+  // wait panic, as reflect has no way to.
+  TryRecv(): [Value, boolean] {
+    const t = this.kind("TryRecv", "chan");
+    const [i, v, ok] = $.ch.selectNow([{ c: this.get(), send: false }]);
+    if (i < 0) return [new Value(), false];
+    return [ok ? Value.of(t.elem!, v) : Value.of(t.elem!, zero(t.elem!)), ok];
+  }
+  Recv(): [Value, boolean] {
+    const t = this.kind("Recv", "chan");
+    const [i, v, ok] = $.ch.selectNow([{ c: this.get(), send: false }]);
+    if (i < 0) fail("gots: reflect.Value.Recv would block, which reflect cannot wait for");
+    return [Value.of(t.elem!, ok ? v : zero(t.elem!)), ok];
+  }
+  TrySend(x: Value): boolean {
+    const t = this.kind("TrySend", "chan");
+    return $.ch.selectNow([{ c: this.get(), send: true, v: argumentOf(t.elem!, x) }])[0] === 0;
+  }
+  Send(x: Value): void {
+    if (!this.TrySend(x)) fail("gots: reflect.Value.Send would block, which reflect cannot wait for");
+  }
+  Close(): void {
+    this.kind("Close", "chan");
+    $.ch.close(this.get());
   }
 }
 $.nativeType("reflect.Value", Value);
@@ -458,6 +590,32 @@ $.nativeType("reflect.MapIter", MapIter);
 function exported(v: Value, what: string): void {
   if (v.f & readOnly) fail("reflect: " + what + " using value obtained using unexported field");
 }
+
+// ifaceMethods is an interface's methods sorted by name, typed as the
+// interface declares them.
+export function ifaceMethods(t: $.Type): $.Method[] {
+  const sigs = t.ins;
+  return t.methods
+    .map((name, i) => ({ name, type: sigs[i] ?? $.funcType("func()", () => [], () => []), value: true }))
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+}
+
+// argumentOf is x stored as a value of type t: boxed into an interface,
+// or copied.
+function argumentOf(t: $.Type, x: Value): any {
+  return t.kind === "iface" && x.t!.kind !== "iface" ? box(x.t!, copyOf(x.t!, x.get())) : copyOf(t, x.get());
+}
+
+// reflectError is an error reflect returns.
+class reflectError extends $.Native {
+  constructor(public s = "") {
+    super();
+  }
+  Error(): string {
+    return $.str.toGo(this.s);
+  }
+}
+$.nativeType("reflect.reflectError", reflectError);
 
 function kindName(t: $.Type): string {
   return t.kind === "iface" ? "interface" : t.kind;

@@ -118,6 +118,9 @@ func (e *emitter) structTypeDecl(td *typeDecls, name string, t *types.Named, st 
 	}
 	desc := fmt.Sprintf("$.structType(%q, true, %s, %s, () => %s)", typeString(t), name, valCls, e.fieldDescs(st))
 	td.descs.line("%s.$type = %s;", name, e.canonical(t, desc))
+	if ms := e.methodDescs(t); ms != "" {
+		td.descs.line("%s.$type.setMethods(() => %s);", name, ms)
+	}
 }
 
 // promoted writes forwarding methods for methods a struct gets from its
@@ -169,7 +172,7 @@ func (e *emitter) ifaceTypeDecl(td *typeDecls, name string, t *types.Named, u *t
 		w.line("[more: string]: any;")
 		w.close("}")
 	}
-	td.descs.line("export const %s$type: $.Type = $.ifaceType(%q, %s);", name, typeString(t), methodList(u))
+	td.descs.line("export const %s$type: $.Type = $.ifaceType(%q, %s, %s);", name, typeString(t), methodList(u), e.methodSigs(u))
 }
 
 // namedTypeDecl writes a named type that is not a struct: a type alias for
@@ -188,6 +191,9 @@ func (e *emitter) namedTypeDecl(td *typeDecls, name string, t *types.Named, meth
 	desc := fmt.Sprintf("$.named(%q, %s, %s)", typeString(t), e.descInline(t.Underlying()), valCls)
 	nd := namedDesc{name: name, deps: e.namedDeps(t.Underlying())}
 	nd.lines = append(nd.lines, fmt.Sprintf("export const %s$type: $.Type = %s;", name, e.canonical(t, desc)))
+	if ms := e.methodDescs(t); ms != "" {
+		nd.lines = append(nd.lines, fmt.Sprintf("%s$type.setMethods(() => %s);", name, ms))
+	}
 	if pms := types.NewMethodSet(types.NewPointer(t)); pms.Len() > 0 {
 		e.valClass(&td.classes, name+"$PtrVal", pms, "this.v")
 		nd.lines = append(nd.lines, fmt.Sprintf("$.ptrTo(%s$type).valCls = %s$PtrVal;", name, name))

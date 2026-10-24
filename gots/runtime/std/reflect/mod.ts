@@ -6,7 +6,7 @@ import * as $ from "../../rt/mod.ts";
 
 export { Kind$String, Kind$type, Kind$Val } from "./kinds.ts";
 export type { Kind } from "./kinds.ts";
-export { StructField, StructTag$Get, StructTag$Lookup, StructTag$type, StructTag$Val, rtype } from "./rtype.ts";
+export { Method, StructField, StructTag$Get, StructTag$Lookup, StructTag$type, StructTag$Val, rtype } from "./rtype.ts";
 export type { StructTag } from "./rtype.ts";
 export {
   Append, AppendSlice, ArrayOf, Copy, Indirect, MakeChan, MakeMap, MakeMapWithSize, MakeSlice, MapIter, MapOf, New,

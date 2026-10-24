@@ -117,17 +117,19 @@ while it waits panics, rather than deadlock.
 `reflect` works over the transpiler's run-time type descriptors: types,
 kinds, struct fields and their tags, `Implements`, and values read and set
 through pointers, fields, slices, arrays, maps and interfaces, `New`,
-`Zero`, `MakeSlice`, `MakeMap` and `Convert`. `encoding/json` (with
-`json/v2` underneath) and `encoding/binary` run on it. On Deno, JSON may nest
-1000 levels deep rather than Go's 10000: a JavaScript stack does not grow,
-and deeper input from outside is refused with an error instead of ending the
-program.
+`Zero`, `MakeSlice`, `MakeMap` and `Convert`, and calls: `Value.Call`,
+`Method`, `MethodByName`, and ranging with `Seq`. `encoding/json` (with
+`json/v2` underneath), `encoding/xml`, `encoding/binary`, `text/template`
+and `html/template` run on it; `html/template`'s escaping is checked to be
+Go's byte for byte. On Deno, JSON may nest
+1000 levels deep rather than Go's 10000, and XML 256: a JavaScript stack
+does not grow, and deeper input from outside is refused with an error
+instead of ending the program.
 
 ## Limitations
 
-- `reflect` cannot call functions or methods (`Value.Call`, `Method`), so
-  `text/template`, `html/template`, `encoding/xml` and `encoding/gob` are not
-  supported yet.
+- `encoding/gob` is not supported yet. `reflect` cannot call a function
+  that blocks, and a range over a function cannot have a body that blocks.
 - A nil pointer to a struct, put in an interface, is a nil interface: a
   pointer to a struct is the object itself, and nil is nil.
 - `net` and `net/http` are not supported: Deno's sockets are not wired in.

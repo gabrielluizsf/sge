@@ -56,7 +56,8 @@ func (e *emitter) descInline(t types.Type) string {
 			return `$.ifaceType("comparable", [])`
 		}
 		if t.TypeArgs().Len() > 0 && isInterface(t) {
-			return fmt.Sprintf("$.ifaceType(%q, %s)", typeString(t), methodList(t.Underlying().(*types.Interface)))
+			u := t.Underlying().(*types.Interface)
+			return fmt.Sprintf("$.ifaceType(%q, %s, %s)", typeString(t), methodList(u), e.methodSigs(u))
 		}
 		name := e.namedRef(t)
 		if isStruct(t) {
@@ -81,9 +82,16 @@ func (e *emitter) descInline(t types.Type) string {
 		}
 		return fmt.Sprintf("$.chanOf(%s, %q)", e.descInline(t.Elem()), dir)
 	case *types.Signature:
-		return fmt.Sprintf("$.funcType(%q)", typeString(t))
+		var ins, outs []string
+		for i := 0; i < t.Params().Len(); i++ {
+			ins = append(ins, e.descInline(t.Params().At(i).Type()))
+		}
+		for i := 0; i < t.Results().Len(); i++ {
+			outs = append(outs, e.descInline(t.Results().At(i).Type()))
+		}
+		return fmt.Sprintf("$.funcType(%q, () => [%s], () => [%s], %v)", typeString(t), strings.Join(ins, ", "), strings.Join(outs, ", "), t.Variadic())
 	case *types.Interface:
-		return fmt.Sprintf("$.ifaceType(%q, %s)", typeString(t), methodList(t))
+		return fmt.Sprintf("$.ifaceType(%q, %s, %s)", typeString(t), methodList(t), e.methodSigs(t))
 	case *types.Struct:
 		return e.anonClass(t) + ".$type"
 	case *types.TypeParam:
@@ -92,6 +100,16 @@ func (e *emitter) descInline(t types.Type) string {
 		return "null"
 	}
 	return "null"
+}
+
+// methodSigs is a thunk of the descriptors of an interface's method
+// types, in methodList's order, for reflect.
+func (e *emitter) methodSigs(t *types.Interface) string {
+	var sigs []string
+	for i := 0; i < t.NumMethods(); i++ {
+		sigs = append(sigs, e.descInline(e.T(t.Method(i).Type())))
+	}
+	return "() => [" + strings.Join(sigs, ", ") + "]"
 }
 
 // methodList is the names an interface asks for, as a JavaScript array.

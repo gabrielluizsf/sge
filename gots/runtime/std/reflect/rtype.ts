@@ -3,6 +3,8 @@
 import * as $ from "../../rt/mod.ts";
 import { Kind, kindOf, Kind$String } from "./kinds.ts";
 import { align, size } from "./zero.ts";
+import { methodsOf } from "./call.ts";
+import { ifaceMethods } from "./value.ts";
 
 const rtypes = new WeakMap<$.Type, rtype>();
 
@@ -21,9 +23,9 @@ function badKind(m: string, t: $.Type): never {
   $.panic($.val($.String, $.str.toGo("reflect: " + m + " of non-" + m.split(".")[0] + " type " + t.str)));
 }
 
-// The method set a value of type d has: the prototype an interface holding
-// one carries the methods on.
-function methodsOf(d: $.Type): any {
+// protoOf is the prototype an interface holding a value of type d carries
+// its methods on.
+function protoOf(d: $.Type): any {
   if (d.kind === "ptr" && d.elem!.kind === "struct") return d.elem!.ctor?.prototype ?? null;
   return d.valCls?.prototype ?? null;
 }
@@ -94,16 +96,34 @@ export class rtype {
   }
   NumMethod(): number {
     if (this.d.kind === "iface") return this.d.methods.length;
-    const p = methodsOf(this.d);
-    if (p === null) return 0;
-    const names = new Set<string>();
-    for (let q = p; q !== null && q !== Object.prototype && q !== $.Val.prototype && q !== $.Native.prototype; q = Object.getPrototypeOf(q)) {
-      for (const m of Object.getOwnPropertyNames(q)) {
-        const c = m.charCodeAt(0);
-        if (c >= 65 && c <= 90 && typeof Object.getOwnPropertyDescriptor(q, m)?.value === "function") names.add(m);
-      }
+    return methodsOf(this.d).length;
+  }
+  // Method is the i-th exported method, by name, its type taking the
+  // receiver first.
+  Method(i: number): Method {
+    if (this.d.kind === "iface") {
+      const im = ifaceMethods(this.d)[i];
+      if (im === undefined) $.panic($.val($.String, $.str.toGo("reflect: Method index out of range")));
+      const m = new Method();
+      m.Name = $.str.toGo(im.name);
+      m.Type = toType(im.type);
+      m.Index = i;
+      return m;
     }
-    return names.size;
+    const ms = methodsOf(this.d);
+    const mt = ms[i];
+    if (mt === undefined) $.panic($.val($.String, $.str.toGo("reflect: Method index out of range")));
+    const m = new Method();
+    m.Name = $.str.toGo(mt.name);
+    m.Type = toType(funcOf([this.d, ...mt.type.ins], mt.type.outs, mt.type.variadic));
+    m.Index = i;
+    m.recv = this.d;
+    return m;
+  }
+  MethodByName(name: string): [Method, boolean] {
+    const names = this.d.kind === "iface" ? [...this.d.methods].sort() : methodsOf(this.d).map((m) => m.name);
+    const i = names.indexOf($.str.fromGo(name));
+    return i < 0 ? [new Method(), false] : [this.Method(i), true];
   }
   // Implements reports whether values of this type have every method of
   // the interface u.
@@ -111,7 +131,7 @@ export class rtype {
     if (u === null) $.panic($.val($.String, $.str.toGo("reflect: nil type passed to Type.Implements")));
     if (u.d.kind !== "iface") $.panic($.val($.String, $.str.toGo("reflect: non-interface type passed to Type.Implements")));
     if (this.d.kind === "iface") return u.d.methods.every((m) => this.d.methods.includes(m));
-    const p = methodsOf(this.d);
+    const p = protoOf(this.d);
     return u.d.methods.every((m) => p !== null && typeof p[m] === "function");
   }
   AssignableTo(u: rtype | null): boolean {
@@ -160,25 +180,50 @@ export class rtype {
     return this.d.str.startsWith("<-") ? 1 : this.d.str.startsWith("chan<-") ? 2 : 3;
   }
   IsVariadic(): boolean {
-    return this.d.str.includes("...");
+    return this.fn("IsVariadic").variadic;
+  }
+  private fn(what: string): $.Type {
+    if (this.d.kind !== "func") badKind(what, this.d);
+    return this.d;
   }
   NumIn(): number {
-    return unsupported("Type.NumIn");
+    return this.fn("NumIn").ins.length;
   }
   NumOut(): number {
-    return unsupported("Type.NumOut");
+    return this.fn("NumOut").outs.length;
   }
-  In(_i: number): rtype {
-    return unsupported("Type.In");
+  In(i: number): rtype {
+    return toType(this.fn("In").ins[i])!;
   }
-  Out(_i: number): rtype {
-    return unsupported("Type.Out");
+  Out(i: number): rtype {
+    return toType(this.fn("Out").outs[i])!;
   }
-  Method(_i: number): any {
-    return unsupported("Type.Method");
+  // CanSeq and CanSeq2 report whether a value of this type can be ranged
+  // over with one or two variables.
+  CanSeq(): boolean {
+    const d = this.d;
+    switch (d.kind) {
+      case "func":
+        return d.ins.length === 1 && d.outs.length === 0 && d.ins[0].kind === "func" && d.ins[0].ins.length === 1 && d.ins[0].outs.length === 1;
+      case "ptr":
+        return d.elem!.kind === "array";
+      case "slice": case "array": case "string": case "map": case "chan":
+        return true;
+    }
+    const k = kindOf(d);
+    return k >= 2 && k <= 12;
   }
-  MethodByName(_name: string): [any, boolean] {
-    return [null, false];
+  CanSeq2(): boolean {
+    const d = this.d;
+    switch (d.kind) {
+      case "func":
+        return d.ins.length === 1 && d.outs.length === 0 && d.ins[0].kind === "func" && d.ins[0].ins.length === 2 && d.ins[0].outs.length === 1;
+      case "ptr":
+        return d.elem!.kind === "array";
+      case "slice": case "array": case "string": case "map":
+        return true;
+    }
+    return false;
   }
   OverflowInt(x: number): boolean {
     return overflowInt(this.d, x);
@@ -293,4 +338,26 @@ export function StructTag$Lookup(tag: string, key: string): [string, boolean] {
     }
   }
   return ["", false];
+}
+
+// Method is a method as Type.Method describes it. Func, the method as a
+// function of its receiver, is made when asked for.
+export class Method extends $.Native {
+  Name = "";
+  PkgPath = "";
+  Type: rtype | null = null;
+  Index = 0;
+  recv: $.Type | null = null;
+  IsExported(): boolean {
+    return this.PkgPath === "";
+  }
+}
+$.nativeType("reflect.Method", Method);
+
+// funcOf is the func type with those parameters and results, made at run
+// time and written as Go writes it.
+export function funcOf(ins: $.Type[], outs: $.Type[], variadic: boolean): $.Type {
+  const params = ins.map((t, i) => variadic && i === ins.length - 1 ? "..." + t.elem!.str : t.str);
+  const res = outs.length === 0 ? "" : outs.length === 1 ? " " + outs[0].str : " (" + outs.map((t) => t.str).join(", ") + ")";
+  return $.funcType("func(" + params.join(", ") + ")" + res, () => ins, () => outs, variadic);
 }

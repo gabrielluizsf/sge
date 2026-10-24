@@ -26,6 +26,14 @@ export class Type {
   valCls: any = null;
   private fieldsOf: (() => Field[]) | null = null;
   private fieldList: Field[] | null = null;
+  // A func type's parameters and results, and whether it is variadic.
+  variadic = false;
+  private sigOf: (() => [Type[], Type[]]) | null = null;
+  private sig: [Type[], Type[]] | null = null;
+  // The exported methods of a named type, by name: those of *T, each
+  // marked whether T has it too.
+  private methodsOf: (() => [string, Type, boolean][]) | null = null;
+  private methodList: Method[] | null = null;
 
   constructor(kind: Kind, str: string) {
     this.kind = kind;
@@ -41,7 +49,40 @@ export class Type {
     this.fieldsOf = f;
     this.fieldList = null;
   }
+
+  // ins are a func type's parameters, or an interface's method types.
+  get ins(): Type[] {
+    return this.signature()[0];
+  }
+  get outs(): Type[] {
+    return this.signature()[1];
+  }
+  private signature(): [Type[], Type[]] {
+    if (this.sig === null) this.sig = this.sigOf === null ? [[], []] : this.sigOf();
+    return this.sig;
+  }
+  setSignature(f: () => [Type[], Type[]], variadic: boolean): void {
+    if (this.sigOf !== null) return;
+    this.sigOf = f;
+    this.variadic = variadic;
+  }
+
+  get methodSet(): Method[] {
+    if (this.methodList === null) {
+      const ms = this.methodsOf === null ? [] : this.methodsOf();
+      this.methodList = ms.map(([name, type, value]) => ({ name, type, value })).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    }
+    return this.methodList;
+  }
+  setMethods(f: () => [string, Type, boolean][]): void {
+    this.methodsOf = f;
+    this.methodList = null;
+  }
 }
+
+// Method is an exported method of a named type: its name, its type
+// without the receiver, and whether values, not only pointers, have it.
+export type Method = { name: string; type: Type; value: boolean };
 
 const memo = new Map<string, Type>();
 
@@ -119,16 +160,24 @@ export function chanOf(elem: Type, dir: string): Type {
   });
 }
 
-export function funcType(str: string): Type {
-  return memoized(str, () => new Type("func", str));
+// funcType describes a func type, with its parameters and results when
+// the emitter gives them.
+export function funcType(str: string, params?: () => Type[], results?: () => Type[], variadic = false): Type {
+  const t = memoized(str, () => new Type("func", str));
+  if (params !== undefined) t.setSignature(() => [params(), results!()], variadic);
+  return t;
 }
 
-export function ifaceType(str: string, methods: string[]): Type {
-  return memoized(str, () => {
+// ifaceType describes an interface: the methods it asks for, and the
+// types of those methods when the emitter gives them.
+export function ifaceType(str: string, methods: string[], sigs?: () => Type[]): Type {
+  const t = memoized(str, () => {
     const t = new Type("iface", str);
     t.methods = methods;
     return t;
   });
+  if (sigs !== undefined) t.setSignature(() => [sigs(), []], false);
+  return t;
 }
 
 // structType describes a struct, named or not. A named one is not memoized:
