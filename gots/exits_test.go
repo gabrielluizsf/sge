@@ -9,6 +9,24 @@ import (
 	"testing"
 )
 
+// TestDeepJSONIsRefusedNotFatal decodes and encodes JSON nested 5000 deep
+// on Deno, where Go would follow it: gots lowers json's depth limit so the
+// JavaScript stack never runs out on input from outside, and the program
+// gets an error instead of dying.
+func TestDeepJSONIsRefusedNotFatal(t *testing.T) {
+	run := jsRuntime(t)
+	out := t.TempDir()
+	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./testdata/exits/jsondeep"}}); err != nil {
+		t.Fatalf("transpile: %v", err)
+	}
+	mod := filepath.Join(out, "gots", "testdata", "exits", "jsondeep", "mod.ts")
+	stdout, stderr, code := runProgram(exec.Command(run[0], append(run[1:], mod)...))
+	want := "arrays refused: true\nraw refused: true\nobjects refused: true\nvalid: false\nmarshal refused: true\n"
+	if code != 0 || stdout != want {
+		t.Errorf("status %d, output\n%s\nwant\n%s\n%s", code, stdout, want, stderr)
+	}
+}
+
 // TestProgramsEndAsGoDoes runs programs in testdata/exits, which end
 // badly, under go run and Deno: the same exit status, the same output,
 // and the line of stderr that says why.

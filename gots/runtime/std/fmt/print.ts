@@ -187,6 +187,11 @@ class Printer {
   }
 
   value(t: $.Type, v: any, verb: string, f: Flags, depth: number): string {
+    if (t.str === "reflect.Value" && v !== null && "p" in v && "f" in v) {
+      // fmt prints what a reflect.Value holds, as Go's does.
+      if (v.t === null) return pad("<invalid reflect.Value>", f);
+      return this.value(v.t, v.get(), verb, f, depth);
+    }
     if (verb !== "T" && verb !== "p" && !(verb === "v" && f.sharpV) && "vsxXq".includes(verb)) {
       const m = methodOf(t, v);
       if (m !== null) {

@@ -296,7 +296,6 @@ var unsupportedStd = map[string]string{
 	"net/http":          "sockets",
 	"net/http/httptest": "sockets",
 	"crypto/tls":        "sockets",
-	"encoding/json":     "reflect",
 	"encoding/xml":      "reflect",
 	"encoding/gob":      "reflect",
 	"text/template":     "reflect",

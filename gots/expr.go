@@ -53,6 +53,9 @@ func (e *emitter) ident(x *ast.Ident) string {
 	case *types.Var:
 		return e.varRef(obj)
 	case *types.Func:
+		if inst, ok := e.info.Instances[x]; ok && typedNatives[nativeName(obj)] {
+			return e.nativeInstance(obj, inst.TypeArgs)
+		}
 		if e.generic(obj) {
 			if inst, ok := e.info.Instances[x]; ok {
 				return e.instName(obj, inst.TypeArgs)

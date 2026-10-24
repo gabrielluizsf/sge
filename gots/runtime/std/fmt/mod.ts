@@ -8,6 +8,13 @@ export interface Stringer {
   String(): string;
 }
 
+// The descriptors of fmt's interfaces, for type switches, assertions and
+// reflect on them.
+export const Stringer$type = $.ifaceType("fmt.Stringer", ["String"]);
+export const GoStringer$type = $.ifaceType("fmt.GoStringer", ["GoString"]);
+export const Formatter$type = $.ifaceType("fmt.Formatter", ["Format"]);
+export const State$type = $.ifaceType("fmt.State", ["Flag", "Precision", "Width", "Write"]);
+
 export function Sprintf(format: string, a: $.Slice<any> | null): string {
   return sprintf(format, a);
 }

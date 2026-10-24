@@ -1,20 +1,26 @@
-// Go's reflect package is not supported by gots yet. What is here lets
-// packages that import it load; using it panics.
+// Go's reflect, over the transpiler's run-time type descriptors: Type is
+// a descriptor, Value a descriptor and a value, and the place it lives in
+// when it is addressable. Calling methods and functions through reflect is
+// not supported yet.
 import * as $ from "../../rt/mod.ts";
 
-function unsupported(): never {
-  return $.panic($.val($.String, "gots: package reflect is not supported yet"));
-}
+export { Kind$String, Kind$type, Kind$Val } from "./kinds.ts";
+export type { Kind } from "./kinds.ts";
+export { StructField, StructTag$Get, StructTag$Lookup, StructTag$type, StructTag$Val, rtype } from "./rtype.ts";
+export type { StructTag } from "./rtype.ts";
+export {
+  Append, AppendSlice, ArrayOf, Copy, Indirect, MakeChan, MakeMap, MakeMapWithSize, MakeSlice, MapIter, MapOf, New,
+  PointerTo, PtrTo, SliceOf, Swapper, TypeAssert, TypeFor, TypeOf, Value, ValueError, ValueOf, Zero,
+} from "./value.ts";
 
-export const ValueOf = unsupported, TypeOf = unsupported, Indirect = unsupported, New = unsupported;
-export const MakeSlice = unsupported, MakeMap = unsupported, Zero = unsupported, DeepEqual = deepEqual;
-export const Copy = unsupported, Append = unsupported, Swapper = unsupported, PointerTo = unsupported;
+export type Type = any;
+export const Type$type = $.ifaceType("reflect.Type", [
+  "Align", "AssignableTo", "Bits", "ChanDir", "Comparable", "ConvertibleTo", "Elem", "Field", "FieldAlign", "FieldByName",
+  "Implements", "In", "IsVariadic", "Key", "Kind", "Len", "Method", "MethodByName", "Name", "NumField", "NumIn",
+  "NumMethod", "NumOut", "Out", "PkgPath", "Size", "String",
+]);
 
-export class Value extends $.Native {}
-$.nativeType("reflect.Value", Value);
-
-export type Kind = number;
-export const Kind$type = $.named("reflect.Kind", $.Uint, null);
+export const DeepEqual = deepEqual;
 
 // deepEqual is reflect.DeepEqual for the values gots represents: what
 // tests reach for most.

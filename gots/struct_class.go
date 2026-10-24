@@ -126,18 +126,16 @@ func (e *emitter) fieldDescs(st *types.Struct) string {
 	var fs []string
 	for i := 0; i < st.NumFields(); i++ {
 		f := st.Field(i)
-		emb := ""
-		if f.Embedded() {
-			emb = ", true"
+		// Trailing arguments are left out when they are the defaults:
+		// embedded false, the property the field's name, no tag.
+		// The descriptor has the field's Go name, _ for a blank one, and
+		// the property its value is kept in.
+		args := []string{fmt.Sprintf("%q", f.Name()), e.descInline(f.Type()), fmt.Sprint(f.Embedded()), fmt.Sprintf("%q", e.fieldJS(st, i)), jsString(st.Tag(i))}
+		n := len(args)
+		for n > 2 && (args[n-1] == jsString("") && n == 5 || n == 4 && args[3] == args[0] || n == 3 && args[2] == "false") {
+			n--
 		}
-		prop := ""
-		if js := e.fieldJS(st, i); js != fieldJS(st, i) {
-			prop = fmt.Sprintf(", %q", js)
-			if emb == "" {
-				prop = ", false" + prop
-			}
-		}
-		fs = append(fs, fmt.Sprintf("$.field(%q, %s%s%s)", fieldJS(st, i), e.descInline(f.Type()), emb, prop))
+		fs = append(fs, "$.field("+strings.Join(args[:n], ", ")+")")
 	}
 	return "[" + strings.Join(fs, ", ") + "]"
 }
