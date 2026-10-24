@@ -190,6 +190,14 @@ function benchmark(name: string, f: (b: B) => void): void {
     n = Math.max(Math.min(Math.floor(want), n * 100), n + 1);
     b = runN(name, f, n);
   }
+  // The round that settles b.N is often the one V8 recompiles the
+  // benchmark during, and it runs to its end in the code it started in,
+  // up to three times slower. Go has no JIT to wait for; here the round
+  // is run again, warm, and the faster of the two kept.
+  if (!b.failed && !b.skipped) {
+    const again = runN(name, f, n);
+    if (again.failed || again.Elapsed() < b.Elapsed()) b = again;
+  }
   if (b.failed) throw new Error("\n" + report(b));
   if (b.skipped) {
     out(`--- SKIP: ${name}\n${report(b)}\n`);
