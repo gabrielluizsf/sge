@@ -98,6 +98,34 @@ export class SyscallError extends $.Native {
 }
 $.nativeType("os.SyscallError", SyscallError);
 
+// LinkError is an error from a call on two paths, as link, symlink or
+// rename makes, saying which.
+export class LinkError extends $.Native {
+  Op: string;
+  Old: string;
+  New: string;
+  Err: any;
+  constructor(op = "", oldname = "", newname = "", err: any = null) {
+    super();
+    this.Op = op;
+    this.Old = oldname;
+    this.New = newname;
+    this.Err = err;
+  }
+  Error(): string {
+    return this.Op + " " + this.Old + " " + this.New + ": " + this.Err.Error();
+  }
+  Unwrap(): any {
+    return this.Err;
+  }
+}
+$.nativeType("os.LinkError", LinkError);
+
+// linkError is the *LinkError of the Deno exception e.
+function linkError(op: string, oldname: string, newname: string, e: unknown): LinkError {
+  return new LinkError(op, oldname, newname, $.val(syscall.Errno$type, errno(e)));
+}
+
 // NewSyscallError is err from the system call syscall, or nil for none.
 export function NewSyscallError(syscall: string, err: any): any {
   return err === null ? null : new SyscallError(syscall, err);
@@ -420,7 +448,7 @@ export function Rename(from: string, to: string): any {
     deno().renameSync(js(from), js(to));
     return null;
   } catch (e) {
-    return pathError("rename", from + " " + to, e);
+    return linkError("rename", from, to, e);
   }
 }
 
@@ -433,7 +461,12 @@ export function Truncate(name: string, size: number): any {
 }
 
 export function Symlink(oldname: string, newname: string): any {
-  return attempt("symlink", newname, null, () => deno().symlinkSync(js(oldname), js(newname)))[1];
+  try {
+    deno().symlinkSync(js(oldname), js(newname));
+    return null;
+  } catch (e) {
+    return linkError("symlink", oldname, newname, e);
+  }
 }
 
 export function Readlink(name: string): [string, any] {

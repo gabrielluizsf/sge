@@ -10,6 +10,7 @@ import (
 var typedNatives = map[string]bool{
 	"reflect.TypeFor":    true,
 	"reflect.TypeAssert": true,
+	"errors.AsType":      true,
 }
 
 // nativeInstance is a hand-written generic function instantiated with

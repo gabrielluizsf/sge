@@ -1,5 +1,6 @@
 // Go's errors package.
 import * as $ from "../../rt/mod.ts";
+import { zero } from "../reflect/zero.ts";
 
 export interface error {
   Error(): string;
@@ -66,6 +67,25 @@ export function As(err: any, target: any): boolean {
     todo.push(...unwrapAll(e));
   }
   return false;
+}
+
+// AsType is errors.AsType[E]: the first error in err's tree that is an
+// E, or that makes itself one through an As method, given E's descriptor.
+export function AsType(want: $.Type, err: any): [any, boolean] {
+  for (const todo = [err]; todo.length > 0;) {
+    const e = todo.shift();
+    if (e === null) continue;
+    if (want.kind === "iface" ? $.implementsI(e, want.methods) : $.typeOf(e) === want) {
+      if (want.kind === "iface") return [e, true];
+      return [e instanceof $.Val && !(e instanceof $.NilPtr) ? e.v : $.unboxPtr(e), true];
+    }
+    if (typeof e?.As === "function") {
+      const cell = new $.Cell(zero(want));
+      if (e.As($.val($.ptrTo(want), cell))) return [cell.v, true];
+    }
+    todo.push(...unwrapAll(e));
+  }
+  return [zero(want), false];
 }
 
 class joinError {
