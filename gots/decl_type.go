@@ -114,8 +114,11 @@ func (e *emitter) structTypeDecl(td *typeDecls, name string, t *types.Named, st 
 			fn := vms.At(i).Obj().(*types.Func)
 			m := fn.Name()
 			w.line("%s(...a: any[]): any { return this.v.%s(...a); }", fieldName(m), fieldName(m))
-			if e.twin(fn) {
+			switch {
+			case e.twin(fn):
 				w.line("%s$a(...a: any[]): any { return this.v.%s$a(...a); }", fieldName(m), e.goName(fn))
+			case ifaceMethod(fn):
+				w.line("%s$a(...a: any[]): any { return $.callA(this.v, %q, ...a); }", fieldName(m), fieldName(m))
 			}
 		}
 		w.close("}")
@@ -143,8 +146,13 @@ func (e *emitter) promoted(w *writer, ms *types.MethodSet, self string) {
 			if g := e.goName(fn); g != m {
 				w.line("%s(...a: any[]): any { return %s.%s(...a); }", g, path, g)
 			}
-			if e.twin(fn) {
+			switch {
+			case e.twin(fn):
 				w.line("%s$a(...a: any[]): any { return %s.%s$a(...a); }", e.goName(fn), path, e.goName(fn))
+			case ifaceMethod(fn):
+				// What the field holds may have a twin: code that can wait
+				// reaches it through this one.
+				w.line("%s$a(...a: any[]): any { return $.callA(%s, %q, ...a); }", m, path, m)
 			}
 			continue
 		}
@@ -283,4 +291,11 @@ func (e *emitter) namedDeps(t types.Type) []string {
 	}
 	walk(t)
 	return out
+}
+
+// ifaceMethod reports whether fn is a method of an interface, as one
+// promoted from an embedded interface field is.
+func ifaceMethod(fn *types.Func) bool {
+	r := fn.Type().(*types.Signature).Recv()
+	return r != nil && types.IsInterface(r.Type())
 }
