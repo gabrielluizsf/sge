@@ -14,6 +14,49 @@ export class Val {
   }
 }
 
+// NilPtr is a nil pointer to a struct held in an interface: unlike the
+// nil interface, it has a type, and the methods of that pointer type,
+// called with a nil receiver as Go does. There is one for each type, so
+// two of the same type are equal.
+export class NilPtr extends Val {
+  ctor: any = null;
+}
+
+const nilPtrs = new WeakMap<any, NilPtr>();
+
+// nilPtr is the nil pointer to the struct of class ctor, in an interface.
+export function nilPtr(ctor: any): NilPtr {
+  let b = nilPtrs.get(ctor);
+  if (b === undefined) {
+    class Box extends NilPtr {}
+    for (let p = ctor.prototype; p !== null && p !== Object.prototype; p = Object.getPrototypeOf(p)) {
+      for (const name of Object.getOwnPropertyNames(p)) {
+        if (name === "constructor" || name in Box.prototype) continue;
+        const m = p[name];
+        if (typeof m !== "function") continue;
+        (Box.prototype as any)[name] = function (...a: any[]) {
+          return m.apply(null, a);
+        };
+      }
+    }
+    b = new Box(ptrTo(ctor.$type), null);
+    b.ctor = ctor;
+    nilPtrs.set(ctor, b);
+  }
+  return b;
+}
+
+// ptrBox is the pointer p to a struct of class ctor put in an interface:
+// the object itself, or the typed nil.
+export function ptrBox(p: any, ctor: any): any {
+  return p === null ? nilPtr(ctor) : p;
+}
+
+// unboxPtr is the pointer an interface holding one gives back.
+export function unboxPtr(x: any): any {
+  return x instanceof NilPtr ? null : x;
+}
+
 // val puts v in an interface as a value of type t.
 export function val(t: Type, v: any): Val {
   return t.valCls === null ? new Val(t, v) : new t.valCls(t, v);
@@ -78,12 +121,13 @@ export function assertVal(x: any, t: Type): any {
 // class ctor of S. Descriptors are compared rather than classes, since an
 // instance of a generic struct has a class in every module that uses it.
 export function isPtrTo(x: any, ctor: any): boolean {
+  if (x instanceof NilPtr) return x.ctor === ctor;
   return x !== null && !(x instanceof Val) && x.constructor.$type === ctor.$type;
 }
 
 // assertPtr is x.(*S) for a struct S: the object, or a panic.
 export function assertPtr(x: any, ctor: any): any {
-  if (isPtrTo(x, ctor)) return x;
+  if (isPtrTo(x, ctor)) return unboxPtr(x);
   throw new TypeAssertionError(x, "*" + ctor.$type.str);
 }
 

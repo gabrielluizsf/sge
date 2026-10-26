@@ -148,12 +148,14 @@ function fmtString(s: string, verb: string, f: Flags): string {
 }
 
 // methodOf finds the Error or String method fmt prefers over printing a
-// value's contents, for an interface value or a plain value of type t.
-function methodOf(t: $.Type, v: any): (() => string) | null {
+// value's contents, for an interface value or a plain value of type t. A
+// nil pointer has them too, when the interface holding it is given as
+// boxed: they are called, as Go calls them, with a nil receiver.
+function methodOf(t: $.Type, v: any, boxed: any = null): (() => string) | null {
   let recv: any = null;
   if (t.kind === "ptr") {
-    if (v === null) return null;
-    recv = v;
+    if (v === null && !(boxed instanceof $.NilPtr)) return null;
+    recv = v ?? boxed;
   } else if (t.valCls !== null) {
     recv = new t.valCls(t, v);
   }
@@ -183,17 +185,17 @@ class Printer {
     const v = a instanceof $.Val ? a.v : a;
     if (verb === "T") return pad(t.str, f);
     if (verb === "p") return pad(address(v), f);
-    return this.value(t, v, verb, f, 0);
+    return this.value(t, v, verb, f, 0, a);
   }
 
-  value(t: $.Type, v: any, verb: string, f: Flags, depth: number): string {
+  value(t: $.Type, v: any, verb: string, f: Flags, depth: number, boxed: any = null): string {
     if (t.str === "reflect.Value" && v !== null && "p" in v && "f" in v) {
       // fmt prints what a reflect.Value holds, as Go's does.
       if (v.t === null) return pad("<invalid reflect.Value>", f);
       return this.value(v.t, v.get(), verb, f, depth);
     }
     if (verb !== "T" && verb !== "p" && !(verb === "v" && f.sharpV) && "vsxXq".includes(verb)) {
-      const m = methodOf(t, v);
+      const m = methodOf(t, v, boxed);
       if (m !== null) {
         try {
           return fmtString(m(), verb, f);

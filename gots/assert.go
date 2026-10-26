@@ -40,7 +40,10 @@ func (e *emitter) holds(v string, t types.Type) string {
 // unboxed is the T held by the interface value in the binding v, once
 // holds has said it is one.
 func (e *emitter) unboxed(v string, t types.Type) string {
-	if isInterface(t) || isStructPtr(t) || isNil(t) {
+	if isStructPtr(t) {
+		return "$.unboxPtr(" + v + ")"
+	}
+	if isInterface(t) || isNil(t) {
 		return v
 	}
 	return e.cloneOf(v+".v", t)

@@ -30,7 +30,13 @@ func (e *emitter) convertValue(js string, from, to types.Type, copy bool) string
 // box puts a value of the concrete type t into an interface.
 func (e *emitter) box(js string, t types.Type) string {
 	if p, ok := t.Underlying().(*types.Pointer); ok && isStruct(p.Elem()) {
-		return js
+		// The object itself, or, for nil, the typed nil: a nil *T in an
+		// interface is not a nil interface.
+		cls := e.structClass(p.Elem())
+		if e.simpleJS(js) {
+			return "(" + js + " ?? $.nilPtr(" + cls + "))"
+		}
+		return "$.ptrBox(" + js + ", " + cls + ")"
 	}
 	if cls := e.valClassOf(t); cls != "" {
 		// What $.val would pick, named here: a construction V8 can inline.
