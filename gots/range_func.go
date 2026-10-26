@@ -31,9 +31,17 @@ const (
 
 // rangeFunc is range over an iterator function.
 func (e *emitter) rangeFunc(w *writer, s *ast.RangeStmt, sig *types.Signature, head string) {
-	if e.bodyBlocks(s.Body) {
-		w.line("%s;", e.unsupported(s, "a range over a function whose body blocks"))
-		return
+	// A body that may block is an async callback the loop awaits, through
+	// the iterator's twin, which awaits it in turn.
+	rk := rangeFuncKey(e.blockingOf().key(s.Pos()))
+	waits := e.blockingOf().blocks[rk] || e.mayBlockOf().blocks[rk] || e.bodyBlocks(s.Body)
+	if waits && !e.canWait() {
+		if !e.bodyBlocks(s.Body) && !e.blockingOf().blocks[rk] {
+			waits = false // it may block only through what it calls: it does not, here
+		} else {
+			w.line("%s;", e.unsupported(s, "a range over a function whose body blocks, outside a function that can wait"))
+			return
+		}
 	}
 	params := sig.Params().At(0).Type().(*types.Signature).Params()
 	var vars []string
@@ -47,7 +55,11 @@ func (e *emitter) rangeFunc(w *writer, s *ast.RangeStmt, sig *types.Signature, h
 	}
 	w.open("{")
 	w.line("let %s = 0, %s: any;", y.ctl, y.ret)
-	w.open("%s((%s) => {", e.expr(s.X), strings.Join(vars, ", "))
+	if waits {
+		w.open("await %s(async (%s) => {", e.iterCallee(s.X), strings.Join(vars, ", "))
+	} else {
+		w.open("%s((%s) => {", e.expr(s.X), strings.Join(vars, ", "))
+	}
 	// An iterator calling yield again once it said stop is a bug Go
 	// panics over.
 	w.line("if (%s !== 0) $.panic(new $.RuntimeError(\"range function continued iteration after function for loop body returned false\"));", y.ctl)
@@ -55,9 +67,9 @@ func (e *emitter) rangeFunc(w *writer, s *ast.RangeStmt, sig *types.Signature, h
 	for i := range vars {
 		e.bindRange(w, keys[i], strings.TrimSuffix(vars[i], ": any"), params.At(i).Type(), s.Tok)
 	}
-	// The callback cannot wait: what is called in it is not awaited.
+	// The callback waits only when it is an async one.
 	async := e.fn.async
-	e.fn.async = false
+	e.fn.async = waits
 	e.fn.breaks = append(e.fn.breaks, b)
 	e.stmts(w, s.Body.List)
 	e.fn.breaks = e.fn.breaks[:len(e.fn.breaks)-1]
@@ -173,4 +185,22 @@ func (e *emitter) bodyBlocks(body *ast.BlockStmt) bool {
 		return !found
 	})
 	return found
+}
+
+// iterCallee is the iterator x as a loop whose body waits calls it: the
+// twin of a function that has one, or of the function value x is.
+func (e *emitter) iterCallee(x ast.Expr) string {
+	var id *ast.Ident
+	switch y := ast.Unparen(x).(type) {
+	case *ast.Ident:
+		id = y
+	case *ast.SelectorExpr:
+		id = y.Sel
+	}
+	if id != nil {
+		if fn, ok := e.info.Uses[id].(*types.Func); ok && e.twin(fn) {
+			return e.expr(x) + "$a"
+		}
+	}
+	return "$.fa(" + e.expr(x) + ")"
 }

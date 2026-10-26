@@ -7,7 +7,7 @@ import * as $ from "../../rt/mod.ts";
 import { isComplex, isFloat, isInt, isObject, isUint, Kind, kindOf } from "./kinds.ts";
 import { overflowFloat, overflowInt, overflowUint, rtype, toType, unsupported } from "./rtype.ts";
 import { backing, box, copyOf, makeMap, makeSlice, setIn, zero } from "./zero.ts";
-import { bound, call, methodsOf } from "./call.ts";
+import { bound, call, callA, methodsOf } from "./call.ts";
 
 const addressable = 1, readOnly = 2;
 
@@ -449,7 +449,21 @@ export class Value extends $.Native {
   CallSlice(in_: $.Slice<Value> | null): $.Slice<Value> | null {
     return this.callWith(in_, true);
   }
+  // Call$a and CallSlice$a are their twins, for code that can wait: they
+  // call functions that block.
+  async Call$a(in_: $.Slice<Value> | null): Promise<$.Slice<Value> | null> {
+    const [t, ins] = this.callIns(in_);
+    return this.outs(t, await callA(t, this.get(), ins, false));
+  }
+  async CallSlice$a(in_: $.Slice<Value> | null): Promise<$.Slice<Value> | null> {
+    const [t, ins] = this.callIns(in_);
+    return this.outs(t, await callA(t, this.get(), ins, true));
+  }
   private callWith(in_: $.Slice<Value> | null, asSlice: boolean): $.Slice<Value> | null {
+    const [t, ins] = this.callIns(in_);
+    return this.outs(t, call(t, this.get(), ins, asSlice));
+  }
+  private callIns(in_: $.Slice<Value> | null): [$.Type, Value[]] {
     const t = this.kind("Call", "func");
     exported(this, "reflect.Value.Call");
     const ins = in_ === null ? [] : in_.toArray();
@@ -457,7 +471,9 @@ export class Value extends $.Native {
       v.must("Call");
       exported(v, "reflect.Value.Call");
     }
-    const outs = call(t, this.get(), ins, asSlice);
+    return [t, ins];
+  }
+  private outs(t: $.Type, outs: any[]): $.Slice<Value> | null {
     return $.slice(outs.map((x, i) => Value.of(t.outs[i], x)));
   }
 

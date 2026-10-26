@@ -18,6 +18,9 @@ var twinNatives = map[string]bool{
 	"fmt.Fprint":   true,
 	"fmt.Fprintf":  true,
 	"fmt.Fprintln": true,
+	// reflect calls what it is given, which may block.
+	"reflect.Value.Call":      true,
+	"reflect.Value.CallSlice": true,
 }
 
 // nativeName is fn as pkg.Func or pkg.Type.Method.

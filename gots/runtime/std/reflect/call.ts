@@ -29,15 +29,21 @@ export function bound(d: $.Type, recv: any, name: string): (...a: any[]) => any 
   }
   if (d.kind === "struct" || d.kind === "ptr" && d.elem!.kind === "struct") {
     if (recv === null) fail("reflect: call of method " + name + " on nil pointer");
-    const f = recv[name + "$g"] ?? recv[name];
-    return f.bind(recv);
+    return withTwin(recv, (recv[name + "$g"] ?? recv[name]).bind(recv), name);
   }
   // Methods of other named types are functions the Val class holding
   // their values calls.
   const cls = d.valCls;
   if (cls === null || cls === undefined) fail("gots: reflect cannot find method " + name + " of " + d.str);
   const b = new cls(d, recv);
-  return b[name].bind(b);
+  return withTwin(b, b[name].bind(b), name);
+}
+
+// withTwin is f, method name of r bound to it, carrying the method's twin
+// when it has one, for Call from code that can wait.
+function withTwin(r: any, f: (...a: any[]) => any, name: string): (...a: any[]) => any {
+  const a = r[name + "$g$a"] ?? r[name + "$a"];
+  return typeof a === "function" ? $.twins(f, a.bind(r)) : f;
 }
 
 // argument is the Value v passed as a parameter of type t, which it has to
@@ -48,10 +54,10 @@ function argument(t: $.Type, v: any): any {
   return t.kind === "iface" && v.t.kind !== "iface" ? box(v.t, copyOf(v.t, x)) : copyOf(t, x);
 }
 
-// call calls fn, of the func type t, with the Values in, packing the extra
-// ones of a variadic function into its last parameter unless asSlice says
-// in has the slice already. It gives the results as values of their types.
-export function call(t: $.Type, fn: any, ins: any[], asSlice: boolean): any[] {
+// args are the arguments a call of fn, of the func type t, takes from the
+// Values in, packing the extra ones of a variadic function into its last
+// parameter unless asSlice says in has the slice already.
+function args(t: $.Type, fn: any, ins: any[], asSlice: boolean): any[] {
   if (fn === null) fail("reflect: call of nil function");
   const params = t.ins;
   const n = params.length;
@@ -59,22 +65,44 @@ export function call(t: $.Type, fn: any, ins: any[], asSlice: boolean): any[] {
   if (asSlice ? ins.length !== n : t.variadic ? ins.length < fixed : ins.length !== n) {
     fail("reflect: Call with " + (ins.length < n ? "too few" : "too many") + " input arguments");
   }
-  const args: any[] = [];
-  for (let i = 0; i < fixed; i++) args.push(argument(params[i], ins[i]));
+  const out: any[] = [];
+  for (let i = 0; i < fixed; i++) out.push(argument(params[i], ins[i]));
   if (t.variadic) {
     const st = params[n - 1];
-    if (asSlice) args.push(ins[n - 1].get());
+    if (asSlice) out.push(ins[n - 1].get());
     else {
       const rest = ins.slice(fixed);
       const s = makeSlice(st, rest.length, rest.length);
       rest.forEach((v, i) => (s.a[i] = argument(st.elem!, v)));
-      args.push(rest.length === 0 ? null : s);
+      out.push(rest.length === 0 ? null : s);
     }
   }
-  const r = fn(...args);
-  if (r instanceof Promise) fail("gots: reflect cannot call a function that blocks");
+  return out;
+}
+
+// results are what a call of the func type t gave, as values of their
+// types.
+function results(t: $.Type, r: any): any[] {
   const outs = t.outs;
   if (outs.length === 0) return [];
   if (outs.length === 1) return [r];
   return r;
+}
+
+// call calls fn, of the func type t, with the Values in. A function that
+// blocks is called by callA, from code that can wait.
+export function call(t: $.Type, fn: any, ins: any[], asSlice: boolean): any[] {
+  const r = fn(...args(t, fn, ins, asSlice));
+  if (r instanceof Promise) {
+    r.catch(() => {});
+    fail("gots: reflect.Value.Call of a function that blocks, from code that does not wait; call it from a goroutine");
+  }
+  return results(t, r);
+}
+
+// callA is call for code that can wait: it calls fn's twin, when it has
+// one, and waits for a function that blocks.
+export async function callA(t: $.Type, fn: any, ins: any[], asSlice: boolean): Promise<any[]> {
+  const a = args(t, fn, ins, asSlice);
+  return results(t, await $.fa(fn)(...a));
 }

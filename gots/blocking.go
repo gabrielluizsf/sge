@@ -46,18 +46,27 @@ func (b *blocking) addFiles(files []*ast.File, info *types.Info) {
 				}
 			}
 		}
+		if b.cha {
+			b.addFuncValues(f, info)
+		}
 	}
 }
 
 // addFunc reads one function body, and the closures in it, each its own.
 func (b *blocking) addFunc(ft *ast.FuncType, body *ast.BlockStmt, info *types.Info) {
-	me := b.key(ft.Pos())
+	b.addBody(b.key(ft.Pos()), body, info)
+}
+
+// addBody reads body as the function known as me.
+func (b *blocking) addBody(me string, body *ast.BlockStmt, info *types.Info) {
 	nonBlocking := map[ast.Node]bool{} // channel operations of a select with a default
 	polls := pollingSelects(body)
-	ast.Inspect(body, func(n ast.Node) bool {
+	var visit func(n ast.Node) bool
+	visit = func(n ast.Node) bool {
 		switch n := n.(type) {
 		case *ast.FuncLit:
 			b.addFunc(n.Type, n.Body, info)
+			b.funcValue(b.key(n.Type.Pos()), info.TypeOf(n))
 			return false
 		case *ast.SelectStmt:
 			if selectHasDefault(n) {
@@ -81,13 +90,32 @@ func (b *blocking) addFunc(ft *ast.FuncType, body *ast.BlockStmt, info *types.In
 				b.mark(me)
 			}
 		case *ast.RangeStmt:
-			if _, ok := info.TypeOf(n.X).Underlying().(*types.Chan); ok {
+			switch t := info.TypeOf(n.X).Underlying().(type) {
+			case *types.Chan:
 				b.mark(me)
+			case *types.Signature:
+				// The body of a range over a function is the yield callback
+				// the iterator calls: a function of its own, which the loop
+				// waits for.
+				ast.Inspect(n.X, visit)
+				rk := rangeFuncKey(b.key(n.Pos()))
+				b.addBody(rk, n.Body, info)
+				b.callers[rk] = append(b.callers[rk], me)
+				if b.blocks[rk] {
+					b.mark(me)
+				}
+				b.funcValue(rk, t.Params().At(0).Type())
+				return false
 			}
 		case *ast.GoStmt:
 			// The call runs in a goroutine of its own; what it is called
 			// with is worked out here and now.
-			ast.Inspect(n.Call.Fun, func(m ast.Node) bool { return b.visitOperand(me, m, info) })
+			if lit, ok := ast.Unparen(n.Call.Fun).(*ast.FuncLit); ok {
+				// Run, not handed on: not a function value.
+				b.addFunc(lit.Type, lit.Body, info)
+			} else {
+				ast.Inspect(n.Call.Fun, func(m ast.Node) bool { return b.visitOperand(me, m, info) })
+			}
 			for _, a := range n.Call.Args {
 				ast.Inspect(a, func(m ast.Node) bool { return b.visitOperand(me, m, info) })
 			}
@@ -96,7 +124,8 @@ func (b *blocking) addFunc(ft *ast.FuncType, body *ast.BlockStmt, info *types.In
 			b.call(me, n, info)
 		}
 		return true
-	})
+	}
+	ast.Inspect(body, visit)
 }
 
 // visitOperand is addFunc's visit for an operand of a go statement, whose
@@ -105,6 +134,7 @@ func (b *blocking) visitOperand(me string, n ast.Node, info *types.Info) bool {
 	switch n := n.(type) {
 	case *ast.FuncLit:
 		b.addFunc(n.Type, n.Body, info)
+		b.funcValue(b.key(n.Type.Pos()), info.TypeOf(n))
 		return false
 	case *ast.UnaryExpr:
 		if n.Op == token.ARROW {
@@ -127,6 +157,20 @@ func (b *blocking) call(me string, c *ast.CallExpr, info *types.Info) {
 				b.mark(me)
 			}
 			return
+		}
+	}
+	if fn == nil && b.cha && b.closureCalled(info, c) == nil {
+		if tv := info.Types[c.Fun]; !tv.IsType() && !tv.IsBuiltin() {
+			if sig, ok := tv.Type.Underlying().(*types.Signature); ok {
+				// A call through a function value may reach any function of
+				// its shape used as a value.
+				k := funcShapeKey(sig)
+				b.callers[k] = append(b.callers[k], me)
+				if b.blocks[k] {
+					b.mark(me)
+				}
+				return
+			}
 		}
 	}
 	if fn == nil {
