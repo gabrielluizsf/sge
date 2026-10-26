@@ -14,6 +14,8 @@ export class Type {
   kind: Kind;
   str: string;
   named = false;
+  // pkgPath is the import path of the package a named type is declared in.
+  pkgPath = "";
   elem: Type | null = null;
   key: Type | null = null;
   len = 0;
@@ -222,4 +224,10 @@ export function canonical(key: string, make: () => Type): Type {
 export function field(name: string, type: Type, embedded = false, prop = name, tag = ""): Field {
   const c = name.charCodeAt(0);
   return { name, type, embedded, exported: c >= 65 && c <= 90, prop, tag };
+}
+
+// inPkg is the named type t, declared in the package of import path pkg.
+export function inPkg(t: Type, pkg: string): Type {
+  t.pkgPath = pkg;
+  return t;
 }

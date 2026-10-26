@@ -297,6 +297,5 @@ func stdFromSource(all []listed, roots map[string]bool) map[string]bool {
 // yet, with what that is. They are never transpiled: their modules are
 // stubs, and the tests that use them are skipped.
 var unsupportedStd = map[string]string{
-	"crypto/tls":   "sockets",
-	"encoding/gob": "reflect",
+	"crypto/tls": "sockets",
 }

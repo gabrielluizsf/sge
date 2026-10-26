@@ -49,8 +49,10 @@ export class rtype {
     const head = br < 0 ? s : s.slice(0, br);
     return $.str.toGo(s.slice(head.lastIndexOf(".") + 1));
   }
+  // PkgPath is the import path of a named type's package; "" for other
+  // types and for those Go predeclares.
   PkgPath(): string {
-    return "";
+    return this.d.named ? $.str.toGo(this.d.pkgPath) : "";
   }
   Elem(): rtype {
     const k = this.d.kind;
@@ -233,6 +235,66 @@ export class rtype {
   }
   OverflowFloat(x: number): boolean {
     return overflowFloat(this.d, x);
+  }
+  // OverflowComplex reports whether x does not fit a complex of this
+  // type: either part a float of half its size.
+  OverflowComplex(x: { re: number; im: number }): boolean {
+    if (this.d.kind !== "complex64" && this.d.kind !== "complex128") badKind("OverflowComplex", this.d);
+    if (this.d.kind === "complex128") return false;
+    const f32 = $.Float32;
+    return overflowFloat(f32, x.re) || overflowFloat(f32, x.im);
+  }
+  // FieldByIndex is the field the index path leads to, through embedded
+  // structs and pointers to them, as Go walks it.
+  FieldByIndex(index: $.Slice<number> | null): StructField {
+    let f = new StructField();
+    f.Type = this;
+    const path = index === null ? [] : index.toArray();
+    path.forEach((x, i) => {
+      let ft: any = f.Type;
+      if (i > 0 && ft.Kind() === 22 && ft.Elem().Kind() === 25) ft = ft.Elem();
+      f = ft.Field(x);
+    });
+    return f;
+  }
+  // FieldByNameFunc is the first field whose name match accepts.
+  FieldByNameFunc(match: (name: string) => boolean): [StructField, boolean] {
+    if (this.d.kind !== "struct") badKind("FieldByNameFunc", this.d);
+    for (let i = 0; i < this.d.fields.length; i++) {
+      const sf = this.Field(i);
+      if (match(sf.Name)) return [sf, true];
+    }
+    return [new StructField(), false];
+  }
+  // Fields, Methods, Ins and Outs range over the type's fields, methods,
+  // parameters and results.
+  Fields(): (yield_: (f: StructField) => boolean) => void {
+    return (y) => {
+      for (let i = 0; i < this.NumField(); i++) if (!y(this.Field(i))) return;
+    };
+  }
+  Methods(): (yield_: (m: Method) => boolean) => void {
+    return (y) => {
+      for (let i = 0; i < this.NumMethod(); i++) if (!y(this.Method(i))) return;
+    };
+  }
+  Ins(): (yield_: (t: rtype) => boolean) => void {
+    return (y) => {
+      for (let i = 0; i < this.NumIn(); i++) if (!y(this.In(i))) return;
+    };
+  }
+  Outs(): (yield_: (t: rtype) => boolean) => void {
+    return (y) => {
+      for (let i = 0; i < this.NumOut(); i++) if (!y(this.Out(i))) return;
+    };
+  }
+  // common and uncommon are the runtime's type records, which gots keeps
+  // as descriptors instead.
+  common(): any {
+    return null;
+  }
+  uncommon(): any {
+    return null;
   }
 }
 $.nativeType("reflect.rtype", rtype);
