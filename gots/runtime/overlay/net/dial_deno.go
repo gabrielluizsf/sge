@@ -20,6 +20,8 @@ func (d *Dialer) DialContext(ctx context.Context, network, address string) (Conn
 	switch network {
 	case "tcp", "tcp4", "tcp6":
 		return d.dialDeno(ctx, network, address)
+	case "udp", "udp4", "udp6":
+		return d.dialDenoUDP(ctx, network, address)
 	}
 	ctx, cancel := d.dialCtx(ctx)
 	defer cancel()
@@ -55,17 +57,16 @@ func (d *Dialer) DialContext(ctx context.Context, network, address string) (Conn
 }
 
 // dialDeno dials host:port with Deno.connect, giving up when ctx or the
-// dialer's timeout says to.
+// dialer's timeout says to. A Control or ControlContext hook, which servers
+// fetching URLs from outside refuse private addresses in, is asked about
+// each address the name resolves to, and the dial goes to an address it
+// let through, not to the name again: what it checked is what is reached.
 func (d *Dialer) dialDeno(ctx context.Context, network, address string) (Conn, error) {
 	fail := func(err error) (Conn, error) {
 		return nil, &OpError{Op: "dial", Net: network, Err: err}
 	}
-	// Deno connects by name, past anything that would look at the address
-	// first: a Control or ControlContext, which servers fetching URLs from
-	// outside refuse private addresses in, and a Resolver of the program's
-	// own. Rather than skip them, which would let through what they
-	// refuse, a dial with one fails, as Go's own js port does.
-	if d.Control != nil || d.ControlContext != nil || d.Resolver != nil && d.Resolver != DefaultResolver {
+	// A Resolver of the program's own cannot be asked: Deno resolves.
+	if d.Resolver != nil && d.Resolver != DefaultResolver {
 		return fail(os.NewSyscallError("socket", syscall.ENOTSUP))
 	}
 	host, service, err := SplitHostPort(address)
@@ -78,6 +79,48 @@ func (d *Dialer) dialDeno(ctx context.Context, network, address string) (Conn, e
 	}
 	ctx, cancel := d.dialCtx(ctx)
 	defer cancel()
+	ctrl := d.ControlContext
+	if ctrl == nil && d.Control != nil {
+		ctrl = func(ctx context.Context, network, address string, c syscall.RawConn) error {
+			return d.Control(network, address, c)
+		}
+	}
+	if ctrl == nil {
+		return d.connectDeno(ctx, network, host, port)
+	}
+	ips := []string{host}
+	if ParseIP(host) == nil {
+		v, err := awaitJS(js.Global().Get("gotsNet").Call("lookup", host))
+		if err != nil {
+			return fail(err)
+		}
+		ips = make([]string, v.Length())
+		for i := range ips {
+			ips[i] = v.Index(i).String()
+		}
+	}
+	lastErr := error(&DNSError{Err: "no suitable address", Name: host})
+	for _, s := range ips {
+		nw := ctrlNetwork("tcp", ParseIP(s))
+		if network != "tcp" && network != nw {
+			continue
+		}
+		if err := ctrl(ctx, nw, JoinHostPort(s, strconv.Itoa(port)), denoRawConn{}); err != nil {
+			lastErr = err
+			continue
+		}
+		c, err := d.connectDeno(ctx, network, s, port)
+		if err == nil {
+			return c, nil
+		}
+		lastErr = err
+	}
+	return fail(lastErr)
+}
+
+// connectDeno connects to host:port with Deno.connect, giving up when ctx
+// says to.
+func (d *Dialer) connectDeno(ctx context.Context, network, host string, port int) (Conn, error) {
 	type result struct {
 		v   js.Value
 		err error
@@ -90,7 +133,7 @@ func (d *Dialer) dialDeno(ctx context.Context, network, address string) (Conn, e
 	select {
 	case r := <-done:
 		if r.err != nil {
-			return fail(r.err)
+			return nil, &OpError{Op: "dial", Net: network, Err: r.err}
 		}
 		fd := newDenoConn(network, &denoSock{v: r.v})
 		return newTCPConn(fd, d.KeepAlive, d.KeepAliveConfig, testPreHookSetKeepAlive, testHookSetKeepAlive), nil
@@ -101,8 +144,40 @@ func (d *Dialer) dialDeno(ctx context.Context, network, address string) (Conn, e
 				r.v.Call("close")
 			}
 		}()
-		return fail(mapErr(ctx.Err()))
+		return nil, &OpError{Op: "dial", Net: network, Err: mapErr(ctx.Err())}
 	}
+}
+
+// dialDenoUDP dials UDP to host:port, looking the name up as Deno does.
+func (d *Dialer) dialDenoUDP(ctx context.Context, network, address string) (Conn, error) {
+	fail := func(err error) (Conn, error) {
+		return nil, &OpError{Op: "dial", Net: network, Err: err}
+	}
+	host, service, err := SplitHostPort(address)
+	if err != nil {
+		return fail(err)
+	}
+	port, err := denoPort(network, service)
+	if err != nil {
+		return fail(err)
+	}
+	ip := ParseIP(host)
+	if ip == nil {
+		v, err := awaitJS(js.Global().Get("gotsNet").Call("lookup", host))
+		if err != nil {
+			return fail(err)
+		}
+		if v.Length() == 0 {
+			return fail(&DNSError{Err: "no such host", Name: host})
+		}
+		ip = ParseIP(v.Index(0).String())
+	}
+	sd := &sysDialer{Dialer: *d, network: network, address: address}
+	c, err := sd.dialUDP(ctx, nil, &UDPAddr{IP: ip, Port: port})
+	if err != nil {
+		return fail(err)
+	}
+	return c, nil
 }
 
 // denoPort is the port service names: a number, or a well-known service.
@@ -125,10 +200,6 @@ func (sd *sysDialer) doDialTCP(ctx context.Context, laddr, raddr *TCPAddr) (*TCP
 }
 
 func (sl *sysListener) listenTCP(ctx context.Context, laddr *TCPAddr) (*TCPListener, error) {
-	if sl.ListenConfig.Control != nil {
-		// Deno's listen has no socket to show it: fail, as Go's js port does.
-		return nil, &OpError{Op: "listen", Net: sl.network, Addr: laddr, Err: os.NewSyscallError("socket", syscall.ENOTSUP)}
-	}
 	host := ""
 	if laddr != nil && laddr.IP != nil && !laddr.IP.IsUnspecified() {
 		host = laddr.IP.String()
@@ -136,6 +207,15 @@ func (sl *sysListener) listenTCP(ctx context.Context, laddr *TCPAddr) (*TCPListe
 	port := 0
 	if laddr != nil {
 		port = laddr.Port
+	}
+	if c := sl.ListenConfig.Control; c != nil {
+		var ip IP
+		if laddr != nil {
+			ip = laddr.IP
+		}
+		if err := c(ctrlNetwork("tcp", ip), JoinHostPort(host, strconv.Itoa(port)), denoRawConn{}); err != nil {
+			return nil, &OpError{Op: "listen", Net: sl.network, Addr: laddr, Err: err}
+		}
 	}
 	v, err := denoListen(host, port)
 	if err != nil {

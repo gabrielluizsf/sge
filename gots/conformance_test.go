@@ -13,7 +13,10 @@ import (
 // installed, node otherwise.
 func jsRuntime(t *testing.T) []string {
 	if p, err := exec.LookPath("deno"); err == nil {
-		return []string{p, "run", "-q", "--no-config", "--no-lock", "--allow-read", "--allow-write", "--allow-env", "--allow-run", "--allow-net=127.0.0.1"}
+		// The network the conformance programs reach: loopback, and the one
+		// Unix socket unixsock listens on, which Deno grants by its path.
+		sock := filepath.Join(os.TempDir(), "gots-conformance.sock")
+		return []string{p, "run", "-q", "--no-config", "--no-lock", "--allow-read", "--allow-write", "--allow-env", "--allow-run", "--unstable-net", "--allow-net=127.0.0.1,unix:" + sock}
 	}
 	if p, err := exec.LookPath("node"); err == nil {
 		return []string{p, "--no-warnings"}

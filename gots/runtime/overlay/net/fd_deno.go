@@ -27,24 +27,27 @@ type netFD struct {
 	laddr       Addr
 	raddr       Addr
 
-	// Deno's TCP connection or listener, when the netFD is one.
-	sock *denoSock
-	lis  *denoListener
+	// Deno's TCP or Unix connection, listener or UDP socket, when the
+	// netFD is one.
+	sock  *denoSock
+	lis   *denoListener
+	dgram *denoDgram
 
 	*fakeNetFD
 }
 
-// newDenoConn is the netFD of a Deno TCP connection.
+// newDenoConn is the netFD of a Deno TCP or Unix connection.
 func newDenoConn(net string, s *denoSock) *netFD {
-	return &netFD{
-		family:      syscall.AF_INET,
-		sotype:      syscall.SOCK_STREAM,
-		isConnected: true,
-		net:         net,
-		laddr:       tcpAddr(s.v.Call("local")),
-		raddr:       tcpAddr(s.v.Call("remote")),
-		sock:        s,
+	fd := &netFD{family: syscall.AF_INET, sotype: syscall.SOCK_STREAM, isConnected: true, net: net, sock: s}
+	if net == "unix" {
+		fd.family = syscall.AF_UNIX
+		fd.laddr = unixAddr(s.v.Call("local"))
+		fd.raddr = unixAddr(s.v.Call("remote"))
+		return fd
 	}
+	fd.laddr = tcpAddr(s.v.Call("local"))
+	fd.raddr = tcpAddr(s.v.Call("remote"))
+	return fd
 }
 
 func (fd *netFD) accept() (netfd *netFD, err error) {
@@ -67,6 +70,8 @@ func (fd *netFD) Close() error {
 		return fd.sock.close()
 	case fd.lis != nil:
 		return fd.lis.close()
+	case fd.dgram != nil:
+		return fd.dgram.close()
 	case fd.fakeNetFD != nil:
 		go fd.fakeNetFD.Close()
 		return nil
@@ -96,6 +101,10 @@ func (fd *netFD) Read(p []byte) (n int, err error) {
 	if fd.sock != nil {
 		return fd.sock.read(p)
 	}
+	if fd.dgram != nil {
+		n, _, err := fd.dgram.receive(p)
+		return n, err
+	}
 	if fd.fakeNetFD != nil {
 		return fd.fakeNetFD.Read(p)
 	}
@@ -105,6 +114,12 @@ func (fd *netFD) Read(p []byte) (n int, err error) {
 func (fd *netFD) Write(p []byte) (nn int, err error) {
 	if fd.sock != nil {
 		return fd.sock.write(p)
+	}
+	if fd.dgram != nil {
+		if fd.dgram.peer == nil {
+			return 0, syscall.EDESTADDRREQ
+		}
+		return fd.dgram.send(p, fd.dgram.peer)
 	}
 	if fd.fakeNetFD != nil {
 		return fd.fakeNetFD.Write(p)
@@ -121,6 +136,10 @@ func (fd *netFD) SetDeadline(t time.Time) error {
 	case fd.lis != nil:
 		fd.lis.setDeadline(t)
 		return nil
+	case fd.dgram != nil:
+		fd.dgram.setReadDeadline(t)
+		fd.dgram.wdeadline = t
+		return nil
 	case fd.fakeNetFD != nil:
 		go fd.fakeNetFD.SetDeadline(t)
 		return nil
@@ -136,6 +155,9 @@ func (fd *netFD) SetReadDeadline(t time.Time) error {
 	case fd.lis != nil:
 		fd.lis.setDeadline(t)
 		return nil
+	case fd.dgram != nil:
+		fd.dgram.setReadDeadline(t)
+		return nil
 	case fd.fakeNetFD != nil:
 		go fd.fakeNetFD.SetReadDeadline(t)
 		return nil
@@ -147,6 +169,9 @@ func (fd *netFD) SetWriteDeadline(t time.Time) error {
 	switch {
 	case fd.sock != nil:
 		fd.sock.setWriteDeadline(t)
+		return nil
+	case fd.dgram != nil:
+		fd.dgram.wdeadline = t
 		return nil
 	case fd.fakeNetFD != nil:
 		go fd.fakeNetFD.SetWriteDeadline(t)

@@ -176,6 +176,12 @@ a redirect to another host hold. Host names go to Deno unresolved, so
 the hosts a game talks to (`--allow-net=127.0.0.1:8080,api.example.com`).
 A `Content-Length` past 2^53, which a JavaScript number would round, is
 refused by the server and the client rather than read as another length.
+Reads and writes hold their deadlines, and a read or write that runs out
+of time loses nothing of the stream.
+
+`encoding/gob`, `encoding/json` and `encoding/xml` refuse input nested
+deeper than a JavaScript stack holds with an error, rather than end the
+program: Go's limits are sized for a stack that grows.
 
 ## reflect
 
@@ -193,25 +199,28 @@ instead of ending the program.
 
 ## Limitations
 
-- `encoding/gob` is not supported yet. `reflect` cannot call a function
-  that blocks, and a range over a function cannot have a body that blocks.
-- A nil pointer to a struct, put in an interface, is a nil interface: a
-  pointer to a struct is the object itself, and nil is nil.
-- On Deno, `net` speaks TCP only, through Deno's sockets; UDP and Unix
-  sockets are Go's in-memory ones for js. A write deadline holds only
-  until the write is handed to Deno, and closing a listener while an
-  `Accept` waits can reset, rather than refuse, a connection dialed in that
-  same moment, as Deno closes the socket once the pending accept is done.
-- Deno connects by host name, so a `Dialer` with a `Control` or
-  `ControlContext` hook, or a `Resolver` of its own, and a `ListenConfig`
-  with a `Control`, fail with `ENOTSUP` rather than skip the hook, as Go's
-  js port does: a hook refusing private addresses is never bypassed.
+- On Deno, `net` has TCP and Unix stream sockets, and UDP with
+  `--unstable-net`, which Deno keeps its datagram sockets behind; Unix
+  datagram and packet sockets are Go's in-memory ones for js. Closing a
+  listener while an `Accept` waits can reset, rather than refuse, a
+  connection dialed in that same moment: Deno closes the socket once the
+  pending accept is done.
+- `--allow-net` grants what Deno connects to: names, as dialing hands
+  Deno the name, and addresses, as a `Dialer` with a `Control` hook
+  resolves the name, asks the hook about each address and dials the one
+  it lets through. Unix sockets are granted by path
+  (`--allow-net=unix:/run/game.sock`), and a UDP socket dialing a host off
+  this machine is bound to every address, `0.0.0.0`. A hook that asks for
+  the socket's descriptor is told there is none, and a `Resolver` of the
+  program's own makes dials fail rather than be skipped.
 - The HTTP client is Deno's `fetch`, so TLS is Deno's; Go's own `crypto/tls`
   is not supported, and neither are `ListenAndServeTLS` and dialing TLS
   yourself.
-- `int` and `int64` are JavaScript numbers, exact up to 2^53; `uint64` is a
-  `bigint`. Arithmetic with constants beyond 2^53, which `time` does on
-  every date, is worked out exactly.
+- `int` and `int64` are JavaScript numbers, exact up to 2^53, by design:
+  a `bigint` in every integer sum would slow down all of them. `uint64` is
+  a `bigint`, and so is `math/big.Int` underneath: use them for integers
+  that need more. Arithmetic with constants beyond 2^53, which `time` does
+  on every date, is worked out exactly.
 - Only Deno opens windows.
 
 ## License

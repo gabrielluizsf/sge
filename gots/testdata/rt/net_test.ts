@@ -15,7 +15,9 @@ Deno.test("a read past its deadline keeps what arrives for the next", async () =
   const [c, s] = await Promise.all([connect("127.0.0.1", port), l.accept(-1)]);
   if (s === "wait") throw new Error("accept waited");
   assertEquals(await c.read(10, 30), "wait");
-  await s.write(new TextEncoder().encode("hello world"));
+  const w = s.startWrite(new TextEncoder().encode("hello world"));
+  await w.wait(-1);
+  assertEquals(w.done && w.n === 11, true);
   assertEquals(text(await c.read(5, -1)), "hello");
   assertEquals(text(await c.read(100, -1)), " world");
   // A reader woken to look at a new deadline returns at once.

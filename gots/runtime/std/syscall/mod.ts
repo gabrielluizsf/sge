@@ -110,3 +110,31 @@ export const Open = nosys, Read = nosys, Write = nosys, Seek = nosys;
 export function Close(_fd: number): any {
   return $.val(Errno$type, 38);
 }
+
+// SockaddrInet4 and SockaddrInet6 are the addresses net's UDP sockets
+// read senders into and write to.
+export class SockaddrInet4 extends $.Native {
+  Port = 0;
+  Addr = new Uint8Array(4);
+  override $clone(): SockaddrInet4 {
+    const c = new SockaddrInet4();
+    c.Port = this.Port;
+    c.Addr = this.Addr.slice();
+    return c;
+  }
+}
+$.nativeType("syscall.SockaddrInet4", SockaddrInet4);
+
+export class SockaddrInet6 extends $.Native {
+  Port = 0;
+  ZoneId = 0;
+  Addr = new Uint8Array(16);
+  override $clone(): SockaddrInet6 {
+    const c = new SockaddrInet6();
+    c.Port = this.Port;
+    c.ZoneId = this.ZoneId;
+    c.Addr = this.Addr.slice();
+    return c;
+  }
+}
+$.nativeType("syscall.SockaddrInet6", SockaddrInet6);

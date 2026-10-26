@@ -47,8 +47,9 @@ func (s *denoSock) read(b []byte) (int, error) {
 	}
 }
 
-// write writes all of b. The write deadline is held only before writing:
-// once handed to Deno a write goes through.
+// write writes all of b, until the write deadline: past it, it gives how
+// much was written and os.ErrDeadlineExceeded, the rest going on as Go's
+// would have left it, written or not.
 func (s *denoSock) write(b []byte) (int, error) {
 	if s.closed {
 		return 0, ErrClosed
@@ -58,14 +59,24 @@ func (s *denoSock) write(b []byte) (int, error) {
 	}
 	a := js.Global().Get("Uint8Array").New(len(b))
 	js.CopyBytesToJS(a, b)
-	n, err := awaitJS(s.v.Call("write", a))
-	if err != nil {
-		if s.closed {
-			return 0, ErrClosed
+	w := s.v.Call("startWrite", a)
+	for {
+		if _, err := awaitJS(w.Call("wait", waitMillis(s.wdeadline))); err != nil {
+			return 0, err
 		}
-		return 0, err
+		switch {
+		case s.closed:
+			return w.Get("n").Int(), ErrClosed
+		case w.Get("done").Bool():
+			if e := w.Get("err"); !e.IsNull() {
+				return w.Get("n").Int(), denoError(e)
+			}
+			return w.Get("n").Int(), nil
+		case passed(s.wdeadline):
+			return w.Get("n").Int(), os.ErrDeadlineExceeded
+		}
+		// Woken by a new deadline, not yet passed: wait on.
 	}
-	return n.Int(), nil
 }
 
 func (s *denoSock) setReadDeadline(t time.Time) {
@@ -73,7 +84,10 @@ func (s *denoSock) setReadDeadline(t time.Time) {
 	s.v.Call("wake")
 }
 
-func (s *denoSock) setWriteDeadline(t time.Time) { s.wdeadline = t }
+func (s *denoSock) setWriteDeadline(t time.Time) {
+	s.wdeadline = t
+	s.v.Call("wakeWriters")
+}
 
 func (s *denoSock) closeWrite() error {
 	if s.closed {
