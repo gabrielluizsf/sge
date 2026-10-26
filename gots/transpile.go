@@ -25,6 +25,9 @@ type Options struct {
 	// Index writes a mod.ts at the top of Out exporting each requested
 	// package under its name, for TypeScript code to import the lot from.
 	Index bool
+	// Web, when set, is a directory to write each requested program to as
+	// a page for a browser: see writeWeb.
+	Web string
 }
 
 // Transpile writes the TypeScript for the packages in opts and returns the
@@ -94,6 +97,9 @@ func Transpile(opts Options) ([]string, error) {
 	}
 	if err := writeRuntime(opts.Out); err != nil {
 		errs = append(errs, err)
+	}
+	if opts.Web != "" && len(errs) == 0 {
+		errs = append(errs, writeWeb(opts, prog, lay))
 	}
 	return written, errors.Join(errs...)
 }

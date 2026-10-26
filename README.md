@@ -125,6 +125,23 @@ JavaScript strings — function arguments and results, string fields, and the
 strings a TypeScript script hands back to Go — and `goSlice` makes a Go slice
 of an array.
 
+## Browser
+
+A Go program runs in a browser as it runs on Deno: its window is a
+`<canvas>` on the page and its input the page's keys, mouse and wheel.
+
+```sh
+go run ./cmd/gots -web site ./examples/farm
+# site/app.js and site/index.html: serve the directory, open the page
+```
+
+`-web` bundles the program into `app.js` with `deno bundle` and writes an
+`index.html` beside it, unless the directory has one already: a page of
+your own keeps working, with a `<canvas data-gots>` where the game should
+draw (one is added to the body otherwise). `fmt` prints to the console.
+Full screen is the browser's to grant, in answer to a click or key, and the
+clipboard is what the player last pasted on the canvas.
+
 ## How it works
 
 `gots` (in [`gots/`](gots), run by [`cmd/gots`](cmd/gots)) type-checks Go
@@ -179,6 +196,22 @@ refused by the server and the client rather than read as another length.
 Reads and writes hold their deadlines, and a read or write that runs out
 of time loses nothing of the stream.
 
+`crypto/tls` runs on `node:tls`, which Deno (and Node) provide: Go dials
+and accepts the connection as above, `Dialer` hooks and deadlines and all,
+and carries the encrypted bytes, while `node:tls` speaks the protocol. So
+`tls.Dial`, `tls.Listen`, `ListenAndServeTLS`, `httptest.NewTLSServer`
+and an `http.Transport` with a `TLSClientConfig` (which then goes through
+Go's transport, not `fetch`, so its roots and checks hold) all work.
+`RootCAs` takes the place of the runtime's roots, as of the system's in
+Go, and `x509.SystemCertPool()` is the runtime's roots (Deno needs
+`--allow-sys=ca` to read them for a pool). Go checks what the handshake
+agreed on rather than trusting it: the version against `MinVersion` and
+`MaxVersion` (a Deno server has settled on TLS 1.2 though told 1.3 at
+least), the ALPN protocol, the server's name and the certificates' dates,
+and, as `node:tls` does not check a client's certificate as a server, a
+server verifies client certificates with Go's own code. `VerifyPeerCertificate`
+and `VerifyConnection` are called as in Go.
+
 `encoding/gob`, `encoding/json` and `encoding/xml` refuse input nested
 deeper than a JavaScript stack holds with an error, rather than end the
 program: Go's limits are sized for a stack that grows.
@@ -213,15 +246,39 @@ instead of ending the program.
   this machine is bound to every address, `0.0.0.0`. A hook that asks for
   the socket's descriptor is told there is none, and a `Resolver` of the
   program's own makes dials fail rather than be skipped.
-- The HTTP client is Deno's `fetch`, so TLS is Deno's; Go's own `crypto/tls`
-  is not supported, and neither are `ListenAndServeTLS` and dialing TLS
-  yourself.
+- TLS speaks versions 1.2 and 1.3 only; `CipherSuites`, `CurvePreferences`,
+  session tickets and `Config.Time` are the runtime's, not the config's;
+  `ExportKeyingMaterial` and OCSP stapling are not available. A client's
+  `PeerCertificates` are those the server sent, with the root the runtime
+  found for them. Its `VerifiedChains` are built by Go, signatures checked,
+  only once something reads them (`VerifyPeerCertificate`,
+  `VerifyConnection`, `ConnectionState`): the runtime says whether a chain
+  verifies but not which, and the chain a server sends may carry a CA
+  that signed nothing of it. That costs some 250ms a signature the first
+  time, and with the runtime's roots (no `RootCAs`) Deno needs
+  `--allow-sys=ca` to hand them to Go. `GetClientCertificate` is
+  asked before the handshake, not knowing what the server accepts, and a
+  server picks a certificate by the name a client asks for alone (no
+  name, no `GetCertificate`). A client showing a certificate has the
+  runtime refuse a server it cannot verify, which tells less of why: an
+  unknown authority.
 - `int` and `int64` are JavaScript numbers, exact up to 2^53, by design:
   a `bigint` in every integer sum would slow down all of them. `uint64` is
-  a `bigint`, and so is `math/big.Int` underneath: use them for integers
-  that need more. Arithmetic with constants beyond 2^53, which `time` does
-  on every date, is worked out exactly.
-- Only Deno opens windows.
+  a `bigint`: use it, or `math/big`, for integers that need more.
+  Arithmetic with constants beyond 2^53, which `time` does on every date,
+  is worked out exactly.
+- `uint` is 32 bits, as on 386 and arm, while `int` stays 64: a number
+  holds 32 bits exactly, so the standard library takes its 32-bit paths
+  (`math/big`'s and `crypto`'s words among them), which numbers compute
+  exactly. `math.MaxInt` is that of a 32-bit machine, 2^31-1, as Go works
+  it out from `uint`. `uintptr` stays 64 bits, as wide as a pointer.
+- Public-key cryptography in Go runs as Go wrote it, on 32-bit words:
+  correct, but slow next to native (a P-256 signature check takes some
+  250ms, against Go's 0.15ms). TLS does it in the runtime, not in Go,
+  but for checking a client's certificate on a server.
+- Windows open on Deno, through SDL2, and in browsers; not on Node. In a
+  browser a window has no icon, cursor shapes, notifications or file
+  drops, and `net` has no sockets (`http.Client` still has `fetch`).
 
 ## License
 

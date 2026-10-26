@@ -1,7 +1,10 @@
 // The window bridge: what a transpiled program's window backend calls to
-// get a native window on Deno, through SDL2 and Deno's FFI. It is put on
-// globalThis as gotsWindow, and SDL2 is only loaded when a window opens,
-// so programs that draw off screen need neither SDL2 nor --allow-ffi.
+// get a native window on Deno, through SDL2 and Deno's FFI, or a canvas in
+// a browser (see browser_window.ts). It is put on globalThis as
+// gotsWindow, and SDL2 is only loaded when a window opens, so programs
+// that draw off screen need neither SDL2 nor --allow-ffi.
+
+import { BrowserWindow } from "./browser_window.ts";
 
 const SDL_INIT_VIDEO = 0x20;
 const SDL_WINDOWPOS_CENTERED = 0x2fff0000;
@@ -242,9 +245,10 @@ class NativeWindow {
 }
 
 // open is what the Go backend calls: a window, or the reason there is
-// none as a string.
-function open(title: string, width: number, height: number): NativeWindow | string {
+// none as a string. In a browser a window is a canvas on the page.
+function open(title: string, width: number, height: number): NativeWindow | BrowserWindow | string {
   try {
+    if ((globalThis as any).document !== undefined) return new BrowserWindow(title, width, height);
     return new NativeWindow(title, width, height);
   } catch (e) {
     return e instanceof Error ? e.message : String(e);
