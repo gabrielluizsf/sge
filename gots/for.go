@@ -3,6 +3,7 @@ package gots
 import (
 	"go/ast"
 	"go/token"
+	"go/types"
 	"strings"
 )
 
@@ -75,7 +76,13 @@ func (e *emitter) forStmt(w *writer, s *ast.ForStmt, label string) {
 // iteration its own i, as Go 1.22 does.
 func (e *emitter) forInit(s ast.Stmt) (string, bool) {
 	as, ok := s.(*ast.AssignStmt)
-	if !ok || as.Tok != token.DEFINE || len(as.Lhs) != len(as.Rhs) {
+	if !ok || as.Tok != token.DEFINE {
+		return "", false
+	}
+	if len(as.Rhs) == 1 && len(as.Lhs) > 1 {
+		return e.forInitTuple(as)
+	}
+	if len(as.Lhs) != len(as.Rhs) {
 		return "", false
 	}
 	var parts []string
@@ -107,7 +114,7 @@ func (e *emitter) postExpr(w *writer, s ast.Stmt) string {
 			vals = append(vals, e.value(as.Rhs[i], lv.t))
 		}
 		if pre.String() != "" {
-			return e.unsupported(s, "post statement with effects")
+			return e.postStmts(s)
 		}
 		var tmps, evals, stores []string
 		for i, v := range vals {
@@ -123,7 +130,47 @@ func (e *emitter) postExpr(w *writer, s ast.Stmt) string {
 	e.stmt(&out, s)
 	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
 	if len(lines) != 1 {
-		return e.unsupported(s, "post statement with effects")
+		return e.postStmts(s)
 	}
 	return strings.TrimSuffix(lines[0], ";")
+}
+
+// postStmts is a post statement that takes more than an expression, as
+// line, ok = f.readLine() does, run as a function called in the loop's
+// head: the loop's variables it sets are the next iteration's, as in Go.
+func (e *emitter) postStmts(s ast.Stmt) string {
+	var out writer
+	e.stmt(&out, s)
+	body := strings.Join(strings.Fields(out.String()), " ")
+	if strings.Contains(body, "await ") {
+		return "(await (async () => { " + body + " })())"
+	}
+	return "(() => { " + body + " })()"
+}
+
+// forInitTuple is forInit for line, ok := f.readLine(): the results bound
+// to a temporary in the loop's head, then each to its variable, so each
+// iteration still has its own.
+func (e *emitter) forInitTuple(as *ast.AssignStmt) (string, bool) {
+	tup, ok := e.typeOf(as.Rhs[0]).(*types.Tuple)
+	if !ok || tup.Len() != len(as.Lhs) {
+		return "", false
+	}
+	var vars []*types.Var
+	for _, l := range as.Lhs {
+		v := e.newVar(l, true)
+		if v != nil && e.boxed[v] {
+			return "", false
+		}
+		vars = append(vars, v)
+	}
+	t := e.newTmp()
+	parts := []string{t + ": any = " + e.expr(as.Rhs[0])}
+	for i, v := range vars {
+		if v == nil {
+			continue
+		}
+		parts = append(parts, e.declare(v)+": "+e.tsType(e.varType(v))+" = "+e.convertValue(t+"["+itoa(i)+"]", tup.At(i).Type(), e.varType(v), false))
+	}
+	return "let " + strings.Join(parts, ", "), true
 }

@@ -89,11 +89,11 @@ func (e *emitter) place(w *writer, x ast.Expr) lvalue {
 			}
 		case *types.Slice:
 			s := e.hoist(w, x.X)
-			i := e.hoist(w, x.Index)
+			i := e.asIndex(x.Index, e.hoist(w, x.Index))
 			return inPlace(s + ".a[" + s + ".o + " + i + "]")
 		}
 		a := e.hoist(w, x.X)
-		i := e.hoist(w, x.Index)
+		i := e.asIndex(x.Index, e.hoist(w, x.Index))
 		return inPlace(a + "[" + i + "]")
 	case *ast.StarExpr:
 		p := e.hoist(w, x.X)

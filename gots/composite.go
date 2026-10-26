@@ -157,6 +157,9 @@ func (e *emitter) indexedLitIn(lit *ast.CompositeLit, elem types.Type, n int, b 
 			vals[i] = en.v
 		}
 		if b != "" {
+			if len(vals) > maxArgs {
+				return b + ".from([" + strings.Join(vals, ", ") + "])"
+			}
 			return b + ".of(" + strings.Join(vals, ", ") + ")"
 		}
 		return "[" + strings.Join(vals, ", ") + "]"

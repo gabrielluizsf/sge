@@ -17,17 +17,17 @@ func (e *emitter) index(x *ast.IndexExpr) string {
 		k := e.value(x.Index, u.Key())
 		return "(" + m + "?.get(" + k + ") ?? " + e.zero(u.Elem()) + ")"
 	case *types.Slice:
-		i := e.expr(x.Index)
+		i := e.indexOf(x.Index)
 		if e.simple(x.X) {
 			s := e.expr(x.X)
 			return s + ".a[" + s + ".o + " + i + "]"
 		}
 		return "$.at(" + e.expr(x.X) + ", " + i + ")"
 	case *types.Basic:
-		return "$.str.byteAt(" + e.expr(x.X) + ", " + e.expr(x.Index) + ")"
+		return "$.str.byteAt(" + e.expr(x.X) + ", " + e.indexOf(x.Index) + ")"
 	}
 	// An array, or a pointer to one.
-	return e.expr(x.X) + "[" + e.expr(x.Index) + "]"
+	return e.expr(x.X) + "[" + e.indexOf(x.Index) + "]"
 }
 
 func (e *emitter) sliceExpr(x *ast.SliceExpr) string {
@@ -36,17 +36,17 @@ func (e *emitter) sliceExpr(x *ast.SliceExpr) string {
 		if b == nil {
 			return "undefined"
 		}
-		return e.expr(b)
+		return e.indexOf(b)
 	}
 	lo := "0"
 	if x.Low != nil {
-		lo = e.expr(x.Low)
+		lo = e.indexOf(x.Low)
 	}
 	if isString(t) {
 		if x.High == nil {
 			return e.expr(x.X) + ".substring(" + lo + ")"
 		}
-		return e.expr(x.X) + ".substring(" + lo + ", " + e.expr(x.High) + ")"
+		return e.expr(x.X) + ".substring(" + lo + ", " + e.indexOf(x.High) + ")"
 	}
 	if _, ok := t.Underlying().(*types.Slice); ok {
 		return "$.sub(" + e.expr(x.X) + ", " + lo + ", " + opt(x.High) + ", " + opt(x.Max) + ")"

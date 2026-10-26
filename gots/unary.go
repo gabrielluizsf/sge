@@ -84,9 +84,9 @@ func (e *emitter) addr(x ast.Expr) string {
 		return "new $.FieldPtr(" + js[:dot] + ", " + jsQuote(js[dot+1:]) + ")"
 	case *ast.IndexExpr:
 		if _, ok := e.typeOf(x.X).Underlying().(*types.Slice); ok {
-			return "$.elemPtr(" + e.expr(x.X) + ", " + e.expr(x.Index) + ")"
+			return "$.elemPtr(" + e.expr(x.X) + ", " + e.indexOf(x.Index) + ")"
 		}
-		return "new $.IndexPtr(" + e.expr(x.X) + ", " + e.expr(x.Index) + ")"
+		return "new $.IndexPtr(" + e.expr(x.X) + ", " + e.indexOf(x.Index) + ")"
 	}
 	return e.unsupported(x, "address of this expression")
 }
