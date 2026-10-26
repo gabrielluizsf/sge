@@ -177,7 +177,7 @@ func (e *emitter) opAssign(w *writer, x ast.Expr, op token.Token, y string) {
 			count = &n
 		}
 	}
-	plain := isString(lv.t) || k == types.Float64 || k == types.Int || k == types.Int64 || k == types.Uint || k == types.Uintptr
+	plain := isString(lv.t) || k == types.Float64 || k == types.Int || k == types.Int64 || k == types.Uintptr
 	if plain && (op == token.ADD || op == token.SUB || op == token.MUL && k == types.Float64 || op == token.QUO && k == types.Float64) && !strings.Contains(lv.get, "??") {
 		if y == "1" && (op == token.ADD || op == token.SUB) {
 			w.line("%s%s;", lv.get, map[token.Token]string{token.ADD: "++", token.SUB: "--"}[op])

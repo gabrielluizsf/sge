@@ -6,7 +6,7 @@ import "go/types"
 // operators, which then do Go's wrapping for free.
 func small(k types.BasicKind) bool {
 	switch k {
-	case types.Int8, types.Int16, types.Int32, types.Uint8, types.Uint16, types.Uint32:
+	case types.Int8, types.Int16, types.Int32, types.Uint8, types.Uint16, types.Uint32, types.Uint:
 		return true
 	}
 	return false
@@ -26,7 +26,7 @@ func width(k types.BasicKind) int {
 		return 8
 	case types.Int16, types.Uint16:
 		return 16
-	case types.Int32, types.Uint32, types.Float32:
+	case types.Int32, types.Uint32, types.Uint, types.Float32:
 		return 32
 	}
 	return 64
@@ -45,7 +45,7 @@ func wrap(k types.BasicKind, js string) string {
 		return "((" + js + ") & 255)"
 	case types.Uint16:
 		return "((" + js + ") & 65535)"
-	case types.Uint32:
+	case types.Uint32, types.Uint:
 		return "((" + js + ") >>> 0)"
 	case types.Uint64:
 		return "$.int.u64(" + js + ")"

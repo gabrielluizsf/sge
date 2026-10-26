@@ -114,6 +114,9 @@ func (e *emitter) arith(op token.Token, a, b string, t types.Type, count *int) s
 
 // arithSmall is arithmetic on integers of 32 bits or fewer.
 func (e *emitter) arithSmall(op token.Token, k types.BasicKind, a, b string, count *int) string {
+	if k == types.Uint {
+		k = types.Uint32 // see wasmSizes
+	}
 	bin := "(" + a + " " + op.String() + " " + b + ")"
 	w := width(k)
 	switch op {

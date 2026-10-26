@@ -667,6 +667,7 @@ function wrapUint(t: $.Type, n: bigint): any {
     case "uint16":
       return Number(n & 0xffffn);
     case "uint32":
+    case "uint":
       return Number(n & 0xffffffffn);
     case "uint64":
       return BigInt.asUintN(64, n);

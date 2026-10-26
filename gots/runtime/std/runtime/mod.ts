@@ -70,3 +70,24 @@ export interface Error {
   RuntimeError(): void;
 }
 export const Error$type = $.ifaceType("runtime.Error", ["Error", "RuntimeError"]);
+
+// A Cleanup is what AddCleanup attached, which Stop takes away again.
+export class Cleanup extends $.Native {
+  constructor(private stop: () => void = () => {}) {
+    super();
+  }
+  Stop(): void {
+    this.stop();
+  }
+}
+$.nativeType("runtime.Cleanup", Cleanup);
+
+// cleanups run what AddCleanup attached once JavaScript collects its
+// object, in a goroutine of its own as Go runs them.
+const cleanups = new FinalizationRegistry<() => void>((run) => $.go(run));
+
+export function AddCleanup<T extends object, S>(ptr: T, cleanup: (arg: S) => unknown, arg: S): Cleanup {
+  const token = {};
+  cleanups.register(ptr, () => cleanup(arg), token);
+  return new Cleanup(() => cleanups.unregister(token));
+}

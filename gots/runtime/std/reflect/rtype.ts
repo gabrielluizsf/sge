@@ -326,7 +326,7 @@ export function overflowInt(t: $.Type, x: number): boolean {
 }
 
 export function overflowUint(t: $.Type, x: bigint): boolean {
-  const bits: Record<string, number> = { uint8: 8, uint16: 16, uint32: 32 };
+  const bits: Record<string, number> = { uint8: 8, uint16: 16, uint32: 32, uint: 32 };
   const b = bits[t.kind];
   if (b === undefined) return false;
   return x >= 1n << BigInt(b);

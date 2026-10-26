@@ -14,7 +14,7 @@ var maxSafe = constant.MakeInt64(1<<53 - 1)
 // JavaScript number though Go gives it 64 bits.
 func numberInt(t types.Type) bool {
 	switch basicKind(t) {
-	case types.Int, types.Int64, types.Uint, types.Uintptr:
+	case types.Int, types.Int64, types.Uintptr:
 		return true
 	}
 	return false

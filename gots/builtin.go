@@ -196,5 +196,3 @@ func byValue(t types.Type) bool {
 	}
 	return false
 }
-
-var wasmSizes = types.SizesFor("gc", "wasm")

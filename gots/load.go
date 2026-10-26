@@ -202,7 +202,7 @@ func (prog *Program) typeCheckMapped(path string, files []*ast.File, info *types
 			}
 			return prog.importPackage(p)
 		}),
-		Sizes:            types.SizesFor("gc", "wasm"),
+		Sizes:            wasmSizes,
 		IgnoreFuncBodies: declsOnly,
 		Error: func(err error) {
 			if len(errs) < 10 {

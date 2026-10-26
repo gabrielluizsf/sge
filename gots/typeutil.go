@@ -79,7 +79,7 @@ func defaultKind(k types.BasicKind) types.BasicKind {
 // array.
 func backing(t types.Type) string {
 	switch defaultKind(basicKind(t)) {
-	case types.Int, types.Int64, types.Uint, types.Uintptr, types.Float64:
+	case types.Int, types.Int64, types.Uintptr, types.Float64:
 		return "Float64Array"
 	case types.Float32:
 		return "Float32Array"
@@ -89,7 +89,7 @@ func backing(t types.Type) string {
 		return "Int16Array"
 	case types.Int8:
 		return "Int8Array"
-	case types.Uint32:
+	case types.Uint32, types.Uint:
 		return "Uint32Array"
 	case types.Uint16:
 		return "Uint16Array"

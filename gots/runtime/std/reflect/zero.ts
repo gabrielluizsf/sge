@@ -3,9 +3,9 @@
 import * as $ from "../../rt/mod.ts";
 
 const typed: Record<string, any> = {
-  int: Float64Array, int64: Float64Array, uint: Float64Array, uintptr: Float64Array, float64: Float64Array,
+  int: Float64Array, int64: Float64Array, uintptr: Float64Array, float64: Float64Array,
   float32: Float32Array, int32: Int32Array, int16: Int16Array, int8: Int8Array,
-  uint32: Uint32Array, uint16: Uint16Array, uint8: Uint8Array, uint64: BigUint64Array,
+  uint: Uint32Array, uint32: Uint32Array, uint16: Uint16Array, uint8: Uint8Array, uint64: BigUint64Array,
 };
 
 // backing is the typed array class elements of t are kept in, or null for
@@ -83,11 +83,12 @@ export function makeSlice(t: $.Type, n: number, c: number): $.Slice<any> {
 
 const sizes: Record<string, number> = {
   bool: 1, int8: 1, uint8: 1, int16: 2, uint16: 2, int32: 4, uint32: 4, float32: 4,
-  int: 8, int64: 8, uint: 8, uint64: 8, uintptr: 8, float64: 8, complex64: 8, complex128: 16,
+  int: 8, int64: 8, uint: 4, uint64: 8, uintptr: 8, float64: 8, complex64: 8, complex128: 16,
   string: 16, slice: 24, iface: 16, ptr: 8, map: 8, chan: 8, func: 8, unsafeptr: 8,
 };
 
-// size is unsafe.Sizeof for t under js/wasm, which lays out as amd64 does.
+// size is unsafe.Sizeof for t under js/wasm, which lays out as amd64 does
+// but for uint, 32 bits under gots (see wasmSizes in gots).
 export function size(t: $.Type): number {
   if (t.kind === "array") return t.len * size(t.elem!);
   if (t.kind === "struct") {
