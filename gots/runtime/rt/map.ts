@@ -1,3 +1,5 @@
+import { Type } from "./types.ts";
+import { Native } from "./native.ts";
 // Maps with keys JavaScript compares by value (numbers, strings, booleans,
 // bigints, pointers) are JavaScript Maps. KeyMap is for keys Go compares by
 // contents — structs, arrays, interfaces — and keys them by a string made of
@@ -57,8 +59,9 @@ export function mapDelete<K>(m: GoMap<K, any> | null, k: K): void {
   if (m !== null) m.delete(k);
 }
 
-// keyOf turns a value Go compares by contents into a string with the same
-// equality.
+// keyOf is the key of v, a value of an interface type, with the equality
+// Go gives it: the dynamic type and value of a boxed value, a pointer to
+// a struct (the object itself) by identity, a native value as it says.
 export function keyOf(v: any): string {
   if (v === null || v === undefined) return "n";
   switch (typeof v) {
@@ -71,14 +74,57 @@ export function keyOf(v: any): string {
     case "bigint":
       return "b" + v;
   }
-  if (v.$t !== undefined && "v" in v) return "i" + v.$t.str + "(" + keyOf(v.v) + ")";
-  if (Array.isArray(v) || ArrayBuffer.isView(v)) {
-    let s = "[";
-    for (const e of v as any) s += keyOf(e) + ",";
-    return s + "]";
-  }
-  if (typeof v.$key === "function") return v.$key();
+  if (v.$t !== undefined && "v" in v) return "i" + v.$t.str + "(" + keyOfType(v.$t, v.v) + ")";
+  if (v instanceof Native && typeof v.$key === "function") return v.$key();
   return "p" + identity(v);
+}
+
+// keyOfType is the key of v, a value of type t, with the equality Go
+// gives it: structs and arrays by their contents, pointers, channels and
+// the like by identity.
+export function keyOfType(t: Type, v: any): string {
+  switch (t.kind) {
+    case "struct": {
+      let s = "{";
+      for (const f of t.fields) s += keyOfType(f.type, v[f.prop]) + ",";
+      return s + "}";
+    }
+    case "array": {
+      let s = "[";
+      for (let i = 0; i < t.len; i++) s += keyOfType(t.elem!, v[i]) + ",";
+      return s + "]";
+    }
+    case "complex64":
+    case "complex128":
+      return "c" + keyOf(v.re) + "," + keyOf(v.im);
+    case "iface":
+      return keyOf(v);
+    case "ptr":
+    case "chan":
+    case "map":
+    case "func":
+    case "unsafeptr":
+      return keyOfPtr(v);
+  }
+  return keyOf(v);
+}
+
+// keyOfPtr is the key of a pointer, or of anything else compared by
+// identity.
+export function keyOfPtr(v: any): string {
+  return v === null || v === undefined ? "n" : "p" + identity(v);
+}
+
+const keyFns = new WeakMap<Type, (k: any) => string>();
+
+// keyFor is the function keying a map whose keys are of type t.
+export function keyFor(t: Type): (k: any) => string {
+  let f = keyFns.get(t);
+  if (f === undefined) {
+    f = t.kind === "iface" ? keyOf : (k: any) => keyOfType(t, k);
+    keyFns.set(t, f);
+  }
+  return f;
 }
 
 const ids = new WeakMap<object, number>();
@@ -93,9 +139,9 @@ function identity(o: object): number {
   return id;
 }
 
-// keyMapOf is a map literal with keys compared by contents.
-export function keyMapOf<K, V>(entries: [K, V][]): KeyMap<K, V> {
-  const m = new KeyMap<K, V>(keyOf);
+// keyMapOf is a map literal with keys compared by contents, keyed by key.
+export function keyMapOf<K, V>(entries: [K, V][], key: (k: K) => string): KeyMap<K, V> {
+  const m = new KeyMap<K, V>(key);
   for (const [k, v] of entries) m.set(k, v);
   return m;
 }

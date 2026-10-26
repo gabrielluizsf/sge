@@ -78,7 +78,7 @@ func (e *emitter) structClassDecl(w *writer, name string, st *types.Struct, expo
 		if f.Name() != "_" {
 			eqs = append(eqs, e.equalOf("this."+js, "o."+js, f.Type()))
 		}
-		keys = append(keys, "$.keyOf(this."+js+")")
+		keys = append(keys, e.keyExpr("this."+js, f.Type()))
 	}
 	w.line("static $type: $.Type;")
 	w.open("constructor(%s) {", strings.Join(params, ", "))

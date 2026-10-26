@@ -73,7 +73,7 @@ export function keyedByValue(t: $.Type): boolean {
 }
 
 export function makeMap(t: $.Type): any {
-  return keyedByValue(t.key!) ? new Map() : new $.KeyMap($.keyOf);
+  return keyedByValue(t.key!) ? new Map() : new $.KeyMap($.keyFor(t.key!));
 }
 
 export function makeSlice(t: $.Type, n: number, c: number): $.Slice<any> {

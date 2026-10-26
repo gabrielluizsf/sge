@@ -176,10 +176,11 @@ func (e *emitter) newMap(m *types.Map, entries string) string {
 		}
 		return "new $Map(" + entries + ")"
 	}
+	key := "$.keyFor(" + e.desc(m.Key()) + ")"
 	if entries == "" {
-		return "new $.KeyMap($.keyOf)"
+		return "new $.KeyMap(" + key + ")"
 	}
-	return "$.keyMapOf(" + entries + ")"
+	return "$.keyMapOf(" + entries + ", " + key + ")"
 }
 
 // byValue reports whether JavaScript's Map compares keys of type t the way
