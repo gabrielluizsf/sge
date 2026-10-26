@@ -48,7 +48,7 @@ export function Println(a: $.Slice<any> | null): [number, any] {
 
 // toWriter hands s to an io.Writer as a []byte.
 function toWriter(w: any, s: string): [number, any] {
-  return w.Write($.slice($.str.strToBytes(s)));
+  return $.noWait(w.Write($.slice($.str.strToBytes(s))), "Write");
 }
 
 export function Fprintf(w: any, format: string, a: $.Slice<any> | null): [number, any] {
@@ -61,6 +61,32 @@ export function Fprint(w: any, a: $.Slice<any> | null): [number, any] {
 
 export function Fprintln(w: any, a: $.Slice<any> | null): [number, any] {
   return toWriter(w, sprint(a, true));
+}
+
+// The twins of the Fprint family, for code that can wait: they wait for
+// a writer whose Write blocks, a socket's.
+async function toWriterA(w: any, s: string): Promise<[number, any]> {
+  return await $.callA(w, "Write", $.slice($.str.strToBytes(s)));
+}
+
+export function Fprintf$a(w: any, format: string, a: $.Slice<any> | null): Promise<[number, any]> {
+  return toWriterA(w, sprintf(format, a));
+}
+
+export function Fprint$a(w: any, a: $.Slice<any> | null): Promise<[number, any]> {
+  return toWriterA(w, sprint(a, false));
+}
+
+export function Fprintln$a(w: any, a: $.Slice<any> | null): Promise<[number, any]> {
+  return toWriterA(w, sprint(a, true));
+}
+
+export function Append(b: $.Slice<number> | null, a: $.Slice<any> | null): $.Slice<number> | null {
+  return $.appendString(b, sprint(a, false));
+}
+
+export function Appendln(b: $.Slice<number> | null, a: $.Slice<any> | null): $.Slice<number> | null {
+  return $.appendString(b, sprint(a, true));
 }
 
 export function Appendf(b: $.Slice<number> | null, format: string, a: $.Slice<any> | null): $.Slice<number> | null {

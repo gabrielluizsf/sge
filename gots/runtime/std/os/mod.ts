@@ -58,6 +58,51 @@ export let ErrExist: any = fs.ErrExist;
 export let ErrPermission: any = fs.ErrPermission;
 export let ErrClosed: any = fs.ErrClosed;
 export let ErrInvalid: any = fs.ErrInvalid;
+
+// DeadlineExceededError is internal/poll's, the error a read or write past
+// its deadline gives: a timeout, as net.Error has it.
+class DeadlineExceededError extends $.Native {
+  Error(): string {
+    return "i/o timeout";
+  }
+  Timeout(): boolean {
+    return true;
+  }
+  Temporary(): boolean {
+    return true;
+  }
+}
+$.nativeType("poll.DeadlineExceededError", DeadlineExceededError);
+
+export let ErrDeadlineExceeded: any = new DeadlineExceededError();
+
+// SyscallError is an error from a system call, saying which.
+export class SyscallError extends $.Native {
+  Syscall: string;
+  Err: any;
+  constructor(syscall = "", err: any = null) {
+    super();
+    this.Syscall = syscall;
+    this.Err = err;
+  }
+  Error(): string {
+    return this.Syscall + ": " + this.Err.Error();
+  }
+  Unwrap(): any {
+    return this.Err;
+  }
+  // Timeout reports whether the error inside is a timeout.
+  Timeout(): boolean {
+    return typeof this.Err?.Timeout === "function" && this.Err.Timeout();
+  }
+}
+$.nativeType("os.SyscallError", SyscallError);
+
+// NewSyscallError is err from the system call syscall, or nil for none.
+export function NewSyscallError(syscall: string, err: any): any {
+  return err === null ? null : new SyscallError(syscall, err);
+}
+export let ErrNoDeadline: any = new osError("file type does not support deadline");
 export const DevNull = "/dev/null";
 export const PathSeparator = 47, PathListSeparator = 58;
 

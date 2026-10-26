@@ -30,29 +30,55 @@ func (e *emitter) callWith(c *ast.CallExpr, args []string) string {
 			return js + "(" + list + ")"
 		}
 	}
+	// Code that can wait calls the twin of a function that has one.
+	twinA := ""
+	if fn := e.staticCallee(c); fn != nil && e.canWait() && e.twin(fn) {
+		twinA = "$a"
+	}
 	if sel, ok := ast.Unparen(c.Fun).(*ast.SelectorExpr); ok {
 		if s := e.info.Selections[sel]; s != nil && s.Kind() == types.MethodVal {
 			fn := s.Obj().(*types.Func)
 			recv := e.receiver(sel, s)
 			if onClass(fn) && !e.freeMethod(s) {
 				if isInterface(e.recvType(fn)) {
-					// The object behind an interface may be TypeScript's,
-					// which knows only the TypeScript-facing names.
-					return fromIface(e.awaited(c, recv+"."+fieldName(fn.Name())+"("+list+")"), fn.Type().(*types.Signature))
+					return fromIface(e.awaited(c, e.ifaceCall(fn, recv, list)), fn.Type().(*types.Signature))
 				}
-				return e.awaited(c, recv+"."+e.goName(fn)+"("+list+")")
+				return e.awaited(c, recv+"."+e.goName(fn)+twinA+"("+list+")")
 			}
 			if list != "" {
 				list = ", " + list
 			}
-			return e.awaited(c, e.methodFunc(fn)+"("+recv+list+")")
+			return e.awaited(c, e.methodFunc(fn)+twinA+"("+recv+list+")")
 		}
 	}
 	fun := e.expr(c.Fun)
 	if _, isLit := ast.Unparen(c.Fun).(*ast.FuncLit); isLit {
 		fun = "(" + fun + ")"
 	}
-	return e.awaited(c, fun+"("+list+")")
+	if twinA == "" && e.canWait() && e.staticCallee(c) == nil {
+		// A function value may be a closure with a twin.
+		fun = "$.fa(" + fun + ")"
+	}
+	return e.awaited(c, fun+twinA+"("+list+")")
+}
+
+// ifaceCall is the call of the interface method fn on recv. The object
+// behind an interface may be TypeScript's, which knows only the
+// TypeScript-facing names. A method that may block in some type is
+// called, by code that can wait, through its twin where the object has
+// one; by code that cannot, it must not hand back a promise.
+func (e *emitter) ifaceCall(fn *types.Func, recv, list string) string {
+	name := fieldName(fn.Name())
+	if !e.ifaceMayBlock(fn) {
+		return recv + "." + name + "(" + list + ")"
+	}
+	if e.canWait() {
+		if list != "" {
+			list = ", " + list
+		}
+		return "$.callA(" + recv + ", " + jsQuote(name) + list + ")"
+	}
+	return "$.noWait(" + recv + "." + name + "(" + list + "), " + jsQuote(fn.Name()) + ")"
 }
 
 // args writes a call's arguments as the callee's parameters receive them:
@@ -115,9 +141,10 @@ func (e *emitter) spreadTuple(arg ast.Expr, tup *types.Tuple, sig *types.Signatu
 		elem := sig.Params().At(n).Type().(*types.Slice).Elem()
 		vals = append(vals[:n], e.sliceLit(elem, vals[n:]))
 	}
-	// The tuple is bound by a default parameter so the call stays one
-	// expression.
-	return []string{"...((" + t + ": any = " + e.expr(arg) + ") => [" + strings.Join(vals, ", ") + "])()"}
+	// The tuple is bound by a parameter so the call stays one expression;
+	// passed as an argument, as a call that waits cannot be awaited in a
+	// default value.
+	return []string{"...((" + t + ": any) => [" + strings.Join(vals, ", ") + "])(" + e.expr(arg) + ")"}
 }
 
 // sliceLit is a slice holding vals, or nil for none.
@@ -128,9 +155,17 @@ func (e *emitter) sliceLit(elem types.Type, vals []string) string {
 	return "$.slice(" + e.arrayLit(elem, vals) + ")"
 }
 
+// maxArgs is past where a literal is written as an array, not arguments.
+const maxArgs = 4096
+
 // arrayLit is a backing array holding vals.
 func (e *emitter) arrayLit(elem types.Type, vals []string) string {
 	if b := backing(elem); b != "" {
+		if len(vals) > maxArgs {
+			// A call takes at most some 65 thousand arguments; an array
+			// literal has no limit.
+			return b + ".from([" + strings.Join(vals, ", ") + "])"
+		}
 		return b + ".of(" + strings.Join(vals, ", ") + ")"
 	}
 	return "[" + strings.Join(vals, ", ") + "]"

@@ -111,8 +111,12 @@ func (e *emitter) structTypeDecl(td *typeDecls, name string, t *types.Named, st 
 		valCls = name + "$Val"
 		w.open("export class %s extends $.Val {", valCls)
 		for i := 0; i < vms.Len(); i++ {
-			m := vms.At(i).Obj().Name()
+			fn := vms.At(i).Obj().(*types.Func)
+			m := fn.Name()
 			w.line("%s(...a: any[]): any { return this.v.%s(...a); }", fieldName(m), fieldName(m))
+			if e.twin(fn) {
+				w.line("%s$a(...a: any[]): any { return this.v.%s$a(...a); }", fieldName(m), e.goName(fn))
+			}
 		}
 		w.close("}")
 	}
@@ -139,6 +143,9 @@ func (e *emitter) promoted(w *writer, ms *types.MethodSet, self string) {
 			if g := e.goName(fn); g != m {
 				w.line("%s(...a: any[]): any { return %s.%s(...a); }", g, path, g)
 			}
+			if e.twin(fn) {
+				w.line("%s$a(...a: any[]): any { return %s.%s$a(...a); }", e.goName(fn), path, e.goName(fn))
+			}
 			continue
 		}
 		recv := path
@@ -151,6 +158,9 @@ func (e *emitter) promoted(w *writer, ms *types.MethodSet, self string) {
 			recv = path + ".v"
 		}
 		w.line("%s(...a: any[]): any { return %s(%s, ...a); }", m, e.methodFunc(fn), recv)
+		if e.twin(fn) {
+			w.line("%s$a(...a: any[]): any { return %s$a(%s, ...a); }", m, e.methodFunc(fn), recv)
+		}
 	}
 }
 
@@ -217,6 +227,9 @@ func (e *emitter) valClass(w *writer, cls string, ms *types.MethodSet, v string)
 			recv = v + ".v"
 		}
 		w.line("%s(...a: any[]): any { return %s(%s, ...a); }", fieldName(fn.Name()), e.methodFunc(fn), recv)
+		if e.twin(fn) {
+			w.line("%s$a(...a: any[]): any { return %s$a(%s, ...a); }", fieldName(fn.Name()), e.methodFunc(fn), recv)
+		}
 	}
 	w.close("}")
 }

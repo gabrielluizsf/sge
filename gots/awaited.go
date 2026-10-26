@@ -14,6 +14,9 @@ func (e *emitter) awaited(c *ast.CallExpr, js string) string {
 	async := e.fn != nil && e.fn.async
 	if callee := e.staticCallee(c); callee != nil {
 		if !e.blocks(callee) {
+			if async && e.twin(callee) {
+				return "(await " + js + ")"
+			}
 			return js
 		}
 		if !async {
@@ -25,6 +28,9 @@ func (e *emitter) awaited(c *ast.CallExpr, js string) string {
 	if lit := e.blockingOf().closureCalled(e.info, c); lit != nil {
 		b := e.blockingOf()
 		if !b.blocks[b.key(lit.Pos())] {
+			if async && e.twinFunc(lit.Type) {
+				return "(await " + js + ")"
+			}
 			return js
 		}
 		if !async {

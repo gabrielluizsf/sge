@@ -43,6 +43,24 @@ func TestDeepXMLIsRefusedNotFatal(t *testing.T) {
 	}
 }
 
+// TestHugeContentLengthIsRefused sends a server, and hands a client, a
+// Content-Length past 2^53, which a JavaScript number would round: both
+// refuse it on Deno rather than read another length than was meant, as
+// request smuggling needs.
+func TestHugeContentLengthIsRefused(t *testing.T) {
+	run := jsRuntime(t)
+	out := t.TempDir()
+	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./testdata/exits/hugelength"}}); err != nil {
+		t.Fatalf("transpile: %v", err)
+	}
+	mod := filepath.Join(out, "gots", "testdata", "exits", "hugelength", "mod.ts")
+	stdout, stderr, code := runProgram(exec.Command(run[0], append(run[1:], mod)...))
+	want := "server: \"HTTP/1.1 400 Bad Request\\r\\n\"\nclient refused: true\n"
+	if code != 0 || stdout != want {
+		t.Errorf("status %d, output\n%s\nwant\n%s\n%s", code, stdout, want, stderr)
+	}
+}
+
 // TestProgramsEndAsGoDoes runs programs in testdata/exits, which end
 // badly, under go run and Deno: the same exit status, the same output,
 // and the line of stderr that says why.

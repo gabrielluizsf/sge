@@ -42,7 +42,7 @@ func (e *emitter) method(w, funcs *writer, fd *ast.FuncDecl, inClass bool) {
 		if e.wrapped(fn) {
 			e.wrapper(w, fieldName(fn.Name()), "this."+e.goName(fn), sig, fn)
 		}
-		e.functionIn(w, e.goName(fn), sig, fd.Type, fd.Body, prologue)
+		e.functionTwins(w, e.goName(fn), sig, fd.Type, fd.Body, prologue, false)
 		return
 	}
 	// A receiver parameter, first; Cell-boxed if the body takes its address.
@@ -50,7 +50,7 @@ func (e *emitter) method(w, funcs *writer, fd *ast.FuncDecl, inClass bool) {
 	params := types.NewTuple(append([]*types.Var{recvParam}, tupleVars(sig.Params())...)...)
 	withRecv := types.NewSignatureType(nil, nil, nil, params, sig.Results(), sig.Variadic())
 	ft := &ast.FuncType{Func: fd.Type.Func, Params: &ast.FieldList{List: append([]*ast.Field{recvField}, fd.Type.Params.List...)}, Results: fd.Type.Results}
-	e.functionIn(w, "export function "+e.methodFunc(fn), withRecv, ft, fd.Body, nil)
+	e.functionTwins(w, "export function "+e.methodFunc(fn), withRecv, ft, fd.Body, nil, false)
 }
 
 func tupleVars(t *types.Tuple) []*types.Var {

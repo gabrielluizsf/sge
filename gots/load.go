@@ -49,7 +49,12 @@ type Program struct {
 	order  []string
 	decls  map[*types.Func]funcDecl // built by declOf on first use
 	blk    *blocking                // built by blockingAll on first use
+	blkMay *blocking                // the same, through interfaces
 }
+
+// buildTags pick the pure Go code of packages that also have assembly
+// for js/wasm: math/big's arithmetic, and crypto's.
+const buildTags = "purego,math_big_pure_go"
 
 // buildEnv is the environment packages are listed and checked under: js/wasm
 // is the GOOS/GOARCH whose build tags select the code that has no assembly
@@ -116,7 +121,7 @@ func Load(dir string, withTests bool, patterns ...string) (*Program, error) {
 // goList runs go list on patterns, with their dependencies when deps is set
 // and with what their tests import when tests is set too.
 func goList(dir string, deps, tests bool, patterns []string) ([]listed, error) {
-	args := []string{"list", "-e", "-json"}
+	args := []string{"list", "-e", "-json", "-tags=" + buildTags}
 	if deps {
 		args = append(args, "-deps")
 	}
@@ -292,9 +297,6 @@ func stdFromSource(all []listed, roots map[string]bool) map[string]bool {
 // yet, with what that is. They are never transpiled: their modules are
 // stubs, and the tests that use them are skipped.
 var unsupportedStd = map[string]string{
-	"net":               "sockets",
-	"net/http":          "sockets",
-	"net/http/httptest": "sockets",
-	"crypto/tls":        "sockets",
-	"encoding/gob":      "reflect",
+	"crypto/tls":   "sockets",
+	"encoding/gob": "reflect",
 }

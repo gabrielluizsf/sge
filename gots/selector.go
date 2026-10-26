@@ -67,16 +67,38 @@ func onClass(fn *types.Func) bool {
 func (e *emitter) methodValue(x *ast.SelectorExpr, s *types.Selection) string {
 	fn := s.Obj().(*types.Func)
 	recv := e.receiver(x, s)
+	// bound is the function value calling call(r, ...a), with a twin
+	// calling twin(r, ...a) when there is one.
+	bound := func(call, twin string) string {
+		f := "(...a: any[]) => " + call
+		if twin != "" {
+			f = "$.twins(" + f + ", async (...a: any[]) => " + twin + ")"
+		}
+		return "((r) => " + f + ")(" + recv + ")"
+	}
 	if onClass(fn) && !e.freeMethod(s) {
 		if !isPointer(e.recvType(fn)) && !isInterface(e.recvType(fn)) {
 			recv = e.cloneOf(recv, derefType(e.typeOf(x.X)))
 		}
 		if isInterface(e.recvType(fn)) {
-			return "((r) => (...a: any[]) => " + fromIface("r."+fieldName(fn.Name())+"(...a)", fn.Type().(*types.Signature)) + ")(" + recv + ")"
+			sig := fn.Type().(*types.Signature)
+			twin := ""
+			if e.ifaceMayBlock(fn) {
+				twin = fromIface("(await $.callA(r, "+jsQuote(fieldName(fn.Name()))+", ...a))", sig)
+			}
+			return bound(fromIface("r."+fieldName(fn.Name())+"(...a)", sig), twin)
 		}
-		return "((r) => (...a: any[]) => r." + e.goName(fn) + "(...a))(" + recv + ")"
+		twin := ""
+		if e.twin(fn) {
+			twin = "r." + e.goName(fn) + "$a(...a)"
+		}
+		return bound("r."+e.goName(fn)+"(...a)", twin)
 	}
-	return "((r) => (...a: any[]) => " + e.methodFunc(fn) + "(r, ...a))(" + recv + ")"
+	twin := ""
+	if e.twin(fn) {
+		twin = e.methodFunc(fn) + "$a(r, ...a)"
+	}
+	return bound(e.methodFunc(fn)+"(r, ...a)", twin)
 }
 
 // methodExpr is T.M or (*T).M: a function taking the receiver first.

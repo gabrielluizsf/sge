@@ -11,6 +11,8 @@ package gots
 // may differ from Go's in its last bit. Those whose special cases Go and
 // JavaScript disagree on (Pow, Max, Min, Hypot) are not here.
 var intrinsics = map[string]string{
+	// A compiler intrinsic with no body of its own: true is 1, false 0.
+	"crypto/internal/constanttime.boolToUint8": "$Number",
 	// Exact.
 	"math.Sqrt":  "$Math.sqrt",
 	"math.Floor": "$Math.floor",

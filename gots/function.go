@@ -15,7 +15,8 @@ func (e *emitter) function(w *writer, prefix string, sig *types.Signature, ft *a
 	if fresh || e.sc == nil {
 		e.sc = newScope(e.pkgNames)
 	}
-	e.fn = &funcState{sig: sig, ft: ft, body: body, parent: outerFn, async: e.asyncFunc(ft)}
+	e.fn = &funcState{sig: sig, ft: ft, body: body, parent: outerFn, async: e.asyncFunc(ft) || e.waiting}
+	e.waiting = false
 	defer func() { e.sc, e.fn = outerSc, outerFn }()
 
 	var params, boxes []string

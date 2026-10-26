@@ -145,7 +145,7 @@ func (e *emitter) emitInstances(td *typeDecls, funcs *writer) {
 			fn := in.obj.(*types.Func)
 			e.subst = bind(fn.Type().(*types.Signature).TypeParams(), in.targs)
 			sig := e.T(fn.Type()).(*types.Signature)
-			e.function(funcs, "export function "+in.name, sig, d.Type, d.Body, nil, false, true)
+			e.functionTwins(funcs, "export function "+in.name, sig, d.Type, d.Body, nil, true)
 			funcs.line("")
 		case *ast.TypeSpec:
 			tn := in.obj.(*types.TypeName)

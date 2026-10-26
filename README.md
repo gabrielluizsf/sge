@@ -153,11 +153,29 @@ From TypeScript, the functions that block return promises:
 `await g.Run(...)`, and the game loop lets Deno's event loop run between
 frames.
 
-What blocks is worked out from the calls gots can see. A function value or
-interface method that blocks is awaited when it is called from a function
-that may block; called from one that never does, it is not waited for. A
-`sync.Mutex` does not wait either: locking one that another goroutine holds
-while it waits panics, rather than deadlock.
+What blocks is worked out from the calls gots can see. A function that
+blocks only through what it calls by interface or function value, say
+`bufio.Reader.Read`, which blocks when it reads a socket and not when it
+reads a string, is written twice: as itself, which never waits, for code
+that cannot, and as its twin, which awaits what it calls, for code that can
+(a goroutine, `main`, a test, an HTTP handler). Engine code drawing a frame
+stays synchronous; a server's goroutine waits on its socket. Should code
+that cannot wait reach something that does block, it panics saying so,
+rather than carry on with a promise for a result. A `sync.Mutex` does not
+wait either: locking one that another goroutine holds while it waits
+panics, rather than deadlock.
+
+## Networking
+
+`net` dials and listens over TCP with Deno's sockets, and `net/http` serves
+with Go's own server on them; `http.Client` sends through `fetch`, which
+Deno's `--allow-net` governs, with the client, not `fetch`, following
+redirects, so `CheckRedirect` and Go's rules for the headers that may follow
+a redirect to another host hold. Host names go to Deno unresolved, so
+`--allow-net` checks the name and the addresses it resolves to: grant only
+the hosts a game talks to (`--allow-net=127.0.0.1:8080,api.example.com`).
+A `Content-Length` past 2^53, which a JavaScript number would round, is
+refused by the server and the client rather than read as another length.
 
 ## reflect
 
@@ -179,7 +197,18 @@ instead of ending the program.
   that blocks, and a range over a function cannot have a body that blocks.
 - A nil pointer to a struct, put in an interface, is a nil interface: a
   pointer to a struct is the object itself, and nil is nil.
-- `net` and `net/http` are not supported: Deno's sockets are not wired in.
+- On Deno, `net` speaks TCP only, through Deno's sockets; UDP and Unix
+  sockets are Go's in-memory ones for js. A write deadline holds only
+  until the write is handed to Deno, and closing a listener while an
+  `Accept` waits can reset, rather than refuse, a connection dialed in that
+  same moment, as Deno closes the socket once the pending accept is done.
+- Deno connects by host name, so a `Dialer` with a `Control` or
+  `ControlContext` hook, or a `Resolver` of its own, and a `ListenConfig`
+  with a `Control`, fail with `ENOTSUP` rather than skip the hook, as Go's
+  js port does: a hook refusing private addresses is never bypassed.
+- The HTTP client is Deno's `fetch`, so TLS is Deno's; Go's own `crypto/tls`
+  is not supported, and neither are `ListenAndServeTLS` and dialing TLS
+  yourself.
 - `int` and `int64` are JavaScript numbers, exact up to 2^53; `uint64` is a
   `bigint`. Arithmetic with constants beyond 2^53, which `time` does on
   every date, is worked out exactly.

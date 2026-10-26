@@ -8,10 +8,12 @@ let exited = false;
 
 // go is the go statement: f runs once the current goroutine waits or ends.
 export function go(f: () => any): void {
+  // A goroutine can wait: a closure with a twin runs as its twin.
+  const run = (f as any).$a ?? f;
   queueMicrotask(() => {
     if (exited) return;
     try {
-      const r = f();
+      const r = run();
       if (r instanceof Promise) r.catch(crash);
     } catch (e) {
       crash(e);

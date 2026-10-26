@@ -14,7 +14,11 @@ func (e *emitter) goStmt(w *writer, s *ast.GoStmt) {
 	if tv := e.info.Types[c.Fun]; tv.IsBuiltin() {
 		w.line("$.go(() => { %s; });", e.builtin(c))
 	} else {
-		w.line("$.go(() => %s);", e.boundCall(w, c))
+		// A goroutine can wait: it calls twins.
+		e.goCall = true
+		call := e.boundCall(w, c)
+		e.goCall = false
+		w.line("$.go(() => %s);", call)
 	}
 	w.close("}")
 }

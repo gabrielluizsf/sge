@@ -27,4 +27,7 @@ func (e *emitter) forward(w *writer, fn *types.Func, sig *types.Signature) {
 		results = "Promise<" + results + ">"
 	}
 	w.line("%s(%s): %s { %s%s(%s); }", e.goName(fn), strings.Join(params, ", "), results, ret, e.methodFunc(fn), strings.Join(args, ", "))
+	if e.twin(fn) {
+		w.line("%s$a(%s): Promise<%s> { return %s$a(%s); }", e.goName(fn), strings.Join(params, ", "), e.tsResults(sig.Results()), e.methodFunc(fn), strings.Join(args, ", "))
+	}
 }

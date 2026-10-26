@@ -15,6 +15,10 @@ import (
 // file:line:column, which stays the same when a package is checked again
 // with its tests and its objects are new.
 type blocking struct {
+	// cha counts a call through an interface as a call of every method of
+	// that name and signature: the analysis of what may block at all,
+	// beside the one of what blocks for sure.
+	cha      bool
 	fset     *token.FileSet
 	blocks   map[string]bool
 	callers  map[string][]string // callee → functions calling it
@@ -22,8 +26,8 @@ type blocking struct {
 	funcVars map[types.Object]*ast.FuncLit // see closureVars
 }
 
-func newBlocking(fset *token.FileSet) *blocking {
-	return &blocking{fset: fset, blocks: map[string]bool{}, callers: map[string][]string{}, funcVars: map[types.Object]*ast.FuncLit{}}
+func newBlocking(fset *token.FileSet, cha bool) *blocking {
+	return &blocking{cha: cha, fset: fset, blocks: map[string]bool{}, callers: map[string][]string{}, funcVars: map[types.Object]*ast.FuncLit{}}
 }
 
 func (b *blocking) key(pos token.Pos) string { return b.fset.Position(pos).String() }
@@ -37,6 +41,9 @@ func (b *blocking) addFiles(files []*ast.File, info *types.Info) {
 		for _, d := range f.Decls {
 			if fd, ok := d.(*ast.FuncDecl); ok && fd.Body != nil {
 				b.addFunc(fd.Type, fd.Body, info)
+				if fd.Recv != nil && b.cha {
+					b.addMethod(fd, info)
+				}
 			}
 		}
 	}
@@ -112,6 +119,16 @@ func (b *blocking) visitOperand(me string, n ast.Node, info *types.Info) bool {
 // call notes that me calls what c calls, when that is known.
 func (b *blocking) call(me string, c *ast.CallExpr, info *types.Info) {
 	fn := staticCalleeIn(info, c)
+	if fn == nil && b.cha {
+		if m := ifaceMethodCalled(info, c); m != nil {
+			k := ifaceKey(m)
+			b.callers[k] = append(b.callers[k], me)
+			if b.blocks[k] {
+				b.mark(me)
+			}
+			return
+		}
+	}
 	if fn == nil {
 		if lit := b.closureCalled(info, c); lit != nil {
 			callee := b.key(lit.Pos())
@@ -122,7 +139,7 @@ func (b *blocking) call(me string, c *ast.CallExpr, info *types.Info) {
 		}
 		return
 	}
-	if blockingNatives[nativeName(fn)] {
+	if blockingNatives[nativeName(fn)] || b.cha && twinNatives[nativeName(fn)] {
 		b.mark(me)
 		return
 	}
@@ -165,7 +182,7 @@ func (b *blocking) mark(k string) {
 
 // clone is a copy to add a package's test files to.
 func (b *blocking) clone() *blocking {
-	c := newBlocking(b.fset)
+	c := newBlocking(b.fset, b.cha)
 	for k, v := range b.blocks {
 		c.blocks[k] = v
 	}

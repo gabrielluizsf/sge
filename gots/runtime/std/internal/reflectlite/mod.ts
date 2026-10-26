@@ -43,6 +43,25 @@ export class rtype {
   String(): string {
     return this.t.str;
   }
+  // Comparable reports whether values of the type can be compared with ==,
+  // as context.WithValue asks of its keys.
+  Comparable(): boolean {
+    return comparable(this.t);
+  }
+}
+
+function comparable(t: $.Type): boolean {
+  switch (t.kind) {
+    case "slice":
+    case "map":
+    case "func":
+      return false;
+    case "array":
+      return comparable(t.elem!);
+    case "struct":
+      return t.fields.every((f) => comparable(f.type));
+  }
+  return true;
 }
 
 export function TypeOf(i: any): rtype | null {

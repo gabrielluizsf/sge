@@ -72,7 +72,7 @@ func (e *emitter) module(files []*ast.File) string {
 					e.testFunction(&funcs, impl, fn, d)
 					continue
 				}
-				e.function(&funcs, "export function "+impl, fn.Type().(*types.Signature), d.Type, d.Body, nil, false, true)
+				e.functionTwins(&funcs, "export function "+impl, fn.Type().(*types.Signature), d.Type, d.Body, nil, true)
 				funcs.line("")
 			case *ast.GenDecl:
 				if d.Tok == token.CONST {
@@ -88,7 +88,7 @@ func (e *emitter) module(files []*ast.File) string {
 		inits.line("%s();", n)
 	}
 	if e.tpkg.Name() == "main" && len(tests) == 0 && len(benches) == 0 {
-		inits.line("$.runMain(main);")
+		inits.line("$.runMain(%s);", e.entry("main"))
 	}
 	if len(tests) > 0 {
 		alias := e.imports["testing"]
@@ -97,11 +97,11 @@ func (e *emitter) module(files []*ast.File) string {
 				inits.line("%s.register(%q, %s, true);", alias, t, t)
 				continue
 			}
-			inits.line("%s.register(%q, %s);", alias, t, t)
+			inits.line("%s.register(%q, %s);", alias, t, e.entry(t))
 		}
 	}
 	for _, b := range benches {
-		inits.line("%s.registerBench(%q, %s, %v);", e.imports["testing"], b, b, e.skippedTests[b])
+		inits.line("%s.registerBench(%q, %s, %v);", e.imports["testing"], b, e.entry(b), e.skippedTests[b])
 	}
 
 	var out writer
@@ -261,7 +261,7 @@ func (e *emitter) testFunction(w *writer, name string, fn *types.Func, d *ast.Fu
 	before := len(e.errs)
 	var body writer
 	body.indent = w.indent
-	e.function(&body, "export function "+name, fn.Type().(*types.Signature), d.Type, d.Body, nil, false, true)
+	e.functionTwins(&body, "export function "+name, fn.Type().(*types.Signature), d.Type, d.Body, nil, true)
 	if len(e.errs) == before {
 		w.b.WriteString(body.String())
 		w.line("")
