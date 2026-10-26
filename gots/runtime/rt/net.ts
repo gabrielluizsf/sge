@@ -11,11 +11,11 @@ const chunk = 64 * 1024;
 
 // A waiter is told when something it waits on settles, or that it should
 // look again because a deadline changed.
-type Wake = () => void;
+export type Wake = () => void;
 
 // within resolves true when p settles, false once ms milliseconds pass
 // (never, for ms < 0) or wake is called, whichever is first.
-function within(p: Promise<unknown>, ms: number, wakers: Set<Wake>): Promise<boolean> {
+export function within(p: Promise<unknown>, ms: number, wakers: Set<Wake>): Promise<boolean> {
   return new Promise((resolve) => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const done = (v: boolean) => {
@@ -36,11 +36,14 @@ export interface Failure {
   failed: true;
   name: string;
   message: string;
+  // Node's code for the error, such as CERT_HAS_EXPIRED, or "".
+  code: string;
 }
 
-function failure(e: unknown): Failure {
+export function failure(e: unknown): Failure {
   const err = e instanceof Error ? e : new Error(String(e));
-  return { failed: true, name: err.name, message: err.message };
+  const code = (err as { code?: unknown }).code;
+  return { failed: true, name: err.name, message: err.message, code: typeof code === "string" ? code : "" };
 }
 
 function fail(e: unknown): never {
@@ -317,7 +320,7 @@ export class Dgram {
 export function listenUdp(host: string, port: number): Dgram | Failure {
   const listen = (Deno as any).listenDatagram;
   if (typeof listen !== "function") {
-    return { failed: true, name: "NotSupported", message: "UDP on Deno needs --unstable-net" };
+    return { failed: true, name: "NotSupported", message: "UDP on Deno needs --unstable-net", code: "" };
   }
   try {
     return new Dgram(listen({ transport: "udp", hostname: host === "" ? "0.0.0.0" : host, port }));

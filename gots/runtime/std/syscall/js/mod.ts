@@ -36,7 +36,7 @@ export function toJS(x: any): any {
     case "slice": {
       if (v === null) return null;
       if (!Array.isArray(v.a)) return v.a.subarray(v.o, v.o + v.n);
-      return v.toArray().map((e: any) => toJS($.val(x.$t.elem!, e)));
+      return v.toArray().map((e: any) => toJS(x.$t.elem!.kind === "iface" ? e : $.val(x.$t.elem!, e)));
     }
     case "map": {
       const o: any = {};

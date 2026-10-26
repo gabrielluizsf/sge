@@ -18,3 +18,4 @@ export * as cplx from "./cplx.ts";
 import "./window.ts";
 import "./fetch.ts";
 import "./net.ts";
+import "./tls.ts";
