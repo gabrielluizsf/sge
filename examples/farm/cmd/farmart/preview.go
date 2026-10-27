@@ -14,6 +14,7 @@ var rows = [][]string{
 	{"carrot0", "carrot1", "carrot2", "carrot3", "carrot4", "tomato0", "tomato1", "tomato2", "tomato3", "tomato4"},
 	{"farmer_down", "farmer_down1", "farmer_down", "farmer_down2", "farmer_downAct", "farmer_up", "farmer_up1", "farmer_up", "farmer_up2", "farmer_upAct"},
 	{"farmer_right", "farmer_right1", "farmer_right", "farmer_right2", "farmer_rightAct", "farmer_left", "farmer_left1", "farmer_left", "farmer_left2", "farmer_leftAct"},
+	{"farmer_downSwim", "farmer_downSwim1", "farmer_upSwim", "farmer_upSwim1", "farmer_rightSwim", "farmer_rightSwim1", "farmer_leftSwim", "farmer_leftSwim1"},
 	{"icon_coin", "icon_carrotSeeds", "icon_tomatoSeeds", "icon_can", "icon_carrot", "icon_tomato", "cursor", "stall"},
 }
 

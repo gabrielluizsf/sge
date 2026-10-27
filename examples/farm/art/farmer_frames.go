@@ -1,8 +1,8 @@
 package art
 
 // FarmerFrames is every frame of the farmer, by direction and what it
-// shows: standing, the two strides of a walk, and pouring the can. Left
-// is right turned round.
+// shows: standing, the two strides of a walk, pouring the can, and the
+// two strokes of swimming. Left is right turned round.
 func FarmerFrames() map[string]string {
 	f := map[string]string{
 		"down":     front(pose{}, false),
@@ -21,6 +21,7 @@ func FarmerFrames() map[string]string {
 	for _, s := range []string{"", "1", "2", "Act"} {
 		f["left"+s] = mirrored(f["right"+s], FarmerW)
 	}
+	swimFrames(f)
 	return f
 }
 

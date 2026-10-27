@@ -79,18 +79,13 @@ func TestTheShopSellsSeedsAndBuysTheHarvest(t *testing.T) {
 	}
 }
 
-func TestTheFarmerStopsAtTheFenceAndTheWater(t *testing.T) {
+func TestTheFarmerStopsAtTheFence(t *testing.T) {
 	g, f := newGame(idle{})
 	o := g.Find("farmer")
 	o.Transform.Position = standIn(f, 5, 1)
 	tilemap.Move(o, 0, -200, f.water, f.things, f.wild)
 	if _, row, _ := f.ground.CellAt(feet(o).X, feet(o).Y-feetBox.Height/2); row != 1 {
 		t.Errorf("walked into the fence, to row %d", row)
-	}
-	o.Transform.Position = standIn(f, 18, 7)
-	tilemap.Move(o, 400, 0, f.water, f.things, f.wild)
-	if col, _, _ := f.ground.CellAt(feet(o).X+feetBox.Width/2, feet(o).Y); col >= 22 {
-		t.Errorf("walked into the water, to column %d", col)
 	}
 }
 

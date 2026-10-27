@@ -10,13 +10,14 @@ import (
 
 // farmer walks the farm as its controller says, and uses what they hold
 // on the cell they work: the one the mouse picks within reach, or the one
-// they face.
+// they face. In water they swim, slower, and have nothing to work.
 type farmer struct {
 	f      *farm
 	ctl    controller
 	facing vector.Vector3 // the way they face, in the world
 	aim    *[2]int        // the cell the mouse picks, if any
 	acting float64        // seconds left of the use being shown
+	swims  bool           // whether they are in the water
 }
 
 const (
@@ -41,25 +42,43 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 	if d, ok := directions[in.face]; ok {
 		p.facing = vector.Vector3{X: float64(d[0]), Y: float64(d[1])}
 	}
-	if l := in.dir.Length(); l > 0 {
-		p.facing = in.dir.Scale(1 / l)
-		step := walkSpeed * dt
-		if in.upTo > 0 {
-			step = min(step, in.upTo)
-		}
-		d := in.dir.Scale(step / l)
-		tilemap.Move(o, d.X, d.Y, p.f.water, p.f.things, p.f.wild)
+	moves := p.move(o, in, dt)
+	p.swims = p.f.inWater(feet(o))
+	switch {
+	case p.swims:
+		o.Animator.Play(p.pose(o) + "_swim")
+	case moves:
 		o.Animator.Play(p.pose(o) + "_walk")
-	} else {
+	default:
 		o.Animator.Play(p.pose(o))
 	}
-	if in.use {
+	if in.use && !p.swims {
 		col, row := p.target(o)
 		if p.f.use(col, row) {
 			p.acting = actFor
 			o.Animator.Play(p.pose(o) + "_act")
 		}
 	}
+}
+
+// move moves the farmer as in says, for dt seconds, at the speed they go
+// where they are, and reports whether they were told to.
+func (p *farmer) move(o *game.Object, in intent, dt float64) bool {
+	l := in.dir.Length()
+	if l == 0 {
+		return false
+	}
+	p.facing = in.dir.Scale(1 / l)
+	step := walkSpeed * dt
+	if p.swims {
+		step = swimSpeed * dt
+	}
+	if in.upTo > 0 {
+		step = min(step, in.upTo)
+	}
+	d := in.dir.Scale(step / l)
+	tilemap.Move(o, d.X, d.Y, p.f.water, p.f.things, p.f.wild)
+	return true
 }
 
 // pose is the way the farmer's picture faces: the screen's way they face,

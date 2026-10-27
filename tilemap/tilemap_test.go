@@ -89,6 +89,9 @@ func TestCellsAndWorldPointsFollowTheMapsPositionAndScale(t *testing.T) {
 	if !m.SolidAt(101, 51) || m.SolidAt(100+8+1, 50+8+1) {
 		t.Error("SolidAt wrong")
 	}
+	if m.TileAt(101, 51) != 1 || m.TileAt(100+8+1, 50+8+1) != 0 || m.TileAt(99, 50) != Empty {
+		t.Error("TileAt wrong")
+	}
 }
 
 func TestObjectsCollideWithSolidTilesOnly(t *testing.T) {

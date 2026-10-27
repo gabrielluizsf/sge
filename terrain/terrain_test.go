@@ -206,3 +206,20 @@ func TestTheWorldsWaterIsAWall(t *testing.T) {
 		t.Errorf("walked into the water at x %d to %v", col*4, o.Transform.Position.X)
 	}
 }
+
+// A point of the world is in an area as the cell under it is, the
+// negative side of the origin and all.
+func TestInAtIsTheAreaOfTheCellUnderAPoint(t *testing.T) {
+	gen := meadow(t)
+	w := New("world", gen, 8, 0, 1, 2)
+	for r := -20; r < 20; r++ {
+		for c := -20; c < 20; c++ {
+			want := gen.In("water", c, r)
+			for _, d := range [][2]float64{{0.1, 0.1}, {3.9, 3.9}} {
+				if got := w.InAt("water", float64(c*4)+d[0], float64(r*4)+d[1]); got != want {
+					t.Fatalf("InAt in cell %d,%d is %v, not %v", c, r, got, want)
+				}
+			}
+		}
+	}
+}

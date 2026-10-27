@@ -39,7 +39,7 @@ func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
 // cursor marks the plot the farmer works: its diamond, outlined.
 func (h *hud) cursor(cv *canvas.Canvas) {
 	col, row := h.p.target(h.farmer)
-	if h.f.plotAt(col, row) == nil {
+	if h.p.swims || h.f.plotAt(col, row) == nil {
 		return
 	}
 	at := h.farmer.Game().ToScreen(h.f.ground.CellCenter(col, row))

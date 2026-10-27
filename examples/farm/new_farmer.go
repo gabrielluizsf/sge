@@ -9,7 +9,8 @@ import (
 )
 
 // newFarmer is the farmer object, standing still and facing down, with
-// their animations: standing, walking and using, in each direction.
+// their animations: standing, walking, using and swimming, in each
+// direction.
 func newFarmer(f *farm, ctl controller) (*game.Object, *farmer) {
 	o := game.NewObject("farmer")
 	o.Z = zThings
@@ -30,6 +31,7 @@ func newFarmer(f *farm, ctl controller) (*game.Object, *farmer) {
 			Loop:   true,
 		})
 		o.Animator.Add(dir+"_act", &animation.Animation{Frames: []*sprite.Sprite{frame(dir + "Act")}, FPS: 1})
+		o.Animator.Add(dir+"_swim", &animation.Animation{Frames: []*sprite.Sprite{frame(dir + "Swim"), frame(dir + "Swim1")}, FPS: 3, Loop: true})
 	}
 	p := &farmer{f: f, ctl: ctl, facing: vector.Vector3{Y: 1}}
 	o.AddScript(p)
