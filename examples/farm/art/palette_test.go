@@ -8,13 +8,15 @@ import (
 )
 
 // Every sprite is the farm's: drawn in the palette alone, every row as
-// wide as the first, the tiles IsoW by IsoH and the farmer and the icons
-// Size square.
+// wide as the first, the tiles IsoW by IsoH, the farmer FarmerW by
+// FarmerH and the icons Size square.
 func TestSpritesKeepToThePaletteAndSize(t *testing.T) {
 	for name, g := range Sprites() {
 		w, h := IsoW, IsoH
 		switch {
-		case strings.HasPrefix(name, "farmer_") || strings.HasPrefix(name, "icon_"):
+		case strings.HasPrefix(name, "farmer_"):
+			w, h = FarmerW, FarmerH
+		case strings.HasPrefix(name, "icon_"):
 			w, h = Size, Size
 		case name == "cursor":
 			w, h = IsoW, Size

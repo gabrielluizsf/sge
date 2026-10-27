@@ -34,6 +34,19 @@ var Palette = map[rune]string{
 	'M': "#b8b8b8", // metal
 	'p': "#e86a92", // pink
 	'h': "#2a5a33", // shadow on grass
+	// The farmer's: straw, leather, hair, shirt, denim and brass.
+	'g': "#e2bd6e", // straw
+	'G': "#b88d45", // straw, shade
+	'z': "#7a4a2b", // leather
+	'Z': "#4d2c18", // leather, dark
+	'l': "#6b3e22", // hair
+	'L': "#43260f", // hair, dark
+	'f': "#f1e6d0", // shirt
+	'F': "#cdbd9f", // shirt, shade
+	'j': "#3e65a6", // denim
+	'J': "#2a4677", // denim, dark
+	'i': "#6a93cf", // denim, light
+	'B': "#d6a644", // brass
 }
 
 // Size is the side of every sprite, in pixels.

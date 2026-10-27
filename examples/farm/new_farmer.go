@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gabrielluizsf/sge/animation"
+	"github.com/gabrielluizsf/sge/examples/farm/art"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/vector"
@@ -16,7 +17,7 @@ func newFarmer(f *farm, ctl controller) (*game.Object, *farmer) {
 	o.Animator = animation.NewAnimator()
 	// Each picture stands on the farmer's feet, its bottom on their place.
 	frame := func(name string) *sprite.Sprite {
-		s := sprite.New(look("farmer_" + name))
+		s := sprite.New(picture(spriteSVG("farmer_"+name), art.FarmerW, art.FarmerH))
 		s.PivotY = 1
 		return s
 	}
