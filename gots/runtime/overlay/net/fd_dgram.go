@@ -13,8 +13,9 @@ func (fd *netFD) readFromInet4(p []byte, from *syscall.SockaddrInet4) (int, erro
 	}
 	n, a, err := fd.dgram.receive(p)
 	if err == nil {
-		from.Port = a.Port
-		copy(from.Addr[:], a.IP.To4())
+		u := a.udp()
+		from.Port = u.Port
+		copy(from.Addr[:], u.IP.To4())
 	}
 	return n, err
 }
@@ -25,8 +26,9 @@ func (fd *netFD) readFromInet6(p []byte, from *syscall.SockaddrInet6) (int, erro
 	}
 	n, a, err := fd.dgram.receive(p)
 	if err == nil {
-		from.Port = a.Port
-		copy(from.Addr[:], a.IP.To16())
+		u := a.udp()
+		from.Port = u.Port
+		copy(from.Addr[:], u.IP.To16())
 	}
 	return n, err
 }
@@ -51,14 +53,14 @@ func (fd *netFD) writeToInet4(p []byte, sa *syscall.SockaddrInet4) (int, error) 
 	if fd.dgram == nil {
 		return fd.fakeNetFD.writeToInet4(p, sa)
 	}
-	return fd.dgram.send(p, &UDPAddr{IP: IP(sa.Addr[:]), Port: sa.Port})
+	return fd.dgram.send(p, udpDgramAddr(&UDPAddr{IP: IP(sa.Addr[:]), Port: sa.Port}))
 }
 
 func (fd *netFD) writeToInet6(p []byte, sa *syscall.SockaddrInet6) (int, error) {
 	if fd.dgram == nil {
 		return fd.fakeNetFD.writeToInet6(p, sa)
 	}
-	return fd.dgram.send(p, &UDPAddr{IP: IP(sa.Addr[:]), Port: sa.Port})
+	return fd.dgram.send(p, udpDgramAddr(&UDPAddr{IP: IP(sa.Addr[:]), Port: sa.Port}))
 }
 
 func (fd *netFD) writeMsgInet4(p []byte, oob []byte, sa *syscall.SockaddrInet4) (n int, oobn int, err error) {

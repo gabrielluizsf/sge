@@ -75,7 +75,10 @@ func openUDP(network string, laddr, raddr *UDPAddr) (*UDPConn, error) {
 	if local.IP.To4() == nil {
 		family = syscall.AF_INET6
 	}
-	d := &denoDgram{v: v, peer: raddr}
+	d := &denoDgram{v: v}
+	if raddr != nil {
+		d.peer = udpDgramAddr(raddr)
+	}
 	fd := &netFD{family: family, sotype: syscall.SOCK_DGRAM, net: network, laddr: local, isConnected: raddr != nil, dgram: d}
 	if raddr != nil {
 		fd.raddr = raddr

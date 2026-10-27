@@ -1,8 +1,8 @@
 //go:build gots_overlay
 
 // Overlay for Unix stream sockets: Deno's, through the gotsNet bridge.
-// Deno has no datagram or packet Unix sockets; those stay Go's in-memory
-// ones for js.
+// Datagram ones are in unixgram_deno.go; Deno has no packet ones
+// (SOCK_SEQPACKET), so "unixpacket" fails saying so.
 
 package net
 
@@ -14,6 +14,9 @@ import (
 )
 
 func (sd *sysDialer) dialUnix(ctx context.Context, laddr, raddr *UnixAddr) (*UnixConn, error) {
+	if sd.network == "unixgram" {
+		return sd.dialUnixgram(ctx, laddr, raddr)
+	}
 	if sd.network != "unix" {
 		return nil, os.NewSyscallError("socket", syscall.ENOTSUP)
 	}

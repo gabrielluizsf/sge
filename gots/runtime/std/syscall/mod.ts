@@ -138,3 +138,15 @@ export class SockaddrInet6 extends $.Native {
   }
 }
 $.nativeType("syscall.SockaddrInet6", SockaddrInet6);
+
+// SockaddrUnix is the address of a Unix socket: net's datagram ones read
+// senders into it and write to it.
+export class SockaddrUnix extends $.Native {
+  Name = "";
+  override $clone(): SockaddrUnix {
+    const c = new SockaddrUnix();
+    c.Name = this.Name;
+    return c;
+  }
+}
+$.nativeType("syscall.SockaddrUnix", SockaddrUnix);

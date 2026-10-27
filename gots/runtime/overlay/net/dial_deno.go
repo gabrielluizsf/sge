@@ -10,7 +10,6 @@ package net
 import (
 	"context"
 	"internal/nettrace"
-	"os"
 	"strconv"
 	"syscall"
 	"syscall/js"
@@ -61,13 +60,11 @@ func (d *Dialer) DialContext(ctx context.Context, network, address string) (Conn
 // fetching URLs from outside refuse private addresses in, is asked about
 // each address the name resolves to, and the dial goes to an address it
 // let through, not to the name again: what it checked is what is reached.
+// A Resolver of the program's own resolves the name, as in Go, and the
+// dial goes to the addresses it gives.
 func (d *Dialer) dialDeno(ctx context.Context, network, address string) (Conn, error) {
 	fail := func(err error) (Conn, error) {
 		return nil, &OpError{Op: "dial", Net: network, Err: err}
-	}
-	// A Resolver of the program's own cannot be asked: Deno resolves.
-	if d.Resolver != nil && d.Resolver != DefaultResolver {
-		return fail(os.NewSyscallError("socket", syscall.ENOTSUP))
 	}
 	host, service, err := SplitHostPort(address)
 	if err != nil {
@@ -85,19 +82,13 @@ func (d *Dialer) dialDeno(ctx context.Context, network, address string) (Conn, e
 			return d.Control(network, address, c)
 		}
 	}
-	if ctrl == nil {
+	own := d.Resolver != nil && d.Resolver != DefaultResolver
+	if ctrl == nil && !own {
 		return d.connectDeno(ctx, network, host, port)
 	}
-	ips := []string{host}
-	if ParseIP(host) == nil {
-		v, err := awaitJS(js.Global().Get("gotsNet").Call("lookup", host))
-		if err != nil {
-			return fail(err)
-		}
-		ips = make([]string, v.Length())
-		for i := range ips {
-			ips[i] = v.Index(i).String()
-		}
+	ips, err := d.denoAddrs(ctx, host, own)
+	if err != nil {
+		return fail(err)
 	}
 	lastErr := error(&DNSError{Err: "no suitable address", Name: host})
 	for _, s := range ips {
@@ -105,9 +96,11 @@ func (d *Dialer) dialDeno(ctx context.Context, network, address string) (Conn, e
 		if network != "tcp" && network != nw {
 			continue
 		}
-		if err := ctrl(ctx, nw, JoinHostPort(s, strconv.Itoa(port)), denoRawConn{}); err != nil {
-			lastErr = err
-			continue
+		if ctrl != nil {
+			if err := ctrl(ctx, nw, JoinHostPort(s, strconv.Itoa(port)), denoRawConn{}); err != nil {
+				lastErr = err
+				continue
+			}
 		}
 		c, err := d.connectDeno(ctx, network, s, port)
 		if err == nil {

@@ -292,10 +292,12 @@ export class Dgram {
     }
   }
 
-  // send sends b to host:port as one datagram.
+  // send sends b to host:port as one datagram, or for port -1 to the Unix
+  // socket at the path host.
   async send(b: Uint8Array, host: string, port: number): Promise<number> {
+    const to = port < 0 ? { transport: "unixpacket", path: host } : { transport: "udp", hostname: host, port };
     try {
-      return await this.c.send(b, { transport: "udp", hostname: host, port });
+      return await this.c.send(b, to as Deno.Addr);
     } catch (e) {
       fail(e);
     }
@@ -324,6 +326,20 @@ export function listenUdp(host: string, port: number): Dgram | Failure {
   }
   try {
     return new Dgram(listen({ transport: "udp", hostname: host === "" ? "0.0.0.0" : host, port }));
+  } catch (e) {
+    return failure(e);
+  }
+}
+
+// listenUnixgram opens a Unix datagram socket at path. Deno names these
+// "unixpacket", and keeps them, as UDP, behind --unstable-net.
+export function listenUnixgram(path: string): Dgram | Failure {
+  const listen = (Deno as any).listenDatagram;
+  if (typeof listen !== "function") {
+    return { failed: true, name: "NotSupported", message: "Unix datagram sockets on Deno need --unstable-net", code: "" };
+  }
+  try {
+    return new Dgram(listen({ transport: "unixpacket", path }));
   } catch (e) {
     return failure(e);
   }
@@ -360,4 +376,4 @@ export async function lookup(host: string): Promise<string[]> {
   }
 }
 
-(globalThis as any).gotsNet = { connect, listen, connectUnix, listenUnix, lookup, listenUdp };
+(globalThis as any).gotsNet = { connect, listen, connectUnix, listenUnix, lookup, listenUdp, listenUnixgram };

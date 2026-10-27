@@ -13,10 +13,13 @@ import (
 // installed, node otherwise.
 func jsRuntime(t *testing.T) []string {
 	if p, err := exec.LookPath("deno"); err == nil {
-		// The network the conformance programs reach: loopback, and the one
-		// Unix socket unixsock listens on, which Deno grants by its path.
-		sock := filepath.Join(os.TempDir(), "gots-conformance.sock")
-		return []string{p, "run", "-q", "--no-config", "--no-lock", "--allow-read", "--allow-write", "--allow-env", "--allow-run", "--unstable-net", "--allow-net=127.0.0.1,unix:" + sock}
+		// The network the conformance programs reach: loopback, and the Unix
+		// sockets unixsock and unixgram open, which Deno grants by path.
+		net := "--allow-net=127.0.0.1"
+		for _, name := range []string{"gots-conformance.sock", "gots-conformance-gram.sock", "gots-conformance-gram-cli.sock"} {
+			net += ",unix:" + filepath.Join(os.TempDir(), name)
+		}
+		return []string{p, "run", "-q", "--no-config", "--no-lock", "--allow-read", "--allow-write", "--allow-env", "--allow-run", "--unstable-net", net}
 	}
 	if p, err := exec.LookPath("node"); err == nil {
 		return []string{p, "--no-warnings"}
