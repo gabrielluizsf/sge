@@ -15,6 +15,9 @@ func (e *emitter) awaited(c *ast.CallExpr, js string) string {
 	if callee := e.staticCallee(c); callee != nil {
 		if !e.blocks(callee) {
 			if async && e.twin(callee) {
+				if promiseTwins[nativeName(callee)] {
+					return e.awaitIfPromise(js)
+				}
 				return "(await " + js + ")"
 			}
 			return js

@@ -1,7 +1,9 @@
 // Go's sync package. Goroutines take turns on JavaScript's one thread and
 // only change hands where one waits, so a lock is free whenever nobody
-// holds it across a wait: Lock does not wait, and refuses, loudly, the
-// lock another goroutine kept while it waited. WaitGroup.Wait and
+// holds it across a wait. Code that can wait locks with Lock$a, which
+// waits for a lock another goroutine holds, giving back a promise only
+// then; code that cannot, say a frame being drawn, locks with Lock, which
+// refuses, loudly, a lock it would have to wait for. WaitGroup.Wait and
 // Cond.Wait wait, and Go code awaits them.
 import * as $ from "../../rt/mod.ts";
 
@@ -12,33 +14,57 @@ export interface Locker {
 export const Locker$type = $.ifaceType("sync.Locker", ["Lock", "Unlock"]);
 
 function contended(): never {
-  $.panic($.val($.String, $.str.toGo("gots: Lock of a lock another goroutine holds while it waits, which gots cannot wait for")));
+  $.panic($.val($.String, $.str.toGo("gots: Lock, in code that cannot wait, of a lock another goroutine holds")));
 }
 
 export class Mutex extends $.Native {
   locked = false;
+  waiters: Array<() => void> = [];
   Lock(): void {
     if (this.locked) contended();
     this.locked = true;
+  }
+  // Lock$a locks m, waiting its turn, as Go's does, if it is held.
+  Lock$a(): Promise<void> | undefined {
+    if (!this.locked) {
+      this.locked = true;
+      return undefined;
+    }
+    return new Promise<void>((resolve) => this.waiters.push(resolve));
   }
   TryLock(): boolean {
     if (this.locked) return false;
     this.locked = true;
     return true;
   }
+  // Unlock hands the lock to the goroutine waiting longest, if any.
   Unlock(): void {
     if (!this.locked) $.panic($.val($.String, "sync: unlock of unlocked mutex"));
-    this.locked = false;
+    const next = this.waiters.shift();
+    if (next) next();
+    else this.locked = false;
   }
 }
 $.nativeType("sync.Mutex", Mutex);
 
+// RWMutex's waiters take it in turn, a writer alone, readers together; a
+// reader waits behind a writer that waits, as Go's do.
+type Waiter = { writer: boolean; resolve: () => void };
+
 export class RWMutex extends $.Native {
   writer = false;
   readers = 0;
+  waiters: Waiter[] = [];
   Lock(): void {
     if (this.writer || this.readers > 0) contended();
     this.writer = true;
+  }
+  Lock$a(): Promise<void> | undefined {
+    if (!this.writer && this.readers === 0 && this.waiters.length === 0) {
+      this.writer = true;
+      return undefined;
+    }
+    return new Promise<void>((resolve) => this.waiters.push({ writer: true, resolve }));
   }
   TryLock(): boolean {
     if (this.writer || this.readers > 0) return false;
@@ -46,11 +72,20 @@ export class RWMutex extends $.Native {
     return true;
   }
   Unlock(): void {
+    if (!this.writer) $.panic($.val($.String, "sync: Unlock of unlocked RWMutex"));
     this.writer = false;
+    this.wake();
   }
   RLock(): void {
     if (this.writer) contended();
     this.readers++;
+  }
+  RLock$a(): Promise<void> | undefined {
+    if (!this.writer && this.waiters.length === 0) {
+      this.readers++;
+      return undefined;
+    }
+    return new Promise<void>((resolve) => this.waiters.push({ writer: false, resolve }));
   }
   TryRLock(): boolean {
     if (this.writer) return false;
@@ -58,10 +93,28 @@ export class RWMutex extends $.Native {
     return true;
   }
   RUnlock(): void {
+    if (this.readers <= 0) $.panic($.val($.String, "sync: RUnlock of unlocked RWMutex"));
     this.readers--;
+    if (this.readers === 0) this.wake();
+  }
+  // wake lets the next waiters in: one writer, or every reader up to one.
+  private wake(): void {
+    if (this.writer || this.readers > 0) return;
+    const w = this.waiters[0];
+    if (w === undefined) return;
+    if (w.writer) {
+      this.waiters.shift();
+      this.writer = true;
+      w.resolve();
+      return;
+    }
+    while (this.waiters.length > 0 && !this.waiters[0].writer) {
+      this.readers++;
+      this.waiters.shift()!.resolve();
+    }
   }
   RLocker(): Locker {
-    return { Lock: () => this.RLock(), Unlock: () => this.RUnlock() };
+    return { Lock: () => this.RLock(), Lock$a: () => this.RLock$a(), Unlock: () => this.RUnlock() } as Locker;
   }
 }
 $.nativeType("sync.RWMutex", RWMutex);
@@ -177,7 +230,9 @@ export class Cond extends $.Native {
     const woken = new Promise<void>((resolve) => this.waiters.push(resolve));
     this.L!.Unlock();
     await woken;
-    this.L!.Lock();
+    const l = this.L as any;
+    if (typeof l.Lock$a === "function") await l.Lock$a();
+    else l.Lock();
   }
   Signal(): void {
     this.waiters.shift()?.();

@@ -27,7 +27,13 @@ type blocking struct {
 }
 
 func newBlocking(fset *token.FileSet, cha bool) *blocking {
-	return &blocking{cha: cha, fset: fset, blocks: map[string]bool{}, callers: map[string][]string{}, funcVars: map[types.Object]*ast.FuncLit{}}
+	b := &blocking{cha: cha, fset: fset, blocks: map[string]bool{}, callers: map[string][]string{}, funcVars: map[types.Object]*ast.FuncLit{}}
+	if cha {
+		for _, k := range twinIfaceMethods {
+			b.blocks[k] = true
+		}
+	}
+	return b
 }
 
 func (b *blocking) key(pos token.Pos) string { return b.fset.Position(pos).String() }
@@ -44,6 +50,9 @@ func (b *blocking) addFiles(files []*ast.File, info *types.Info) {
 				if fd.Recv != nil && b.cha {
 					b.addMethod(fd, info)
 				}
+			}
+			if gd, ok := d.(*ast.GenDecl); ok {
+				b.addPackageClosures(gd, info)
 			}
 		}
 		if b.cha {

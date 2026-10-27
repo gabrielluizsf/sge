@@ -21,6 +21,23 @@ var twinNatives = map[string]bool{
 	// reflect calls what it is given, which may block.
 	"reflect.Value.Call":      true,
 	"reflect.Value.CallSlice": true,
+	// Locks wait for a goroutine that holds them across a wait.
+	"sync.Mutex.Lock":    true,
+	"sync.RWMutex.Lock":  true,
+	"sync.RWMutex.RLock": true,
+}
+
+// twinIfaceMethods are the interface methods, as ifaceKey names them,
+// that twinNatives have: a call of sync.Locker's Lock may wait.
+var twinIfaceMethods = []string{"iface:Lock()", "iface:RLock()"}
+
+// promiseTwins are the twinNatives whose twin gives back a promise only
+// when it waits: a lock nobody holds is taken with no turn of the event
+// loop.
+var promiseTwins = map[string]bool{
+	"sync.Mutex.Lock":    true,
+	"sync.RWMutex.Lock":  true,
+	"sync.RWMutex.RLock": true,
 }
 
 // nativeName is fn as pkg.Func or pkg.Type.Method.
