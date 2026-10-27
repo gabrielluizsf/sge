@@ -15,9 +15,10 @@ func newFarmer(f *farm, ctl controller) (*game.Object, *farmer) {
 	o.Z = zThings
 	o.Collider = feetBox
 	o.Animator = animation.NewAnimator()
-	// Each picture stands on the farmer's feet, its bottom on their place.
+	// Each picture stands on the farmer's feet, its bottom on their place,
+	// drawn at half the size of its art.
 	frame := func(name string) *sprite.Sprite {
-		s := sprite.New(picture(spriteSVG("farmer_"+name), art.FarmerW, art.FarmerH))
+		s := sprite.New(picture(spriteSVG("farmer_"+name), art.FarmerW/2, art.FarmerH/2))
 		s.PivotY = 1
 		return s
 	}
