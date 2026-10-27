@@ -18,22 +18,13 @@ func load(dir, name string, scale int) (*canvas.Canvas, error) {
 	return render(string(src), scale)
 }
 
-// render paints an SVG drawing at its own size, then enlarges it.
+// render paints an SVG drawing scale times its own size, its shapes
+// smooth at that size, as the game paints them at its own.
 func render(src string, scale int) (*canvas.Canvas, error) {
 	img, err := svg.Parse(src)
 	if err != nil {
 		return nil, err
 	}
 	w, h := svgSize(src)
-	small := img.Render(w, h)
-	big, err := canvas.NewCanvas(w*scale, h*scale)
-	if err != nil {
-		return nil, err
-	}
-	for y := 0; y < h*scale; y++ {
-		for x := 0; x < w*scale; x++ {
-			big.Pixels[y*big.Stride+x] = small.Pixels[(y/scale)*small.Stride+x/scale]
-		}
-	}
-	return big, nil
+	return img.Render(w*scale, h*scale), nil
 }

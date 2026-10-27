@@ -1,47 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" shape-rendering="crispEdges">
-<rect x="5" y="2" width="6" height="1" fill="#2b1f2e"/>
-<rect x="4" y="3" width="1" height="1" fill="#2b1f2e"/>
-<rect x="5" y="3" width="6" height="1" fill="#f4d35e"/>
-<rect x="11" y="3" width="1" height="1" fill="#2b1f2e"/>
-<rect x="3" y="4" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="4" width="2" height="1" fill="#f4d35e"/>
-<rect x="6" y="4" width="2" height="1" fill="#f4f1e8"/>
-<rect x="8" y="4" width="3" height="1" fill="#f4d35e"/>
-<rect x="11" y="4" width="1" height="1" fill="#c9a227"/>
-<rect x="12" y="4" width="1" height="1" fill="#2b1f2e"/>
-<rect x="3" y="5" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="5" width="1" height="1" fill="#f4d35e"/>
-<rect x="5" y="5" width="1" height="1" fill="#f4f1e8"/>
-<rect x="6" y="5" width="5" height="1" fill="#f4d35e"/>
-<rect x="11" y="5" width="1" height="1" fill="#c9a227"/>
-<rect x="12" y="5" width="1" height="1" fill="#2b1f2e"/>
-<rect x="3" y="6" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="6" width="3" height="1" fill="#f4d35e"/>
-<rect x="7" y="6" width="2" height="1" fill="#c9a227"/>
-<rect x="9" y="6" width="2" height="1" fill="#f4d35e"/>
-<rect x="11" y="6" width="1" height="1" fill="#c9a227"/>
-<rect x="12" y="6" width="1" height="1" fill="#2b1f2e"/>
-<rect x="3" y="7" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="7" width="3" height="1" fill="#f4d35e"/>
-<rect x="7" y="7" width="2" height="1" fill="#c9a227"/>
-<rect x="9" y="7" width="2" height="1" fill="#f4d35e"/>
-<rect x="11" y="7" width="1" height="1" fill="#c9a227"/>
-<rect x="12" y="7" width="1" height="1" fill="#2b1f2e"/>
-<rect x="3" y="8" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="8" width="7" height="1" fill="#f4d35e"/>
-<rect x="11" y="8" width="1" height="1" fill="#c9a227"/>
-<rect x="12" y="8" width="1" height="1" fill="#2b1f2e"/>
-<rect x="3" y="9" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="9" width="7" height="1" fill="#f4d35e"/>
-<rect x="11" y="9" width="1" height="1" fill="#c9a227"/>
-<rect x="12" y="9" width="1" height="1" fill="#2b1f2e"/>
-<rect x="3" y="10" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="10" width="1" height="1" fill="#c9a227"/>
-<rect x="5" y="10" width="5" height="1" fill="#f4d35e"/>
-<rect x="10" y="10" width="2" height="1" fill="#c9a227"/>
-<rect x="12" y="10" width="1" height="1" fill="#2b1f2e"/>
-<rect x="4" y="11" width="1" height="1" fill="#2b1f2e"/>
-<rect x="5" y="11" width="6" height="1" fill="#c9a227"/>
-<rect x="11" y="11" width="1" height="1" fill="#2b1f2e"/>
-<rect x="5" y="12" width="6" height="1" fill="#2b1f2e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+<defs>
+<linearGradient id="g1" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#fff1a6"/><stop offset="0.5" stop-color="#ffe16b"/><stop offset="1" stop-color="#d69a1e"/></linearGradient>
+</defs>
+<circle cx="8" cy="8" r="6.2" fill="url(#g1)" stroke="#3a2a2e" stroke-width="0.8"/>
+<circle cx="8" cy="8" r="4.2" fill="none" stroke="#d69a1e" stroke-width="0.6"/>
+<path d="M8 5 v6 M6.6 6.4 q1.4 -1 2.8 0 q-2.8 1.6 0 3.2 q-1.4 1 -2.8 0" stroke="#b07812" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+<ellipse cx="5.6" cy="5.2" rx="1.4" ry="0.8" fill="#ffffff" opacity="0.8"/>
 </svg>

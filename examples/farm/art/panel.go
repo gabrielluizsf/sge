@@ -1,32 +1,15 @@
 package art
 
-import (
-	"fmt"
-	"strings"
-)
-
-// Panel is the SVG of a HUD panel w by h pixels: a fill with an outline,
-// its corners cut a pixel, a light inner edge at the top and left and a
-// shade at the bottom and right, as the sprites are lit. selected draws
-// it in yellow, for the slot in use.
+// Panel is the SVG of a HUD panel w by h pixels: a rounded card of warm
+// cream, outlined, its top lit; selected draws it gold, for the slot in
+// use.
 func Panel(w, h int, selected bool) string {
-	fill, light, shade := Palette['c'], Palette['w'], Palette['b']
+	d := newDoc(float64(w), float64(h))
+	light, dark := shirtLight, "#e7d3a8"
 	if selected {
-		fill, light, shade = Palette['y'], Palette['w'], Palette['Y']
+		light, dark = "#fff3b0", "#f2c14e"
 	}
-	ink := Palette['k']
-	var b strings.Builder
-	fmt.Fprintf(&b, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d" shape-rendering="crispEdges">`+"\n", w, h, w, h)
-	rect := func(x, y, rw, rh int, c string) {
-		fmt.Fprintf(&b, `<rect x="%d" y="%d" width="%d" height="%d" fill="%s"/>`+"\n", x, y, rw, rh, c)
-	}
-	rect(1, 0, w-2, h, ink)
-	rect(0, 1, w, h-2, ink)
-	rect(1, 1, w-2, h-2, fill)
-	rect(1, 1, w-2, 1, light)
-	rect(1, 1, 1, h-2, light)
-	rect(1, h-2, w-2, 1, shade)
-	rect(w-2, 1, 1, h-2, shade)
-	b.WriteString("</svg>\n")
-	return b.String()
+	d.add(`<rect x="0.6" y="0.6" width="%g" height="%g" rx="2.6" fill="%s" stroke="%s" stroke-width="1.2"/>`, float64(w)-1.2, float64(h)-1.2, d.down(light, dark), woodShade)
+	d.add(`<rect x="2" y="1.8" width="%g" height="1" rx="0.5" fill="%s" opacity="0.8"/>`, float64(w)-4, white)
+	return d.String()
 }

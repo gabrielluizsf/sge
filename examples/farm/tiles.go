@@ -50,7 +50,7 @@ func newTiles() *tilemap.TileSet {
 	}
 	for i, name := range names {
 		tileID[name] = i
-		sheet.Blit(i*isoW, 0, tileLook(name))
+		sheet.Copy(i*isoW, 0, tileLook(name))
 	}
 	tiles, err := tilemap.NewTileSet(sheet, isoW, isoH)
 	if err != nil {

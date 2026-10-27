@@ -29,7 +29,7 @@ func main() {
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		if err := os.WriteFile(filepath.Join(*assets, name+".svg"), []byte(art.SVG(sprites[name])), 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(*assets, name+".svg"), []byte(sprites[name]), 0o644); err != nil {
 			fail(err)
 		}
 	}

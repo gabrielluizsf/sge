@@ -128,7 +128,7 @@ func drawHUD(cv *canvas.Canvas, x0, y0 int) error {
 		return err
 	}
 	cv.Blit(x0+16*s, y0+3*s, text)
-	coin, err := render(art.SVG(art.Icons["coin"]), s)
+	coin, err := render(art.Icons()["coin"], s)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func drawHUD(cv *canvas.Canvas, x0, y0 int) error {
 			return err
 		}
 		cv.Blit(x0+i*22*s, y0+20*s, slot)
-		ic, err := render(art.SVG(art.Icons[icon]), s)
+		ic, err := render(art.Icons()[icon], s)
 		if err != nil {
 			return err
 		}

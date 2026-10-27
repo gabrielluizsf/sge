@@ -48,6 +48,3 @@ var Palette = map[rune]string{
 	'i': "#6a93cf", // denim, light
 	'B': "#d6a644", // brass
 }
-
-// Size is the side of every sprite, in pixels.
-const Size = 16

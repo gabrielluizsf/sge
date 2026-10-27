@@ -1,90 +1,118 @@
 package art
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/terrain"
 )
 
-// Every sprite is the farm's: drawn in the palette alone, every row as
-// wide as the first, the tiles IsoW by IsoH, the farmer FarmerW by
-// FarmerH and the icons Size square.
-func TestSpritesKeepToThePaletteAndSize(t *testing.T) {
-	for name, g := range Sprites() {
-		w, h := IsoW, IsoH
-		switch {
-		case strings.HasPrefix(name, "farmer_"):
-			w, h = FarmerW, FarmerH
-		case strings.HasPrefix(name, "icon_"):
-			w, h = Size, Size
-		case name == "cursor":
-			w, h = IsoW, Size
-		case name == "stall":
-			w, h = len([]rune(g[0])), len(g)
+// size is the drawing's width and height, as its sprite's kind says.
+func size(name string) (w, h int) {
+	switch {
+	case strings.HasPrefix(name, "farmer_"):
+		return FarmerW, FarmerH
+	case strings.HasPrefix(name, "icon_"):
+		return Size, Size
+	case name == "cursor":
+		return IsoW, Size
+	case name == "stall":
+		return StallW, StallH
+	}
+	return IsoW, IsoH
+}
+
+// render is the sprite name drawn as the game draws it, twice the size.
+func render(t *testing.T, name, src string) *canvas.Canvas {
+	w, h := size(name)
+	s, err := sprite.FromSVG(src, 2*w, 2*h)
+	if err != nil {
+		t.Fatalf("%s: %v", name, err)
+	}
+	return s.Image
+}
+
+// Every sprite is SVG the game can draw, of its kind's size.
+func TestSpritesAreDrawingsOfTheirSize(t *testing.T) {
+	for name, src := range Sprites() {
+		w, h := size(name)
+		if !strings.Contains(src, fmt.Sprintf(`viewBox="0 0 %d %d"`, w, h)) {
+			t.Errorf("%s is not %d by %d", name, w, h)
 		}
-		if len(g) != h {
-			t.Errorf("%s has %d rows, not %d", name, len(g), h)
-		}
-		for y, row := range g {
-			if n := len([]rune(row)); n != w {
-				t.Errorf("%s row %d is %d wide, not %d", name, y, n, w)
-			}
-			for x, c := range row {
-				if _, ok := Palette[c]; !ok && c != '.' {
-					t.Errorf("%s has %q at %d,%d, not in the palette", name, c, x, y)
+		render(t, name, src)
+	}
+}
+
+// inDiamond reports whether pixel x, y of a tile drawn twice the size has
+// its middle on its cell's diamond.
+func inDiamond(x, y int) bool {
+	sx, sy := (float64(x)+0.5)/2-Size, (float64(y)+0.5)/2-2*Size
+	u, v := sy+sx/2, sy-sx/2
+	return u > 0.05 && v > 0.05 && u < Size-0.05 && v < Size-0.05
+}
+
+// outDiamond reports whether pixel x, y lies clear of the diamond.
+func outDiamond(x, y int) bool {
+	sx, sy := (float64(x)+0.5)/2-Size, (float64(y)+0.5)/2-2*Size
+	u, v := sy+sx/2, sy-sx/2
+	return u < -0.3 || v < -0.3 || u > Size+0.3 || v > Size+0.3
+}
+
+// Ground tiles, and open water, cover their cell's diamond whole, so tiles
+// side by side meet without a seam, and nothing beyond it.
+func TestGroundCoversItsDiamond(t *testing.T) {
+	ground := []string{"grass0", "grass1", "flowers2", "path", "soil_dry", "soil_wet", fmt.Sprint("shore", terrain.AllSides, "_1")}
+	all := Sprites()
+	for _, name := range ground {
+		img := render(t, name, all[name])
+		holes, spills := 0, 0
+		for y := range img.Height {
+			for x := range img.Width {
+				a := img.At(x, y).A()
+				if inDiamond(x, y) && a != 255 {
+					holes++
+				}
+				if outDiamond(x, y) && a != 0 {
+					spills++
 				}
 			}
+		}
+		if holes > 0 || spills > 0 {
+			t.Errorf("%s: %d pixels of its diamond not opaque, %d drawn beyond it", name, holes, spills)
 		}
 	}
 }
 
-// Ground tiles cover their cell's diamond whole, so tiles side by side
-// meet without a seam, and nothing beyond it.
-func TestGroundTilesCoverTheirDiamond(t *testing.T) {
-	for name, g := range Sprites() {
-		if !strings.HasPrefix(name, "grass") && !strings.HasPrefix(name, "flowers") && !strings.HasPrefix(name, "soil") && name != "path" {
+// A pond's tile ends in a bank on its sides facing land: transparent at
+// those edges' middles, so the grass under the water shows.
+func TestShoresOpenOntoTheLand(t *testing.T) {
+	img := render(t, "shore0_0", shoreTile(0, 0))
+	// Near the middles of the diamond's four edges, just inside.
+	for _, p := range [][2]int{{48, 72}, {48, 88}, {16, 88}, {16, 72}} {
+		if a := img.At(p[0], p[1]).A(); a != 0 {
+			t.Errorf("an island's tile is not land at %v: alpha %d", p, a)
+		}
+	}
+	if a := img.At(32, 80).A(); a != 255 {
+		t.Errorf("an island's tile has no water in its middle")
+	}
+}
+
+// Objects stand on the ground rather than carry a patch of it.
+func TestObjectsAreTransparentInTheirCorners(t *testing.T) {
+	for name, src := range Sprites() {
+		if name != "stall" && name != "fence" && !strings.HasPrefix(name, "tree") && !strings.HasPrefix(name, "farmer_") {
 			continue
 		}
-		for y, row := range g {
-			for x, c := range []rune(row) {
-				sx, sy := float64(x)+0.5-Size, float64(y-isoTop)+0.5
-				u, v := sy+sx/2, sy-sx/2
-				in := u >= 0 && v >= 0 && u < Size && v < Size
-				if in && c == '.' {
-					t.Errorf("%s has a hole at %d,%d", name, x, y)
-				}
-				if !in && c != '.' {
-					t.Errorf("%s draws outside its diamond at %d,%d", name, x, y)
-				}
+		img := render(t, name, src)
+		for _, p := range [][2]int{{0, 0}, {img.Width - 1, 0}, {0, img.Height - 1}, {img.Width - 1, img.Height - 1}} {
+			if img.At(p[0], p[1]).A() != 0 {
+				t.Errorf("%s paints its corner %v", name, p)
 			}
 		}
-	}
-}
-
-// Laid on its diamond, a square tile's far corner is the diamond's top
-// and its near corner the bottom.
-func TestIsoGroundLaysTheSquareOnTheDiamond(t *testing.T) {
-	sq := blank(Size, Size).set(0, 0, 'r').set(Size-1, Size-1, 'y').set(Size-1, 0, 'w').set(0, Size-1, 'k')
-	g := isoGround(sq)
-	at := func(x, y int) rune { return []rune(g[y])[x] }
-	if at(Size-1, isoTop) != 'r' || at(Size, isoTop) != 'r' {
-		t.Errorf("the top of the diamond is not the square's far corner")
-	}
-	if at(Size-1, IsoH-1) != 'y' {
-		t.Errorf("the bottom of the diamond is not the square's near corner")
-	}
-	// A square whose east half is white lays it on the diamond's right.
-	half := blank(Size, Size)
-	for y := range Size {
-		half[y] = strings.Repeat("k", Size/2) + strings.Repeat("w", Size/2)
-	}
-	h := isoGround(half)
-	if c := []rune(h[isoTop+Size/2])[IsoW-3]; c != 'w' {
-		t.Errorf("the diamond's right is %q, not the square's east", c)
-	}
-	if c := []rune(h[isoTop+Size/2])[2]; c != 'k' {
-		t.Errorf("the diamond's left is %q, not the square's west", c)
 	}
 }
 
@@ -96,60 +124,4 @@ func TestFontGlyphsAreFiveBySeven(t *testing.T) {
 			}
 		}
 	}
-}
-
-// SVG draws every pixel of the grid, as runs, in the palette's colours.
-func TestSVGDrawsEveryInkedPixel(t *testing.T) {
-	svg := SVG(grid(strings.Repeat("kk..yyyyyyyyyyyy\n", 16)))
-	if strings.Count(svg, "<rect") != 32 || !strings.Contains(svg, `width="12"`) || !strings.Contains(svg, Palette['y']) {
-		t.Errorf("SVG:\n%s", svg)
-	}
-}
-
-// Objects stand on the ground rather than carry a patch of it: around
-// them they are transparent, so the animated grass behind shows through.
-func TestObjectsAreTransparentAroundThem(t *testing.T) {
-	for name, g := range Sprites() {
-		if name != "stall" && !strings.HasPrefix(name, "tree") && name != "fence" {
-			continue
-		}
-		last := []rune(g[len(g)-1])
-		if last[0] != '.' || last[len(last)-1] != '.' || []rune(g[0])[0] != '.' {
-			t.Errorf("%s is not transparent in its corners: it paints the ground under it", name)
-		}
-	}
-}
-
-// A shore tile is open water on its watery sides, so it meets the water
-// beside it, and ends in transparency on its sides facing land.
-func TestShoresMeetTheWaterAndOpenOntoTheLand(t *testing.T) {
-	for _, mask := range terrain.Masks() {
-		g := shore(mask, 0)
-		for _, s := range []struct {
-			bit  int
-			edge string
-		}{{terrain.North, g[0]}, {terrain.South, g[Size-1]}, {terrain.West, column(g, 0)}, {terrain.East, column(g, Size-1)}} {
-			mid := s.edge[5:11]
-			if s.bit&mask != 0 && strings.ContainsAny(mid, ".k") {
-				t.Errorf("shore %04b: side %d faces water but its edge is %q", mask, s.bit, s.edge)
-			}
-			if s.bit&mask == 0 && strings.Trim(s.edge, ".") != "" {
-				t.Errorf("shore %04b: side %d faces land but its edge is %q", mask, s.bit, s.edge)
-			}
-		}
-	}
-	full := shore(terrain.AllSides, 2)
-	for y, row := range water(2) {
-		if full[y] != row {
-			t.Fatal("open water is not the water tile")
-		}
-	}
-}
-
-func column(g Grid, x int) string {
-	var b strings.Builder
-	for _, row := range g {
-		b.WriteByte(row[x])
-	}
-	return b.String()
 }

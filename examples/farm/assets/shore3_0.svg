@@ -1,65 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48" shape-rendering="crispEdges">
-<rect x="17" y="33" width="2" height="1" fill="#2b1f2e"/>
-<rect x="15" y="34" width="2" height="1" fill="#2b1f2e"/>
-<rect x="17" y="34" width="2" height="1" fill="#8fd3ff"/>
-<rect x="19" y="34" width="2" height="1" fill="#3f7fd1"/>
-<rect x="13" y="35" width="2" height="1" fill="#2b1f2e"/>
-<rect x="15" y="35" width="2" height="1" fill="#8fd3ff"/>
-<rect x="17" y="35" width="6" height="1" fill="#3f7fd1"/>
-<rect x="11" y="36" width="2" height="1" fill="#2b1f2e"/>
-<rect x="13" y="36" width="2" height="1" fill="#8fd3ff"/>
-<rect x="15" y="36" width="2" height="1" fill="#3f7fd1"/>
-<rect x="17" y="36" width="2" height="1" fill="#2a4d8f"/>
-<rect x="19" y="36" width="2" height="1" fill="#3f7fd1"/>
-<rect x="21" y="36" width="2" height="1" fill="#8fd3ff"/>
-<rect x="23" y="36" width="2" height="1" fill="#3f7fd1"/>
-<rect x="9" y="37" width="2" height="1" fill="#2b1f2e"/>
-<rect x="11" y="37" width="2" height="1" fill="#8fd3ff"/>
-<rect x="13" y="37" width="2" height="1" fill="#3f7fd1"/>
-<rect x="15" y="37" width="2" height="1" fill="#8fd3ff"/>
-<rect x="17" y="37" width="6" height="1" fill="#3f7fd1"/>
-<rect x="23" y="37" width="2" height="1" fill="#8fd3ff"/>
-<rect x="25" y="37" width="2" height="1" fill="#3f7fd1"/>
-<rect x="7" y="38" width="2" height="1" fill="#2b1f2e"/>
-<rect x="9" y="38" width="2" height="1" fill="#8fd3ff"/>
-<rect x="11" y="38" width="16" height="1" fill="#3f7fd1"/>
-<rect x="27" y="38" width="2" height="1" fill="#8fd3ff"/>
-<rect x="7" y="39" width="2" height="1" fill="#8fd3ff"/>
-<rect x="9" y="39" width="16" height="1" fill="#3f7fd1"/>
-<rect x="25" y="39" width="2" height="1" fill="#8fd3ff"/>
-<rect x="27" y="39" width="2" height="1" fill="#2b1f2e"/>
-<rect x="7" y="40" width="2" height="1" fill="#8fd3ff"/>
-<rect x="9" y="40" width="2" height="1" fill="#2a4d8f"/>
-<rect x="11" y="40" width="2" height="1" fill="#3f7fd1"/>
-<rect x="13" y="40" width="2" height="1" fill="#8fd3ff"/>
-<rect x="15" y="40" width="2" height="1" fill="#3f7fd1"/>
-<rect x="17" y="40" width="2" height="1" fill="#2a4d8f"/>
-<rect x="19" y="40" width="2" height="1" fill="#3f7fd1"/>
-<rect x="21" y="40" width="2" height="1" fill="#8fd3ff"/>
-<rect x="23" y="40" width="2" height="1" fill="#3f7fd1"/>
-<rect x="25" y="40" width="2" height="1" fill="#8fd3ff"/>
-<rect x="27" y="40" width="2" height="1" fill="#2b1f2e"/>
-<rect x="7" y="41" width="2" height="1" fill="#2b1f2e"/>
-<rect x="9" y="41" width="2" height="1" fill="#8fd3ff"/>
-<rect x="11" y="41" width="4" height="1" fill="#3f7fd1"/>
-<rect x="15" y="41" width="2" height="1" fill="#8fd3ff"/>
-<rect x="17" y="41" width="6" height="1" fill="#3f7fd1"/>
-<rect x="23" y="41" width="2" height="1" fill="#8fd3ff"/>
-<rect x="25" y="41" width="2" height="1" fill="#3f7fd1"/>
-<rect x="27" y="41" width="2" height="1" fill="#8fd3ff"/>
-<rect x="9" y="42" width="2" height="1" fill="#2b1f2e"/>
-<rect x="11" y="42" width="2" height="1" fill="#8fd3ff"/>
-<rect x="13" y="42" width="14" height="1" fill="#3f7fd1"/>
-<rect x="11" y="43" width="2" height="1" fill="#2b1f2e"/>
-<rect x="13" y="43" width="2" height="1" fill="#8fd3ff"/>
-<rect x="15" y="43" width="10" height="1" fill="#3f7fd1"/>
-<rect x="13" y="44" width="2" height="1" fill="#2b1f2e"/>
-<rect x="15" y="44" width="2" height="1" fill="#8fd3ff"/>
-<rect x="17" y="44" width="2" height="1" fill="#2a4d8f"/>
-<rect x="19" y="44" width="2" height="1" fill="#3f7fd1"/>
-<rect x="21" y="44" width="2" height="1" fill="#8fd3ff"/>
-<rect x="15" y="45" width="2" height="1" fill="#2b1f2e"/>
-<rect x="17" y="45" width="2" height="1" fill="#8fd3ff"/>
-<rect x="19" y="45" width="2" height="1" fill="#3f7fd1"/>
-<rect x="17" y="46" width="2" height="1" fill="#2b1f2e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<clipPath id="cell"><rect x="15.5" y="32" width="1" height="0.5"/><rect x="14.5" y="32.5" width="3" height="0.5"/><rect x="13.5" y="33" width="5" height="0.5"/><rect x="12.5" y="33.5" width="7" height="0.5"/><rect x="11.5" y="34" width="9" height="0.5"/><rect x="10.5" y="34.5" width="11" height="0.5"/><rect x="9.5" y="35" width="13" height="0.5"/><rect x="8.5" y="35.5" width="15" height="0.5"/><rect x="7.5" y="36" width="17" height="0.5"/><rect x="6.5" y="36.5" width="19" height="0.5"/><rect x="5.5" y="37" width="21" height="0.5"/><rect x="4.5" y="37.5" width="23" height="0.5"/><rect x="3.5" y="38" width="25" height="0.5"/><rect x="2.5" y="38.5" width="27" height="0.5"/><rect x="1.5" y="39" width="29" height="0.5"/><rect x="0.5" y="39.5" width="31" height="0.5"/><rect x="0.5" y="40" width="31" height="0.5"/><rect x="1.5" y="40.5" width="29" height="0.5"/><rect x="2.5" y="41" width="27" height="0.5"/><rect x="3.5" y="41.5" width="25" height="0.5"/><rect x="4.5" y="42" width="23" height="0.5"/><rect x="5.5" y="42.5" width="21" height="0.5"/><rect x="6.5" y="43" width="19" height="0.5"/><rect x="7.5" y="43.5" width="17" height="0.5"/><rect x="8.5" y="44" width="15" height="0.5"/><rect x="9.5" y="44.5" width="13" height="0.5"/><rect x="10.5" y="45" width="11" height="0.5"/><rect x="11.5" y="45.5" width="9" height="0.5"/><rect x="12.5" y="46" width="7" height="0.5"/><rect x="13.5" y="46.5" width="5" height="0.5"/><rect x="14.5" y="47" width="3" height="0.5"/><rect x="15.5" y="47.5" width="1" height="0.5"/></clipPath>
+<clipPath id="body"><path d="M2.50 -2.00 L18.00 -2.00 L18.00 13.50 L6.50 13.50 A4 4 0 0 1 2.50 9.50 Z"/></clipPath>
+<clipPath id="wet"><path d="M13.40 0.00 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0  M-9 -9 h34 v34 h-34 z" clip-rule="evenodd" transform="matrix(1 0.5 -1 0.5 16 32)"/></clipPath>
+</defs>
+<g clip-path="url(#cell)"><g clip-path="url(#wet)">
+<g transform="matrix(1 0.5 -1 0.5 16 32)">
+<path d="M2.50 -2.00 L18.00 -2.00 L18.00 13.50 L6.50 13.50 A4 4 0 0 1 2.50 9.50 Z" fill="#58aee6"/>
+<g clip-path="url(#body)">
+<path d="M0.80 3.00 q1.2 -0.9 2.4 0" stroke="#8fd6f5" stroke-width="0.55" fill="none" stroke-linecap="round" opacity="0.85"/>
+<path d="M7.80 6.00 q1.2 -0.9 2.4 0" stroke="#8fd6f5" stroke-width="0.55" fill="none" stroke-linecap="round" opacity="0.85"/>
+<path d="M3.80 11.00 q1.2 -0.9 2.4 0" stroke="#8fd6f5" stroke-width="0.55" fill="none" stroke-linecap="round" opacity="0.85"/>
+<path d="M10.80 13.00 q1.2 -0.9 2.4 0" stroke="#8fd6f5" stroke-width="0.55" fill="none" stroke-linecap="round" opacity="0.85"/>
+<path d="M12.80 1.00 q1.2 -0.9 2.4 0" stroke="#8fd6f5" stroke-width="0.55" fill="none" stroke-linecap="round" opacity="0.85"/>
+<path d="M2.50 -2.00 L18.00 -2.00 L18.00 13.50 L6.50 13.50 A4 4 0 0 1 2.50 9.50 Z" fill="none" stroke="#8fd6f5" stroke-width="4" opacity="0.6"/>
+<path d="M2.50 -2.00 L18.00 -2.00 L18.00 13.50 L6.50 13.50 A4 4 0 0 1 2.50 9.50 Z" fill="none" stroke="#f2fbff" stroke-width="1.4"/>
+<path d="M13.40 0.00 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 " fill="none" stroke="#f2fbff" stroke-width="1.4"/>
+</g>
+</g></g></g>
 </svg>

@@ -6,42 +6,42 @@ import (
 	"github.com/gabrielluizsf/sge/terrain"
 )
 
-// Sprites is every sprite of the farm, by the name of its SVG file. The
-// tiles are IsoW by IsoH, the ground laid on a cell's diamond and what
-// stands on it upright; the stall is a picture of its own, the cursor a
-// cell's diamond, and the farmer and the icons Size square.
-func Sprites() map[string]Grid {
-	s := map[string]Grid{
-		"path":     isoGround(path),
-		"soil_dry": isoGround(dry),
-		"soil_wet": isoGround(wet),
-		"fence":    isoFence(),
+// Sprites is every sprite of the farm, as SVG, by the name of its file.
+// The tiles are IsoW by IsoH, the ground laid on a cell's diamond and what
+// stands on it upright; the stall is StallW by StallH, the cursor a cell's
+// diamond, the farmer FarmerW by FarmerH and the icons Size square.
+func Sprites() map[string]string {
+	s := map[string]string{
+		"path":     pathTile(),
+		"soil_dry": soilTile(soilLight, soilBase, soilShade, false),
+		"soil_wet": soilTile(wetLight, wetBase, wetShade, true),
+		"fence":    fenceTile(),
 		// What stands where nothing shows: the stall's cells, solid.
-		"block":  blank(IsoW, IsoH),
+		"block":  newDoc(IsoW, IsoH).String(),
 		"stall":  Stall(),
-		"cursor": IsoCursor(),
+		"cursor": Cursor(),
 	}
-	for i, lean := range []int{0, 1, 0, -1} {
-		s[fmt.Sprint("grass", i)] = isoGround(grass(lean))
-		s[fmt.Sprint("flowers", i)] = isoGround(flowers(lean))
-		s[fmt.Sprint("tree", i)] = standing(append(crown(lean).copyOf(), treeTrunk...), true)
+	for i, lean := range []float64{0, 0.6, 0, -0.6} {
+		s[fmt.Sprint("grass", i)] = grassTile(lean)
+		s[fmt.Sprint("flowers", i)] = flowersTile(lean)
+		s[fmt.Sprint("tree", i)] = treeTile(lean * 0.8)
 	}
 	for _, mask := range terrain.Masks() {
 		for f := range 4 {
-			s[fmt.Sprint("shore", mask, "_", f)] = isoGround(shore(mask, f))
+			s[fmt.Sprint("shore", mask, "_", f)] = shoreTile(mask, f)
 		}
 	}
 	for i := range 4 {
-		s[fmt.Sprint("carrot", i)] = standing(carrot[i], false)
-		s[fmt.Sprint("tomato", i)] = standing(tomato[i], false)
+		s[fmt.Sprint("carrot", i)] = carrotTile(i, 0)
+		s[fmt.Sprint("tomato", i)] = tomatoTile(i, 0)
 	}
-	s["carrot4"] = standing(sway(carrot[3], 9), false)
-	s["tomato4"] = standing(sway(tomato[3], 6), false)
-	for name, g := range Farmer {
-		s["farmer_"+name] = g
+	s["carrot4"] = carrotTile(3, 0.9)
+	s["tomato4"] = tomatoTile(3, 0.9)
+	for name, svg := range FarmerFrames() {
+		s["farmer_"+name] = svg
 	}
-	for name, g := range Icons {
-		s["icon_"+name] = g
+	for name, svg := range Icons() {
+		s["icon_"+name] = svg
 	}
 	return s
 }

@@ -1,8 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48" shape-rendering="crispEdges">
-<rect x="15" y="37" width="1" height="1" fill="#8bc65a"/>
-<rect x="14" y="38" width="1" height="1" fill="#8bc65a"/>
-<rect x="15" y="38" width="1" height="1" fill="#4e9a4a"/>
-<rect x="16" y="38" width="1" height="1" fill="#8bc65a"/>
-<rect x="15" y="39" width="1" height="1" fill="#4e9a4a"/>
-<rect x="15" y="40" width="1" height="1" fill="#2f6b3a"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+</defs>
+<ellipse cx="16" cy="40" rx="4" ry="1.6" fill="#1f3a22" opacity="0.35"/>
+<ellipse cx="16" cy="40" rx="3.4" ry="1.5" fill="#c08a52" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.4" cy="39.6" rx="1.6" ry="0.6" fill="#f1d79a"/>
+<path d="M16.00 40.00 Q15.99 38.34 14.56 37.48 Q14.57 39.14 16.00 40.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 40.00 L14.85 37.98" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 40.00 Q17.43 39.14 17.44 37.48 Q16.01 38.34 16.00 40.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 40.00 L17.15 37.98" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
 </svg>
