@@ -1,9 +1,12 @@
 //go:build gots_overlay
 
-// Overlay for the RoundTrip js/wasm makes with fetch: fetch is told not
-// to follow redirects, so the Client does, holding its CheckRedirect and
-// its rules for the headers that may follow a redirect to another host;
-// and a Content-Length a JavaScript number cannot hold exactly is refused.
+// Overlay for the RoundTrip js/wasm makes with fetch. On Deno, which has
+// sockets, the Transport is Go's own, over net and crypto/tls, its dialing,
+// proxies, TLS and HTTP/2 all as Go has them; fetch is for browsers. There
+// fetch is told not to follow redirects, so the Client does, holding its
+// CheckRedirect and its rules for the headers that may follow a redirect
+// to another host; and a Content-Length a JavaScript number cannot hold
+// exactly is refused.
 
 package http
 
@@ -28,9 +31,11 @@ func (t *Transport) RoundTrip(req *Request) (*Response, error) {
 	// the contract and dial using the regular round-trip instead. Otherwise, we'll try
 	// to fall back on the Fetch API, unless it's not available.
 	//
-	// So is a TLSClientConfig, which fetch would leave aside: its roots, its
-	// checks of the server's certificate, its client certificate.
-	if t.Dial != nil || t.DialContext != nil || t.DialTLS != nil || t.DialTLSContext != nil || t.TLSClientConfig != nil || jsFetchMissing || jsFetchDisabled {
+	// Where the runtime has sockets, Go's transport is used whole. So is it
+	// for a TLSClientConfig, which fetch would leave aside, its roots, pins
+	// and client certificates: in a browser, with no sockets, that fails
+	// rather than reach a server the config would refuse.
+	if hasSockets() || t.Dial != nil || t.DialContext != nil || t.DialTLS != nil || t.DialTLSContext != nil || t.TLSClientConfig != nil || jsFetchMissing || jsFetchDisabled {
 		return t.roundTrip(req)
 	}
 
@@ -229,4 +234,11 @@ func (t *Transport) RoundTrip(req *Request) (*Response, error) {
 	case err := <-errCh:
 		return nil, err
 	}
+}
+
+// hasSockets reports whether the runtime can dial, as Deno can and a
+// browser cannot.
+func hasSockets() bool {
+	d := js.Global().Get("Deno")
+	return !d.IsUndefined() && d.Get("connect").Type() == js.TypeFunction
 }

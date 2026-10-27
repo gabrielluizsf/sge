@@ -1,32 +1,43 @@
 //go:build gots_overlay
 
-// Overlay for the system's roots, which under gots are the runtime's: the
-// store Deno or Node verifies with, which crypto/tls hands TLS when a
-// pool says so. Go itself verifies nothing against them.
+// Overlay for the system's roots, which under gots are those the runtime
+// verifies with by default: Deno hands them to node:tls's
+// rootCertificates, once --allow-sys=ca lets it. js/wasm has no files of
+// roots for Go to read.
 
 package x509
 
 import (
-	"encoding/pem"
 	"errors"
+	"syscall/js"
 )
 
-func loadSystemRoots() (*CertPool, error) { return &CertPool{systemPool: true}, nil }
-
-// GotsPEMs is what crypto/tls hands the runtime's TLS of s: its
-// certificates in PEM, and whether the system's roots are among them.
-// A certificate added with a constraint is refused, as the runtime
-// cannot check it.
-func GotsPEMs(s *CertPool) (pems []string, system bool, err error) {
-	for i := range s.len() {
-		c, constraint, err := s.cert(i)
-		if err != nil {
-			return nil, false, err
-		}
-		if constraint != nil {
-			return nil, false, errors.New("x509: a certificate added with a constraint cannot be checked by the runtime's TLS")
-		}
-		pems = append(pems, string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: c.Raw})))
+func loadSystemRoots() (*CertPool, error) {
+	pems, err := runtimeRoots()
+	if err != nil {
+		return nil, err
 	}
-	return pems, s.systemPool, nil
+	pool := NewCertPool()
+	for _, p := range pems {
+		pool.AppendCertsFromPEM([]byte(p))
+	}
+	return pool, nil
+}
+
+// runtimeRoots is the runtime's roots, in PEM.
+func runtimeRoots() (pems []string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("x509: the runtime's roots cannot be read: Deno hands them to programs run with --allow-sys=ca")
+		}
+	}()
+	p := js.Global().Get("process")
+	if p.IsUndefined() || p.Get("getBuiltinModule").IsUndefined() {
+		return nil, errors.New("x509: this runtime has no roots to hand Go")
+	}
+	roots := p.Call("getBuiltinModule", "node:tls").Get("rootCertificates")
+	for i := range roots.Length() {
+		pems = append(pems, roots.Index(i).String())
+	}
+	return pems, nil
 }
