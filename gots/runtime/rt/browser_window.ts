@@ -5,6 +5,8 @@
 // The page may hold a <canvas data-gots> for the game to draw in; if it
 // does not, one is added to the body.
 
+import { dataURL, type Picture } from "./picture.ts";
+
 type BridgeEvent = Record<string, unknown> & { type: string };
 
 // SDL's keycodes for KeyboardEvent.code, but for letters and digits,
@@ -204,6 +206,46 @@ export class BrowserWindow {
   }
 
   setLimits(): void {}
+
+  // setIcon makes the picture the page's icon.
+  setIcon(p: Picture): boolean {
+    const doc = (globalThis as any).document;
+    let link = doc.querySelector("link[rel~='icon']");
+    if (link === null) {
+      link = doc.createElement("link");
+      link.rel = "icon";
+      doc.head.appendChild(link);
+    }
+    link.href = dataURL(p);
+    return true;
+  }
+
+  // setCursor shows p as the mouse's cursor over the canvas, its hot spot
+  // at x, y, or the page's own for none.
+  setCursor(p: Picture | null, x: number, y: number): boolean {
+    this.canvas.style.cursor = p === null ? "" : `url(${dataURL(p)}) ${x} ${y}, auto`;
+    return true;
+  }
+
+  scale(): number {
+    return (globalThis as any).devicePixelRatio ?? 0;
+  }
+
+  // notify shows a notification, asking the player first if the page may,
+  // as a browser asks.
+  notify(title: string, body: string): boolean {
+    const N = (globalThis as any).Notification;
+    if (typeof N !== "function" || N.permission === "denied") return false;
+    const show = () => new N(title, { body });
+    if (N.permission === "granted") show();
+    else N.requestPermission().then((p: string) => p === "granted" && show(), () => {});
+    return true;
+  }
+
+  systemDark(): [boolean, boolean] {
+    const m = (globalThis as any).matchMedia;
+    return typeof m === "function" ? [m("(prefers-color-scheme: dark)").matches, true] : [false, false];
+  }
 
   display(): number[] | null {
     const s = (globalThis as any).screen;

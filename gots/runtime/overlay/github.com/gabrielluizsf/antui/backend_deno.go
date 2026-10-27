@@ -232,19 +232,52 @@ func (n *noWindows) setSize(win *Window, width, height int) bool {
 	return n.w.Call("setSize", width, height).Bool()
 }
 
-func (n *noWindows) displayScale() (float64, bool) { return 0, false }
+func (n *noWindows) displayScale() (float64, bool) {
+	if f := n.w.Call("scale").Float(); f > 0 {
+		return f, true
+	}
+	return 0, false
+}
 
-func (n *noWindows) systemDark() (bool, bool) { return false, false }
+func (n *noWindows) systemDark() (bool, bool) {
+	d := n.w.Call("systemDark")
+	return d.Index(0).Bool(), d.Index(1).Bool()
+}
 
 func (n *noWindows) clipboard() (string, []string) {
 	return n.w.Call("clipboard").String(), nil
 }
 
-func (n *noWindows) setIcon([]*canvas.Canvas) bool { return false }
+// setIcon hands the bridge the largest of the pictures.
+func (n *noWindows) setIcon(images []*canvas.Canvas) bool {
+	var best *canvas.Canvas
+	for _, c := range images {
+		if c != nil && c.Pixels != nil && (best == nil || c.Width*c.Height > best.Width*best.Height) {
+			best = c
+		}
+	}
+	if best == nil {
+		return false
+	}
+	return n.w.Call("setIcon", picture(best)).Bool()
+}
 
-func (n *noWindows) setCursor(CursorIcon) bool { return false }
+func (n *noWindows) setCursor(icon CursorIcon) bool {
+	c := icon.Image
+	if c == nil || c.Pixels == nil {
+		return n.w.Call("setCursor", nil, 0, 0).Bool()
+	}
+	return n.w.Call("setCursor", picture(c), icon.HotX, icon.HotY).Bool()
+}
 
-func (n *noWindows) sendNotification(string, string) bool { return false }
+// picture is c as the bridge takes a picture: its pixels and its shape.
+func picture(c *canvas.Canvas) map[string]any {
+	return map[string]any{"pixels": c.Pixels, "stride": c.Stride, "width": c.Width, "height": c.Height}
+}
+
+func (n *noWindows) sendNotification(title, body string) bool {
+	return n.w.Call("notify", title, body).Bool()
+}
 
 func (n *noWindows) setClipboard(text string) bool {
 	return n.w.Call("setClipboard", text).Bool()

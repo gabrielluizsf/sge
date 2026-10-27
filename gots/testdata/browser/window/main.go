@@ -1,5 +1,6 @@
 // window: a window in a browser, which browser_test drives: it draws red,
-// and tells the keys, clicks and text the page sends it.
+// tells the keys, clicks and text the page sends it, and sets the page's
+// icon and the canvas's cursor.
 package main
 
 import (
@@ -15,6 +16,9 @@ func main() {
 		fmt.Println("open:", err)
 		return
 	}
+	pic, _ := canvas.NewCanvas(4, 4)
+	pic.Clear(canvas.Red)
+	fmt.Println("icon", win.SetIcon(pic), "cursor", win.SetCursor(antui.CursorIcon{Image: pic, HotX: 1, HotY: 2}))
 	var key, click, text bool
 	for frame := 0; frame < 1000 && !(key && click && text) && win.Begin(); frame++ {
 		win.Clear(canvas.Red)

@@ -41,6 +41,8 @@ setTimeout(() => {
   send("mousedown", { button: 0, clientX: r.left + 10, clientY: r.top + 10 });
   send("mouseup", { button: 0, clientX: r.left + 10, clientY: r.top + 10 });
   setTimeout(() => console.log("pixel " + c.getContext("2d").getImageData(32, 24, 1, 1).data.join(",")), 300);
+  console.log("favicon " + (document.querySelector("link[rel~='icon']")?.href ?? "").slice(0, 22));
+  console.log("cursor " + c.style.cursor.replace(/url\("?data:[^)]*\)/, "url(png)"));
 }, 1000);
 </script></body></html>`
 
@@ -71,7 +73,7 @@ func TestWindowInBrowser(t *testing.T) {
 		lines = append(lines, string(m[1]))
 	}
 	got := strings.Join(lines, "\n")
-	for _, want := range []string{"key right", "text a", "click left", "done", "pixel 229,72,77,255"} {
+	for _, want := range []string{"icon true cursor true", "favicon data:image/png;base64", "cursor url(png) 1 2, auto", "key right", "text a", "click left", "done", "pixel 229,72,77,255"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("the page did not log %q; it logged:\n%s", want, got)
 		}

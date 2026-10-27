@@ -139,8 +139,14 @@ go run ./cmd/gots -web site ./examples/farm
 `index.html` beside it, unless the directory has one already: a page of
 your own keeps working, with a `<canvas data-gots>` where the game should
 draw (one is added to the body otherwise). `fmt` prints to the console.
-Full screen is the browser's to grant, in answer to a click or key, and the
-clipboard is what the player last pasted on the canvas.
+A window's icon is the page's, its cursor the canvas's, notifications the
+browser's, and the system's dark theme and the display's scale what the
+page is told.
+
+What a browser keeps from pages is the browser's to keep: full screen is
+granted only in answer to a click or key, notifications only once the
+player allows them, the clipboard is what the player last pasted on the
+canvas, dropped files have no paths to open, and `net` has no sockets.
 
 ## How it works
 
@@ -178,39 +184,43 @@ that cannot, and as its twin, which awaits what it calls, for code that can
 (a goroutine, `main`, a test, an HTTP handler). Engine code drawing a frame
 stays synchronous; a server's goroutine waits on its socket. Should code
 that cannot wait reach something that does block, it panics saying so,
-rather than carry on with a promise for a result. A `sync.Mutex` does not
-wait either: locking one that another goroutine holds while it waits
-panics, rather than deadlock.
+rather than carry on with a promise for a result. `sync.Mutex` and
+`sync.RWMutex` wait their turn in code that can wait, with no turn of the
+event loop when nobody holds them; code that cannot wait, which only a
+lock held across a wait elsewhere would make wait, panics saying so.
 
 ## Networking
 
-`net` dials and listens over TCP with Deno's sockets, and `net/http` serves
-with Go's own server on them; `http.Client` sends through `fetch`, which
-Deno's `--allow-net` governs, with the client, not `fetch`, following
-redirects, so `CheckRedirect` and Go's rules for the headers that may follow
-a redirect to another host hold. Host names go to Deno unresolved, so
+`net` dials and listens over TCP, Unix stream and datagram sockets and
+UDP with Deno's sockets, and `net/http` serves with Go's own server on them
+and sends with Go's own `Transport`: proxies, HTTP/2, `DialContext`,
+everything as Go has it. Host names go to Deno unresolved, so
 `--allow-net` checks the name and the addresses it resolves to: grant only
 the hosts a game talks to (`--allow-net=127.0.0.1:8080,api.example.com`).
-A `Content-Length` past 2^53, which a JavaScript number would round, is
-refused by the server and the client rather than read as another length.
-Reads and writes hold their deadlines, and a read or write that runs out
-of time loses nothing of the stream.
+A `Dialer` with a `Control` hook resolves the name, asks the hook about
+each address and dials the one it lets through; one with a `Resolver` of
+its own resolves with it, Go's DNS client over Deno's sockets. Reads and
+writes hold their deadlines, and a read or write that runs out of time
+loses nothing of the stream. A `Content-Length` past 2^53, which a
+JavaScript number would round, is refused by the server and the client
+rather than read as another length.
 
-`crypto/tls` runs on `node:tls`, which Deno (and Node) provide: Go dials
-and accepts the connection as above, `Dialer` hooks and deadlines and all,
-and carries the encrypted bytes, while `node:tls` speaks the protocol. So
-`tls.Dial`, `tls.Listen`, `ListenAndServeTLS`, `httptest.NewTLSServer`
-and an `http.Transport` with a `TLSClientConfig` (which then goes through
-Go's transport, not `fetch`, so its roots and checks hold) all work.
-`RootCAs` takes the place of the runtime's roots, as of the system's in
-Go, and `x509.SystemCertPool()` is the runtime's roots (Deno needs
-`--allow-sys=ca` to read them for a pool). Go checks what the handshake
-agreed on rather than trusting it: the version against `MinVersion` and
-`MaxVersion` (a Deno server has settled on TLS 1.2 though told 1.3 at
-least), the ALPN protocol, the server's name and the certificates' dates,
-and, as `node:tls` does not check a client's certificate as a server, a
-server verifies client certificates with Go's own code. `VerifyPeerCertificate`
-and `VerifyConnection` are called as in Go.
+`crypto/tls` is Go's own, whole: versions, suites, curves (X25519MLKEM768
+included), session resumption, client certificates, OCSP stapling,
+`ExportKeyingMaterial`, `VerifyPeerCertificate` and `VerifyConnection`
+all behave as in Go. `x509.SystemCertPool()` holds the roots Deno itself
+verifies with. In a browser, which has no sockets, `http.Client` sends
+through `fetch`, with the client, not `fetch`, following redirects so that
+`CheckRedirect` and Go's rules for the headers that may follow a redirect
+to another host hold; a `Transport` with a `TLSClientConfig` fails there,
+rather than have `fetch` drop its roots and pins.
+
+Cryptography runs at JavaScript's speed rather than at that of Go's 64-bit
+words as BigInts: the NIST curves' and Curve25519's fields are unrolled
+22-bit limbs, bigmod, GHASH, SHA-512 and Keccak are the runtime's on
+32-bit words, and AES-GCM, ChaCha20-Poly1305 and X25519 are Deno's own
+(`node:crypto`) where it has them. A P-256 signature checks in some 5ms,
+Ed25519 in 3ms, and TLS moves tens of megabytes a second.
 
 `encoding/gob`, `encoding/json` and `encoding/xml` refuse input nested
 deeper than a JavaScript stack holds with an error, rather than end the
@@ -230,55 +240,38 @@ Go's byte for byte. On Deno, JSON may nest
 does not grow, and deeper input from outside is refused with an error
 instead of ending the program.
 
-## Limitations
+## Limits of Deno
 
-- On Deno, `net` has TCP and Unix stream sockets, and UDP with
-  `--unstable-net`, which Deno keeps its datagram sockets behind; Unix
-  datagram and packet sockets are Go's in-memory ones for js. Closing a
+gots itself has none of its own; what follows is Deno's.
+
+- Deno's permissions: `--allow-net` grants what a program connects to,
+  by name and by address, and Unix sockets by path
+  (`--allow-net=unix:/run/game.sock`); `--unstable-net` lets UDP and Unix
+  datagram sockets in; `--allow-sys=ca` lets Go read the roots Deno
+  verifies with, for TLS with the system's roots; `--allow-env` and
+  `--allow-read` what `os` reads.
+- Deno's sockets have no descriptors, so a `Control` hook that asks for one
+  is told there is none; Unix packet sockets (`unixpacket`) do not exist
+  in Deno; every Unix datagram socket is bound to a path, so one dialed
+  unnamed is bound to a temporary one, which its peer sees where Go's
+  would see none. A UDP socket dialing a host off this machine is bound to
+  every address, `0.0.0.0`, as Deno binds before it sends. Closing a
   listener while an `Accept` waits can reset, rather than refuse, a
   connection dialed in that same moment: Deno closes the socket once the
   pending accept is done.
-- `--allow-net` grants what Deno connects to: names, as dialing hands
-  Deno the name, and addresses, as a `Dialer` with a `Control` hook
-  resolves the name, asks the hook about each address and dials the one
-  it lets through. Unix sockets are granted by path
-  (`--allow-net=unix:/run/game.sock`), and a UDP socket dialing a host off
-  this machine is bound to every address, `0.0.0.0`. A hook that asks for
-  the socket's descriptor is told there is none, and a `Resolver` of the
-  program's own makes dials fail rather than be skipped.
-- TLS speaks versions 1.2 and 1.3 only; `CipherSuites`, `CurvePreferences`,
-  session tickets and `Config.Time` are the runtime's, not the config's;
-  `ExportKeyingMaterial` and OCSP stapling are not available. A client's
-  `PeerCertificates` are those the server sent, with the root the runtime
-  found for them. Its `VerifiedChains` are built by Go, signatures checked,
-  only once something reads them (`VerifyPeerCertificate`,
-  `VerifyConnection`, `ConnectionState`): the runtime says whether a chain
-  verifies but not which, and the chain a server sends may carry a CA
-  that signed nothing of it. That costs some 250ms a signature the first
-  time, and with the runtime's roots (no `RootCAs`) Deno needs
-  `--allow-sys=ca` to hand them to Go. `GetClientCertificate` is
-  asked before the handshake, not knowing what the server accepts, and a
-  server picks a certificate by the name a client asks for alone (no
-  name, no `GetCertificate`). A client showing a certificate has the
-  runtime refuse a server it cannot verify, which tells less of why: an
-  unknown authority.
-- `int` and `int64` are JavaScript numbers, exact up to 2^53, by design:
-  a `bigint` in every integer sum would slow down all of them. `uint64` is
-  a `bigint`: use it, or `math/big`, for integers that need more.
-  Arithmetic with constants beyond 2^53, which `time` does on every date,
-  is worked out exactly.
-- `uint` is 32 bits, as on 386 and arm, while `int` stays 64: a number
-  holds 32 bits exactly, so the standard library takes its 32-bit paths
-  (`math/big`'s and `crypto`'s words among them), which numbers compute
-  exactly. `math.MaxInt` is that of a 32-bit machine, 2^31-1, as Go works
-  it out from `uint`. `uintptr` stays 64 bits, as wide as a pointer.
-- Public-key cryptography in Go runs as Go wrote it, on 32-bit words:
-  correct, but slow next to native (a P-256 signature check takes some
-  250ms, against Go's 0.15ms). TLS does it in the runtime, not in Go,
-  but for checking a client's certificate on a server.
-- Windows open on Deno, through SDL2, and in browsers; not on Node. In a
-  browser a window has no icon, cursor shapes, notifications or file
-  drops, and `net` has no sockets (`http.Client` still has `fetch`).
+- JavaScript's numbers, which Deno computes with: `int` and `int64` are
+  numbers, exact up to 2^53, as the cost of a `bigint` in every sum would
+  slow down all of them; `uint64` is a `bigint`, for integers that need
+  more, and so is `math/big`. `uint` is 32 bits, as on 386 and arm, which a
+  number holds exactly, and so `math.MaxInt` is a 32-bit machine's,
+  2^31-1, as Go works it out from `uint`.
+- JavaScript's stack, which does not grow: JSON nests 1000 levels deep
+  rather than Go's 10000, and XML 256, deeper input refused with an error.
+- Deno has no windows of its own: they open through SDL2, which Deno loads
+  by FFI (`--allow-ffi`), and SDL2 has no notifications or theme to tell
+  of, so those come from the system's own tools (`notify-send` and
+  `gsettings`, `osascript` and `defaults`, PowerShell and `reg`), which
+  Deno runs with `--allow-run`.
 
 ## License
 

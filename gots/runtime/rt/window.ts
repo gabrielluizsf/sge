@@ -5,6 +5,8 @@
 // that draw off screen need neither SDL2 nor --allow-ffi.
 
 import { BrowserWindow } from "./browser_window.ts";
+import { notify, systemDark } from "./desktop.ts";
+import { fits, type Picture } from "./picture.ts";
 
 const SDL_INIT_VIDEO = 0x20;
 const SDL_WINDOWPOS_CENTERED = 0x2fff0000;
@@ -45,6 +47,14 @@ const symbols = {
   SDL_free: { parameters: ["pointer"], result: "void" },
   SDL_StartTextInput: { parameters: [], result: "void" },
   SDL_Quit: { parameters: [], result: "void" },
+  SDL_CreateRGBSurfaceWithFormatFrom: { parameters: ["buffer", "i32", "i32", "i32", "i32", "u32"], result: "pointer" },
+  SDL_FreeSurface: { parameters: ["pointer"], result: "void" },
+  SDL_SetWindowIcon: { parameters: ["pointer", "pointer"], result: "void" },
+  SDL_CreateColorCursor: { parameters: ["pointer", "i32", "i32"], result: "pointer" },
+  SDL_GetDefaultCursor: { parameters: [], result: "pointer" },
+  SDL_SetCursor: { parameters: ["pointer"], result: "void" },
+  SDL_FreeCursor: { parameters: ["pointer"], result: "void" },
+  SDL_GetDisplayDPI: { parameters: ["i32", "buffer", "buffer", "buffer"], result: "i32" },
 } as const;
 
 const libraryNames: Record<string, string[]> = {
@@ -135,6 +145,7 @@ class NativeWindow {
       this.texH = height;
       if (this.texture === null) return false;
     }
+    if (!fits({ pixels, stride, width, height })) return false;
     if (s.SDL_UpdateTexture(this.texture, null, pixels, stride * 4) !== 0) return false;
     s.SDL_RenderCopy(this.renderer, this.texture, null, null);
     s.SDL_RenderPresent(this.renderer);
@@ -225,6 +236,57 @@ class NativeWindow {
     return [v.getInt32(4, true), v.getInt32(8, true), v.getInt32(12, true)];
   }
 
+  // surface is an SDL surface over p's pixels: freed by the caller once
+  // SDL has copied it.
+  private surface(p: Picture): any {
+    if (!fits(p)) return null;
+    return sdl.SDL_CreateRGBSurfaceWithFormatFrom(p.pixels, p.width, p.height, 32, p.stride * 4, SDL_PIXELFORMAT_ARGB8888);
+  }
+
+  setIcon(p: Picture): boolean {
+    const s = this.surface(p);
+    if (s === null) return false;
+    sdl.SDL_SetWindowIcon(this.win, s);
+    sdl.SDL_FreeSurface(s);
+    return true;
+  }
+
+  private cursor: any = null;
+
+  // setCursor shows p as the mouse's cursor, its hot spot at x, y, or the
+  // system's arrow for none.
+  setCursor(p: Picture | null, x: number, y: number): boolean {
+    let c = sdl.SDL_GetDefaultCursor();
+    let own = null;
+    if (p !== null) {
+      const s = this.surface(p);
+      if (s === null) return false;
+      own = sdl.SDL_CreateColorCursor(s, x, y);
+      sdl.SDL_FreeSurface(s);
+      if (own === null) return false;
+      c = own;
+    }
+    sdl.SDL_SetCursor(c);
+    if (this.cursor !== null) sdl.SDL_FreeCursor(this.cursor);
+    this.cursor = own;
+    return true;
+  }
+
+  // scale is the display's pixels to a 96-dpi one's, or 0 unknown.
+  scale(): number {
+    const d = new Float32Array(1), h = new Float32Array(1), v = new Float32Array(1);
+    if (sdl.SDL_GetDisplayDPI(0, d, h, v) !== 0 || !(h[0] > 0)) return 0;
+    return h[0] / 96;
+  }
+
+  notify(title: string, body: string): boolean {
+    return notify(title, body);
+  }
+
+  systemDark(): [boolean, boolean] {
+    return systemDark();
+  }
+
   clipboard(): string {
     const p = sdl.SDL_GetClipboardText();
     const s = readCString(p);
@@ -237,6 +299,7 @@ class NativeWindow {
   }
 
   close(): void {
+    if (this.cursor !== null) sdl.SDL_FreeCursor(this.cursor), this.cursor = null;
     if (this.texture !== null) sdl.SDL_DestroyTexture(this.texture);
     sdl.SDL_DestroyRenderer(this.renderer);
     sdl.SDL_DestroyWindow(this.win);
