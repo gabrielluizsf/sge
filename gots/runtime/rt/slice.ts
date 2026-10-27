@@ -115,13 +115,24 @@ function appendArray<T>(s: Slice<T> | null, backing: any, src: any, o: number, k
   const n = s.n + k;
   if (n <= s.c) {
     if (src === s.a && o < s.o + n && s.o + s.n < o + k) src = src.slice(o, o + k), o = 0;
-    for (let i = 0; i < k; i++) s.a[s.o + s.n + i] = src[o + i];
+    copyIn(s.a, s.o + s.n, src, o, k);
     return new Slice<T>(s.a, s.o, n, s.c);
   }
   const c = newCap(s.c, n);
   const a = grow(s, c);
-  for (let i = 0; i < k; i++) a[s.n + i] = src[o + i];
+  copyIn(a, s.n, src, o, k);
   return new Slice<T>(a, 0, n, c);
+}
+
+// copyIn copies k elements of src from o to dst at at: by the typed
+// arrays' own copy when both are of a kind and the run is long enough to
+// pay for the view it takes.
+function copyIn(dst: any, at: number, src: any, o: number, k: number): void {
+  if (k > 16 && src.constructor === dst.constructor && dst.constructor !== Array) {
+    dst.set(src.subarray(o, o + k), at);
+    return;
+  }
+  for (let i = 0; i < k; i++) dst[at + i] = src[o + i];
 }
 
 // copy is copy(dst, src), safe when the two share a backing array.

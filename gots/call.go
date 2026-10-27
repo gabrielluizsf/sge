@@ -19,6 +19,9 @@ func (e *emitter) call(c *ast.CallExpr) string {
 	if !ok {
 		return e.unsupported(c, "call of a non-function")
 	}
+	if js, ok := e.fusedByteorder(c); ok {
+		return js
+	}
 	return e.callWith(c, e.args(c, sig))
 }
 
