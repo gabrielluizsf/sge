@@ -75,9 +75,11 @@ export function is(x: any, t: Type): boolean {
 }
 
 // methodSet marks a method list the emitter writes once, as a module
-// constant, with a symbol implementsI keeps its answers under.
-export function methodSet(methods: string[]): string[] {
-  (methods as any).$key = Symbol(methods.join(","));
+// constant, with a symbol implementsI keeps its answers under, and the
+// Go names and types of its exported methods, which a value's must match.
+export function methodSet(methods: string[], sigs?: [string, string][]): string[] {
+  (methods as any).$key = Symbol(methods.join(",") + "|" + (sigs ?? []).map((s) => s.join(":")).join(";"));
+  if (sigs !== undefined && sigs.length > 0) (methods as any).$sigs = sigs;
   return methods;
 }
 
@@ -102,6 +104,21 @@ export function implementsI(x: any, methods: string[]): boolean {
 
 function has(x: any, methods: string[]): boolean {
   for (const m of methods) if (typeof x[m] !== "function") return false;
+  const sigs: [string, string][] | undefined = (methods as any).$sigs;
+  return sigs === undefined || typesMatch(x, sigs);
+}
+
+// typesMatch reports whether the methods x's Go type has of sigs' names
+// have sigs' types. A value with no Go type, TypeScript's own, has only
+// names to go by.
+function typesMatch(x: any, sigs: [string, string][]): boolean {
+  const t = x instanceof NilPtr ? x.ctor?.$type : x instanceof Val ? x.$t : x.constructor?.$type;
+  const set: { name: string; type: { str: string } }[] | undefined = t?.methodSet;
+  if (set === undefined || set.length === 0) return true;
+  for (const [name, sig] of sigs) {
+    const m = set.find((m) => m.name === name);
+    if (m !== undefined && m.type.str !== sig) return false;
+  }
   return true;
 }
 

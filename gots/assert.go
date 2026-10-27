@@ -11,7 +11,7 @@ func (e *emitter) typeAssert(x *ast.TypeAssertExpr) string {
 	t := e.typeOf(x.Type)
 	switch {
 	case isInterface(t):
-		return "$.assertIface(" + v + ", " + jsString(typeString(t)) + ", " + e.hoistConst("$.methodSet("+methodList(t.Underlying().(*types.Interface))+")") + ")"
+		return "$.assertIface(" + v + ", " + jsString(typeString(t)) + ", " + e.methodSetOf(t) + ")"
 	case isStructPtr(t):
 		return "$.assertPtr(" + v + ", " + e.structClass(derefType(t)) + ")"
 	}
@@ -29,7 +29,7 @@ func (e *emitter) holds(v string, t types.Type) string {
 	case isNil(t):
 		return "(" + v + " === null)"
 	case isInterface(t):
-		return "$.implementsI(" + v + ", " + e.hoistConst("$.methodSet("+methodList(t.Underlying().(*types.Interface))+")") + ")"
+		return "$.implementsI(" + v + ", " + e.methodSetOf(t) + ")"
 	case isStructPtr(t):
 		return "$.isPtrTo(" + v + ", " + e.structClass(derefType(t)) + ")"
 	}

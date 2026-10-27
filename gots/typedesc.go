@@ -113,6 +113,27 @@ func (e *emitter) methodSigs(t *types.Interface) string {
 }
 
 // methodList is the names an interface asks for, as a JavaScript array.
+// methodSigList is the names and types of t's exported methods, for
+// $.methodSet: a value whose type has a method of the name but another
+// type does not implement t, as a *TCPConn, whose ReadFrom reads a
+// Reader, is no PacketConn.
+func (e *emitter) methodSigList(t *types.Interface) string {
+	var pairs []string
+	for i := 0; i < t.NumMethods(); i++ {
+		m := t.Method(i)
+		if m.Exported() {
+			pairs = append(pairs, "["+strconv.Quote(m.Name())+", "+strconv.Quote(typeString(e.T(m.Type())))+"]")
+		}
+	}
+	return "[" + strings.Join(pairs, ", ") + "]"
+}
+
+// methodSetOf is the $.methodSet of t, written once as a module constant.
+func (e *emitter) methodSetOf(t types.Type) string {
+	it := t.Underlying().(*types.Interface)
+	return e.hoistConst("$.methodSet(" + methodList(it) + ", " + e.methodSigList(it) + ")")
+}
+
 func methodList(t *types.Interface) string {
 	var names []string
 	for i := 0; i < t.NumMethods(); i++ {
