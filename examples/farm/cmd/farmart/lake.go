@@ -20,7 +20,8 @@ var lake = []string{
 	"..........",
 }
 
-// drawLake lays the lake out over grass at three times the size.
+// drawLake lays the lake out over grass at three times the size, seen
+// from the corner.
 func drawLake(cv *canvas.Canvas, dir string, x0, y0 int) error {
 	const s = 3
 	wet := func(c, r int) bool {
@@ -37,7 +38,7 @@ func drawLake(cv *canvas.Canvas, dir string, x0, y0 int) error {
 				if err != nil {
 					return err
 				}
-				cv.Blit(x0+c*art.Size*s, y0+r*art.Size*s, img)
+				isoBlit(cv, img, [2]int{c, r}, [2]int{x0, y0 + art.IsoH*s})
 			}
 		}
 	}

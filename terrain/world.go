@@ -19,6 +19,9 @@ type World struct {
 	// meets chunks made already. Those within the view are made at once,
 	// those in the margin a few a frame.
 	Margin int
+	// Sorted are the layers whose maps are tilemap.Map's Sorted: in a
+	// projected world their tiles stand among the objects of their Z.
+	Sorted []int
 	chunks map[int]*chunk // by cellKey of the chunk's place
 }
 

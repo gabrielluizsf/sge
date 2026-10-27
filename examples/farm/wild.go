@@ -14,7 +14,7 @@ const seed = 20261024
 func newWild(tiles *tilemap.TileSet, cols, rows int) *terrain.World {
 	onFarm := func(c, r int) bool { return c >= 0 && r >= 0 && c < cols && r < rows }
 	nearFarm := func(c, r int) bool { return c >= -2 && r >= -2 && c < cols+2 && r < rows+2 }
-	gen := &terrain.Generator{Tiles: tiles, Layers: 4}
+	gen := &terrain.Generator{Tiles: tiles, Layers: 3}
 	gen.Add(terrain.Area{Name: "grass", Layer: 0,
 		In: func(c, r int) bool { return !onFarm(c, r) },
 		Tile: func(c, r int) int {
@@ -37,11 +37,11 @@ func newWild(tiles *tilemap.TileSet, cols, rows int) *terrain.World {
 		if !(woods(c, r) && thick(c, r) || lone(c, r)) {
 			return false
 		}
-		// Its crown, the cell above, must be off the farm too.
-		return !nearFarm(c, r) && !nearFarm(c, r-1) && !gen.Near("water", c, r, 1)
+		return !nearFarm(c, r) && !gen.Near("water", c, r, 1)
 	}
-	gen.Add(terrain.Area{Name: "trees", Layer: 2, In: tree, Tile: func(int, int) int { return tileID["tree_trunk"] }})
-	gen.Add(terrain.Area{Name: "crowns", Layer: 3, In: func(c, r int) bool { return tree(c, r+1) },
-		Tile: func(int, int) int { return tileID["tree_crown0"] }})
-	return terrain.New("wild", gen, 16, zGround, zWater, zThings, zOver)
+	gen.Add(terrain.Area{Name: "trees", Layer: 2, In: tree, Tile: func(int, int) int { return tileID["tree0"] }})
+	w := terrain.New("wild", gen, 16, zGround, zWater, zThings)
+	// Its trees stand among the farmer and each other.
+	w.Sorted = []int{2}
+	return w
 }

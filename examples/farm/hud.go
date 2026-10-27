@@ -36,14 +36,14 @@ func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
 	}
 }
 
-// cursor marks the plot the farmer faces.
+// cursor marks the plot the farmer works: its diamond, outlined.
 func (h *hud) cursor(cv *canvas.Canvas) {
 	col, row := h.p.target(h.farmer)
 	if h.f.plotAt(col, row) == nil {
 		return
 	}
 	at := h.farmer.Game().ToScreen(h.f.ground.CellCenter(col, row))
-	cv.Blit(int(at.X)-tile/2, int(at.Y)-tile/2, look("cursor"))
+	cv.Blit(int(at.X)-isoW/2, int(at.Y)-tile/2, picture(spriteSVG("cursor"), isoW/scale, tile/scale))
 }
 
 // money is the purse at the top left: a coin and what is in it.

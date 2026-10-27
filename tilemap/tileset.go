@@ -11,8 +11,13 @@ import "github.com/gabrielluizsf/sge/sprite"
 type TileSet struct {
 	Tiles         []*sprite.Sprite
 	Width, Height int
-	solid         []bool
-	opaque        []bool       // by tile id: no pixel of it lets through
-	anims         []*Animation // by tile id; nil for a still tile
-	animated      int          // how many tiles are animated
+	// CellWidth and CellHeight, when set, are a tile's cell in the world,
+	// when not its picture's size: an isometric tile's picture is wider
+	// than the square it stands on, and taller where something stands.
+	CellWidth, CellHeight int
+	solid                 []bool
+	opaque                []bool       // by tile id: no pixel of it lets through
+	anims                 []*Animation // by tile id; nil for a still tile
+	animated              int          // how many tiles are animated
+	trims                 []trimmed    // by tile id: its picture cut to what shows
 }

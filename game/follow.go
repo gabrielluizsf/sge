@@ -31,8 +31,11 @@ func (f Follow) Update(o *Object, dt float64) {
 	g.Camera = g.Camera.Lerp(want, 1-math.Pow(1.0/3, dt/f.Lag))
 }
 
-// aim is where the camera is when o is in the middle of the view.
+// aim is where the camera is when o is in the middle of the view: the
+// view's middle is half of it down and across the screen from the
+// camera's point, which under a projection is a slanted step.
 func aim(o *Object) vector.Vector3 {
-	w, h := o.Game().View()
-	return o.Transform.Position.Sub(vector.Vector3{X: float64(w) / 2, Y: float64(h) / 2})
+	g := o.Game()
+	w, h := g.View()
+	return o.Transform.Position.Sub(g.unproject(vector.Vector3{X: float64(w) / 2, Y: float64(h) / 2}))
 }

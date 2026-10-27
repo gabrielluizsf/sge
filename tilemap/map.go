@@ -22,10 +22,14 @@ type Map struct {
 	*game.Object
 	Tiles      *TileSet
 	Cols, Rows int
-	cells      []int
-	painted    []int   // the tile each cell shows now
-	time       float64 // seconds the map has been in a world, for animations
-	picture    *sprite.Sprite
-	opaques    int // cells showing a tile with no transparent pixel
-	glassy     int // cells showing a tile with some
+	// Sorted has the map's tiles, in a projected world, each drawn among
+	// the objects of its Z by where it stands, as the trees of a wood a
+	// farmer walks between are; otherwise the map is drawn whole.
+	Sorted  bool
+	cells   []int
+	painted []int   // the tile each cell shows now
+	time    float64 // seconds the map has been in a world, for animations
+	picture *sprite.Sprite
+	opaques int // cells showing a tile with no transparent pixel
+	glassy  int // cells showing a tile with some
 }

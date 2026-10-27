@@ -7,15 +7,26 @@ import (
 	"github.com/gabrielluizsf/sge/terrain"
 )
 
-// Every sprite is the farm's: Size by Size, drawn in the palette alone.
+// Every sprite is the farm's: drawn in the palette alone, every row as
+// wide as the first, the tiles IsoW by IsoH and the farmer and the icons
+// Size square.
 func TestSpritesKeepToThePaletteAndSize(t *testing.T) {
 	for name, g := range Sprites() {
-		if len(g) != Size {
-			t.Errorf("%s has %d rows", name, len(g))
+		w, h := IsoW, IsoH
+		switch {
+		case strings.HasPrefix(name, "farmer_") || strings.HasPrefix(name, "icon_"):
+			w, h = Size, Size
+		case name == "cursor":
+			w, h = IsoW, Size
+		case name == "stall":
+			w, h = len([]rune(g[0])), len(g)
+		}
+		if len(g) != h {
+			t.Errorf("%s has %d rows, not %d", name, len(g), h)
 		}
 		for y, row := range g {
-			if n := len([]rune(row)); n != Size {
-				t.Errorf("%s row %d is %d wide", name, y, n)
+			if n := len([]rune(row)); n != w {
+				t.Errorf("%s row %d is %d wide, not %d", name, y, n, w)
 			}
 			for x, c := range row {
 				if _, ok := Palette[c]; !ok && c != '.' {
@@ -26,18 +37,52 @@ func TestSpritesKeepToThePaletteAndSize(t *testing.T) {
 	}
 }
 
-// Tiles that repeat across the ground meet without a seam: their left and
-// right edges, and top and bottom, could sit beside each other.
-func TestGroundTilesHaveNoTransparentPixels(t *testing.T) {
+// Ground tiles cover their cell's diamond whole, so tiles side by side
+// meet without a seam, and nothing beyond it.
+func TestGroundTilesCoverTheirDiamond(t *testing.T) {
 	for name, g := range Sprites() {
-		if !strings.HasPrefix(name, "grass") && !strings.HasPrefix(name, "water") && !strings.HasPrefix(name, "soil") && name != "path" {
+		if !strings.HasPrefix(name, "grass") && !strings.HasPrefix(name, "flowers") && !strings.HasPrefix(name, "soil") && name != "path" {
 			continue
 		}
 		for y, row := range g {
-			if strings.ContainsRune(row, '.') {
-				t.Errorf("%s has a hole in row %d", name, y)
+			for x, c := range []rune(row) {
+				sx, sy := float64(x)+0.5-Size, float64(y-isoTop)+0.5
+				u, v := sy+sx/2, sy-sx/2
+				in := u >= 0 && v >= 0 && u < Size && v < Size
+				if in && c == '.' {
+					t.Errorf("%s has a hole at %d,%d", name, x, y)
+				}
+				if !in && c != '.' {
+					t.Errorf("%s draws outside its diamond at %d,%d", name, x, y)
+				}
 			}
 		}
+	}
+}
+
+// Laid on its diamond, a square tile's far corner is the diamond's top
+// and its near corner the bottom.
+func TestIsoGroundLaysTheSquareOnTheDiamond(t *testing.T) {
+	sq := blank(Size, Size).set(0, 0, 'r').set(Size-1, Size-1, 'y').set(Size-1, 0, 'w').set(0, Size-1, 'k')
+	g := isoGround(sq)
+	at := func(x, y int) rune { return []rune(g[y])[x] }
+	if at(Size-1, isoTop) != 'r' || at(Size, isoTop) != 'r' {
+		t.Errorf("the top of the diamond is not the square's far corner")
+	}
+	if at(Size-1, IsoH-1) != 'y' {
+		t.Errorf("the bottom of the diamond is not the square's near corner")
+	}
+	// A square whose east half is white lays it on the diamond's right.
+	half := blank(Size, Size)
+	for y := range Size {
+		half[y] = strings.Repeat("k", Size/2) + strings.Repeat("w", Size/2)
+	}
+	h := isoGround(half)
+	if c := []rune(h[isoTop+Size/2])[IsoW-3]; c != 'w' {
+		t.Errorf("the diamond's right is %q, not the square's east", c)
+	}
+	if c := []rune(h[isoTop+Size/2])[2]; c != 'k' {
+		t.Errorf("the diamond's left is %q, not the square's west", c)
 	}
 }
 
@@ -63,18 +108,12 @@ func TestSVGDrawsEveryInkedPixel(t *testing.T) {
 // them they are transparent, so the animated grass behind shows through.
 func TestObjectsAreTransparentAroundThem(t *testing.T) {
 	for name, g := range Sprites() {
-		if !strings.HasPrefix(name, "stall") && !strings.HasPrefix(name, "tree") && name != "fence" {
+		if name != "stall" && !strings.HasPrefix(name, "tree") && name != "fence" {
 			continue
 		}
-		holes := 0
-		for _, row := range g {
-			holes += strings.Count(row, ".")
-		}
-		if holes == 0 {
-			t.Errorf("%s has no transparent pixels: it paints the ground under it", name)
-		}
-		if strings.ContainsAny(g[Size-1][:1]+g[Size-1][Size-1:], "123") {
-			t.Errorf("%s has grass in its corners", name)
+		last := []rune(g[len(g)-1])
+		if last[0] != '.' || last[len(last)-1] != '.' || []rune(g[0])[0] != '.' {
+			t.Errorf("%s is not transparent in its corners: it paints the ground under it", name)
 		}
 	}
 }

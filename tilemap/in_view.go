@@ -13,6 +13,10 @@ func (m *Map) inView() bool {
 	if w == 0 || h == 0 {
 		return true
 	}
+	if g.Projection != nil && !m.Screen {
+		c0, r0, c1, r1 := m.isoCells()
+		return c0 <= c1 && r0 <= r1
+	}
 	b := m.cellBox(0, 0)
 	b.Width *= float64(m.Cols)
 	b.Height *= float64(m.Rows)

@@ -42,9 +42,8 @@ func (b *bot) control(f *farm, o *game.Object) intent {
 	return intent{face: t.face, use: t.do(f, o)}
 }
 
-// standIn is where the farmer's position is when their feet are in the
-// middle of cell col, row.
+// standIn is where the farmer's position, their feet, is in the middle
+// of cell col, row.
 func standIn(f *farm, col, row int) vector.Vector3 {
-	c := f.ground.CellCenter(col, row)
-	return vector.Vector3{X: c.X, Y: c.Y - feetBox.Y - feetBox.Height/2}
+	return f.ground.CellCenter(col, row)
 }

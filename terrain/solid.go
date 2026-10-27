@@ -30,5 +30,6 @@ func (w *World) Blocks(c collider.Collider) bool {
 
 // Stride is half a tile.
 func (w *World) Stride() float64 {
-	return float64(min(w.Gen.Tiles.Width, w.Gen.Tiles.Height)) / 2
+	cw, ch := w.Gen.Tiles.Cell()
+	return float64(min(cw, ch)) / 2
 }

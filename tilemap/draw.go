@@ -19,6 +19,10 @@ func (drawing) Update(*game.Object, float64) {}
 
 func (d drawing) Paint(o *game.Object, cv *canvas.Canvas) {
 	m := d.m
+	if g := o.Game(); g != nil && g.Projection != nil && !o.Screen {
+		m.paintIso(cv)
+		return
+	}
 	t := o.Transform
 	if !o.Screen {
 		t.Position = o.Game().ToScreen(t.Position)

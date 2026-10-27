@@ -22,6 +22,7 @@ Deno too.
 | `game` | the world: objects, scripts, collisions, the camera, drawing and the window loop |
 | `tilemap` | grids of tiles: animated tiles, solid tiles, walking through layers of them |
 | `terrain` | endless tile maps of named areas over a ground, made in chunks around the camera |
+| `iso` | an isometric view of a flat world: cells drawn as diamonds, objects nearer over farther |
 
 Drawing, text, SVG and windows come from antui; `sge` does not draw anything
 itself.
@@ -82,10 +83,36 @@ or resized, is always filled. `Edged` picks a cell's tile from its neighbours,
 one of 47, so shores join up; `Smooth`, `Open` and `Memo` shape areas and keep
 their answers while a chunk is made.
 
-[`examples/farm`](examples/farm) is a farming game on all of it: buy seeds at
-the stall, sow, water, pick and sell, on a farm in endless land. Every picture
-in it is SVG, drawn from a fixed palette by
-[`cmd/farmart`](examples/farm/cmd/farmart), HUD included; `go generate` in
+## Isometric worlds
+
+`iso` sees a world from a corner. The world stays a flat grid, where objects
+move and collide as in any game; only its picture turns, each square cell a
+diamond twice as wide as it is tall:
+
+```go
+g.Projection = iso.New(32, 64, 32) // cells 32 square, drawn 64 by 32
+tiles.CellWidth, tiles.CellHeight = 32, 32 // tile pictures 64 wide, taller where things stand
+trees.Sorted = true                // each tree among the objects of its Z
+hero.Z = trees.Z                   // drawn nearer over farther, by where it stands
+cell := g.ToWorld(mouse)           // the ground under the mouse
+```
+
+A projected map stands each tile on the near corner of its cell's diamond, so
+a tile taller than its diamond, a tree or a fence, reaches up out of it. A
+`Sorted` map's tiles are each drawn among the objects of its Z by the screen
+height of where they stand, as objects are by their `Footing`: a farmer in
+front of a trunk is over it, one behind it under it. `Follow` centres the
+camera, `VisibleWorld` is the patch of ground the view shows and `terrain`
+makes the chunks under it. Ground tiles, a run of opaque pixels on every row,
+are copied rather than blended, and every tile's air is cut away once.
+
+[`examples/farm`](examples/farm) is a farming game on all of it, seen from the
+corner: buy seeds at the stall, sow, water, pick and sell, on a farm in endless
+land. Arrows walk the way they point on the screen; space, or a click on a cell
+within reach, which the mouse outlines, uses what the farmer holds. Every
+picture in it is SVG, drawn from a fixed palette by
+[`cmd/farmart`](examples/farm/cmd/farmart), HUD included, the ground laid on
+the diamonds and what stands on it drawn upright; `go generate` in
 `examples/farm` writes the sprites and a preview of them.
 
 ## TypeScript (Deno)

@@ -15,9 +15,8 @@ func tileNames() []string {
 	names := []string{
 		"grass0", "grass1", "grass2", "grass3",
 		"flowers0", "flowers1", "flowers2", "flowers3",
-		"path", "soil_dry", "soil_wet", "fence",
-		"stall_roof_l", "stall_roof_r", "stall_counter_l", "stall_counter_r",
-		"tree_trunk", "tree_crown0", "tree_crown1", "tree_crown2", "tree_crown3",
+		"path", "soil_dry", "soil_wet", "fence", "block",
+		"tree0", "tree1", "tree2", "tree3",
 		"carrot0", "carrot1", "carrot2", "carrot3", "carrot4",
 		"tomato0", "tomato1", "tomato2", "tomato3", "tomato4",
 	}
@@ -40,21 +39,24 @@ func shore(mask int) int { return tileID[shoreName(mask, 0)] }
 var tileID = map[string]int{}
 
 // newTiles cuts the tile set out of a sheet of every tile in a row, and
-// sets which are solid and which sway.
+// sets which are solid and which sway. Each tile's picture is a cell's
+// diamond, isoW by tile, at the bottom of isoH, what stands on the cell
+// reaching up out of it; its cell in the world stays tile square.
 func newTiles() *tilemap.TileSet {
 	names := tileNames()
-	sheet, err := canvas.NewCanvas(len(names)*tile, tile)
+	sheet, err := canvas.NewCanvas(len(names)*isoW, isoH)
 	if err != nil {
 		panic(err)
 	}
 	for i, name := range names {
 		tileID[name] = i
-		sheet.Blit(i*tile, 0, look(name))
+		sheet.Blit(i*isoW, 0, tileLook(name))
 	}
-	tiles, err := tilemap.NewTileSet(sheet, tile, tile)
+	tiles, err := tilemap.NewTileSet(sheet, isoW, isoH)
 	if err != nil {
 		panic(err)
 	}
+	tiles.CellWidth, tiles.CellHeight = tile, tile
 	id := func(names ...string) []int {
 		ids := make([]int, len(names))
 		for i, n := range names {
@@ -62,12 +64,12 @@ func newTiles() *tilemap.TileSet {
 		}
 		return ids
 	}
-	tiles.SetSolid(true, id("fence", "stall_counter_l", "stall_counter_r", "tree_trunk")...)
+	tiles.SetSolid(true, id("fence", "block", "tree0")...)
 	// Grass, flowers and trees sway each in their own time; water ripples
 	// all together, shores and all.
 	tiles.Animate(tileID["grass0"], tilemap.Animation{Frames: id("grass0", "grass1", "grass2", "grass3"), FPS: 2, Staggered: true})
 	tiles.Animate(tileID["flowers0"], tilemap.Animation{Frames: id("flowers0", "flowers1", "flowers2", "flowers3"), FPS: 2, Staggered: true})
-	tiles.Animate(tileID["tree_crown0"], tilemap.Animation{Frames: id("tree_crown0", "tree_crown1", "tree_crown2", "tree_crown3"), FPS: 1.5, Staggered: true})
+	tiles.Animate(tileID["tree0"], tilemap.Animation{Frames: id("tree0", "tree1", "tree2", "tree3"), FPS: 1.5, Staggered: true})
 	for _, mask := range terrain.Masks() {
 		tiles.SetSolid(true, shore(mask))
 		tiles.Animate(shore(mask), tilemap.Animation{Frames: id(shoreName(mask, 0), shoreName(mask, 1), shoreName(mask, 2), shoreName(mask, 3)), FPS: 4})

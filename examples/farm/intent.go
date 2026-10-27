@@ -6,12 +6,14 @@ import (
 )
 
 // intent is what the farmer is told to do in a frame: walk towards dir,
-// no further than upTo pixels when that is set; turn to face, when set;
-// and use what they hold on the cell they face.
+// a way in the world, no further than upTo pixels when that is set; turn
+// to face, when set; work the cell aim, when set, rather than the one in
+// front; and use what they hold there.
 type intent struct {
 	dir  vector.Vector3
 	upTo float64
 	face string
+	aim  *[2]int
 	use  bool
 }
 

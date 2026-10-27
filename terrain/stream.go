@@ -16,12 +16,12 @@ const marginPerFrame = 2
 func (s stream) Update(o *game.Object, dt float64) {
 	w := s.w
 	g := o.Game()
-	vw, vh := g.View()
 	cw, ch := w.chunkSize()
-	cam := g.Camera
-	// The chunks the view shows, and those around them.
-	x0, y0 := int(math.Floor(cam.X/cw)), int(math.Floor(cam.Y/ch))
-	x1, y1 := int(math.Floor((cam.X+float64(vw))/cw)), int(math.Floor((cam.Y+float64(vh))/ch))
+	// The chunks the view shows, slanted as a projection may see them, and
+	// those around them.
+	v := g.VisibleWorld()
+	x0, y0 := int(math.Floor(v.X/cw)), int(math.Floor(v.Y/ch))
+	x1, y1 := int(math.Floor((v.X+v.Width)/cw)), int(math.Floor((v.Y+v.Height)/ch))
 	m := w.Margin
 	made := 0
 	for cy := y0 - m; cy <= y1+m; cy++ {

@@ -6,7 +6,8 @@ import "math"
 // the map.
 func (m *Map) CellAt(x, y float64) (col, row int, ok bool) {
 	p, s := m.Transform.Position, m.Transform.Scale
-	col = int(math.Floor((x - p.X) / (float64(m.Tiles.Width) * s.X)))
-	row = int(math.Floor((y - p.Y) / (float64(m.Tiles.Height) * s.Y)))
+	cw, ch := m.Tiles.Cell()
+	col = int(math.Floor((x - p.X) / (float64(cw) * s.X)))
+	row = int(math.Floor((y - p.Y) / (float64(ch) * s.Y)))
 	return col, row, col >= 0 && row >= 0 && col < m.Cols && row < m.Rows
 }

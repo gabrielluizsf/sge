@@ -2,6 +2,7 @@ package terrain
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/gabrielluizsf/sge/tilemap"
 	"github.com/gabrielluizsf/sge/vector"
@@ -21,6 +22,7 @@ func (w *World) makeChunk(key, cx, cy int) {
 		if l < len(w.Z) {
 			m.Z = w.Z[l]
 		}
+		m.Sorted = slices.Contains(w.Sorted, l)
 		for r := range w.Size {
 			for c := range w.Size {
 				if id := w.Gen.Tile(l, cx*w.Size+c, cy*w.Size+r); id != tilemap.Empty {

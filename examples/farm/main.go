@@ -23,7 +23,7 @@ func main() {
 		ctl = &bot{tends: 10}
 	}
 	g, f := newGame(ctl)
-	w, h := f.ground.Cols*tile, f.ground.Rows*tile
+	w, h := 1280, 720
 	if frames <= 0 {
 		if err := g.Run("sge farm", w, h); err != nil {
 			fmt.Fprintln(os.Stderr, err)

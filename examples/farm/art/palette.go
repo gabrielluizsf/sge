@@ -1,5 +1,7 @@
 // Package art is the farm's pixel art: a fixed palette, and every sprite
-// as a 16 by 16 grid of its letters, written out as SVG.
+// as a grid of its letters, written out as SVG. The farm is seen from a
+// corner: its tiles are 32 by 48 pictures of a 16 by 16 cell's diamond,
+// ground projected flat on it and what stands on it drawn upright.
 package art
 
 // Palette is every colour the farm is drawn in, by the letter its grids
@@ -31,6 +33,7 @@ var Palette = map[rune]string{
 	'm': "#7d7d7d", // metal, dark
 	'M': "#b8b8b8", // metal
 	'p': "#e86a92", // pink
+	'h': "#2a5a33", // shadow on grass
 }
 
 // Size is the side of every sprite, in pixels.

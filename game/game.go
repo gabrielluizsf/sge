@@ -23,6 +23,11 @@ type Game struct {
 	// Camera is the point of the world drawn at the canvas's top-left
 	// corner; objects fixed to the Screen ignore it.
 	Camera vector.Vector3
+	// Projection, when set, is how the world is seen, as iso.New sees it
+	// from a corner: the world stays a grid where objects move and
+	// collide, and only what is drawn turns. Objects of one Z are then
+	// drawn nearer over farther, by where they stand (Object.Footing).
+	Projection Projector
 
 	objects []*Object
 	window  *antui.Window
@@ -30,4 +35,5 @@ type Game struct {
 	quit    bool
 
 	viewW, viewH int
+	items        []item // what Draw draws, reused every frame
 }

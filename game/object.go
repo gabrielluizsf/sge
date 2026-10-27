@@ -5,6 +5,7 @@ import (
 	"github.com/gabrielluizsf/sge/collider"
 	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/transform"
+	"github.com/gabrielluizsf/sge/vector"
 )
 
 // Object is one thing in the world.
@@ -19,8 +20,12 @@ type Object struct {
 	// without one touches nothing.
 	Collider collider.Collider
 	// Z orders drawing: lower first, so higher is on top.
-	Z      int
-	Hidden bool
+	Z int
+	// Footing is the point the object stands on, from its position: in a
+	// projected world, objects of one Z are drawn by it, nearer over
+	// farther, so a farmer below a tree's trunk stands in front of it.
+	Footing vector.Vector3
+	Hidden  bool
 	// Screen fixes the object to the screen: its position is a point of
 	// the canvas, where the camera does not move it, as a HUD's is.
 	Screen bool
