@@ -12,11 +12,13 @@ func (f *farm) buy(c int, at vector.Vector3) bool {
 	price := crops[c].seedPrice
 	if f.money < price {
 		f.float(at, "SEM DINHEIRO", 'r')
+		f.sound("deny", nil)
 		return false
 	}
 	f.money -= price
 	f.seeds[c]++
 	f.float(at, fmt.Sprint("-$", price), 'r')
+	f.sound("coin", nil)
 	return true
 }
 
@@ -30,9 +32,11 @@ func (f *farm) sell(at vector.Vector3) bool {
 	}
 	if earned == 0 {
 		f.float(at, "NADA A VENDER", 'r')
+		f.sound("deny", nil)
 		return false
 	}
 	f.money += earned
 	f.float(at, fmt.Sprint("+$", earned), 'y')
+	f.sound("sell", nil)
 	return true
 }

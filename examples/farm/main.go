@@ -25,6 +25,7 @@ func main() {
 	g, f := newGame(ctl)
 	w, h := 1280, 720
 	if frames <= 0 {
+		addSound(g, f)
 		if err := g.Run("sge farm", w, h); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

@@ -9,10 +9,13 @@ func (f *farm) shopKeys(win *antui.Window) {
 	switch {
 	case win.KeyPressed(antui.KeyEscape) || win.KeyPressed(antui.KeyE):
 		s.open = false
+		f.sound("ui_close", nil)
 	case win.KeyPressed(antui.KeyUp) || win.KeyPressed(antui.KeyW):
 		s.choice = (s.choice + sellChoice) % (sellChoice + 1)
+		f.sound("ui_tick", nil)
 	case win.KeyPressed(antui.KeyDown) || win.KeyPressed(antui.KeyS):
 		s.choice = (s.choice + 1) % (sellChoice + 1)
+		f.sound("ui_tick", nil)
 	case win.KeyPressed(antui.KeySpace) || win.KeyPressed(antui.KeyEnter):
 		f.choose(s)
 	}

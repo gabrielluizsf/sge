@@ -16,13 +16,17 @@ func (f *farm) use(col, row int) bool {
 		f.harvest[c]++
 		p.crop, p.stage, p.watered, p.growing = -1, 0, false, 0
 		f.float(at, "+1 "+crops[c].label, 'y')
+		f.sound("harvest", &at)
 	case p.crop < 0 && f.slot < slotCan && f.seeds[f.slot] > 0:
 		f.seeds[f.slot]--
 		p.crop, p.stage = f.slot, 0
+		f.sound("plant", &at)
 	case f.slot == slotCan && p.thirsty():
 		p.watered = true
+		f.sound("pour", &at)
 	case p.crop < 0 && f.slot < slotCan:
 		f.float(at, "SEM SEMENTES", 'r')
+		f.sound("deny", nil)
 		return false
 	default:
 		return false

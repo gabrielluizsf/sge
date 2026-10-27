@@ -23,9 +23,10 @@ Deno too.
 | `tilemap` | grids of tiles: animated tiles, solid tiles, walking through layers of them |
 | `terrain` | endless tile maps of named areas over a ground, made in chunks around the camera |
 | `iso` | an isometric view of a flat world: cells drawn as diamonds, objects nearer over farther |
+| `sound` | a mixer of clips and fading loops, and sounds made up from noise, tones, filters and envelopes |
 
-Drawing, text, SVG and windows come from antui; `sge` does not draw anything
-itself.
+Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
+draw anything itself.
 
 ## Go
 
@@ -115,6 +116,26 @@ picture in it is SVG, drawn from a fixed palette by
 the diamonds and what stands on it drawn upright; `go generate` in
 `examples/farm` writes the sprites and a preview of them.
 
+## Sound
+
+A game with a `sound.Mixer` plays it while it runs: clips once, each with
+its gain, pan and pitch, and loops that fade in and out.
+
+```go
+g.Sound = sound.NewMixer(sound.Rate)
+step := sound.NewClip(sound.Noise(1, sound.Seconds(0.1)), 0.5) // or made up from tones, filters and envelopes
+g.Sound.Play(step, sound.Voice{Gain: 0.4, Pan: -0.3, Pitch: 1.05})
+wind := g.Sound.Loop(windClip)
+wind.Fade(0.2) // eases in; Fade(0) eases out
+```
+
+The mix keeps every sample from -1 to 1, so no sound can click the speaker,
+and where there are no speakers the game runs in silence. Natively antui plays
+it through PulseAudio, WASAPI, CoreAudio or AAudio; on Deno through SDL2's
+audio queue, with `--allow-ffi`; in a browser with Web Audio. The farm's
+steps, water, leaves, birds and HUD sounds are all made up in
+[`examples/farm/sfx`](examples/farm/sfx).
+
 ## TypeScript (Deno)
 
 ```ts
@@ -170,8 +191,9 @@ A window's icon is the page's, its cursor the canvas's, notifications the
 browser's, and the system's dark theme and the display's scale what the
 page is told.
 
-What a browser keeps from pages is the browser's to keep: full screen is
-granted only in answer to a click or key, notifications only once the
+What a browser keeps from pages is the browser's to keep: sound starts with
+the player's first click or key, full screen is granted only in answer to
+one, notifications only once the
 player allows them, the clipboard is what the player last pasted on the
 canvas, dropped files have no paths to open, and `net` has no sockets.
 

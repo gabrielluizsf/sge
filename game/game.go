@@ -6,6 +6,7 @@ package game
 import (
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/sound"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
@@ -28,6 +29,10 @@ type Game struct {
 	// collide, and only what is drawn turns. Objects of one Z are then
 	// drawn nearer over farther, by where they stand (Object.Footing).
 	Projection Projector
+	// Sound, when set, is the mixer Run plays to the speakers while the
+	// window is open: the world's sounds. Where there are no speakers the
+	// game runs in silence.
+	Sound *sound.Mixer
 
 	objects []*Object
 	window  *antui.Window

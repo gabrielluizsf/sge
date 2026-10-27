@@ -23,5 +23,6 @@ export { keccakF1600 } from "./keccak.ts";
 export { aeadSeal, aeadOpen } from "./aead.ts";
 export { x25519 } from "./x25519.ts";
 import "./window.ts";
+import "./audio.ts";
 import "./fetch.ts";
 import "./net.ts";

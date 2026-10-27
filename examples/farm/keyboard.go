@@ -23,11 +23,13 @@ func (keyboard) control(f *farm, o *game.Object) intent {
 	}
 	if win.KeyPressed(antui.KeyE) && f.atStall(o) {
 		f.shop.open, f.shop.choice = true, 0
+		f.sound("ui_open", nil)
 		return intent{}
 	}
 	for i, k := range []antui.Key{antui.Key1, antui.Key2, antui.Key3} {
-		if win.KeyPressed(k) {
+		if win.KeyPressed(k) && f.slot != i {
 			f.slot = i
+			f.sound("ui_tick", nil)
 		}
 	}
 	dir := arrows(win)

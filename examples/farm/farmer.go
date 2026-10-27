@@ -18,6 +18,7 @@ type farmer struct {
 	aim    *[2]int        // the cell the mouse picks, if any
 	acting float64        // seconds left of the use being shown
 	swims  bool           // whether they are in the water
+	heard  heard          // what of them was last heard
 }
 
 const (
@@ -52,6 +53,7 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 	default:
 		o.Animator.Play(p.pose(o))
 	}
+	p.footsteps(o)
 	if in.use && !p.swims {
 		col, row := p.target(o)
 		if p.f.use(col, row) {

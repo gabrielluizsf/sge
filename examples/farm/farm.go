@@ -25,6 +25,8 @@ type farm struct {
 	floats  []*floater
 	// sold is everything sold over the game, for the demo to report.
 	sold int
+	// speaker plays what happens on the farm; nil plays nothing.
+	speaker speaker
 }
 
 // newFarm is a farm with some money and nothing growing on the soil of

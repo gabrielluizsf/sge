@@ -11,6 +11,9 @@ func (g *Game) Run(title string, width, height int) error {
 	}
 	g.window = win
 	defer func() { g.window = nil }()
+	if a := g.openSound(); a != nil {
+		defer a.Close()
+	}
 	for !g.quit && win.Begin() {
 		// The view is the window's before the step, so scripts that fill
 		// it, as a world made up around the camera does, see its size
