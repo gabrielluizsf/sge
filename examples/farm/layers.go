@@ -31,11 +31,11 @@ const (
 func newLayers(g *game.Game, tiles *tilemap.TileSet) layers {
 	grass := tileID["grass0"]
 	ground := map[rune]int{'G': tileID["flowers0"], 'p': tileID["path"], 'd': tileID["soil_dry"]}
-	for _, c := range "gwfTtRrCc" {
+	for _, c := range "gwfTtC" {
 		ground[c] = grass
 	}
-	// The stall is an object on its cells (see newStall); they are solid.
-	things := map[rune]int{'f': tileID["fence"], 'T': tileID["tree0"], 'C': tileID["block"], 'c': tileID["block"]}
+	// The stall is an object on its cell (see newStall); it is solid.
+	things := map[rune]int{'f': tileID["fence"], 'T': tileID["tree0"], 'C': tileID["block"]}
 	l := layers{
 		ground: parse("ground", tiles, ground),
 		water:  parse("water", tiles, nil),
