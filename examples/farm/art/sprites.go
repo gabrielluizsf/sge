@@ -8,7 +8,8 @@ import (
 
 // Sprites is every sprite of the farm, as SVG, by the name of its file.
 // The tiles are IsoW by IsoH, the ground laid on a cell's diamond and what
-// stands on it upright; the stall is StallW by StallH, the cursor a cell's
+// stands on it upright; the stall is StallW by StallH, the houses HouseW
+// by HouseH, the cursor a cell's
 // diamond, the farmer FarmerW by FarmerH and the icons Size square.
 func Sprites() map[string]string {
 	s := map[string]string{
@@ -20,6 +21,12 @@ func Sprites() map[string]string {
 		"block":  newDoc(IsoW, IsoH).String(),
 		"stall":  Stall(),
 		"cursor": Cursor(),
+		"stump":  stumpTile(),
+		"anvil":  anvilTile(),
+	}
+	for k := range Houses {
+		s[fmt.Sprint("house", k)] = House(k, true)
+		s[fmt.Sprint("house", k, "_back")] = House(k, false)
 	}
 	for i, lean := range []float64{0, 0.6, 0, -0.6} {
 		s[fmt.Sprint("grass", i)] = grassTile(lean)
@@ -37,6 +44,9 @@ func Sprites() map[string]string {
 	}
 	s["carrot4"] = carrotTile(3, 0.9)
 	s["tomato4"] = tomatoTile(3, 0.9)
+	for name, svg := range Interior() {
+		s[name] = svg
+	}
 	for name, svg := range FarmerFrames() {
 		s["farmer_"+name] = svg
 	}

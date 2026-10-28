@@ -13,10 +13,10 @@ func (f *farm) show(p *plot) {
 	if p.watered {
 		soil = "soil_wet"
 	}
-	f.ground.Set(p.col, p.row, tileID[soil])
+	f.setGround(p.col, p.row, tileID[soil])
 	if p.crop < 0 {
-		f.crops.Set(p.col, p.row, tilemap.Empty)
+		f.setCrop(p.col, p.row, tilemap.Empty)
 		return
 	}
-	f.crops.Set(p.col, p.row, tileID[fmt.Sprint(crops[p.crop].name, p.stage)])
+	f.setCrop(p.col, p.row, tileID[fmt.Sprint(crops[p.crop].name, p.stage)])
 }

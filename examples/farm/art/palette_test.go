@@ -21,6 +21,8 @@ func size(name string) (w, h int) {
 		return IsoW, Size
 	case name == "stall":
 		return StallW, StallH
+	case strings.HasPrefix(name, "house"):
+		return HouseW, HouseH
 	}
 	return IsoW, IsoH
 }
@@ -104,7 +106,7 @@ func TestShoresOpenOntoTheLand(t *testing.T) {
 // Objects stand on the ground rather than carry a patch of it.
 func TestObjectsAreTransparentInTheirCorners(t *testing.T) {
 	for name, src := range Sprites() {
-		if name != "stall" && name != "fence" && !strings.HasPrefix(name, "tree") && !strings.HasPrefix(name, "farmer_") {
+		if name != "stall" && name != "fence" && name != "stump" && !strings.HasPrefix(name, "house") && !strings.HasPrefix(name, "tree") && !strings.HasPrefix(name, "farmer_") {
 			continue
 		}
 		img := render(t, name, src)

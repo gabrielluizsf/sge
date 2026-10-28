@@ -17,6 +17,6 @@ func (f *farm) shopKeys(win *antui.Window) {
 		s.choice = (s.choice + 1) % (sellChoice + 1)
 		f.sound("ui_tick", nil)
 	case win.KeyPressed(antui.KeySpace) || win.KeyPressed(antui.KeyEnter):
-		f.choose(s)
+		f.choose(f.kit, s)
 	}
 }

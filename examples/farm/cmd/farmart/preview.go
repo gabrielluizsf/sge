@@ -16,6 +16,10 @@ var rows = [][]string{
 	{"farmer_right", "farmer_right1", "farmer_right", "farmer_right2", "farmer_rightAct", "farmer_left", "farmer_left1", "farmer_left", "farmer_left2", "farmer_leftAct"},
 	{"farmer_downSwim", "farmer_downSwim1", "farmer_upSwim", "farmer_upSwim1", "farmer_rightSwim", "farmer_rightSwim1", "farmer_leftSwim", "farmer_leftSwim1"},
 	{"icon_coin", "icon_carrotSeeds", "icon_tomatoSeeds", "icon_can", "icon_carrot", "icon_tomato", "cursor", "stall"},
+	{"farmer_downChop", "farmer_downChop1", "farmer_upChop", "farmer_upChop1", "farmer_rightChop", "farmer_rightChop1", "farmer_leftChop", "farmer_leftChop1", "stump", "anvil"},
+	{"icon_wood", "icon_bubble", "forge", "floor", "mat", "rug0", "rug1", "wall_nw0", "wall_nwin1", "wall_w2"},
+	{"bed", "bed_blue", "table", "chair", "shelf", "stove", "plant", "chest", "wall_n3", "wall_nwin3"},
+	{"icon_axe_stone", "icon_axe_iron", "icon_axe_gold", "icon_axe_diamond"},
 }
 
 // testMap is a small farm laid out in tiles, to see them meet.
@@ -32,7 +36,7 @@ func previewSheet(dir string) (*canvas.Canvas, error) {
 	cell := art.IsoW*scale + 4
 	rowH := art.IsoH*scale + 4
 	mapH := (len(testMap)+12)*art.Size/2*3 + art.IsoH*3
-	cv, err := canvas.NewCanvas(10*cell+8, len(rows)*rowH+2*mapH+8)
+	cv, err := canvas.NewCanvas(10*cell+8, len(rows)*rowH+2*mapH+townH+8)
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +57,9 @@ func previewSheet(dir string) (*canvas.Canvas, error) {
 		return nil, err
 	}
 	if err := drawLake(cv, dir, 4+len(lake)*art.Size*3, top+mapH); err != nil {
+		return nil, err
+	}
+	if err := drawTown(cv, 4, top+2*mapH); err != nil {
 		return nil, err
 	}
 	return cv, drawHUD(cv, 4+36*art.Size*3, top)

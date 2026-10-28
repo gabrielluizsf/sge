@@ -41,7 +41,7 @@ func main() {
 	for range frames {
 		g.Step(1.0 / 60)
 	}
-	fmt.Printf("money: %d, sold: %d, seeds: %v, growing: %d\n", f.money, f.sold, f.seeds, growing(f))
+	fmt.Printf("money: %d, sold: %d, seeds: [%d %d], growing: %d\n", f.money, f.sold, f.bag.Count(seedsOf(0)), f.bag.Count(seedsOf(1)), growing(f))
 	if shot := os.Getenv("FARM_SHOT"); shot != "" {
 		g.Draw(cv)
 		if err := writePNG(cv, shot); err != nil {

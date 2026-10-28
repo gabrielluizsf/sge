@@ -22,6 +22,9 @@ func Clips() map[string][]*sound.Clip {
 		"plant":      one(plant()),
 		"pour":       one(pour()),
 		"harvest":    one(harvest()),
+		"chop":       versions(3, chop),
+		"fell":       one(fell()),
+		"clang":      one(bells(0.0, 1760, 2637)),
 	}
 }
 

@@ -5,7 +5,7 @@ import "fmt"
 // The farmer swimming shows from the waist up, sunk to it: the water cuts
 // the drawing at waist and moves it sink lower, so its line is just above
 // the picture's bottom, where the farmer stands.
-const waist, sink = 25, 12.5
+const waist, sink = 27, 10.5
 
 // swimming is the farmer's drawing svg sunk to the waist in a ring of
 // ripples, bobbing bob units lower, the ring spread wider by ring.

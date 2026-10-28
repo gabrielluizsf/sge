@@ -17,8 +17,8 @@ type intent struct {
 	use  bool
 }
 
-// controller decides the farmer's intent each frame: the keyboard, or
-// the demo's bot.
+// controller decides a person's intent each frame, dt seconds after the
+// last: the keyboard, the demo's bot, or a villager's mind.
 type controller interface {
-	control(f *farm, o *game.Object) intent
+	control(f *farm, o *game.Object, dt float64) intent
 }

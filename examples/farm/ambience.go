@@ -37,7 +37,10 @@ const (
 func (a *ambience) Update(_ *game.Object, dt float64) {
 	if a.listen -= dt; a.listen <= 0 {
 		a.listen = listenEvery
-		a.near = a.f.around(feet(a.farmer))
+		a.near = around{}
+		if a.f.room == nil {
+			a.near = a.f.around(feet(a.farmer))
+		}
 		a.leaves.Fade(0.22 * min(1, float64(len(a.near.trees))/6))
 		a.water.Fade(0.3 * min(1, float64(a.near.water)/8))
 	}
@@ -60,7 +63,7 @@ func (a *ambience) chance() float64 {
 // water, beyond it the wild's.
 func (f *farm) around(p vector.Vector3) around {
 	var near around
-	col, row, _ := f.ground.CellAt(p.X, p.Y)
+	col, row := f.cellOf(p)
 	for r := row - hearing; r <= row+hearing; r++ {
 		for c := col - hearing; c <= col+hearing; c++ {
 			tree, water := f.cellHas(c, r)
@@ -77,8 +80,8 @@ func (f *farm) around(p vector.Vector3) around {
 
 // cellHas reports whether cell col, row has a tree, and water.
 func (f *farm) cellHas(col, row int) (tree, water bool) {
-	if col >= 0 && row >= 0 && col < f.ground.Cols && row < f.ground.Rows {
+	if f.onFarm(col, row) {
 		return f.things.At(col, row) == tileID["tree0"], f.water.At(col, row) != tilemap.Empty
 	}
-	return f.wild.Gen.In("trees", col, row), f.wild.Gen.In("water", col, row)
+	return f.wild.TileAt(wildThings, col, row) == tileID["tree0"], f.wild.TileAt(wildWater, col, row) != tilemap.Empty
 }

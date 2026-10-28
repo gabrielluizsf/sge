@@ -1,6 +1,6 @@
 package art
 
-// The farmer's drawing, after the farm's character sheet, FarmerW by
+// A person's drawing, the farmer's after the farm's character sheet, FarmerW by
 // FarmerH units, standing on the bottom edge: a straw hat with a brown
 // band over brown hair, a cream shirt with its sleeves rolled up, blue
 // denim overalls with brass buttons and boots of brown leather, outlined
@@ -67,10 +67,11 @@ func eyeAt(d *doc, p pt) {
 	d.add(`<path d="M%.2f %.2f q1.25 -0.8 2.5 0" stroke="%s" stroke-width="0.55" fill="none" stroke-linecap="round"/>`, p.x-1.25, p.y-1.6, line)
 }
 
-// faceAt is a face whose middle is at c, looking at the viewer.
-func faceAt(d *doc, c pt) {
-	d.add(`<ellipse cx="%.2f" cy="%.2f" rx="4.3" ry="4.7" fill="%s" stroke="%s" stroke-width="0.7"/>`, c.x, c.y, skin, line)
-	d.add(`<path d="M%.2f %.2f q4.3 3.2 8.6 0 q-0.4 3.6 -4.3 4.6 q-3.9 -1 -4.3 -4.6 Z" fill="%s" opacity="0.5"/>`, c.x-4.3, c.y+0.2, skinShade)
+// faceAt is a face of look l whose middle is at c, looking at the
+// viewer.
+func faceAt(d *doc, c pt, l Look) {
+	d.add(`<ellipse cx="%.2f" cy="%.2f" rx="4.3" ry="4.7" fill="%s" stroke="%s" stroke-width="0.7"/>`, c.x, c.y, l.Skin[0], line)
+	d.add(`<path d="M%.2f %.2f q4.3 3.2 8.6 0 q-0.4 3.6 -4.3 4.6 q-3.9 -1 -4.3 -4.6 Z" fill="%s" opacity="0.5"/>`, c.x-4.3, c.y+0.2, l.Skin[1])
 	eyeAt(d, pt{c.x - 1.9, c.y + 1})
 	eyeAt(d, pt{c.x + 1.9, c.y + 1})
 	for _, s := range []float64{-1, 1} {
@@ -79,9 +80,34 @@ func faceAt(d *doc, c pt) {
 	d.add(`<path d="M%.2f %.2f q0.6 0.45 1.2 0" stroke="%s" stroke-width="0.4" fill="none" stroke-linecap="round"/>`, c.x-0.6, c.y+3.6, line)
 }
 
-// bangs is brown hair over the brow, spiky, from x0 to x1 at the brow's
-// line y.
-func bangs(d *doc, x0, x1, y float64) {
+// bangs is hair of look l over the brow, spiky, across the face, the
+// brow's line at y.
+func bangs(d *doc, l Look, y float64) {
+	const x0, x1 = 7.7, 16.3
 	d.add(`<path d="M%.2f %.2f q%.2f -3.6 %.2f -0.4 l-0.8 1.6 l-1 -1.4 l-0.9 1.9 l-1.1 -1.8 l-0.9 1.6 l-1.1 -1.7 l-0.6 1.8 Z" fill="%s" stroke="%s" stroke-width="0.6" stroke-linejoin="round"/>`,
-		x0, y+1.6, (x1-x0)/2, x1-x0, d.down(hairLight, hairBase), line)
+		x0, y+1.6, (x1-x0)/2, x1-x0, d.down(l.Hair[0], l.Hair[1]), line)
 }
+
+// The people are drawn chibi, as cosy farming games draw them: the body
+// drawn smaller, about the feet, and the head larger, about the neck, so
+// the head is near half of them.
+const (
+	bodyScale = 0.85
+	headScale = 1.25
+)
+
+// neckY is where the neck meets the body, once the body is drawn smaller.
+const neckY = FarmerH - (FarmerH-17)*bodyScale
+
+// bodyGroup opens a group drawing the body, smaller about the feet.
+func bodyGroup(d *doc) {
+	d.add(`<g transform="translate(12 %d) scale(%g) translate(-12 -%d)">`, FarmerH, bodyScale, FarmerH)
+}
+
+// headGroup opens a group drawing the head, larger, on the smaller body.
+func headGroup(d *doc) {
+	d.add(`<g transform="translate(12 %.2f) scale(%g) translate(-12 -17)">`, neckY, headScale)
+}
+
+// endGroup closes a group.
+func endGroup(d *doc) { d.add(`</g>`) }

@@ -11,6 +11,9 @@ type doc struct {
 	w, h       float64
 	defs, body strings.Builder
 	ids        int
+	// origin is where the far corner of what box draws, on the ground, is
+	// in the picture.
+	origin pt
 }
 
 func newDoc(w, h float64) *doc { return &doc{w: w, h: h} }

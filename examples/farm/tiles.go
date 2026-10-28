@@ -9,8 +9,8 @@ import (
 )
 
 // tileNames are the sprites the maps are made of, in the order of their
-// ids in the tile set: the ground, the farm's things, the crops, and the
-// shores of water, every mask four frames into its ripple.
+// ids in the tile set: the ground, the farm's things, the crops, what
+// stands in the towns, the houses' insides, and the shores of water, every mask four frames into its ripple.
 func tileNames() []string {
 	names := []string{
 		"grass0", "grass1", "grass2", "grass3",
@@ -19,7 +19,9 @@ func tileNames() []string {
 		"tree0", "tree1", "tree2", "tree3",
 		"carrot0", "carrot1", "carrot2", "carrot3", "carrot4",
 		"tomato0", "tomato1", "tomato2", "tomato3", "tomato4",
+		"stump", "anvil",
 	}
+	names = append(names, interiorNames...)
 	for _, mask := range terrain.Masks() {
 		for f := range 4 {
 			names = append(names, shoreName(mask, f))
@@ -64,7 +66,8 @@ func newTiles() *tilemap.TileSet {
 		}
 		return ids
 	}
-	tiles.SetSolid(true, id("fence", "block", "tree0")...)
+	tiles.SetSolid(true, id("fence", "block", "tree0", "anvil")...)
+	tiles.SetSolid(true, id(interiorNames[len(interiorFloors):]...)...)
 	// Grass, flowers and trees sway each in their own time; water ripples
 	// all together, shores and all.
 	tiles.Animate(tileID["grass0"], tilemap.Animation{Frames: id("grass0", "grass1", "grass2", "grass3"), FPS: 2, Staggered: true})
@@ -79,3 +82,13 @@ func newTiles() *tilemap.TileSet {
 	tiles.Animate(tileID["tomato3"], tilemap.Animation{Frames: id("tomato3", "tomato4"), FPS: 2, Staggered: true})
 	return tiles
 }
+
+// interiorFloors are the floors of the houses' insides, and interiorNames
+// all their tiles, the floors first: what stands on them is solid.
+var (
+	interiorFloors = []string{"floor", "mat", "rug0", "rug1", "rug2", "rug3"}
+	interiorNames  = append(append([]string{}, interiorFloors...),
+		"forge", "bed", "bed_blue", "table", "chair", "shelf", "stove", "plant", "chest",
+		"wall_n0", "wall_nwin0", "wall_w0", "wall_nw0", "wall_n1", "wall_nwin1", "wall_w1", "wall_nw1",
+		"wall_n2", "wall_nwin2", "wall_w2", "wall_nw2", "wall_n3", "wall_nwin3", "wall_w3", "wall_nw3")
+)

@@ -24,6 +24,13 @@ Deno too.
 | `terrain` | endless tile maps of named areas over a ground, made in chunks around the camera |
 | `iso` | an isometric view of a flat world: cells drawn as diamonds, objects nearer over farther |
 | `sound` | a mixer of clips and fading loops, and sounds made up from noise, tones, filters and envelopes |
+| `scene` | switching a game between scenes, the world outside and a room, each kept as it was left |
+| `daytime` | a clock whose hours go round, day and night light, a shade darkening the screen at night, and schedules by the hour |
+| `town` | towns laid out over an endless world from a seed: streets, plazas, stalls, a smithy and houses of several kinds, woken near the camera |
+| `pathfind` | shortest ways across a grid (A*), around walls without cutting corners, and steering along them |
+| `inventory` | bags of items by name: put in, count, take out, a list at once or not at all |
+| `request` | orders of random items drawn from a book of offers, for a reward, filled from a bag |
+| `random` | a small random sequence that plays back the same in Go and on Deno |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
 draw anything itself.
@@ -107,10 +114,33 @@ camera, `VisibleWorld` is the patch of ground the view shows and `terrain`
 makes the chunks under it. Ground tiles, a run of opaque pixels on every row,
 are copied rather than blended, and every tile's air is cut away once.
 
+## Towns, people and time
+
+`town` lays out towns over an endless world: a region of cells each, with a
+town or none as the seed says, and a `Keeper` script that wakes a town's
+objects as the camera nears it and lets them go when it leaves. `pathfind`
+walks people round what stands in the way, `daytime` gives them hours to keep
+and darkens the night, `inventory` and `request` are what they carry and what
+they ask for, and `scene` takes the player into a house and back out to the
+world as it was. A `terrain.World` can be edited for good (`World.Set`, a tree
+felled stays felled), and stand objects on its chunks (`World.Props`).
+A `sprite.Sprite` with `Make` is drawn the first time it is shown, so a
+character's many frames cost nothing until seen.
+
 [`examples/farm`](examples/farm) is a farming game on all of it, seen from the
 corner: buy seeds at the stall, sow, water, pick and sell, on a farm in endless
-land. Arrows walk the way they point on the screen; space, or a click on a cell
-within reach, which the mouse outlines, uses what the farmer holds. Every
+land. Along its path lie towns of women and men of every skin, each with a
+trade they keep by the hour: farmers tend their gardens and sell at the stall,
+lumberjacks fell trees and sell their wood, the smith forges at the anvil,
+feeding the forge wood they cut or buy, and others stroll about town; at
+night everyone sleeps at home. Villagers ask for wood and crops for a reward,
+the lumberjack trades wood, and the smith gives a stone axe for an errand and
+sells iron, gold and diamond ones, each felling a tree in fewer strokes. Every
+house can be gone into. The player sleeps in their own bed; one still up a
+minute past midnight faints and loses all their money. Arrows walk the way
+they point on the screen; space, or a click on a cell within reach, which the
+mouse outlines, uses what the farmer holds; E talks, goes in, sleeps or
+shops. Every
 picture in it is SVG, drawn from a fixed palette by
 [`cmd/farmart`](examples/farm/cmd/farmart), HUD included, the ground laid on
 the diamonds and what stands on it drawn upright; `go generate` in

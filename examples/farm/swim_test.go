@@ -12,7 +12,7 @@ import (
 // heading is a controller that keeps going one way, using what is held.
 type heading vector.Vector3
 
-func (h heading) control(*farm, *game.Object) intent {
+func (h heading) control(*farm, *game.Object, float64) intent {
 	return intent{dir: vector.Vector3(h), use: true}
 }
 

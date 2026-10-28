@@ -8,11 +8,13 @@ import (
 	"github.com/gabrielluizsf/sge/vector"
 )
 
-// farmer walks the farm as its controller says, and uses what they hold
+// farmer is a person, the player or a villager, who walks as their
+// controller says and uses what they hold
 // on the cell they work: the one the mouse picks within reach, or the one
 // they face. In water they swim, slower, and have nothing to work.
 type farmer struct {
 	f      *farm
+	kit    *kit
 	ctl    controller
 	facing vector.Vector3 // the way they face, in the world
 	aim    *[2]int        // the cell the mouse picks, if any
@@ -38,7 +40,7 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		p.acting -= dt
 		return
 	}
-	in := p.ctl.control(p.f, o)
+	in := p.ctl.control(p.f, o, dt)
 	p.aim = in.aim
 	if d, ok := directions[in.face]; ok {
 		p.facing = vector.Vector3{X: float64(d[0]), Y: float64(d[1])}
@@ -56,9 +58,13 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 	p.footsteps(o)
 	if in.use && !p.swims {
 		col, row := p.target(o)
-		if p.f.use(col, row) {
+		if p.f.use(p.kit, col, row) {
 			p.acting = actFor
-			o.Animator.Play(p.pose(o) + "_act")
+			if p.kit.slot == slotAxe {
+				o.Animator.Play(p.pose(o) + "_chop")
+			} else {
+				o.Animator.Play(p.pose(o) + "_act")
+			}
 		}
 	}
 }
@@ -79,7 +85,7 @@ func (p *farmer) move(o *game.Object, in intent, dt float64) bool {
 		step = min(step, in.upTo)
 	}
 	d := in.dir.Scale(step / l)
-	tilemap.Move(o, d.X, d.Y, p.f.water, p.f.things, p.f.wild)
+	tilemap.Move(o, d.X, d.Y, p.f.solids()...)
 	return true
 }
 
@@ -102,6 +108,5 @@ func (p *farmer) target(o *game.Object) (col, row int) {
 		return p.aim[0], p.aim[1]
 	}
 	at := feet(o).Add(p.facing.Scale(0.75 * tile))
-	col, row, _ = p.f.ground.CellAt(at.X, at.Y)
-	return col, row
+	return p.f.cellOf(at)
 }

@@ -9,7 +9,7 @@ import (
 // shop is the stall's menu, in a panel in the middle: the seeds for sale
 // and selling the harvest, the chosen line on a yellow bar.
 func (h *hud) shop(cv *canvas.Canvas) {
-	const w, ht = 150, 80
+	const w, ht = 200, 80
 	x, y := (cv.Width-w*scale)/2, (cv.Height-ht*scale)/2
 	cv.Blit(x, y, panel(w, ht, false))
 	line := func(i int, s string, ink rune) {
@@ -23,11 +23,7 @@ func (h *hud) shop(cv *canvas.Canvas) {
 	for i, c := range crops {
 		line(1+i, fmt.Sprintf("SEMENTE %s $%d", c.label, c.seedPrice), h.ink(i))
 	}
-	worth := 0
-	for c, n := range h.f.harvest {
-		worth += n * crops[c].sellPrice
-	}
-	line(1+sellChoice, fmt.Sprint("VENDER COLHEITA $", worth), h.ink(sellChoice))
+	line(1+sellChoice, fmt.Sprint("VENDER COLHEITA E MADEIRA $", worth(h.f.kit)), h.ink(sellChoice))
 	line(5, "ESPACO: OK  E: SAIR", 'k')
 }
 

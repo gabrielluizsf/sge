@@ -24,10 +24,23 @@ func sp(u, v, h float64) string {
 	return fmt.Sprintf("%.2f %.2f", x, y)
 }
 
+// at is where the point u, v, h up, of what d draws from its origin is,
+// written for a path.
+func (d *doc) at(u, v, h float64) string {
+	p := d.point(u, v, h)
+	return fmt.Sprintf("%.2f %.2f", p.x, p.y)
+}
+
+// point is where the point u, v, h up, of what d draws from its origin is.
+func (d *doc) point(u, v, h float64) pt {
+	return pt{d.origin.x + u - v, d.origin.y + (u+v)/2 - h}
+}
+
 // box is a block from u0, v0 to u1, v1, h0 up to h1: its two faces to the
 // screen in left and right, its top in top, outlined.
 func (d *doc) box(c [4]float64, h [2]float64, paint [3]string) {
 	u0, v0, u1, v1 := c[0], c[1], c[2], c[3]
+	sp := d.at
 	d.add(`<path d="M%s L%s L%s L%s Z" fill="%s" stroke="%s" stroke-width="0.5" stroke-linejoin="round"/>`, sp(u0, v1, h[0]), sp(u1, v1, h[0]), sp(u1, v1, h[1]), sp(u0, v1, h[1]), paint[1], line)
 	d.add(`<path d="M%s L%s L%s L%s Z" fill="%s" stroke="%s" stroke-width="0.5" stroke-linejoin="round"/>`, sp(u1, v0, h[0]), sp(u1, v1, h[0]), sp(u1, v1, h[1]), sp(u1, v0, h[1]), paint[2], line)
 	d.add(`<path d="M%s L%s L%s L%s Z" fill="%s" stroke="%s" stroke-width="0.5" stroke-linejoin="round"/>`, sp(u0, v0, h[1]), sp(u1, v0, h[1]), sp(u1, v1, h[1]), sp(u0, v1, h[1]), paint[0], line)
@@ -37,6 +50,7 @@ func (d *doc) box(c [4]float64, h [2]float64, paint [3]string) {
 // produce, under a striped awning with a scalloped edge on four poles.
 func Stall() string {
 	d := newDoc(StallW, StallH)
+	d.origin = pt{stallX, stallY}
 	d.add(`<ellipse cx="%g" cy="%g" rx="20" ry="7" fill="%s" opacity="0.3"/>`, StallPivot[0]*StallW, StallPivot[1]*StallH, shadowInk)
 	pole := func(u, v float64) {
 		d.box([4]float64{u, v, u + 1.4, v + 1.4}, [2]float64{0, 26}, [3]string{woodLight, woodBase, woodShade})

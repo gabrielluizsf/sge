@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/tilemap"
 )
 
@@ -20,19 +19,17 @@ func TestWorldMapRowsAreFull(t *testing.T) {
 }
 
 // idle is a controller that does nothing: tests drive the farm.
-type idle struct{}
-
-func (idle) control(*farm, *game.Object) intent { return intent{} }
+type idle = still
 
 func TestACropIsSownWateredGrownAndPicked(t *testing.T) {
 	g, f := newGame(idle{})
 	p := f.plots[0]
 	f.slot = slotCarrot
-	if f.use(p.col, p.row) {
+	if f.use(f.kit, p.col, p.row) {
 		t.Fatal("sowed without seeds")
 	}
-	f.seeds[slotCarrot] = 1
-	if !f.use(p.col, p.row) || p.crop != slotCarrot || f.seeds[slotCarrot] != 0 {
+	f.bag.Add(seedsOf(slotCarrot), 1)
+	if !f.use(f.kit, p.col, p.row) || p.crop != slotCarrot || f.bag.Count(seedsOf(slotCarrot)) != 0 {
 		t.Fatalf("not sown: %+v", p)
 	}
 	if f.crops.At(p.col, p.row) != tileID["carrot0"] {
@@ -47,7 +44,7 @@ func TestACropIsSownWateredGrownAndPicked(t *testing.T) {
 			t.Fatalf("grew to %d without water", p.stage)
 		}
 		f.slot = slotCan
-		if !f.use(p.col, p.row) || f.ground.At(p.col, p.row) != tileID["soil_wet"] {
+		if !f.use(f.kit, p.col, p.row) || f.ground.At(p.col, p.row) != tileID["soil_wet"] {
 			t.Fatal("not watered")
 		}
 		for range int(crops[slotCarrot].stageTime/frame) + 2 {
@@ -57,25 +54,27 @@ func TestACropIsSownWateredGrownAndPicked(t *testing.T) {
 			t.Fatalf("stage %d: %+v", stage, p)
 		}
 	}
-	if f.use(p.col, p.row) != true || f.harvest[slotCarrot] != 1 || p.crop != -1 {
-		t.Fatalf("not picked: %+v, harvest %v", p, f.harvest)
+	if !f.use(f.kit, p.col, p.row) || f.bag.Count(cropOf(slotCarrot)) != 1 || p.crop != -1 {
+		t.Fatalf("not picked: %+v, bag %v", p, f.bag.Content())
 	}
 }
 
 func TestTheShopSellsSeedsAndBuysTheHarvest(t *testing.T) {
 	_, f := newGame(idle{})
 	f.money = 20
-	f.choose(&shop{choice: 1})
-	f.choose(&shop{choice: 0})
-	f.choose(&shop{choice: 0})
-	f.choose(&shop{choice: 0}) // with no money left
-	if f.money != 0 || f.seeds[0] != 2 || f.seeds[1] != 1 {
-		t.Fatalf("money %d, seeds %v", f.money, f.seeds)
+	f.choose(f.kit, &shop{choice: 1, at: farmStall})
+	f.choose(f.kit, &shop{choice: 0, at: farmStall})
+	f.choose(f.kit, &shop{choice: 0, at: farmStall})
+	f.choose(f.kit, &shop{choice: 0, at: farmStall}) // with no money left
+	if f.money != 0 || f.bag.Count(seedsOf(0)) != 2 || f.bag.Count(seedsOf(1)) != 1 {
+		t.Fatalf("money %d, bag %v", f.money, f.bag.Content())
 	}
-	f.harvest[0], f.harvest[1] = 2, 1
-	f.choose(&shop{choice: sellChoice})
-	if f.money != 2*12+25 || f.harvest[0]+f.harvest[1] != 0 {
-		t.Fatalf("money %d, harvest %v", f.money, f.harvest)
+	f.bag.Add(cropOf(0), 2)
+	f.bag.Add(cropOf(1), 1)
+	f.bag.Add(wood, 3)
+	f.choose(f.kit, &shop{choice: sellChoice, at: farmStall})
+	if f.money != 2*12+25+3*woodPrice || worth(f.kit) != 0 {
+		t.Fatalf("money %d, bag %v", f.money, f.bag.Content())
 	}
 }
 
@@ -96,7 +95,7 @@ func TestTheDemoMakesMoney(t *testing.T) {
 	for range 7200 {
 		g.Step(frame)
 	}
-	if f.sold == 0 || f.money+f.seeds[0]*5+f.seeds[1]*10 <= 20 {
-		t.Errorf("sold %d, money %d, seeds %v", f.sold, f.money, f.seeds)
+	if f.sold == 0 || f.money+f.bag.Count(seedsOf(0))*5+f.bag.Count(seedsOf(1))*10 <= 20 {
+		t.Errorf("sold %d, money %d, bag %v", f.sold, f.money, f.bag.Content())
 	}
 }

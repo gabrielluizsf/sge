@@ -9,10 +9,19 @@ import (
 	"github.com/gabrielluizsf/sge/vector"
 )
 
-// ears is a speaker that writes down what it plays.
-type ears struct{ heard []string }
+// ears is a speaker that writes down what it plays: everywhere, or, when
+// near is set, near it, as the farmer hears it over the villagers about.
+type ears struct {
+	heard []string
+	near  *game.Object
+}
 
-func (e *ears) play(name string, _ *vector.Vector3) { e.heard = append(e.heard, name) }
+func (e *ears) play(name string, at *vector.Vector3) {
+	if e.near != nil && at != nil && at.Sub(e.near.Transform.Position).Length() > 2*tile {
+		return
+	}
+	e.heard = append(e.heard, name)
+}
 
 func (e *ears) count(name string) int {
 	n := 0
@@ -27,13 +36,13 @@ func (e *ears) count(name string) int {
 // stroll is a controller that keeps going one way, using nothing.
 type stroll vector.Vector3
 
-func (s stroll) control(*farm, *game.Object) intent { return intent{dir: vector.Vector3(s)} }
+func (s stroll) control(*farm, *game.Object, float64) intent { return intent{dir: vector.Vector3(s)} }
 
 // walk has the farmer walk the way dir points from cell col, row for n
 // frames, and is what was heard.
 func walk(dir vector.Vector3, from [2]int, n int) *ears {
 	g, f := newGame(stroll(dir))
-	e := &ears{}
+	e := &ears{near: g.Find("farmer")}
 	f.speaker = e
 	g.Find("farmer").Transform.Position = standIn(f, from[0], from[1])
 	for range n {
@@ -71,19 +80,19 @@ func TestTheFarmsWorkIsHeard(t *testing.T) {
 	e := &ears{}
 	f.speaker = e
 	f.money = 0
-	f.choose(&shop{choice: 0})
-	f.choose(&shop{choice: sellChoice})
+	f.choose(f.kit, &shop{choice: 0, at: farmStall})
+	f.choose(f.kit, &shop{choice: sellChoice, at: farmStall})
 	f.money = 20
-	f.choose(&shop{choice: 0})
-	f.harvest[0] = 1
-	f.choose(&shop{choice: sellChoice})
+	f.choose(f.kit, &shop{choice: 0, at: farmStall})
+	f.bag.Add(cropOf(0), 1)
+	f.choose(f.kit, &shop{choice: sellChoice, at: farmStall})
 	p := f.plots[0]
 	f.slot = slotCarrot
-	f.use(p.col, p.row)
+	f.use(f.kit, p.col, p.row)
 	f.slot = slotCan
-	f.use(p.col, p.row)
+	f.use(f.kit, p.col, p.row)
 	p.stage = ripe
-	f.use(p.col, p.row)
+	f.use(f.kit, p.col, p.row)
 	if want := []string{"deny", "deny", "coin", "sell", "plant", "pour", "harvest"}; !slices.Equal(e.heard, want) {
 		t.Errorf("heard %v, not %v", e.heard, want)
 	}

@@ -7,26 +7,36 @@ import (
 )
 
 // keyboard is a player at the keys and the mouse: arrows or WASD walk the
-// way they point on the screen, 1 to 3 pick what to hold, space or a
+// way they point on the screen, 1 to 4 pick what to hold, space or a
 // click uses it, on the cell under the mouse when it is in reach and on
-// the one in front otherwise, and E opens the shop at the stall.
+// the one in front otherwise, and E talks, goes in, sleeps or shops, as
+// where they stand allows. In a room, the doormat is the way out.
 type keyboard struct{}
 
-func (keyboard) control(f *farm, o *game.Object) intent {
+func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
 	win := o.Game().Window()
 	if win == nil {
 		return intent{}
 	}
-	if f.shop.open {
+	switch {
+	case f.talk != nil:
+		f.talkKeys(win)
+		return intent{}
+	case f.shop.open:
 		f.shopKeys(win)
 		return intent{}
 	}
-	if win.KeyPressed(antui.KeyE) && f.atStall(o) {
-		f.shop.open, f.shop.choice = true, 0
-		f.sound("ui_open", nil)
+	if _, row := f.cellOf(feet(o)); f.room != nil && row >= roomRows-1 {
+		f.leave()
 		return intent{}
 	}
-	for i, k := range []antui.Key{antui.Key1, antui.Key2, antui.Key3} {
+	if win.KeyPressed(antui.KeyE) {
+		if _, do, ok := f.interaction(o); ok {
+			do()
+			return intent{}
+		}
+	}
+	for i, k := range []antui.Key{antui.Key1, antui.Key2, antui.Key3, antui.Key4} {
 		if win.KeyPressed(k) && f.slot != i {
 			f.slot = i
 			f.sound("ui_tick", nil)
@@ -45,8 +55,8 @@ func mouseCell(f *farm, o *game.Object) *[2]int {
 	g := o.Game()
 	win := g.Window()
 	w := g.ToWorld(vector.Vector3{X: float64(win.MouseX()), Y: float64(win.MouseY())})
-	col, row, ok := f.ground.CellAt(w.X, w.Y)
-	if !ok || f.ground.CellCenter(col, row).Sub(feet(o)).Length() > reach {
+	col, row := f.cellOf(w)
+	if f.ground.CellCenter(col, row).Sub(feet(o)).Length() > reach {
 		return nil
 	}
 	return &[2]int{col, row}

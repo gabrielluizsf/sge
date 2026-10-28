@@ -27,3 +27,14 @@ const (
 	metal, metalShade                            = "#cfd8e3", "#8f9db0"
 	shadowInk                                    = "#1f3a22"
 )
+
+// The towns' colours: brick, slate, plaster, roof tiles and glass.
+const (
+	brickLight, brickBase, brickShade    = "#e08a6a", "#c0624a", "#8f4434"
+	slateLight, slateBase, slateShade    = "#8a93a6", "#646d82", "#454c5e"
+	skyLight, skyBase, skyShade          = "#cfe9ff", "#9cc9ee", "#6f9fc9"
+	plasterLight, plasterBase, plasterSh = "#fff3c9", "#f2dc9a", "#cdb06a"
+	tileLight, tileBase, tileShade       = "#ffad6b", "#e5793f", "#b0552a"
+	mossLight, mossBase, mossShade       = "#9fd38a", "#6aa85a", "#4a7e40"
+	glass, glassShade                    = "#bfe6ff", "#6fa8d6"
+)

@@ -23,7 +23,7 @@ type task struct {
 	do   func(f *farm, o *game.Object) bool // whether to use what is held
 }
 
-func (b *bot) control(f *farm, o *game.Object) intent {
+func (b *bot) control(f *farm, o *game.Object, _ float64) intent {
 	if b.task == nil {
 		b.task = b.next(f)
 		if b.task == nil {

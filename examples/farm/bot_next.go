@@ -23,19 +23,15 @@ func (b *bot) next(f *farm) *task {
 			return tend(p, slotCan)
 		}
 	}
-	harvested := 0
-	for _, n := range f.harvest {
-		harvested += n
-	}
-	if harvested > 0 {
-		return b.atStall(f, func(f *farm) { f.choose(&shop{choice: sellChoice}) })
+	if worth(f.kit) > 0 {
+		return b.atStall(f, func(f *farm) { f.choose(f.kit, &shop{choice: sellChoice, at: farmStall}) })
 	}
 	for _, p := range plots {
 		if p.crop >= 0 {
 			continue
 		}
 		for c := len(crops) - 1; c >= 0; c-- {
-			if f.seeds[c] > 0 {
+			if f.bag.Count(seedsOf(c)) > 0 {
 				return tend(p, c)
 			}
 		}
@@ -57,7 +53,7 @@ func (b *bot) next(f *farm) *task {
 				if f.money < crops[c].seedPrice {
 					return
 				}
-				f.choose(&shop{choice: c})
+				f.choose(f.kit, &shop{choice: c, at: farmStall})
 			}
 		})
 	}

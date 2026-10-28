@@ -17,13 +17,15 @@ type layers struct {
 	ground, water, crops, things *tilemap.Map
 }
 
-// The layers' places in the drawing order, and the HUD's over them. The
+// The layers' places in the drawing order, the night's shade over them,
+// and the HUD's over all. The
 // farmer and the stall stand among what stands on the ground. The endless
 // world around the farm is drawn at the same places.
 const (
 	zGround = iota
 	zWater
 	zThings
+	zNight
 	zHUD
 )
 
@@ -31,11 +33,12 @@ const (
 func newLayers(g *game.Game, tiles *tilemap.TileSet) layers {
 	grass := tileID["grass0"]
 	ground := map[rune]int{'G': tileID["flowers0"], 'p': tileID["path"], 'd': tileID["soil_dry"]}
-	for _, c := range "gwfTtC" {
+	for _, c := range "gwfTtCH" {
 		ground[c] = grass
 	}
-	// The stall is an object on its cell (see newStall); it is solid.
-	things := map[rune]int{'f': tileID["fence"], 'T': tileID["tree0"], 'C': tileID["block"]}
+	// The stall and the house are objects on their cells (see newStall
+	// and newHouse); they are solid.
+	things := map[rune]int{'f': tileID["fence"], 'T': tileID["tree0"], 'C': tileID["block"], 'H': tileID["block"]}
 	l := layers{
 		ground: parse("ground", tiles, ground),
 		water:  parse("water", tiles, nil),

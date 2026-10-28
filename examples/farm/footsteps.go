@@ -35,9 +35,14 @@ func (p *farmer) footsteps(o *game.Object) {
 }
 
 // stepOn is the sound of a step at the world point x, y: on the path, on
-// tilled soil, or in grass, as the wild is all over.
+// tilled soil, or in grass, as the wild is all over; a room's floor
+// sounds as the path.
 func (f *farm) stepOn(x, y float64) string {
-	switch f.ground.TileAt(x, y) {
+	if f.room != nil {
+		return "step_path"
+	}
+	col, row := f.wild.CellOf(x, y)
+	switch f.groundAt(col, row) {
 	case tileID["path"]:
 		return "step_path"
 	case tileID["soil_dry"], tileID["soil_wet"]:
