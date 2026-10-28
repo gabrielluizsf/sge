@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+</defs>
+<ellipse cx="16" cy="40" rx="7" ry="3.2" fill="#1f3a22" opacity="0.35"/>
+<path d="M15.00 37.50 L16.00 38.00 L16.00 33.00 L15.00 32.50 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M17.00 37.50 L16.00 38.00 L16.00 33.00 L17.00 32.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.00 32.00 L17.00 32.50 L16.00 33.00 L15.00 32.50 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M20.00 40.00 L21.00 40.50 L21.00 35.50 L20.00 35.00 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M22.00 40.00 L21.00 40.50 L21.00 35.50 L22.00 35.00 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M21.00 34.50 L22.00 35.00 L21.00 35.50 L20.00 35.00 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M10.00 40.00 L11.00 40.50 L11.00 35.50 L10.00 35.00 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M12.00 40.00 L11.00 40.50 L11.00 35.50 L12.00 35.00 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M11.00 34.50 L12.00 35.00 L11.00 35.50 L10.00 35.00 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M15.00 42.50 L16.00 43.00 L16.00 38.00 L15.00 37.50 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M17.00 42.50 L16.00 43.00 L16.00 38.00 L17.00 37.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.00 37.00 L17.00 37.50 L16.00 38.00 L15.00 37.50 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M9.00 35.00 L16.00 38.50 L16.00 37.50 L9.00 34.00 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M23.00 35.00 L16.00 38.50 L16.00 37.50 L23.00 34.00 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.00 30.50 L23.00 34.00 L16.00 37.50 L9.00 34.00 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M14.90 31.05 L21.90 34.55 L21.90 27.55 L14.90 24.05 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M23.00 34.00 L21.90 34.55 L21.90 27.55 L23.00 27.00 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.00 23.50 L23.00 27.00 L21.90 27.55 L14.90 24.05 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+</svg>

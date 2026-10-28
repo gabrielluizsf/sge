@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe9ff"/><stop offset="1" stop-color="#6fa8d6"/></linearGradient>
+</defs>
+<path d="M16.00 32.00 L32.00 40.00 L32.00 14.00 L16.00 6.00 Z" fill="#c0624a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.00 31.00 L32.00 39.00" stroke="#86562c" stroke-width="1.6"/>
+<path d="M20.00 24.00 L28.00 28.00 L28.00 19.00 L20.00 15.00 Z" fill="url(#g1)" stroke="#ffffff" stroke-width="1" stroke-linejoin="round"/>
+<path d="M24.00 26.00 L24.00 17.00 M20.00 19.50 L28.00 23.50" stroke="#ffffff" stroke-width="0.6"/>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+</defs>
+<ellipse cx="16" cy="40" rx="7" ry="3.2" fill="#1f3a22" opacity="0.35"/>
+<path d="M10.00 40.00 L16.00 43.00 L16.00 38.00 L10.00 35.00 Z" fill="#e5793f" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M22.00 40.00 L16.00 43.00 L16.00 38.00 L22.00 35.00 Z" fill="#b0552a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.00 32.00 L22.00 35.00 L16.00 38.00 L10.00 35.00 Z" fill="#ffad6b" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.00 35.00 Q15.68 30.88 12.00 29.00 Q12.32 33.12 16.00 35.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 35.00 L12.80 30.20" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 35.00 Q19.68 33.12 20.00 29.00 Q16.32 30.88 16.00 35.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 35.00 L19.20 30.20" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 35.00 Q18.52 30.50 16.00 26.00 Q13.48 30.50 16.00 35.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 35.00 L16.00 27.80" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 35.00 Q13.56 32.32 10.00 33.00 Q12.44 35.68 16.00 35.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 35.00 L11.20 33.40" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 35.00 Q19.56 35.68 22.00 33.00 Q18.44 32.32 16.00 35.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 35.00 L20.80 33.40" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+</svg>

@@ -1,4 +1,4 @@
-name: Deno
+name: Test
 
 on:
   push:
@@ -17,10 +17,26 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v4
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.x"
+
       - name: Setup Deno
-        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31  # v1.1.2
+        uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
 
-      - name: Run tests
-        run: deno test -A
+      - name: Vet
+        run: go vet ./...
+
+      # The Go tests also transpile the engine and run its tests, and the
+      # transpiler's conformance programs, on Deno.
+      - name: Test
+        run: go test ./...
+
+      - name: Generate the TypeScript
+        run: go generate .
+
+      - name: Type-check the TypeScript example
+        run: deno check examples/collect/collect.ts

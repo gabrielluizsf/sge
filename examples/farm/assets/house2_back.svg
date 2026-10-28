@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 80" width="72" height="80">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#6fa8d6"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#6fa8d6"/></linearGradient>
+<linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#6fa8d6"/></linearGradient>
+<linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#6fa8d6"/></linearGradient>
+<linearGradient id="g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#6fa8d6"/></linearGradient>
+<linearGradient id="g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffad6b"/><stop offset="1" stop-color="#e5793f"/></linearGradient>
+</defs>
+<ellipse cx="36.00" cy="64.00" rx="30" ry="15" fill="#1f3a22" opacity="0.3"/>
+<path d="M8.00 64.00 L36.00 78.00 L36.00 60.00 L8.00 46.00 Z" fill="#9cc9ee" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M64.00 64.00 L36.00 78.00 L36.00 60.00 L64.00 46.00 Z" fill="#6f9fc9" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M36.00 32.00 L64.00 46.00 L36.00 60.00 L8.00 46.00 Z" fill="#cfe9ff" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M8.00 60.00 L36.00 74.00 L64.00 60.00" stroke="#6f9fc9" stroke-width="0.35" fill="none" opacity="0.6"/>
+<path d="M8.00 56.00 L36.00 70.00 L64.00 56.00" stroke="#6f9fc9" stroke-width="0.35" fill="none" opacity="0.6"/>
+<path d="M8.00 52.00 L36.00 66.00 L64.00 52.00" stroke="#6f9fc9" stroke-width="0.35" fill="none" opacity="0.6"/>
+<path d="M8.00 48.00 L36.00 62.00 L64.00 48.00" stroke="#6f9fc9" stroke-width="0.35" fill="none" opacity="0.6"/>
+<path d="M64.00 46.00 L36.00 60.00 L50.00 40.00 Z" fill="#6f9fc9" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M52.60 51.30 L47.40 53.90 L47.40 48.70 L52.60 46.10 Z" fill="url(#g1)" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M52.60 51.30 L47.40 53.90 L47.40 48.70 L52.60 46.10 Z" fill="none" stroke="#3a2a2e" stroke-width="0.35"/>
+<path d="M59.60 58.80 L54.40 61.40 L54.40 56.20 L59.60 53.60 Z" fill="url(#g2)" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M59.60 58.80 L54.40 61.40 L54.40 56.20 L59.60 53.60 Z" fill="none" stroke="#3a2a2e" stroke-width="0.35"/>
+<circle cx="58.73" cy="58.63" r="0.9" fill="#ff8fb4" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="57.00" cy="59.50" r="0.9" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="55.27" cy="60.37" r="0.9" fill="#ffe16b" stroke="#3a2a2e" stroke-width="0.3"/>
+<path d="M45.60 65.80 L40.40 68.40 L40.40 63.20 L45.60 60.60 Z" fill="url(#g3)" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M45.60 65.80 L40.40 68.40 L40.40 63.20 L45.60 60.60 Z" fill="none" stroke="#3a2a2e" stroke-width="0.35"/>
+<circle cx="44.73" cy="65.63" r="0.9" fill="#ff8fb4" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="43.00" cy="66.50" r="0.9" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="41.27" cy="67.37" r="0.9" fill="#ffe16b" stroke="#3a2a2e" stroke-width="0.3"/>
+<path d="M25.40 65.30 L30.60 67.90 L30.60 62.70 L25.40 60.10 Z" fill="url(#g4)" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M25.40 65.30 L30.60 67.90 L30.60 62.70 L25.40 60.10 Z" fill="none" stroke="#3a2a2e" stroke-width="0.35"/>
+<circle cx="26.27" cy="65.13" r="0.9" fill="#ff8fb4" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="28.00" cy="66.00" r="0.9" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="29.73" cy="66.87" r="0.9" fill="#ffe16b" stroke="#3a2a2e" stroke-width="0.3"/>
+<path d="M12.40 58.80 L17.60 61.40 L17.60 56.20 L12.40 53.60 Z" fill="url(#g5)" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M12.40 58.80 L17.60 61.40 L17.60 56.20 L12.40 53.60 Z" fill="none" stroke="#3a2a2e" stroke-width="0.35"/>
+<circle cx="13.27" cy="58.63" r="0.9" fill="#ff8fb4" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="15.00" cy="59.50" r="0.9" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="16.73" cy="60.37" r="0.9" fill="#ffe16b" stroke="#3a2a2e" stroke-width="0.3"/>
+<path d="M20.00 25.00 L52.00 41.00 L69.00 47.50 L37.00 31.50 Z" fill="#b0552a" stroke="#3a2a2e" stroke-width="0.6" stroke-linejoin="round"/>
+<path d="M20.00 25.00 L52.00 41.00 L35.00 64.50 L3.00 48.50 Z" fill="url(#g6)" stroke="#3a2a2e" stroke-width="0.6" stroke-linejoin="round"/>
+<path d="M23.00 28.10 L7.60 49.80" stroke="#b0552a" stroke-width="0.4" opacity="0.8"/>
+<path d="M27.00 30.10 L11.60 51.80" stroke="#b0552a" stroke-width="0.4" opacity="0.8"/>
+<path d="M31.00 32.10 L15.60 53.80" stroke="#b0552a" stroke-width="0.4" opacity="0.8"/>
+<path d="M35.00 34.10 L19.60 55.80" stroke="#b0552a" stroke-width="0.4" opacity="0.8"/>
+<path d="M39.00 36.10 L23.60 57.80" stroke="#b0552a" stroke-width="0.4" opacity="0.8"/>
+<path d="M43.00 38.10 L27.60 59.80" stroke="#b0552a" stroke-width="0.4" opacity="0.8"/>
+<path d="M47.00 40.10 L31.60 61.80" stroke="#b0552a" stroke-width="0.4" opacity="0.8"/>
+<path d="M20.00 25.00 L52.00 41.00" stroke="#ffad6b" stroke-width="0.8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<clipPath id="cell"><rect x="15.5" y="32" width="1" height="0.5"/><rect x="14.5" y="32.5" width="3" height="0.5"/><rect x="13.5" y="33" width="5" height="0.5"/><rect x="12.5" y="33.5" width="7" height="0.5"/><rect x="11.5" y="34" width="9" height="0.5"/><rect x="10.5" y="34.5" width="11" height="0.5"/><rect x="9.5" y="35" width="13" height="0.5"/><rect x="8.5" y="35.5" width="15" height="0.5"/><rect x="7.5" y="36" width="17" height="0.5"/><rect x="6.5" y="36.5" width="19" height="0.5"/><rect x="5.5" y="37" width="21" height="0.5"/><rect x="4.5" y="37.5" width="23" height="0.5"/><rect x="3.5" y="38" width="25" height="0.5"/><rect x="2.5" y="38.5" width="27" height="0.5"/><rect x="1.5" y="39" width="29" height="0.5"/><rect x="0.5" y="39.5" width="31" height="0.5"/><rect x="0.5" y="40" width="31" height="0.5"/><rect x="1.5" y="40.5" width="29" height="0.5"/><rect x="2.5" y="41" width="27" height="0.5"/><rect x="3.5" y="41.5" width="25" height="0.5"/><rect x="4.5" y="42" width="23" height="0.5"/><rect x="5.5" y="42.5" width="21" height="0.5"/><rect x="6.5" y="43" width="19" height="0.5"/><rect x="7.5" y="43.5" width="17" height="0.5"/><rect x="8.5" y="44" width="15" height="0.5"/><rect x="9.5" y="44.5" width="13" height="0.5"/><rect x="10.5" y="45" width="11" height="0.5"/><rect x="11.5" y="45.5" width="9" height="0.5"/><rect x="12.5" y="46" width="7" height="0.5"/><rect x="13.5" y="46.5" width="5" height="0.5"/><rect x="14.5" y="47" width="3" height="0.5"/><rect x="15.5" y="47.5" width="1" height="0.5"/></clipPath>
+<linearGradient id="g1" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#9a6738"/><stop offset="1" stop-color="#744a26"/></linearGradient>
+</defs>
+<g fill="url(#g1)"><rect x="15.5" y="32" width="1" height="0.5"/><rect x="14.5" y="32.5" width="3" height="0.5"/><rect x="13.5" y="33" width="5" height="0.5"/><rect x="12.5" y="33.5" width="7" height="0.5"/><rect x="11.5" y="34" width="9" height="0.5"/><rect x="10.5" y="34.5" width="11" height="0.5"/><rect x="9.5" y="35" width="13" height="0.5"/><rect x="8.5" y="35.5" width="15" height="0.5"/><rect x="7.5" y="36" width="17" height="0.5"/><rect x="6.5" y="36.5" width="19" height="0.5"/><rect x="5.5" y="37" width="21" height="0.5"/><rect x="4.5" y="37.5" width="23" height="0.5"/><rect x="3.5" y="38" width="25" height="0.5"/><rect x="2.5" y="38.5" width="27" height="0.5"/><rect x="1.5" y="39" width="29" height="0.5"/><rect x="0.5" y="39.5" width="31" height="0.5"/><rect x="0.5" y="40" width="31" height="0.5"/><rect x="1.5" y="40.5" width="29" height="0.5"/><rect x="2.5" y="41" width="27" height="0.5"/><rect x="3.5" y="41.5" width="25" height="0.5"/><rect x="4.5" y="42" width="23" height="0.5"/><rect x="5.5" y="42.5" width="21" height="0.5"/><rect x="6.5" y="43" width="19" height="0.5"/><rect x="7.5" y="43.5" width="17" height="0.5"/><rect x="8.5" y="44" width="15" height="0.5"/><rect x="9.5" y="44.5" width="13" height="0.5"/><rect x="10.5" y="45" width="11" height="0.5"/><rect x="11.5" y="45.5" width="9" height="0.5"/><rect x="12.5" y="46" width="7" height="0.5"/><rect x="13.5" y="46.5" width="5" height="0.5"/><rect x="14.5" y="47" width="3" height="0.5"/><rect x="15.5" y="47.5" width="1" height="0.5"/></g>
+<g clip-path="url(#cell)">
+<g transform="matrix(1 0.5 -1 0.5 16 32)" stroke-linecap="round">
+<path d="M0.5 3 L15.5 3" stroke="#744a26" stroke-width="1.5"/>
+<path d="M0.5 2 L15.5 2" stroke="#c08a52" stroke-width="0.8"/>
+<path d="M0.5 7 L15.5 7" stroke="#744a26" stroke-width="1.5"/>
+<path d="M0.5 6 L15.5 6" stroke="#c08a52" stroke-width="0.8"/>
+<path d="M0.5 11 L15.5 11" stroke="#744a26" stroke-width="1.5"/>
+<path d="M0.5 10 L15.5 10" stroke="#c08a52" stroke-width="0.8"/>
+<path d="M0.5 15 L15.5 15" stroke="#744a26" stroke-width="1.5"/>
+<path d="M0.5 14 L15.5 14" stroke="#c08a52" stroke-width="0.8"/>
+</g>
+</g>
+</svg>

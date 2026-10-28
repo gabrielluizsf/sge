@@ -128,3 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# TypeScript transpiled from the Go packages by gots (go generate).
+/deno/
+
+*.test

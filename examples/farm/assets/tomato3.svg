@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+</defs>
+<ellipse cx="16" cy="40" rx="4" ry="1.6" fill="#1f3a22" opacity="0.35"/>
+<ellipse cx="16" cy="40" rx="3.4" ry="1.5" fill="#c08a52" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.4" cy="39.6" rx="1.6" ry="0.6" fill="#f1d79a"/>
+<path d="M18.2 40.6 l0 -15" stroke="#b47c45" stroke-width="0.7" stroke-linecap="round"/>
+<path d="M16 40 q0 -6.5 0 -13" stroke="#3f8a3c" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+<path d="M16.00 39.00 Q14.89 37.46 13.00 37.60 Q14.11 39.14 16.00 39.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 39.00 L13.60 37.88" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 36.00 Q17.89 36.14 19.00 34.60 Q17.11 34.46 16.00 36.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 36.00 L18.40 34.88" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 33.00 Q14.89 31.46 13.00 31.60 Q14.11 33.14 16.00 33.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 33.00 L13.60 31.88" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 30.00 Q17.89 30.14 19.00 28.60 Q17.11 28.46 16.00 30.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 30.00 L18.40 28.88" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<circle cx="13.8" cy="35" r="1.6" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<circle cx="13.3" cy="34.5" r="0.5" fill="#ffffff" opacity="0.8"/>
+<circle cx="17.8" cy="32.5" r="1.6" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<circle cx="17.3" cy="32" r="0.5" fill="#ffffff" opacity="0.8"/>
+<circle cx="15" cy="30" r="1.6" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<circle cx="14.5" cy="29.5" r="0.5" fill="#ffffff" opacity="0.8"/>
+<circle cx="18.4" cy="36.8" r="1.6" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<circle cx="17.9" cy="36.3" r="0.5" fill="#ffffff" opacity="0.8"/>
+</svg>

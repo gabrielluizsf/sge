@@ -1,0 +1,193 @@
+import { Type, ptrTo } from "./types.ts";
+import { Cell, ptrEq } from "./ptr.ts";
+
+// Val is an interface holding anything but a pointer to a struct, which an
+// interface holds as the object itself. A type with methods holds its values
+// in a subclass of Val that has them, so calling through an interface is an
+// ordinary method call.
+export class Val {
+  $t: Type;
+  v: any;
+  constructor(t: Type, v: any) {
+    this.$t = t;
+    this.v = v;
+  }
+}
+
+// NilPtr is a nil pointer to a struct held in an interface: unlike the
+// nil interface, it has a type, and the methods of that pointer type,
+// called with a nil receiver as Go does. There is one for each type, so
+// two of the same type are equal.
+export class NilPtr extends Val {
+  ctor: any = null;
+}
+
+const nilPtrs = new WeakMap<any, NilPtr>();
+
+// nilPtr is the nil pointer to the struct of class ctor, in an interface.
+export function nilPtr(ctor: any): NilPtr {
+  let b = nilPtrs.get(ctor);
+  if (b === undefined) {
+    class Box extends NilPtr {}
+    for (let p = ctor.prototype; p !== null && p !== Object.prototype; p = Object.getPrototypeOf(p)) {
+      for (const name of Object.getOwnPropertyNames(p)) {
+        if (name === "constructor" || name in Box.prototype) continue;
+        const m = p[name];
+        if (typeof m !== "function") continue;
+        (Box.prototype as any)[name] = function (...a: any[]) {
+          return m.apply(null, a);
+        };
+      }
+    }
+    b = new Box(ptrTo(ctor.$type), null);
+    b.ctor = ctor;
+    nilPtrs.set(ctor, b);
+  }
+  return b;
+}
+
+// ptrBox is the pointer p to a struct of class ctor put in an interface:
+// the object itself, or the typed nil.
+export function ptrBox(p: any, ctor: any): any {
+  return p === null ? nilPtr(ctor) : p;
+}
+
+// unboxPtr is the pointer an interface holding one gives back.
+export function unboxPtr(x: any): any {
+  return x instanceof NilPtr ? null : x;
+}
+
+// val puts v in an interface as a value of type t.
+export function val(t: Type, v: any): Val {
+  return t.valCls === null ? new Val(t, v) : new t.valCls(t, v);
+}
+
+// typeOf is the dynamic type of a non-nil interface value.
+export function typeOf(x: any): Type {
+  if (x instanceof Val) return x.$t;
+  return ptrTo(x.constructor.$type);
+}
+
+// is reports whether interface value x holds a value of the non-pointer type t.
+// Only a Val has a $t, which spares the instanceof walking its classes.
+export function is(x: any, t: Type): boolean {
+  return x != null && x.$t === t;
+}
+
+// methodSet marks a method list the emitter writes once, as a module
+// constant, with a symbol implementsI keeps its answers under, and the
+// Go names and types of its exported methods, which a value's must match.
+export function methodSet(methods: string[], sigs?: [string, string][]): string[] {
+  (methods as any).$key = Symbol(methods.join(",") + "|" + (sigs ?? []).map((s) => s.join(":")).join(";"));
+  if (sigs !== undefined && sigs.length > 0) (methods as any).$sigs = sigs;
+  return methods;
+}
+
+// implements reports whether x has every method an interface asks for.
+// For a Go value and a marked list the answer is kept on the value's
+// class, where reading it again is a property V8 caches; a plain
+// TypeScript object is asked every time, as all of them share one
+// prototype.
+export function implementsI(x: any, methods: string[]): boolean {
+  if (x === null) return false;
+  const key = (methods as any).$key;
+  if (key === undefined) return has(x, methods);
+  const known = x[key];
+  if (known !== undefined) return known;
+  const r = has(x, methods);
+  const proto = Object.getPrototypeOf(x);
+  if (proto !== Object.prototype && proto !== null && (x instanceof Val || proto.constructor?.$type !== undefined)) {
+    Object.defineProperty(proto, key, { value: r });
+  }
+  return r;
+}
+
+function has(x: any, methods: string[]): boolean {
+  for (const m of methods) if (typeof x[m] !== "function") return false;
+  const sigs: [string, string][] | undefined = (methods as any).$sigs;
+  return sigs === undefined || typesMatch(x, sigs);
+}
+
+// typesMatch reports whether the methods x's Go type has of sigs' names
+// have sigs' types. A value with no Go type, TypeScript's own, has only
+// names to go by.
+function typesMatch(x: any, sigs: [string, string][]): boolean {
+  const t = x instanceof NilPtr ? x.ctor?.$type : x instanceof Val ? x.$t : x.constructor?.$type;
+  const set: { name: string; type: { str: string } }[] | undefined = t?.methodSet;
+  if (set === undefined || set.length === 0) return true;
+  for (const [name, sig] of sigs) {
+    const m = set.find((m) => m.name === name);
+    if (m !== undefined && m.type.str !== sig) return false;
+  }
+  return true;
+}
+
+export class TypeAssertionError extends Error {
+  constructor(from: any, want: string) {
+    super(`interface conversion: interface {} is ${from === null ? "nil" : typeOf(from).str}, not ${want}`);
+  }
+}
+
+// assertVal is x.(T) for a non-pointer T: the value, or a panic.
+export function assertVal(x: any, t: Type): any {
+  if (x instanceof Val && x.$t === t) return x.v;
+  throw new TypeAssertionError(x, t.str);
+}
+
+// isPtrTo reports whether interface value x holds a *S, for the struct
+// class ctor of S. Descriptors are compared rather than classes, since an
+// instance of a generic struct has a class in every module that uses it.
+export function isPtrTo(x: any, ctor: any): boolean {
+  if (x instanceof NilPtr) return x.ctor === ctor;
+  return x !== null && !(x instanceof Val) && x.constructor.$type === ctor.$type;
+}
+
+// assertPtr is x.(*S) for a struct S: the object, or a panic.
+export function assertPtr(x: any, ctor: any): any {
+  if (isPtrTo(x, ctor)) return unboxPtr(x);
+  throw new TypeAssertionError(x, "*" + ctor.$type.str);
+}
+
+// assertIface is x.(I) for an interface I.
+export function assertIface(x: any, str: string, methods: string[]): any {
+  if (implementsI(x, methods)) return x;
+  if (x === null) throw new TypeAssertionError(x, str);
+  throw new Error(`interface conversion: ${typeOf(x).str} is not ${str}: missing method`);
+}
+
+// ifaceEq is a == b for interface values.
+export function ifaceEq(a: any, b: any): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  const av = a instanceof Val, bv = b instanceof Val;
+  if (av !== bv) return false;
+  if (!av) return false;
+  if (a.$t !== b.$t) return false;
+  return equal(a.$t, a.v, b.v);
+}
+
+// equal is a == b for two values of type t.
+export function equal(t: Type, a: any, b: any): boolean {
+  switch (t.kind) {
+    case "struct":
+      for (const f of t.fields) if (!equal(f.type, a[f.prop], b[f.prop])) return false;
+      return true;
+    case "array":
+      for (let i = 0; i < t.len; i++) if (!equal(t.elem!, a[i], b[i])) return false;
+      return true;
+    case "iface":
+      return ifaceEq(a, b);
+    case "ptr":
+      return a instanceof Cell || b instanceof Cell ? a === b : ptrEq(a, b);
+    case "slice":
+    case "map":
+    case "func":
+      if (a === null && b === null) return true;
+      throw new Error(`runtime error: comparing uncomparable type ${t.str}`);
+    case "complex64":
+    case "complex128":
+      return a.re === b.re && a.im === b.im;
+    default:
+      return a === b;
+  }
+}

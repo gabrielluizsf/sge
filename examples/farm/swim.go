@@ -1,0 +1,27 @@
+package main
+
+import (
+	"github.com/gabrielluizsf/sge/tilemap"
+	"github.com/gabrielluizsf/sge/vector"
+)
+
+// swimSpeed is how fast the farmer swims: slower than they walk.
+const swimSpeed = walkSpeed * 0.55
+
+// inWater reports whether the point p, where one stands, is in water: the
+// farm's pond, or a lake of the wild.
+func (f *farm) inWater(p vector.Vector3) bool {
+	if f.room != nil {
+		return false
+	}
+	return f.water.TileAt(p.X, p.Y) != tilemap.Empty || f.wild.InAt("water", p.X, p.Y)
+}
+
+// solids are what one walks into where the player is: a room's walls and
+// furniture, or the farm's and the wild's.
+func (f *farm) solids() []tilemap.Solid {
+	if f.room != nil {
+		return []tilemap.Solid{f.room.things}
+	}
+	return []tilemap.Solid{f.water, f.things, f.wild}
+}

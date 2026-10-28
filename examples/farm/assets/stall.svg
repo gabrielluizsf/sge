@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 56" width="48" height="56">
+<defs>
+</defs>
+<ellipse cx="24" cy="44" rx="20" ry="7" fill="#1f3a22" opacity="0.3"/>
+<path d="M13.60 35.20 L15.00 35.90 L15.00 9.90 L13.60 9.20 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M16.40 35.20 L15.00 35.90 L15.00 9.90 L16.40 9.20 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M15.00 8.50 L16.40 9.20 L15.00 9.90 L13.60 9.20 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M40.20 48.50 L41.60 49.20 L41.60 23.20 L40.20 22.50 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M43.00 48.50 L41.60 49.20 L41.60 23.20 L43.00 22.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M41.60 21.80 L43.00 22.50 L41.60 23.20 L40.20 22.50 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M4.00 40.00 L32.00 54.00 L32.00 44.00 L4.00 30.00 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M41.00 49.50 L32.00 54.00 L32.00 44.00 L41.00 39.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M13.00 25.50 L41.00 39.50 L32.00 44.00 L4.00 30.00 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M11.00 43.10 L11.00 33.90" stroke="#86562c" stroke-width="0.4"/>
+<path d="M18.00 46.60 L18.00 37.40" stroke="#86562c" stroke-width="0.4"/>
+<path d="M25.00 50.10 L25.00 40.90" stroke="#86562c" stroke-width="0.4"/>
+<path d="M11.00 30.50 L16.00 33.00 L16.00 31.00 L11.00 28.50 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M20.00 31.00 L16.00 33.00 L16.00 31.00 L20.00 29.00 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M15.00 26.50 L20.00 29.00 L16.00 31.00 L11.00 28.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<circle cx="15.30" cy="26.65" r="1.15" fill="#ff9a3c" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="14.90" cy="26.25" r="0.4" fill="#ffffff" opacity="0.7"/>
+<circle cx="17.10" cy="27.85" r="1.15" fill="#ff9a3c" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="16.70" cy="27.45" r="0.4" fill="#ffffff" opacity="0.7"/>
+<circle cx="14.50" cy="28.05" r="1.15" fill="#ff9a3c" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="14.10" cy="27.65" r="0.4" fill="#ffffff" opacity="0.7"/>
+<path d="M19.00 34.50 L24.00 37.00 L24.00 35.00 L19.00 32.50 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M28.00 35.00 L24.00 37.00 L24.00 35.00 L28.00 33.00 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M23.00 30.50 L28.00 33.00 L24.00 35.00 L19.00 32.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<circle cx="23.30" cy="30.65" r="1.15" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="22.90" cy="30.25" r="0.4" fill="#ffffff" opacity="0.7"/>
+<circle cx="25.10" cy="31.85" r="1.15" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="24.70" cy="31.45" r="0.4" fill="#ffffff" opacity="0.7"/>
+<circle cx="22.50" cy="32.05" r="1.15" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="22.10" cy="31.65" r="0.4" fill="#ffffff" opacity="0.7"/>
+<path d="M27.00 38.50 L32.00 41.00 L32.00 39.00 L27.00 36.50 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M36.00 39.00 L32.00 41.00 L32.00 39.00 L36.00 37.00 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M31.00 34.50 L36.00 37.00 L32.00 39.00 L27.00 36.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<circle cx="31.30" cy="34.65" r="1.15" fill="#ffe16b" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="30.90" cy="34.25" r="0.4" fill="#ffffff" opacity="0.7"/>
+<circle cx="33.10" cy="35.85" r="1.15" fill="#ffe16b" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="32.70" cy="35.45" r="0.4" fill="#ffffff" opacity="0.7"/>
+<circle cx="30.50" cy="36.05" r="1.15" fill="#ffe16b" stroke="#3a2a2e" stroke-width="0.3"/>
+<circle cx="30.10" cy="35.65" r="0.4" fill="#ffffff" opacity="0.7"/>
+<path d="M3.60 40.20 L5.00 40.90 L5.00 14.90 L3.60 14.20 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M6.40 40.20 L5.00 40.90 L5.00 14.90 L6.40 14.20 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M5.00 13.50 L6.40 14.20 L5.00 14.90 L3.60 14.20 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M30.20 53.50 L31.60 54.20 L31.60 28.20 L30.20 27.50 Z" fill="#b47c45" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M33.00 53.50 L31.60 54.20 L31.60 28.20 L33.00 27.50 Z" fill="#86562c" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M31.60 26.80 L33.00 27.50 L31.60 28.20 L30.20 27.50 Z" fill="#d9a36a" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M0.00 14.00 L32.00 30.00 L32.00 28.50 L0.00 12.50 Z" fill="#b93a35" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M47.00 22.50 L32.00 30.00 L32.00 28.50 L47.00 21.00 Z" fill="#b93a35" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M15.00 5.00 L47.00 21.00 L32.00 28.50 L0.00 12.50 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.5" stroke-linejoin="round"/>
+<path d="M15.00 5.00 L17.00 6.00 L2.00 13.50 L0.00 12.50 Z" fill="#ef5a4f"/>
+<path d="M19.00 7.00 L21.00 8.00 L6.00 15.50 L4.00 14.50 Z" fill="#ef5a4f"/>
+<path d="M23.00 9.00 L25.00 10.00 L10.00 17.50 L8.00 16.50 Z" fill="#ef5a4f"/>
+<path d="M27.00 11.00 L29.00 12.00 L14.00 19.50 L12.00 18.50 Z" fill="#ef5a4f"/>
+<path d="M31.00 13.00 L33.00 14.00 L18.00 21.50 L16.00 20.50 Z" fill="#ef5a4f"/>
+<path d="M35.00 15.00 L37.00 16.00 L22.00 23.50 L20.00 22.50 Z" fill="#ef5a4f"/>
+<path d="M39.00 17.00 L41.00 18.00 L26.00 25.50 L24.00 24.50 Z" fill="#ef5a4f"/>
+<path d="M43.00 19.00 L45.00 20.00 L30.00 27.50 L28.00 26.50 Z" fill="#ef5a4f"/>
+<path d="M0.00 14.00 Q1.00 16.50 2.00 15.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M2.00 15.00 Q3.00 17.50 4.00 16.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M4.00 16.00 Q5.00 18.50 6.00 17.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M6.00 17.00 Q7.00 19.50 8.00 18.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M8.00 18.00 Q9.00 20.50 10.00 19.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M10.00 19.00 Q11.00 21.50 12.00 20.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M12.00 20.00 Q13.00 22.50 14.00 21.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M14.00 21.00 Q15.00 23.50 16.00 22.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M16.00 22.00 Q17.00 24.50 18.00 23.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M18.00 23.00 Q19.00 25.50 20.00 24.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M20.00 24.00 Q21.00 26.50 22.00 25.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M22.00 25.00 Q23.00 27.50 24.00 26.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M24.00 26.00 Q25.00 28.50 26.00 27.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M26.00 27.00 Q27.00 29.50 28.00 28.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M28.00 28.00 Q29.00 30.50 30.00 29.00 Z" fill="#ef5a4f" stroke="#3a2a2e" stroke-width="0.4"/>
+<path d="M30.00 29.00 Q31.00 31.50 32.00 30.00 Z" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.4"/>
+</svg>
