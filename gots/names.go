@@ -43,9 +43,11 @@ func mangle(name string) string {
 }
 
 // fieldName makes a Go field or method name safe as a property name.
+// then is among them: an object with a then is a promise to JavaScript,
+// and await, or returning it from an async function, would call it.
 func fieldName(name string) string {
 	switch name {
-	case "constructor", "__proto__", "prototype":
+	case "constructor", "__proto__", "prototype", "then":
 		return name + "$"
 	}
 	if len(name) > 0 && name[0] == '$' {
