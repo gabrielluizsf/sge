@@ -9,6 +9,9 @@ type Generator struct {
 	Tiles  *tilemap.TileSet
 	Layers int
 	Areas  []Area
+	// edits are tiles set by Edit over what the areas give, by layer and
+	// cell: a tree cut down stays cut.
+	edits map[int]int
 }
 
 // Add puts a over the areas there are, and returns it.

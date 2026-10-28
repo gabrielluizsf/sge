@@ -11,7 +11,11 @@ import (
 // moved, neither turned nor scaled, is copied whole onto the pixels the
 // mapping would pick, rather than mapped back pixel by pixel.
 func (s *Sprite) Draw(dst *canvas.Canvas, t transform.Transform) {
-	if s == nil || s.Image == nil {
+	if s == nil {
+		return
+	}
+	s.ready()
+	if s.Image == nil {
 		return
 	}
 	m := s.Matrix(t)

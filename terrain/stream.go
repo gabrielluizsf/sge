@@ -47,6 +47,9 @@ func (s stream) Update(o *game.Object, dt float64) {
 			for _, l := range c.layers {
 				l.Destroy()
 			}
+			for _, o := range c.props {
+				o.Destroy()
+			}
 			delete(w.chunks, k)
 		}
 	}

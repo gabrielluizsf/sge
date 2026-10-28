@@ -33,5 +33,12 @@ func (w *World) makeChunk(key, cx, cy int) {
 		layers[l] = m
 		w.Game().Add(m.Object)
 	}
-	w.chunks[key] = &chunk{cx: cx, cy: cy, layers: layers}
+	c := &chunk{cx: cx, cy: cy, layers: layers}
+	if w.Props != nil {
+		c.props = w.Props(cx, cy)
+		for _, o := range c.props {
+			w.Game().Add(o)
+		}
+	}
+	w.chunks[key] = c
 }

@@ -9,7 +9,7 @@ import (
 
 // enginePackages are sge's own packages, whose Go tests must pass on Deno
 // too once transpiled.
-var enginePackages = []string{"vector", "transform", "collider", "clock", "sprite", "animation", "game", "tilemap", "terrain", "iso"}
+var enginePackages = []string{"vector", "transform", "collider", "clock", "sprite", "animation", "game", "tilemap", "terrain", "iso", "random", "inventory", "request", "pathfind", "town", "scene", "daytime"}
 
 // TestEngineOnDeno transpiles sge's packages with their tests and runs
 // them under deno test, from each package's directory as go test would.

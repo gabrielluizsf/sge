@@ -22,6 +22,10 @@ type World struct {
 	// Sorted are the layers whose maps are tilemap.Map's Sorted: in a
 	// projected world their tiles stand among the objects of their Z.
 	Sorted []int
+	// Props, when set, are the objects that stand on chunk cx, cy, houses
+	// say: added with its maps and destroyed with them, so they are only
+	// in the game while near the view.
+	Props  func(cx, cy int) []*game.Object
 	chunks map[int]*chunk // by cellKey of the chunk's place
 }
 
@@ -29,4 +33,5 @@ type World struct {
 type chunk struct {
 	cx, cy int
 	layers []*tilemap.Map
+	props  []*game.Object
 }
