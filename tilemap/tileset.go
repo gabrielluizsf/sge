@@ -16,7 +16,7 @@ type TileSet struct {
 	// than the square it stands on, and taller where something stands.
 	CellWidth, CellHeight int
 	solid                 []bool
-	opaque                []bool       // by tile id: no pixel of it lets through
+	opaque                []int8       // by tile id: whether no pixel of it lets through, once known
 	anims                 []*Animation // by tile id; nil for a still tile
 	animated              int          // how many tiles are animated
 	trims                 []trimmed    // by tile id: its picture cut to what shows

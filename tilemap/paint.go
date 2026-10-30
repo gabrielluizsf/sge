@@ -23,5 +23,5 @@ func (m *Map) paint(col, row int) {
 		clearCell(img, col*w, row*h, w, h)
 		return
 	}
-	copyTile(img, col*w, row*h, m.Tiles.Tiles[id].Image)
+	copyTile(img, col*w, row*h, m.Tiles.picture(id))
 }

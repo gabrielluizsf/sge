@@ -113,7 +113,9 @@ height of where they stand, as objects are by their `Footing`: a farmer in
 front of a trunk is over it, one behind it under it. `Follow` centres the
 camera, `VisibleWorld` is the patch of ground the view shows and `terrain`
 makes the chunks under it. Ground tiles, a run of opaque pixels on every row,
-are copied rather than blended, and every tile's air is cut away once.
+are copied rather than blended, and every tile's air is cut away once. A
+`tilemap.NewLazyTileSet` draws each tile the first time a map shows it, so a
+game of many tiles, drawn from SVG, starts at once.
 
 ## Towns, people and time
 

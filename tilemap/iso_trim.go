@@ -17,7 +17,7 @@ func (t *TileSet) trim(id int) trimmed {
 		t.trims = append(t.trims, make([]trimmed, len(t.Tiles)-len(t.trims))...)
 	}
 	if t.trims[id].img == nil {
-		t.trims[id] = cut(t.Tiles[id].Image)
+		t.trims[id] = cut(t.picture(id))
 	}
 	return t.trims[id]
 }

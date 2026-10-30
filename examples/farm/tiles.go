@@ -40,24 +40,17 @@ func shore(mask int) int { return tileID[shoreName(mask, 0)] }
 // tileID is the id of each tile in the set, by name.
 var tileID = map[string]int{}
 
-// newTiles cuts the tile set out of a sheet of every tile in a row, and
-// sets which are solid and which sway. Each tile's picture is a cell's
-// diamond, isoW by tile, at the bottom of isoH, what stands on the cell
-// reaching up out of it; its cell in the world stays tile square.
+// newTiles is the tile set, each tile drawn from its SVG the first time a
+// map shows it, and which are solid and which sway. Each tile's picture is
+// a cell's diamond, isoW by tile, at the bottom of isoH, what stands on
+// the cell reaching up out of it; its cell in the world stays tile square.
 func newTiles() *tilemap.TileSet {
 	names := tileNames()
-	sheet, err := canvas.NewCanvas(len(names)*isoW, isoH)
-	if err != nil {
-		panic(err)
-	}
 	for i, name := range names {
 		tileID[name] = i
-		sheet.Copy(i*isoW, 0, tileLook(name))
 	}
-	tiles, err := tilemap.NewTileSet(sheet, isoW, isoH)
-	if err != nil {
-		panic(err)
-	}
+	tiles := tilemap.NewLazyTileSet(tilemap.Lazy{Count: len(names), Width: isoW, Height: isoH,
+		Make: func(id int) *canvas.Canvas { return tileLook(names[id]) }})
 	tiles.CellWidth, tiles.CellHeight = tile, tile
 	id := func(names ...string) []int {
 		ids := make([]int, len(names))

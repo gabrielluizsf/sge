@@ -46,10 +46,10 @@ func (d drawing) Paint(o *game.Object, cv *canvas.Canvas) {
 	for i, id := range m.painted {
 		switch {
 		case id == Empty:
-		case m.Tiles.opaque[id]:
-			cv.Copy(x0+i%m.Cols*w, y0+i/m.Cols*h, m.Tiles.Tiles[id].Image)
+		case m.Tiles.isOpaque(id):
+			cv.Copy(x0+i%m.Cols*w, y0+i/m.Cols*h, m.Tiles.picture(id))
 		default:
-			cv.Blit(x0+i%m.Cols*w, y0+i/m.Cols*h, m.Tiles.Tiles[id].Image)
+			cv.Blit(x0+i%m.Cols*w, y0+i/m.Cols*h, m.Tiles.picture(id))
 		}
 	}
 }

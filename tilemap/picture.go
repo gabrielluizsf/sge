@@ -13,7 +13,7 @@ func (m *Map) Picture() *canvas.Canvas {
 		m.picture.Image = img
 		for i, id := range m.painted {
 			if id != Empty {
-				copyTile(img, i%m.Cols*m.Tiles.Width, i/m.Cols*m.Tiles.Height, m.Tiles.Tiles[id].Image)
+				copyTile(img, i%m.Cols*m.Tiles.Width, i/m.Cols*m.Tiles.Height, m.Tiles.picture(id))
 			}
 		}
 	}
