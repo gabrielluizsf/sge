@@ -12,14 +12,12 @@ import (
 // to look like a browser, with no Deno.connect and a fetch that tells it
 // was called: a TLSClientConfig must not be left aside by fetch.
 func TestTLSConfigNeverFetches(t *testing.T) {
+	t.Parallel()
 	deno, err := exec.LookPath("deno")
 	if err != nil {
 		t.Skip("deno is not installed")
 	}
-	out := t.TempDir()
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./testdata/nosockets/tlsconfig"}}); err != nil {
-		t.Fatalf("transpile: %v", err)
-	}
+	out := programs(t)
 	mod := filepath.Join(out, "gots", "testdata", "nosockets", "tlsconfig", "mod.ts")
 	shim := filepath.Join(out, "shim.ts")
 	src := `globalThis.fetch = (u) => Promise.reject(new Error("fetched " + u));

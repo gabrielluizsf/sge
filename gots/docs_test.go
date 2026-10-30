@@ -77,18 +77,12 @@ export function Unit$set(v: Box): void {}
 // wants: a module doc each, and a doc on every exported symbol, as JSR
 // scores a package.
 func TestEngineIsDocumented(t *testing.T) {
+	t.Parallel()
 	deno, err := exec.LookPath("deno")
 	if err != nil {
 		t.Skip("deno is not installed")
 	}
-	out := t.TempDir()
-	var patterns []string
-	for _, p := range enginePackages {
-		patterns = append(patterns, "../"+p)
-	}
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: patterns, Index: true}); err != nil {
-		t.Fatalf("transpile: %v", err)
-	}
+	out := engine(t)
 	files := []string{filepath.Join(out, "mod.ts")}
 	for _, p := range enginePackages {
 		files = append(files, filepath.Join(out, p, "mod.ts"))

@@ -29,12 +29,22 @@ func jsRuntime(t *testing.T) []string {
 }
 
 // TestConformance runs every program in testdata/conformance with go run and
-// as transpiled TypeScript, and wants the same output from both.
+// as transpiled TypeScript, and wants the same output from both. The
+// programs are transpiled together, so the standard library they share is
+// written once; one that cannot be is transpiled alone, to say which.
 func TestConformance(t *testing.T) {
 	run := jsRuntime(t)
 	dirs, err := filepath.Glob("testdata/conformance/*")
 	if err != nil {
 		t.Fatal(err)
+	}
+	var patterns []string
+	for _, dir := range dirs {
+		patterns = append(patterns, "./"+dir)
+	}
+	shared := t.TempDir()
+	if _, err := Transpile(Options{Dir: ".", Out: shared, Patterns: patterns}); err != nil {
+		shared = ""
 	}
 	for _, dir := range dirs {
 		t.Run(filepath.Base(dir), func(t *testing.T) {
@@ -43,13 +53,16 @@ func TestConformance(t *testing.T) {
 			if err != nil {
 				t.Fatalf("go run: %v\n%s", err, want)
 			}
-			out := t.TempDir()
-			_, err = Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./" + dir}})
-			if err != nil {
-				if strings.Contains(err.Error(), "no TypeScript version of standard package") {
-					t.Skip(err)
+			out := shared
+			if out == "" {
+				out = t.TempDir()
+				_, err = Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./" + dir}})
+				if err != nil {
+					if strings.Contains(err.Error(), "no TypeScript version of standard package") {
+						t.Skip(err)
+					}
+					t.Fatalf("transpile: %v", err)
 				}
-				t.Fatalf("transpile: %v", err)
 			}
 			mod := filepath.Join(out, "_gots", "mod", "github.com", "gabrielluizsf", "sge", "gots", filepath.ToSlash(dir), "mod.ts")
 			if _, err := os.Stat(mod); err != nil {

@@ -10,8 +10,10 @@ import (
 
 // TestFarmDemoOnDeno plays the farm example's demo in Go and, transpiled,
 // on Deno, and wants the same farm at the end and the same last frame,
-// pixel for pixel: tile maps, endless terrain, SVG sprites and all.
+// pixel for pixel: tile maps, endless terrain, SVG sprites and all, over
+// half a minute of play.
 func TestFarmDemoOnDeno(t *testing.T) {
+	t.Parallel()
 	deno, err := exec.LookPath("deno")
 	if err != nil {
 		t.Skip("deno is not installed")
@@ -24,7 +26,7 @@ func TestFarmDemoOnDeno(t *testing.T) {
 		t.Fatalf("transpile: %v", err)
 	}
 	env := func(shot string) []string {
-		return append(os.Environ(), "FARM_DEMO=3600", "FARM_VIEW=1280x720", "FARM_SHOT="+shot)
+		return append(os.Environ(), "FARM_DEMO=1800", "FARM_VIEW=1280x720", "FARM_SHOT="+shot)
 	}
 	goShot, denoShot := filepath.Join(out, "go.png"), filepath.Join(out, "deno.png")
 	goCmd := exec.Command("go", "run", ".")

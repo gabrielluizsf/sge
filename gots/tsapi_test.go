@@ -10,23 +10,17 @@ import (
 // TestTypeScriptBoundary runs testdata/tsapi against the engine transpiled
 // with an index, as a TypeScript program uses it.
 func TestTypeScriptBoundary(t *testing.T) {
+	t.Parallel()
 	deno, err := exec.LookPath("deno")
 	if err != nil {
 		t.Skip("deno is not installed")
 	}
-	out := t.TempDir()
-	patterns := []string{"github.com/gabrielluizsf/antui/canvas"}
-	for _, p := range enginePackages {
-		patterns = append(patterns, "../"+p)
-	}
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: patterns, Index: true}); err != nil {
-		t.Fatalf("transpile: %v", err)
-	}
+	out := engine(t)
 	src, err := os.ReadFile("testdata/tsapi/boundary_test.ts")
 	if err != nil {
 		t.Fatal(err)
 	}
-	test := filepath.Join(out, "boundary_test.ts")
+	test := filepath.Join(out, "boundary_test.ts") // beside the index, which it imports
 	if err := os.WriteFile(test, src, 0o644); err != nil {
 		t.Fatal(err)
 	}
