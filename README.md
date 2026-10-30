@@ -34,6 +34,8 @@ Deno too.
 | `label` | text in a TrueType face, smooth at its edges and outlined, as a picture for a HUD |
 | `gltf` | glTF 2.0 and GLB models read as untrusted: meshes, materials, textures, nodes, skins, animations |
 | `bake` | 3D models rendered ahead of time into an isometric game's sprites, lit by a sun casting shadows |
+| `loader` | heavy assets loaded a few milliseconds a frame by priority, kept within a memory budget, with a loading screen |
+| `fetch` | a build's assets downloaded over HTTPS from trusted hosts, each checked against its pinned SHA-256 |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
 draw anything itself.
@@ -339,7 +341,9 @@ gots itself has none of its own; what follows is Deno's.
   (`--allow-net=unix:/run/game.sock`); `--unstable-net` lets UDP and Unix
   datagram sockets in; `--allow-sys=ca` lets Go read the roots Deno
   verifies with, for TLS with the system's roots; `--allow-env` and
-  `--allow-read` what `os` reads.
+  `--allow-read` what `os` reads. A variable the program may not read is
+  unset to it, as `GODEBUG` is to a program not granted it, and Deno never
+  prompts for one.
 - Deno's sockets have no descriptors, so a `Control` hook that asks for one
   is told there is none; Unix packet sockets (`unixpacket`) do not exist
   in Deno; every Unix datagram socket is bound to a path, so one dialed

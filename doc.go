@@ -12,10 +12,13 @@
 // clips and loops), town (towns laid out over an endless world), pathfind
 // (ways across a grid), daytime (the hours, day and night), scene
 // (switching between scenes), inventory (bags of items), request (orders
-// of random items), random (a sequence the same everywhere) and label
-// (text drawn smooth and outlined).
+// of random items), random (a sequence the same everywhere), label
+// (text drawn smooth and outlined), gltf (3D models read as untrusted),
+// bake (models rendered into isometric sprites), loader (heavy assets
+// loaded a few milliseconds a frame) and fetch (assets downloaded and
+// checked against their pins).
 //
 // go generate writes the TypeScript to deno/.
 package sge
 
-//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game ./tilemap ./terrain ./iso ./sound ./town ./pathfind ./daytime ./scene ./inventory ./request ./random ./label github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas
+//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game ./tilemap ./terrain ./iso ./sound ./town ./pathfind ./daytime ./scene ./inventory ./request ./random ./label ./gltf ./bake ./loader ./fetch github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas

@@ -22,7 +22,11 @@
     "./inventory": "./deno/inventory/mod.ts",
     "./request": "./deno/request/mod.ts",
     "./random": "./deno/random/mod.ts",
-    "./label": "./deno/label/mod.ts"
+    "./label": "./deno/label/mod.ts",
+    "./gltf": "./deno/gltf/mod.ts",
+    "./bake": "./deno/bake/mod.ts",
+    "./loader": "./deno/loader/mod.ts",
+    "./fetch": "./deno/fetch/mod.ts"
   },
   "publish": {
     "include": ["deno/**/*.ts", "README.md", "LICENSE"],
