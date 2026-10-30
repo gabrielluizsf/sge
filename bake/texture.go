@@ -17,6 +17,10 @@ type texture struct {
 func textureOf(img image.Image, colour bool) *texture {
 	b := img.Bounds()
 	t := &texture{w: b.Dx(), h: b.Dy(), px: make([][4]float64, b.Dx()*b.Dy())}
+	if n, ok := img.(*image.NRGBA); ok {
+		t.readNRGBA(n, colour)
+		return t
+	}
 	for y := range t.h {
 		for x := range t.w {
 			r, g, bl, a := img.At(b.Min.X+x, b.Min.Y+y).RGBA()
@@ -34,6 +38,35 @@ func textureOf(img image.Image, colour bool) *texture {
 	}
 	return t
 }
+
+// readNRGBA reads n's 8-bit pixels straight, their sRGB decoded from a
+// table.
+func (t *texture) readNRGBA(n *image.NRGBA, colour bool) {
+	curve := &asIs
+	if colour {
+		curve = &fromSRGB
+	}
+	for y := range t.h {
+		row := n.Pix[y*n.Stride : y*n.Stride+4*t.w]
+		for x := range t.w {
+			p := row[4*x : 4*x+4]
+			if p[3] == 0 {
+				continue
+			}
+			t.px[y*t.w+x] = [4]float64{curve[p[0]], curve[p[1]], curve[p[2]], asIs[p[3]]}
+		}
+	}
+}
+
+// fromSRGB is each 8-bit sRGB value in linear light; asIs each as it is,
+// from 0 to 1.
+var fromSRGB, asIs = func() (lin, same [256]float64) {
+	for i := range lin {
+		same[i] = float64(i) / 255
+		lin[i] = linear(same[i])
+	}
+	return lin, same
+}()
 
 // linear is an sRGB value, 0 to 1, in linear light; srgb is the reverse.
 func linear(c float64) float64 {

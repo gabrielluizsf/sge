@@ -47,7 +47,7 @@ func newShadowMap(tris []triangle, sun [3]float64) *shadowMap {
 			p[k] = s.project(v.p)
 		}
 		cut := t.mat.AlphaMode != "OPAQUE" && t.mat.tex != nil
-		fill(p, s.size, s.size, func(x, y int, w [3]float64) {
+		fill(p, [2]int{s.size, s.size}, func(x, y int, w [3]float64) {
 			// A cut-out surface, a leaf on its card, casts the shadow of
 			// what of it is there, not of its card.
 			if cut && t.mat.tex.at(uvAt(t, w))[3]*t.mat.BaseColor[3] < t.mat.AlphaCutoff {

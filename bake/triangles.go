@@ -144,7 +144,7 @@ func materials(m *gltf.Model) []material {
 		}
 		k := [2]int{img, map[bool]int{true: 1}[colour]}
 		if cache[k] == nil {
-			cache[k] = textureOf(m.Images[img], colour)
+			cache[k] = keptTexture(m.Images[img], colour)
 		}
 		return cache[k]
 	}

@@ -96,7 +96,7 @@ func (f *frame) raster(tris []triangle) {
 		if !t.mat.DoubleSided && dot(avg, view) < 0 && math.Abs(facing) > 0 {
 			continue // its back is to the viewer
 		}
-		fill(p, sw, sh, func(x, y int, w [3]float64) {
+		fill(p, [2]int{sw, sh}, func(x, y int, w [3]float64) {
 			i := y*sw + x
 			d := w[0]*p[0][2] + w[1]*p[1][2] + w[2]*p[2][2]
 			if d <= f.depth[i] {
@@ -106,10 +106,13 @@ func (f *frame) raster(tris []triangle) {
 			if !ok {
 				return
 			}
+			if z := w[0]*t.v[0].p[2] + w[1]*t.v[1].p[2] + w[2]*t.v[2].p[2]; f.o.Water != nil && z < 0 {
+				c = f.o.Water.under(c, -z/max(f.o.Unit, 1e-9))
+			}
 			f.depth[i], f.color[i] = d, c
 		})
 	}
-	if f.o.Shadow > 0 {
+	if f.o.Shadow > 0 && f.o.Water == nil {
 		f.groundShadow()
 	}
 }
@@ -162,7 +165,7 @@ func (f *frame) shade(t triangle, w [3]float64) ([4]float64, bool) {
 	}
 	m := t.mat
 	if m.normal != nil {
-		n = bend(n, tg, m.normal.at(uv), m.NormalScale)
+		n = bend(n, tg, texel{m.normal.at(uv), m.NormalScale})
 	}
 	rough, metal, occlusion := m.Roughness, m.Metallic, 1.0
 	if m.mr != nil {
@@ -255,9 +258,16 @@ func tone(c float64) float64 {
 	return knee + (1-knee)*(1-math.Exp(-(c-knee)/(1-knee)))
 }
 
-// bend is the normal n bent by a normal map's texel s, which leans it
-// along the tangent tg and its bitangent, strength times.
-func bend(n [3]float64, tg [4]float64, s [4]float64, strength float64) [3]float64 {
+// texel is a normal map's texel, and how strongly it bends a normal.
+type texel struct {
+	s        [4]float64
+	strength float64
+}
+
+// bend is the normal n bent by a normal map's texel, which leans it along
+// the tangent tg and its bitangent.
+func bend(n [3]float64, tg [4]float64, tx texel) [3]float64 {
+	s, strength := tx.s, tx.strength
 	t := [3]float64{tg[0], tg[1], tg[2]}
 	t = normalize(sub(t, scale(n, dot(n, t))))
 	if t == ([3]float64{}) {

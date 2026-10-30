@@ -2,10 +2,11 @@ package bake
 
 import "math"
 
-// fill calls plot for every pixel of a w by h grid whose middle lies in
-// the triangle p, its corners' x and y in pixels, with the pixel's
-// barycentric weights.
-func fill(p [3][3]float64, w, h int, plot func(x, y int, wt [3]float64)) {
+// fill calls plot for every pixel of a grid of size, width by height,
+// whose middle lies in the triangle p, its corners' x and y in pixels,
+// with the pixel's barycentric weights.
+func fill(p [3][3]float64, size [2]int, plot func(x, y int, wt [3]float64)) {
+	w, h := size[0], size[1]
 	x0 := max(0, int(math.Floor(min(p[0][0], p[1][0], p[2][0]))))
 	x1 := min(w-1, int(math.Ceil(max(p[0][0], p[1][0], p[2][0]))))
 	y0 := max(0, int(math.Floor(min(p[0][1], p[1][1], p[2][1]))))

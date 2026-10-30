@@ -1,8 +1,9 @@
 // Command realart bakes the realistic farm's sprites: every asset of the
 // manifest fetched, checked against its pin, read as a glTF model and
 // rendered from the game's corner, turned to a few headings so no two
-// trees look alike, a model of variants each variant alone, into assets/ as PNGs, with sprites.json saying where
-// each stands.
+// trees look alike, a model of variants each variant alone, into assets/
+// as PNGs, with sprites.json saying where each stands. -crops bakes the
+// crops flora grows; -people the villagers, in every motion.
 //
 //	go run ./cmd/realart -manifest assets.json -out assets
 package main
@@ -39,8 +40,9 @@ var headings = []float64{45, 135, 225, 315}
 func main() {
 	file := flag.String("manifest", "assets.json", "the manifest of assets")
 	out := flag.String("out", "assets", "the directory to write sprites to")
-	only := flag.String("only", "", "bake only this asset")
+	only := flag.String("only", "", "bake only this asset, or with -people this villager")
 	crops := flag.Bool("crops", false, "bake the crops flora grows, and no asset")
+	people := flag.Bool("people", false, "bake the villagers, made as humans.json pins, and no asset")
 	flag.Parse()
 	m, err := realfarm.ReadManifest(*file)
 	if err != nil {
@@ -53,6 +55,11 @@ func main() {
 	index := filepath.Join(*out, "sprites.json")
 	if data, err := os.ReadFile(index); err == nil {
 		json.Unmarshal(data, &sprites)
+	}
+	if *people {
+		bakePeople(*out, sprites, *only)
+		writeIndex(index, sprites)
+		return
 	}
 	if *crops {
 		bakeCrops(*out, sprites)
@@ -70,7 +77,7 @@ func main() {
 		}
 		if a.Kind == "ground" {
 			for i, p := range patches {
-				s := bake.Ground(model, 0, p, options())
+				s := bake.Ground(model, p, options())
 				name := fmt.Sprintf("%s_g%d", a.ID, i)
 				if err := writePNG(filepath.Join(*out, name+".png"), s); err != nil {
 					fail(err)

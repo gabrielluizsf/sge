@@ -36,6 +36,11 @@ Deno too.
 | `bake` | 3D models rendered ahead of time into an isometric game's sprites, lit by a sun casting shadows |
 | `loader` | heavy assets loaded a few milliseconds a frame by priority, kept within a memory budget, with a loading screen |
 | `fetch` | a build's assets downloaded over HTTPS from trusted hosts, each checked against its pinned SHA-256 |
+| `flora` | crops grown in code, sprout to ripe, as glTF models: leaves painted and bent, stems, fruit |
+| `human` | realistic people from MakeHuman's CC0 assets: shaped by sex, age, ancestry and build, skinned, dressed, and moving: standing, walking, chopping, hoeing, swimming |
+| `life` | years in a game's calendar: ages, stages from baby to elder, lives drawn at random, ending in old age |
+| `bond` | how people come to love each other: gifts and talk a day at a time, asking out, proposing, a wedding; grown-ups only, never kin |
+| `lineage` | a family tree: who is kin, so kin never court; who is heir, so a child takes over; a child on the way |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
 draw anything itself.

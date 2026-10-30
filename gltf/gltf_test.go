@@ -133,7 +133,7 @@ func TestBrokenGLBsAreRefused(t *testing.T) {
 // its pixels are allocated, as a decompression bomb would make them.
 func TestAnImageBombIsRefused(t *testing.T) {
 	img := pngOf(64, 64)
-	if _, err := decodeImage(img, 64*64); err != nil {
+	if _, err := DecodeImage(img, 64*64); err != nil {
 		t.Fatalf("a small image: %v", err)
 	}
 	// The IHDR claims 1,000,000 by 1,000,000 pixels; the CRC is not
@@ -141,10 +141,10 @@ func TestAnImageBombIsRefused(t *testing.T) {
 	bomb := append([]byte(nil), img...)
 	binary.BigEndian.PutUint32(bomb[16:], 1000000)
 	binary.BigEndian.PutUint32(bomb[20:], 1000000)
-	if _, err := decodeImage(bomb, DefaultLimits.Pixels); err == nil {
+	if _, err := DecodeImage(bomb, DefaultLimits.Pixels); err == nil {
 		t.Error("a bomb was decoded")
 	}
-	if _, err := decodeImage(img, 64*63); err == nil {
+	if _, err := DecodeImage(img, 64*63); err == nil {
 		t.Error("an image over the limit was decoded")
 	}
 }

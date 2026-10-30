@@ -25,7 +25,7 @@ func images(doc *document, v views, src source) ([]image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		img, err := decodeImage(data, src.limits.Pixels)
+		img, err := DecodeImage(data, src.limits.Pixels)
 		if err != nil {
 			return nil, malformed("image %d: %v", i, err)
 		}
@@ -34,9 +34,9 @@ func images(doc *document, v views, src source) ([]image.Image, error) {
 	return out, nil
 }
 
-// decodeImage decodes a PNG or JPEG of at most pixels pixels, refusing a
+// DecodeImage decodes a PNG or JPEG of at most pixels pixels, refusing a
 // larger one from its header, before allocating for it.
-func decodeImage(data []byte, pixels int64) (image.Image, error) {
+func DecodeImage(data []byte, pixels int64) (image.Image, error) {
 	cfg, _, err := image.DecodeConfig(bytes.NewReader(data))
 	if err != nil {
 		return nil, err

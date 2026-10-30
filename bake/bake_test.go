@@ -134,7 +134,7 @@ func TestOneVariantIsBakedOnItsOwnFoot(t *testing.T) {
 func TestGroundIsADiamondOfTheTexture(t *testing.T) {
 	m := box(1, 1, [3]float64{0.4, 0.6, 0.3})
 	o := options()
-	s := Ground(m, 0, Patch{Span: 2}, o)
+	s := Ground(m, Patch{Span: 2}, o)
 	b := s.Image.Bounds()
 	// One unit is a cell of 32: a diamond 64 wide and 32 high.
 	if b.Dx() < 64 || b.Dx() > 70 || b.Dy() < 32 || b.Dy() > 38 {
@@ -151,7 +151,7 @@ func TestGroundIsADiamondOfTheTexture(t *testing.T) {
 func TestDaylightIsExposedTrue(t *testing.T) {
 	m := box(1, 1, [3]float64{0.63, 0.5, 0.34}) // a brown earth, as sRGB
 	m.Materials[0].BaseColor = [4]float64{linear(0.63), linear(0.5), linear(0.34), 1}
-	s := Ground(m, 0, Patch{Span: 1}, options())
+	s := Ground(m, Patch{Span: 1}, options())
 	b := s.Image.Bounds()
 	c := s.Image.NRGBAAt(b.Dx()/2, b.Dy()/2)
 	for i, want := range []float64{0.63, 0.5, 0.34} {
@@ -180,5 +180,37 @@ func TestCutOutsCastTheirOwnShadow(t *testing.T) {
 				t.Fatalf("a card cut away entirely shows at %d,%d: %v", x, y, s.Image.NRGBAAt(x, y))
 			}
 		}
+	}
+}
+
+// Under water, a model fades into it with depth and casts no shadow on
+// the ground, which is the water's surface; above it, it is as on land.
+func TestWaterHidesWhatIsUnderIt(t *testing.T) {
+	m := box(1, 2, [3]float64{0.8, 0.2, 0.2})
+	m.Nodes[0].Translation = [3]float64{0, -1, 0} // half of it under
+	o := options()
+	o.Water = &Water{Color: [3]float64{0.02, 0.1, 0.12}, Clear: 0.3}
+	wet, dry := Render(m, Shot{}, o), Render(m, Shot{}, options())
+	if wet.Image.Bounds() != dry.Image.Bounds() {
+		t.Fatalf("bounds %v and %v", wet.Image.Bounds(), dry.Image.Bounds())
+	}
+	var wetCover, dryCover, shadow int
+	for i := 3; i < len(dry.Image.Pix); i += 4 {
+		wa, da := int(wet.Image.Pix[i]), int(dry.Image.Pix[i])
+		wetCover, dryCover = wetCover+wa, dryCover+da
+		if wa > 0 && wet.Image.Pix[i-3] == 0 && wet.Image.Pix[i-2] == 0 && wet.Image.Pix[i-1] == 0 {
+			shadow++
+		}
+	}
+	if shadow != 0 {
+		t.Errorf("%d pixels of shadow on the water", shadow)
+	}
+	if wetCover >= dryCover*9/10 || wetCover <= dryCover/4 {
+		t.Errorf("under water the box covers %d, on land %d: its top should show, its depths not", wetCover, dryCover)
+	}
+	// Its top, above the water, is as it is on land.
+	top := wet.Pivot.Y - int(1.0*options().Unit*options().Projection.Height/options().Projection.Cell)
+	if c, d := wet.Image.NRGBAAt(wet.Pivot.X, top), dry.Image.NRGBAAt(dry.Pivot.X, top); c != d {
+		t.Errorf("above the water %v, on land %v", c, d)
 	}
 }

@@ -28,6 +28,8 @@ type Options struct {
 	Shadow float64
 	// Samples is how many samples a pixel takes across and down.
 	Samples int
+	// Water, if set, makes the ground's plane water's surface.
+	Water *Water
 }
 
 // DefaultOptions are a morning sun from the upper left, as farm games

@@ -6,19 +6,20 @@ import (
 	"github.com/gabrielluizsf/sge/gltf"
 )
 
-// Patch is a cell of ground of a tiling material: Span cells its texture
-// spans across and down, and which of those cells, Col and Row from 0 to
-// Span-1, this is; laid out by the cells' place, patches meet without a
-// seam.
+// Patch is a cell of ground of a tiling material, Material of a model:
+// Span cells its texture spans across and down, and which of those cells,
+// Col and Row from 0 to Span-1, this is; laid out by the cells' place,
+// patches meet without a seam.
 type Patch struct {
+	Material int
 	Span     int
 	Col, Row int
 }
 
-// Ground bakes a cell of ground, one unit square, in material mat of m,
-// as Patch p says: a tile of the game's map, its diamond wholly opaque so
-// tiles meet without a gap, lit by the sun as everything is.
-func Ground(m *gltf.Model, mat int, p Patch, o Options) Sprite {
+// Ground bakes a cell of ground, one unit square, of m, as Patch p says:
+// a tile of the game's map, its diamond wholly opaque so tiles meet
+// without a gap, lit by the sun as everything is.
+func Ground(m *gltf.Model, p Patch, o Options) Sprite {
 	span := float32(max(p.Span, 1))
 	u0, v0 := float32(p.Col)/span, float32(p.Row)/span
 	d := 1 / span
@@ -29,7 +30,7 @@ func Ground(m *gltf.Model, mat int, p Patch, o Options) Sprite {
 		Normals:   [][3]float32{{0, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 1, 0}},
 		UVs:       [][2]float32{{u0, v0}, {u0 + d, v0}, {u0 + d, v0 + d}, {u0, v0 + d}},
 		Indices:   []uint32{0, 1, 2, 0, 2, 3},
-		Material:  mat,
+		Material:  p.Material,
 	}
 	cell := &gltf.Model{
 		Roots:     []int{0},

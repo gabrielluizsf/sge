@@ -41,11 +41,12 @@ func ReadManifest(path string) (Manifest, error) {
 	return m, json.Unmarshal(data, &m)
 }
 
-// Hosts are where assets are fetched from: Poly Haven's API and files.
-var Hosts = []string{"api.polyhaven.com", "dl.polyhaven.org"}
+// Hosts are where assets are fetched from: Poly Haven's API and files,
+// MakeHuman's repository on GitHub and its asset packs.
+var Hosts = []string{"api.polyhaven.com", "dl.polyhaven.org", "raw.githubusercontent.com", "files.makehumancommunity.org"}
 
 // Fetcher fetches the assets into the user's cache, sge-assets, outside
-// the repository, from Poly Haven only, no file over 512 MiB.
+// the repository, from the Hosts only, no file over 512 MiB.
 func Fetcher() fetch.Fetcher {
 	dir, err := os.UserCacheDir()
 	if err != nil {
