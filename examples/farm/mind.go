@@ -2,6 +2,7 @@ package farm
 
 import (
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/life"
 	"github.com/gabrielluizsf/sge/pathfind"
 	"github.com/gabrielluizsf/sge/vector"
 )
@@ -39,6 +40,10 @@ const giveUp = 3
 
 func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 	v := m.v
+	if v.ours || v.stage() == life.Baby {
+		o.Hidden = true // a baby is kept at home
+		return intent{}
+	}
 	if v.inside {
 		if v.homeFor -= dt; v.homeFor > 0 || v.now(f) == doSleep {
 			o.Hidden = true

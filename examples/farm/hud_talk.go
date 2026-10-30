@@ -7,13 +7,16 @@ import (
 	"github.com/gabrielluizsf/sge/inventory"
 )
 
-// talk is the conversation's panel, in the middle: who it is, what they
-// want and what it pays, and the menu, the chosen line on a gold bar.
+// talk is the conversation's panel, in the middle: who it is and how old,
+// how fond of the player in hearts, what they want and what it pays, and
+// the menu, the chosen line on a gold bar.
 func (h *hud) talk(cv *canvas.Canvas) {
 	f := h.f
 	v := f.talk.v
 	var say []string
 	switch {
+	case v.ours:
+		say = append(say, "Que bom ter você em casa!")
 	case v.smith() && !f.errandDone:
 		say = append(say, "Preciso disto para a forja:")
 		say = append(say, wants(f, f.errand.Want)...)
@@ -31,13 +34,15 @@ func (h *hud) talk(cv *canvas.Canvas) {
 		say = append(say, fmt.Sprint("Tenho ", v.kit.bag.Count(wood), " de madeira"))
 	}
 	ls := f.lines(v)
-	lines := append([]string{v.name + " - " + roleLabel(v)}, say...)
+	title := v.name + " - " + f.labelOf(v) + ", " + itoa(v.who.Years) + " anos"
+	lines := append([]string{title, heartsLabel(v)}, say...)
 	lines = append(lines, "")
 	for _, l := range ls {
 		lines = append(lines, l.text)
 	}
 	lines = append(lines, "Espaço: escolher   E: sair")
-	h.menu(cv, lines, 2+len(say)+f.talk.choice)
+	x, y := h.menu(cv, menuOf{lines: lines, chosen: 3 + len(say) + f.talk.choice, minW: heartsAt + heartsW + 8})
+	h.hearts(cv, v, [2]int{x, y + (4+rowH)*scale})
 }
 
 // wants are the lines of a wish: each item, how many, and how many the

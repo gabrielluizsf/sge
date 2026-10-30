@@ -149,7 +149,15 @@ night everyone sleeps at home. Villagers ask for wood and crops for a reward,
 the lumberjack trades wood, and the smith gives a stone axe for an errand and
 sells iron, gold and diamond ones, each felling a tree in fewer strokes. Every
 house can be gone into. The player sleeps in their own bed; one still up a
-minute past midnight faints and loses all their money. Arrows walk the way
+minute past midnight faints and loses all their money. Twenty-eight days
+make a year, and everyone ages with them: the towns' people, children to
+elders, die of old age and are born to their couples. Gifts from the hotbar
+and a chat a day make a villager fonder, hearts in the talk panel; a friend
+fond enough may be asked out, one dated asked to marry, and the spouse moves
+in. Going to bed married, the player is asked only whether to have a child,
+born a year on; when the player dies of old age their eldest child takes the
+farm over, and with no heir the line ends and the farm starts again. F9
+passes a year at once. Arrows walk the way
 they point on the screen; space, or a click on a cell within reach, which the
 mouse outlines, uses what the farmer holds; E talks, goes in, sleeps or
 shops. Every

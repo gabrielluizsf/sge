@@ -15,8 +15,9 @@ type Art interface {
 	// TileH tall, with what stands on the cell reaching up out of it.
 	Tile(name string) *canvas.Canvas
 	// Icon is the HUD's icon name, 16 by 16 pixels of art: "icon_coin",
-	// "icon_bubble", "icon_can", "icon_axe_" and an axe's name, or
-	// "icon_" and a seed's, a crop's or "wood".
+	// "icon_bubble", "icon_can", "icon_heart", "icon_heart_empty",
+	// "icon_axe_" and an axe's name, or "icon_" and a seed's, a crop's or
+	// "wood".
 	Icon(name string) *canvas.Canvas
 	// Cursor is the outline of the cell being worked: its diamond, TileW
 	// by Cell pixels.

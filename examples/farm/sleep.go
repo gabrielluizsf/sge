@@ -44,21 +44,28 @@ func (f *farm) nextMorning() {
 // curfew makes the player faint if they are still up past midnight: they
 // lose all their money, and wake at home in the morning.
 func (f *farm) curfew() {
-	if !f.clock.Between(faintAt, wakeAt) || f.fainted == f.clock.Day {
+	if !f.clock.Between(faintAt, wakeAt) || f.fainted == f.clock.Day || f.question != nil {
 		return
 	}
 	f.fainted = f.clock.Day
 	lost := f.money
 	f.money = 0
-	f.talk, f.shop.open = nil, false
 	f.nextMorning()
 	f.fainted = f.clock.Day
-	if f.room == nil || !f.room.own {
-		if f.room != nil {
-			f.leave()
-		}
-		f.enter(houseDoor{at: homeDoor, faceOut: "down", kind: 0, seed: seed, own: true})
-	}
+	f.goHome()
 	f.notify(fmt.Sprint("Você desmaiou! Perdeu $", lost))
 	f.sound("deny", nil)
+}
+
+// goHome takes the player into their house, out of any other and of any
+// conversation or shop.
+func (f *farm) goHome() {
+	f.talk, f.shop.open = nil, false
+	if f.room != nil && f.room.own {
+		return
+	}
+	if f.room != nil {
+		f.leave()
+	}
+	f.enter(houseDoor{at: homeDoor, faceOut: "down", kind: 0, seed: seed, own: true})
 }

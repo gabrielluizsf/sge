@@ -14,7 +14,7 @@ const outside = "outside"
 
 // enter takes the player into the house at door: the world outside waits
 // as it is, and the room is laid out with whoever of the house is in,
-// the player on the mat facing in.
+// the player's family in their own, the player on the mat facing in.
 func (f *farm) enter(d houseDoor) {
 	r := newRoom(d)
 	name := fmt.Sprint("house ", d.at.Col, ",", d.at.Row)
@@ -24,11 +24,9 @@ func (f *farm) enter(d houseDoor) {
 		g.Covered, g.Background = false, roomDark
 		f.residents = nil
 		for i, v := range f.people {
-			if v.home == nil || v.home.Door != d.at || !v.inside {
-				continue
+			if livesIn(v, d) {
+				g.Add(f.resident(v, homeSpot(i)))
 			}
-			o := f.resident(v, pathfind.Cell{Col: 2 + i%3, Row: 2 + i%2})
-			g.Add(o)
 		}
 	})
 	f.room = r
@@ -83,3 +81,15 @@ func (f *farm) face(dir string) {
 		f.hands.facing = vector.Vector3{X: float64(d[0]), Y: float64(d[1])}
 	}
 }
+
+// livesIn reports whether v is in the house at door: at home in their
+// town's house, or one of the player's family in the player's.
+func livesIn(v *villager, d houseDoor) bool {
+	if d.own {
+		return v.ours
+	}
+	return !v.ours && v.home != nil && v.home.Door == d.at && v.inside
+}
+
+// homeSpot is where the i-th of the farm's people stands in a room.
+func homeSpot(i int) pathfind.Cell { return pathfind.Cell{Col: 2 + i%3, Row: 2 + i%2} }

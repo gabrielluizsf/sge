@@ -7,13 +7,15 @@ import (
 
 // settle peoples town t the first time it is woken: a plot in each
 // house's garden, a villager of some trade in each house, a woman or a
-// man of any skin, the smith in the first, working the anvil. Its seed decides who, so a town is the same
-// people every game.
+// man of any skin, the smith in the first, working the anvil, each of an
+// age, some living as couples. Its seed decides who, so a town is the
+// same people every game.
 func (f *farm) settle(t *town.Town) {
 	if f.settled[t] {
 		return
 	}
 	f.settled[t] = true
+	start := len(f.people)
 	src := random.New(t.Seed)
 	person := func(home *town.House, role string, stand town.Cell) *villager {
 		woman := src.Float() < 0.5
@@ -54,4 +56,5 @@ func (f *farm) settle(t *town.Town) {
 	smith := person(smithHome, roleSmith, town.Cell{Col: t.Anvil.Col, Row: t.Anvil.Row + 1})
 	smith.kit.money, smith.fuel = 40, 2
 	f.people = append(f.people, smith)
+	f.populate(t, f.people[start:])
 }

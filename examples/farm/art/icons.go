@@ -2,7 +2,8 @@ package art
 
 // Icons are the HUD's pictures, Size square: the coin, the seed packets,
 // the watering can, the axe, the harvest and the wood, and the bubble
-// over one who asks for something.
+// over one who asks for something, and the hearts, full and empty, of how
+// fond someone is.
 func Icons() map[string]string {
 	m := map[string]string{
 		"coin":        coinIcon(),
@@ -13,6 +14,8 @@ func Icons() map[string]string {
 		"tomato":      tomatoIcon(),
 		"wood":        woodIcon(),
 		"bubble":      bubbleIcon(),
+		"heart":       heartIcon(true),
+		"heart_empty": heartIcon(false),
 	}
 	for name, head := range Axes {
 		m["axe_"+name] = axeIcon(head)

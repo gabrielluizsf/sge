@@ -4,6 +4,8 @@ import (
 	"github.com/gabrielluizsf/antui/canvas"
 	"github.com/gabrielluizsf/sge/daytime"
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/life"
+	"github.com/gabrielluizsf/sge/lineage"
 	"github.com/gabrielluizsf/sge/random"
 	"github.com/gabrielluizsf/sge/request"
 	"github.com/gabrielluizsf/sge/scene"
@@ -62,6 +64,18 @@ type farm struct {
 	notices   []*notice
 	// speaker plays what happens on the farm; nil plays nothing.
 	speaker speaker
+	// self is who the player is now; family the tree of everyone's
+	// parents, the player's line and the villagers'; fate draws who is
+	// born; ids is how many ids it has given; seen the last day the farm
+	// has lived through; question the yes or no being asked, if any;
+	// drawn the time of life the player is drawn at.
+	self     *self
+	family   *lineage.Tree
+	fate     *random.Source
+	ids      int
+	seen     int
+	question *question
+	drawn    life.Stage
 }
 
 // newFarm is a farm with some money and nothing growing on the soil of
@@ -71,6 +85,9 @@ func newFarm(l layers, w world) *farm {
 		settled: map[*town.Town]bool{}, hits: map[int]int{}, luck: random.New(seed),
 		clock: &daytime.Clock{Hour: startHour, Speed: 24.0 / dayLength}, fainted: -1}
 	f.errand = errandBook.Draw(f.luck)
+	f.family, f.fate = &lineage.Tree{}, random.New(seed+101)
+	f.self = f.found()
+	f.drawn = f.self.who(f.clock.Day).Stage
 	for row := 0; row < l.ground.Rows; row++ {
 		for col := 0; col < l.ground.Cols; col++ {
 			if l.ground.At(col, row) == tileID["soil_dry"] {

@@ -17,7 +17,7 @@ type person struct {
 
 // newFarmer is the player's farmer, whom the camera follows.
 func newFarmer(f *farm, ctl Controller) (*game.Object, *farmer) {
-	o, p := newPerson(f, person{name: "farmer", body: f.art.Person(Who{Player: true}), kit: f.kit, ctl: ctl})
+	o, p := newPerson(f, person{name: "farmer", body: f.art.Person(f.self.who(f.clock.Day)), kit: f.kit, ctl: ctl})
 	// The camera follows the farmer, easing after them.
 	o.AddScript(game.Follow{Lag: 0.12})
 	return o, p

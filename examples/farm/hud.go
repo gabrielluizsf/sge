@@ -8,11 +8,11 @@ import (
 )
 
 // hud draws what the player needs to see over the world, fixed to the
-// screen, as farm games lay it out: the money and the time at the top
-// left, what they can hold in a bar at the bottom, the cell they work
-// marked, bubbles over those who want something, words rising from what
-// happens, news in the middle, and the shop or a conversation over it all
-// when open.
+// screen, as farm games lay it out: the money, the time and who the
+// player is and how old at the top left, what they can hold in a bar at
+// the bottom, the cell they work marked, bubbles over those who want something, words rising from what
+// happens, news in the middle, and a question, the shop or a
+// conversation over it all when open.
 type hud struct {
 	f      *farm
 	farmer *game.Object
@@ -22,7 +22,7 @@ type hud struct {
 func (h *hud) Update(*game.Object, float64) {}
 
 func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
-	menu := h.f.shop.open || h.f.talk != nil
+	menu := h.f.shop.open || h.f.talk != nil || h.f.question != nil
 	if !menu {
 		h.cursor(cv)
 	}
@@ -34,12 +34,15 @@ func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
 	}
 	h.money(cv)
 	h.time(cv)
+	h.age(cv)
 	h.hotbar(cv)
 	h.notices(cv)
 	if !menu {
 		h.hints(cv)
 	}
 	switch {
+	case h.f.question != nil:
+		h.questionPanel(cv)
 	case h.f.shop.open:
 		h.shop(cv)
 	case h.f.talk != nil:

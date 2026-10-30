@@ -22,8 +22,12 @@ const (
 
 // lines are what the player may say to v: deliver what they ask for,
 // trade wood with a lumberjack, do the smith's errand or buy their axes,
-// and say goodbye.
+// chat, give a gift and court them, and say goodbye; to the player's own
+// family, only chat and gifts.
 func (f *farm) lines(v *villager) []line {
+	if v.ours {
+		return append(f.bondLines(v), bye)
+	}
 	var ls []line
 	if !v.smith() && len(v.order.Want) > 0 {
 		ls = append(ls, line{text: "Entregar pedido", do: func(f *farm) { f.deliver(v) }})
@@ -43,5 +47,9 @@ func (f *farm) lines(v *villager) []line {
 		}
 		ls = append(ls, line{text: "Vender lenha $" + itoa(woodPrice), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, woodPrice}, v.pos) }})
 	}
-	return append(ls, line{text: "Tchau", do: func(f *farm) { f.talk = nil; f.sound("ui_close", nil) }})
+	ls = append(ls, f.bondLines(v)...)
+	return append(ls, bye)
 }
+
+// bye ends the conversation.
+var bye = line{text: "Tchau", do: func(f *farm) { f.talk = nil; f.sound("ui_close", nil) }}

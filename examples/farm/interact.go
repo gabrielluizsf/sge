@@ -16,7 +16,7 @@ func (f *farm) interaction(o *game.Object) (words string, do func(), ok bool) {
 	}
 	if f.room != nil {
 		if f.room.own && f.byBed(o) {
-			return "E: dormir", func() { f.sleep() }, true
+			return "E: dormir", func() { f.goToBed() }, true
 		}
 		return "", nil, false
 	}

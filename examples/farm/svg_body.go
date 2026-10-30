@@ -8,9 +8,11 @@ import (
 
 // svgBody is a person drawn from SVG, facing four ways: frame is the SVG
 // of each of their frames by name, the way they face and then what they
-// do, as "left", "left1" or "leftChop1".
+// do, as "left", "left1" or "leftChop1"; size is how tall they are drawn,
+// as a part of a grown person's height, 0 for whole.
 type svgBody struct {
 	frame func(name string) string
+	size  float64
 }
 
 func (svgBody) Facings() int { return 4 }
@@ -41,9 +43,14 @@ func (b svgBody) clip(fps float64, names ...string) Clip {
 }
 
 // sprite is the frame name, standing on the person's feet, drawn at half
-// the size of its art when it is first shown.
+// the size of its art, smaller for the young, when it is first shown.
 func (b svgBody) sprite(name string) *sprite.Sprite {
+	s := b.size
+	if s <= 0 {
+		s = 1
+	}
+	w, h := int(art.FarmerW/2*s+0.5), int(art.FarmerH/2*s+0.5)
 	return &sprite.Sprite{PivotX: 0.5, PivotY: 1, Make: func() *canvas.Canvas {
-		return picture(b.frame(name), art.FarmerW/2, art.FarmerH/2)
+		return picture(b.frame(name), w, h)
 	}}
 }

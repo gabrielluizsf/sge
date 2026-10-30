@@ -1,7 +1,10 @@
 package farm
 
 import (
+	"github.com/gabrielluizsf/sge/bond"
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/life"
+	"github.com/gabrielluizsf/sge/lineage"
 	"github.com/gabrielluizsf/sge/random"
 	"github.com/gabrielluizsf/sge/request"
 	"github.com/gabrielluizsf/sge/town"
@@ -34,7 +37,22 @@ type villager struct {
 	body Body
 	// fuel is how much wood a smith's forge has left to burn.
 	fuel float64
+	// id is theirs in the farm's family tree; life their years; bond the
+	// player's with them.
+	id   string
+	life life.Life
+	bond bond.Bond
+	// partner is the villager they live as a couple with, nil for none,
+	// and expecting the child they are to have, nil for none.
+	partner   *villager
+	expecting *lineage.Expecting
+	// ours is whether they live in the player's house, as the player's
+	// spouse or child, out of their town's life.
+	ours bool
 }
+
+// stage is v's time of life, as last drawn.
+func (v *villager) stage() life.Stage { return v.who.Stage }
 
 // smith reports whether v is their town's smith.
 func (v *villager) smith() bool { return v.role == roleSmith }
@@ -50,7 +68,7 @@ func (v *villager) wants(f *farm) bool {
 // ask gives v a new order once they have waited long enough since the
 // last.
 func (v *villager) ask(dt float64) {
-	if v.smith() || len(v.order.Want) > 0 {
+	if v.smith() || v.ours || v.stage() < life.Teen || len(v.order.Want) > 0 {
 		return
 	}
 	if v.wait -= dt; v.wait <= 0 {

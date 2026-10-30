@@ -10,7 +10,8 @@ import (
 // way they point on the screen, 1 to 4 pick what to hold, space or a
 // click uses it, on the cell under the mouse when it is in reach and on
 // the one in front otherwise, and E talks, goes in, sleeps or shops, as
-// where they stand allows. In a room, the doormat is the way out.
+// where they stand allows. In a room, the doormat is the way out. A
+// question asked waits for its answer first; F9 passes a year at once.
 type keyboard struct{}
 
 func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
@@ -19,6 +20,12 @@ func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
 		return intent{}
 	}
 	switch {
+	case f.question != nil:
+		f.questionKeys(win)
+		return intent{}
+	case win.KeyPressed(antui.KeyF9):
+		f.passDays(daysPerYear)
+		return intent{}
 	case f.talk != nil:
 		f.talkKeys(win)
 		return intent{}
