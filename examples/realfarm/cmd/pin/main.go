@@ -65,6 +65,7 @@ func pin(id, res, biome string) (realfarm.Asset, error) {
 	var info struct {
 		Name    string            `json:"name"`
 		Authors map[string]string `json:"authors"`
+		Type    int               `json:"type"` // 1 a texture, 2 a model
 	}
 	if err := getJSON("https://api.polyhaven.com/info/"+id, &info); err != nil {
 		return realfarm.Asset{}, err
@@ -80,7 +81,7 @@ func pin(id, res, biome string) (realfarm.Asset, error) {
 		return realfarm.Asset{}, fmt.Errorf("no glTF at %s", res)
 	}
 	a := realfarm.Asset{ID: id, Name: info.Name, Biome: biome, Source: "https://polyhaven.com/a/" + id, License: "CC0-1.0",
-		Model: path.Join(id, path.Base(g.URL))}
+		Model: path.Join(id, path.Base(g.URL)), Kind: map[bool]string{true: "ground", false: "model"}[info.Type == 1]}
 	for who := range info.Authors {
 		a.Authors = append(a.Authors, who)
 	}

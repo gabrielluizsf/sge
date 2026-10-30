@@ -28,6 +28,10 @@ type sprite struct {
 	PivotY int
 }
 
+// patches are the cells a ground's texture spans: two by two metres, so
+// its four tiles laid by the cells' parity meet without a seam.
+var patches = []bake.Patch{{Span: 2, Col: 0, Row: 0}, {Span: 2, Col: 1, Row: 0}, {Span: 2, Col: 0, Row: 1}, {Span: 2, Col: 1, Row: 1}}
+
 // headings are the turns each model is baked at.
 var headings = []float64{45, 135, 225, 315}
 
@@ -56,6 +60,19 @@ func main() {
 		model, err := load(fe.Cache, a)
 		if err != nil {
 			fail(fmt.Errorf("%s: %w", a.ID, err))
+		}
+		if a.Kind == "ground" {
+			for i, p := range patches {
+				s := bake.Ground(model, 0, p, options())
+				name := fmt.Sprintf("%s_g%d", a.ID, i)
+				if err := writePNG(filepath.Join(*out, name+".png"), s); err != nil {
+					fail(err)
+				}
+				b := s.Image.Bounds()
+				sprites[name] = sprite{W: b.Dx(), H: b.Dy(), PivotX: s.Pivot.X, PivotY: s.Pivot.Y}
+			}
+			fmt.Println(a.ID, "baked")
+			continue
 		}
 		for _, sh := range shots(model) {
 			s := bake.Render(model, sh.Shot, options())

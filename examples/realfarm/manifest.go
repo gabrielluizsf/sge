@@ -13,14 +13,17 @@ import (
 // Asset is a model or texture the game is made from: its source, who
 // made it and under what licence, and its files, pinned.
 type Asset struct {
-	ID      string       `json:"id"`
-	Name    string       `json:"name"`
-	Biome   string       `json:"biome"`
-	Source  string       `json:"source"`
-	Authors []string     `json:"authors"`
-	License string       `json:"license"`
-	Model   string       `json:"model"` // the model's file, of Files
-	Files   []fetch.File `json:"files"`
+	ID      string   `json:"id"`
+	Name    string   `json:"name"`
+	Biome   string   `json:"biome"`
+	Source  string   `json:"source"`
+	Authors []string `json:"authors"`
+	License string   `json:"license"`
+	// Kind is "model", a thing standing on the ground, or "ground", a
+	// tiling material the ground is made of.
+	Kind  string       `json:"kind"`
+	Model string       `json:"model"` // the model's file, of Files
+	Files []fetch.File `json:"files"`
 }
 
 // Manifest is every asset, as assets.json lists them.
