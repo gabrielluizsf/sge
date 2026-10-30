@@ -1,14 +1,21 @@
 import { byte } from "./string.ts";
 
-// A Go slice: a window [o, o+n) over a backing array that can grow to c.
-// The backing array is a typed array for numeric element types, so stores
-// wrap the way Go's do, and a plain array for everything else.
+/**
+ * A Go slice: a window [o, o+n) over a backing array that can grow to c.
+ * The backing array is a typed array for numeric element types, so stores
+ * wrap the way Go's do, and a plain array for everything else.
+ */
 export class Slice<T> {
+  /** The backing array. */
   a: any;
+  /** Where in the backing array the slice starts. */
   o: number;
+  /** The slice's length. */
   n: number;
+  /** The slice's capacity, from o to the end of what it may grow into. */
   c: number;
 
+  /** Makes the slice of n elements of a from o, with room for c. */
   constructor(a: any, o: number, n: number, c: number) {
     this.a = a;
     this.o = o;
@@ -16,22 +23,26 @@ export class Slice<T> {
     this.c = c;
   }
 
+  /** The element at i, which must be in the slice. */
   get(i: number): T {
     if (i < 0 || i >= this.n) throw outOfRange(i, this.n);
     return this.a[this.o + i];
   }
 
+  /** Sets the element at i, which must be in the slice, to v. */
   set(i: number, v: T): void {
     if (i < 0 || i >= this.n) throw outOfRange(i, this.n);
     this.a[this.o + i] = v;
   }
 
+  /** The slice's elements, copied into a TypeScript array. */
   toArray(): T[] {
     const out: T[] = new Array(this.n);
     for (let i = 0; i < this.n; i++) out[i] = this.a[this.o + i];
     return out;
   }
 
+  /** The slice's elements, first to last. */
   *[Symbol.iterator](): IterableIterator<T> {
     for (let i = 0; i < this.n; i++) yield this.a[this.o + i];
   }
@@ -46,8 +57,10 @@ export function slice<T>(a: any): Slice<T> {
   return new Slice<T>(a, 0, a.length, a.length);
 }
 
-// fromArray is the slice of a TypeScript array, for callers that are not
-// transpiled Go.
+/**
+ * fromArray is the slice of a TypeScript array, for callers that are not
+ * transpiled Go.
+ */
 export function fromArray<T>(a: T[]): Slice<T> {
   return slice<T>(a.slice());
 }

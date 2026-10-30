@@ -1,6 +1,6 @@
 {
   "name": "@gabrielluizsf/sge",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "exports": {
     ".": "./deno/mod.ts",
@@ -12,7 +12,17 @@
     "./animation": "./deno/animation/mod.ts",
     "./game": "./deno/game/mod.ts",
     "./tilemap": "./deno/tilemap/mod.ts",
-    "./terrain": "./deno/terrain/mod.ts"
+    "./terrain": "./deno/terrain/mod.ts",
+    "./iso": "./deno/iso/mod.ts",
+    "./sound": "./deno/sound/mod.ts",
+    "./town": "./deno/town/mod.ts",
+    "./pathfind": "./deno/pathfind/mod.ts",
+    "./daytime": "./deno/daytime/mod.ts",
+    "./scene": "./deno/scene/mod.ts",
+    "./inventory": "./deno/inventory/mod.ts",
+    "./request": "./deno/request/mod.ts",
+    "./random": "./deno/random/mod.ts",
+    "./label": "./deno/label/mod.ts"
   },
   "publish": {
     "include": ["deno/**/*.ts", "README.md", "LICENSE"],

@@ -31,6 +31,7 @@ Deno too.
 | `inventory` | bags of items by name: put in, count, take out, a list at once or not at all |
 | `request` | orders of random items drawn from a book of offers, for a reward, filled from a bag |
 | `random` | a small random sequence that plays back the same in Go and on Deno |
+| `label` | text in a TrueType face, smooth at its edges and outlined, as a picture for a HUD |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
 draw anything itself.
@@ -236,6 +237,9 @@ panics and defers. Generics are instantiated per use. The standard library is
 transpiled from Go's own source, except for what is native — `runtime`, `os`,
 `sync`, `syscall/js` and a few more are written in TypeScript — and Go
 overlays replace the handful of functions that need assembly or the runtime.
+Go's doc comments become the modules' JSDoc, the package's as the module's,
+so the TypeScript is documented as the Go is; what only the transpiled code
+uses is marked `@ignore`.
 
 `go generate .` writes the package to `deno/`. `go test ./...` runs, besides
 the Go tests, conformance programs that must print the same under `go run` and

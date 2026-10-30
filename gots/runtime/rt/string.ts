@@ -131,8 +131,10 @@ export function runesToStr(r: any): string {
 const goOnly = /^[\x00-\x7f-]*$/;
 const asciiOnly = /^[\x00-\x7f]*$/;
 
-// fromGo is the JavaScript text a Go string holds. Text already in it,
-// which a string from TypeScript is, passes through as it is.
+/**
+ * fromGo is the JavaScript text a Go string holds. Text already in it,
+ * which a string from TypeScript is, passes through as it is.
+ */
 export function fromGo(s: string): string {
   if (asciiOnly.test(s)) return s;
   let out = "";
@@ -150,8 +152,10 @@ export function fromGo(s: string): string {
   return out;
 }
 
-// toGo is s as a Go string: JavaScript text in it becomes its UTF-8
-// bytes, and a Go string stays as it is.
+/**
+ * toGo is s as a Go string: JavaScript text in it becomes its UTF-8
+ * bytes, and a Go string stays as it is.
+ */
 export function toGo(s: string): string {
   if (goOnly.test(s)) return s;
   let out = "";

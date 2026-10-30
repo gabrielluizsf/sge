@@ -7,10 +7,15 @@
 // (antui canvases drawn with a pivot, scale and rotation, from PNG or
 // SVG), animation (frames by name), game (the world, its objects and
 // scripts, the camera and the window loop), tilemap (grids of tiles,
-// animated, walked through) and terrain (endless tile maps of named
-// areas, made around the camera).
+// animated, walked through), terrain (endless tile maps of named areas,
+// made around the camera), iso (an isometric view), sound (a mixer of
+// clips and loops), town (towns laid out over an endless world), pathfind
+// (ways across a grid), daytime (the hours, day and night), scene
+// (switching between scenes), inventory (bags of items), request (orders
+// of random items), random (a sequence the same everywhere) and label
+// (text drawn smooth and outlined).
 //
 // go generate writes the TypeScript to deno/.
 package sge
 
-//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game ./tilemap ./terrain github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas
+//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game ./tilemap ./terrain ./iso ./sound ./town ./pathfind ./daytime ./scene ./inventory ./request ./random ./label github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas
