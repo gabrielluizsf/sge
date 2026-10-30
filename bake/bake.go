@@ -20,6 +20,10 @@ type Options struct {
 	// Light is the sun's strength, Sky the light from all round above,
 	// and Ground that bounced from below.
 	Light, Sky, Ground [3]float64
+	// Exposure scales the light before it is tone mapped, as a camera's
+	// does: at its default, ground facing the sun shows its texture's own
+	// colour.
+	Exposure float64
 	// Shadow is how dark the shadow cast on the ground is, 0 for none.
 	Shadow float64
 	// Samples is how many samples a pixel takes across and down.
@@ -32,7 +36,7 @@ func DefaultOptions(p iso.Projection) Options {
 	return Options{
 		Projection: p, Unit: p.Cell,
 		Sun:   [3]float64{-0.35, 0.6, 1},
-		Light: [3]float64{1.35, 1.25, 1.1}, Sky: [3]float64{0.42, 0.48, 0.58}, Ground: [3]float64{0.22, 0.2, 0.16},
-		Shadow: 0.38, Samples: 3,
+		Light: [3]float64{1.3, 1.25, 1.18}, Sky: [3]float64{0.4, 0.46, 0.6}, Ground: [3]float64{0.22, 0.2, 0.16},
+		Exposure: 0.75, Shadow: 0.38, Samples: 3,
 	}
 }

@@ -172,7 +172,7 @@ func (f *frame) shade(t triangle, w [3]float64) ([4]float64, bool) {
 	if m.ao != nil {
 		occlusion = 1 + m.OcclusionStrength*(m.ao.at(uv)[0]-1)
 	}
-	albedo := [4]float64{linear(m.BaseColor[0]), linear(m.BaseColor[1]), linear(m.BaseColor[2]), m.BaseColor[3]}
+	albedo := m.BaseColor // glTF's factor is in linear light already
 	if m.tex != nil {
 		tc := m.tex.at(uv)
 		for i := range albedo {
@@ -231,19 +231,28 @@ func (f *frame) resolve() Sprite {
 			px := color.NRGBA{A: uint8(math.Round(min(alpha, 1) * 255))}
 			// The shadow mixed in at the model's edge darkens it a little.
 			darken := cover / (cover + shade)
-			px.R = uint8(math.Round(srgb(tone(c[0]/cover)*darken) * 255))
-			px.G = uint8(math.Round(srgb(tone(c[1]/cover)*darken) * 255))
-			px.B = uint8(math.Round(srgb(tone(c[2]/cover)*darken) * 255))
+			e := f.o.Exposure
+			if e == 0 {
+				e = 1
+			}
+			px.R = uint8(math.Round(srgb(tone(c[0]/cover*e)*darken) * 255))
+			px.G = uint8(math.Round(srgb(tone(c[1]/cover*e)*darken) * 255))
+			px.B = uint8(math.Round(srgb(tone(c[2]/cover*e)*darken) * 255))
 			img.SetNRGBA(x, y, px)
 		}
 	}
 	return Sprite{Image: img, Pivot: image.Point{X: int(math.Round(-f.minX)), Y: int(math.Round(-f.minY))}}
 }
 
-// tone maps linear light of any brightness into 0 to 1, as film does:
-// the ACES curve, fitted.
+// tone maps linear light of any brightness into 0 to 1: true below a
+// knee, so textures keep their colours, and eased above it toward white,
+// so bright sun on light stone does not clip.
 func tone(c float64) float64 {
-	return max(0, c*(2.51*c+0.03)/(c*(2.43*c+0.59)+0.14))
+	const knee = 0.6
+	if c <= knee {
+		return max(c, 0)
+	}
+	return knee + (1-knee)*(1-math.Exp(-(c-knee)/(1-knee)))
 }
 
 // bend is the normal n bent by a normal map's texel s, which leans it

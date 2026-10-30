@@ -127,3 +127,36 @@ func TestOneVariantIsBakedOnItsOwnFoot(t *testing.T) {
 		t.Error("both boxes are no wider than one")
 	}
 }
+
+// A patch of ground is a diamond of the projection's size, wholly opaque
+// inside and clear outside.
+func TestGroundIsADiamondOfTheTexture(t *testing.T) {
+	m := box(1, 1, [3]float64{0.4, 0.6, 0.3})
+	o := options()
+	s := Ground(m, 0, Patch{Span: 2}, o)
+	b := s.Image.Bounds()
+	// One unit is a cell of 32: a diamond 64 wide and 32 high.
+	if b.Dx() < 64 || b.Dx() > 70 || b.Dy() < 32 || b.Dy() > 38 {
+		t.Errorf("the tile is %v", b)
+	}
+	mid := s.Image.NRGBAAt(b.Dx()/2, b.Dy()/2)
+	if mid.A != 255 || s.Image.NRGBAAt(0, 0).A != 0 {
+		t.Errorf("middle %v, corner %v", mid, s.Image.NRGBAAt(0, 0))
+	}
+}
+
+// Ground facing the sun shows about its own colour, as a photograph
+// exposed for daylight shows it: neither washed out nor dark.
+func TestDaylightIsExposedTrue(t *testing.T) {
+	m := box(1, 1, [3]float64{0.63, 0.5, 0.34}) // a brown earth, as sRGB
+	m.Materials[0].BaseColor = [4]float64{linear(0.63), linear(0.5), linear(0.34), 1}
+	s := Ground(m, 0, Patch{Span: 1}, options())
+	b := s.Image.Bounds()
+	c := s.Image.NRGBAAt(b.Dx()/2, b.Dy()/2)
+	for i, want := range []float64{0.63, 0.5, 0.34} {
+		got := float64([]uint8{c.R, c.G, c.B}[i]) / 255
+		if got < want*0.85 || got > want*1.15 {
+			t.Errorf("channel %d is %.2f, not about %.2f", i, got, want)
+		}
+	}
+}
