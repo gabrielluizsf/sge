@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/gabrielluizsf/sge/bake"
-	"github.com/gabrielluizsf/sge/examples/realfarm"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 	"github.com/gabrielluizsf/sge/gltf"
 	"github.com/gabrielluizsf/sge/human"
 )
@@ -32,11 +32,11 @@ type frame struct {
 // stage of life, in its motions, facing every way, frame by frame, into
 // out, on every core; only that villager, if only is not "".
 func bakePeople(out string, sprites map[string]sprite, only string) {
-	h, err := realfarm.ReadHumans("humans.json")
+	h, err := kit.ReadHumans("humans.json")
 	if err != nil {
 		fail(err)
 	}
-	kit, done, err := h.Kit(realfarm.Fetcher())
+	makers, done, err := h.Kit(kit.Fetcher())
 	if err != nil {
 		fail(err)
 	}
@@ -48,31 +48,31 @@ func bakePeople(out string, sprites map[string]sprite, only string) {
 		sprites[name] = sprite{W: b.Dx(), H: b.Dy(), PivotX: s.Pivot.X, PivotY: s.Pivot.Y}
 		mu.Unlock()
 	}
-	for _, v := range realfarm.Villagers {
+	for _, v := range kit.Villagers {
 		if only != "" && v.ID != only {
 			continue
 		}
-		if err := onlyCC0(kit, v); err != nil {
+		if err := onlyCC0(makers, v); err != nil {
 			fail(err)
 		}
 		for _, g := range v.Stages() {
-			bakeStage(stageOf{kit, v, g}, out, record)
+			bakeStage(stageOf{makers, v, g}, out, record)
 		}
 		fmt.Println(v.ID, "baked")
 	}
 }
 
-// stageOf is a villager at a stage of life, made from kit.
+// stageOf is a villager at a stage of life, made from makers.
 type stageOf struct {
-	kit *human.Kit
-	v   realfarm.Villager
-	g   realfarm.Grown
+	makers *human.Kit
+	v      kit.Villager
+	g      kit.Grown
 }
 
 // bakeStage bakes a villager at a stage of life, in its motions, every
 // frame on every core, into out, recording each sprite.
 func bakeStage(st stageOf, out string, record func(string, bake.Sprite)) {
-	m, err := st.kit.Make(st.v.At(st.g.Years), st.v.Look)
+	m, err := st.makers.Make(st.v.At(st.g.Years), st.v.Look)
 	if err == nil {
 		err = human.Animate(m, st.g.Motions...)
 	}
@@ -130,8 +130,8 @@ func shoot(m *gltf.Model, f frame) bake.Sprite {
 
 // onlyCC0 refuses a villager made of any file that does not say it is
 // CC0, so a game sold with them owes no one: a pack's name is no promise.
-func onlyCC0(kit *human.Kit, v realfarm.Villager) error {
-	lics, err := kit.Licences(v.Body, v.Look)
+func onlyCC0(makers *human.Kit, v kit.Villager) error {
+	lics, err := makers.Licences(v.Body, v.Look)
 	if err != nil {
 		return fmt.Errorf("%s: %w", v.ID, err)
 	}

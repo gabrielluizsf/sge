@@ -1,6 +1,6 @@
-// Package realfarm is the realistic farm: the same game as the farm, its
+// Package kit is what the realistic farm is made of: the same game as the farm, its
 // pictures baked from CC0 models of real things rather than drawn.
-package realfarm
+package kit
 
 import (
 	"encoding/json"

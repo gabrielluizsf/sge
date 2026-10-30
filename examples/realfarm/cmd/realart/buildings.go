@@ -12,13 +12,13 @@ import (
 
 	"github.com/gabrielluizsf/sge/bake"
 	"github.com/gabrielluizsf/sge/building"
-	"github.com/gabrielluizsf/sge/examples/realfarm"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 )
 
 // batch is what to bake: the manifest, the directory to write to, and
 // the things to bake, by name, commas between, or "" for all.
 type batch struct {
-	manifest  realfarm.Manifest
+	manifest  kit.Manifest
 	out, only string
 }
 
@@ -61,11 +61,11 @@ func bakeBuildings(j batch, sprites map[string]sprite) {
 // paletteOf is the buildings' palette: each material the manifest pins,
 // read from its glTF, its colour, metal-rough and normal maps, at the
 // span Poly Haven measured.
-func paletteOf(m realfarm.Manifest) (building.Palette, error) {
+func paletteOf(m kit.Manifest) (building.Palette, error) {
 	p := building.Plain()
-	fe := realfarm.Fetcher()
+	fe := kit.Fetcher()
 	for _, a := range m.Assets {
-		clad, ok := realfarm.Materials[a.ID]
+		clad, ok := kit.Materials[a.ID]
 		if a.Kind != "material" || !ok {
 			continue
 		}

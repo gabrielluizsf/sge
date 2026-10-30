@@ -27,7 +27,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gabrielluizsf/sge/examples/realfarm"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 	"github.com/gabrielluizsf/sge/fetch"
 )
 
@@ -41,7 +41,7 @@ func main() {
 	if *kind != "" && *kind != "material" {
 		fail(fmt.Errorf(`kind %q: only "material" may be asked for`, *kind))
 	}
-	m, err := realfarm.ReadManifest(*file)
+	m, err := kit.ReadManifest(*file)
 	if err != nil && !os.IsNotExist(err) {
 		fail(err)
 	}
@@ -51,7 +51,7 @@ func main() {
 		if err != nil {
 			fail(fmt.Errorf("%s: %w", id, err))
 		}
-		m.Assets = slices.DeleteFunc(m.Assets, func(x realfarm.Asset) bool { return x.ID == id })
+		m.Assets = slices.DeleteFunc(m.Assets, func(x kit.Asset) bool { return x.ID == id })
 		m.Assets = append(m.Assets, a)
 		fmt.Printf("%s: %d files pinned\n", id, len(a.Files))
 	}
@@ -77,7 +77,7 @@ type request struct {
 }
 
 // pin is the asset r asks for, its files fetched and pinned.
-func pin(r request) (realfarm.Asset, error) {
+func pin(r request) (kit.Asset, error) {
 	id, res, biome := r.id, r.res, r.biome
 	var info struct {
 		Name    string            `json:"name"`
@@ -87,19 +87,19 @@ func pin(r request) (realfarm.Asset, error) {
 		Dimensions []float64 `json:"dimensions"`
 	}
 	if err := getJSON("https://api.polyhaven.com/info/"+id, &info); err != nil {
-		return realfarm.Asset{}, err
+		return kit.Asset{}, err
 	}
 	var files struct {
 		GLTF map[string]map[string]apiFile `json:"gltf"`
 	}
 	if err := getJSON("https://api.polyhaven.com/files/"+id, &files); err != nil {
-		return realfarm.Asset{}, err
+		return kit.Asset{}, err
 	}
 	g, ok := files.GLTF[res]["gltf"]
 	if !ok {
-		return realfarm.Asset{}, fmt.Errorf("no glTF at %s", res)
+		return kit.Asset{}, fmt.Errorf("no glTF at %s", res)
 	}
-	a := realfarm.Asset{ID: id, Name: info.Name, Biome: biome, Source: "https://polyhaven.com/a/" + id, License: "CC0-1.0",
+	a := kit.Asset{ID: id, Name: info.Name, Biome: biome, Source: "https://polyhaven.com/a/" + id, License: "CC0-1.0",
 		Model: path.Join(id, path.Base(g.URL)), Kind: map[bool]string{true: "ground", false: "model"}[info.Type == 1]}
 	if info.Type == 1 {
 		span, err := spanOf(info.Dimensions)
@@ -135,7 +135,7 @@ func pin(r request) (realfarm.Asset, error) {
 			return a, fmt.Errorf("%s: %w", name, err)
 		}
 		file := fetch.File{URL: f.URL, Path: path.Join(id, name), SHA256: sum}
-		if err := realfarm.Fetcher().Keep(file, data); err != nil {
+		if err := kit.Fetcher().Keep(file, data); err != nil {
 			return a, err
 		}
 		a.Files = append(a.Files, file)
@@ -182,7 +182,7 @@ func getJSON(url string, v any) error {
 // get is the body at url, from Poly Haven's hosts over HTTPS only, at
 // most limit bytes.
 func get(url string, limit int64) ([]byte, error) {
-	fe := fetch.Fetcher{Hosts: realfarm.Hosts}
+	fe := fetch.Fetcher{Hosts: kit.Hosts}
 	if err := fe.Allowed(url); err != nil {
 		return nil, err
 	}

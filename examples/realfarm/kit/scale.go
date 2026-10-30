@@ -1,4 +1,4 @@
-package realfarm
+package kit
 
 import "github.com/gabrielluizsf/sge/iso"
 

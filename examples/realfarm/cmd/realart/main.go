@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 
 	"github.com/gabrielluizsf/sge/bake"
-	"github.com/gabrielluizsf/sge/examples/realfarm"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 	"github.com/gabrielluizsf/sge/flora"
 	"github.com/gabrielluizsf/sge/gltf"
 )
@@ -47,7 +47,7 @@ func main() {
 	people := flag.Bool("people", false, "bake the villagers, made as humans.json pins, and no asset")
 	buildings := flag.Bool("buildings", false, "bake the houses and things package building builds, and no asset")
 	flag.Parse()
-	m, err := realfarm.ReadManifest(*file)
+	m, err := kit.ReadManifest(*file)
 	if err != nil {
 		fail(err)
 	}
@@ -74,7 +74,7 @@ func main() {
 		writeIndex(index, sprites)
 		return
 	}
-	fe := realfarm.Fetcher()
+	fe := kit.Fetcher()
 	for _, a := range m.Assets {
 		if (*only != "" && a.ID != *only) || a.Kind == "material" {
 			continue // a material is baked into the buildings
@@ -158,8 +158,8 @@ func shots(m *gltf.Model, whole bool) []shot {
 }
 
 // load fetches asset a's files, checked, and reads its model.
-func load(cache string, a realfarm.Asset) (*gltf.Model, error) {
-	fe := realfarm.Fetcher()
+func load(cache string, a kit.Asset) (*gltf.Model, error) {
+	fe := kit.Fetcher()
 	for _, f := range a.Files {
 		if _, err := fe.Get(f); err != nil {
 			return nil, err
@@ -175,8 +175,8 @@ func load(cache string, a realfarm.Asset) (*gltf.Model, error) {
 
 // options are the farm's light: a morning sun from the upper left.
 func options() bake.Options {
-	o := bake.DefaultOptions(realfarm.Projection)
-	o.Unit = realfarm.Cell
+	o := bake.DefaultOptions(kit.Projection)
+	o.Unit = kit.Cell
 	return o
 }
 

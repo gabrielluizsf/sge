@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gabrielluizsf/sge/examples/realfarm"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 	"github.com/gabrielluizsf/sge/fetch"
 )
 
@@ -40,11 +40,11 @@ func main() {
 	if len(*commit) != 40 || strings.Trim(*commit, "0123456789abcdef") != "" {
 		fail(fmt.Errorf("-commit %q is not a commit", *commit))
 	}
-	fe := realfarm.Fetcher()
-	h := realfarm.Humans{Source: "https://github.com/makehumancommunity/makehuman", License: "CC0-1.0"}
+	fe := kit.Fetcher()
+	h := kit.Humans{Source: "https://github.com/makehumancommunity/makehuman", License: "CC0-1.0"}
 	for _, name := range files(*dir) {
 		url := "https://raw.githubusercontent.com/makehumancommunity/makehuman/" + *commit + "/makehuman/data/" + name
-		h.Data = append(h.Data, pin(fe, filepath.Join(*dir, filepath.FromSlash(name)), fetch.File{URL: url, Path: path.Join(realfarm.HumansData, name)}))
+		h.Data = append(h.Data, pin(fe, filepath.Join(*dir, filepath.FromSlash(name)), fetch.File{URL: url, Path: path.Join(kit.HumansData, name)}))
 	}
 	for _, p := range packs {
 		url := "https://files.makehumancommunity.org/asset_packs/" + p + "/" + p + "_cc0.zip"
