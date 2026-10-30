@@ -37,7 +37,7 @@ func box(size, high float32, rgb [3]float64) *gltf.Model {
 		Roots:     []int{0},
 		Nodes:     []gltf.Node{{Mesh: 0, Skin: -1, Rotation: [4]float64{0, 0, 0, 1}, Scale: [3]float64{1, 1, 1}}},
 		Meshes:    []gltf.Mesh{{Primitives: []gltf.Primitive{p}}},
-		Materials: []gltf.Material{{BaseColor: [4]float64{rgb[0], rgb[1], rgb[2], 1}, Texture: -1, Roughness: 0.9, AlphaMode: "OPAQUE", DoubleSided: true}},
+		Materials: []gltf.Material{{BaseColor: [4]float64{rgb[0], rgb[1], rgb[2], 1}, Texture: -1, MetalRough: -1, Normal: -1, Occlusion: -1, Roughness: 0.9, AlphaMode: "OPAQUE", DoubleSided: true}},
 	}
 }
 
@@ -107,5 +107,23 @@ func TestYawTurnsAModel(t *testing.T) {
 	}
 	if n := count(Render(wall, Shot{Yaw: 180}, o)); n != 0 {
 		t.Errorf("turned away, %d pixels drawn", n)
+	}
+}
+
+// Only one root of a model of variants is baked, stood on its own foot.
+func TestOneVariantIsBakedOnItsOwnFoot(t *testing.T) {
+	m := box(1, 1, [3]float64{0.5, 0.5, 0.5})
+	m.Nodes = append(m.Nodes, gltf.Node{Mesh: 0, Skin: -1, Translation: [3]float64{5, 0, 0}, Rotation: [4]float64{0, 0, 0, 1}, Scale: [3]float64{1, 1, 1}})
+	m.Roots = []int{0, 1}
+	o := options()
+	o.Shadow = 0
+	both := Render(m, Shot{}, o)
+	second := Render(m, Shot{Only: true, Root: 1}, o)
+	first := Render(m, Shot{Only: true, Root: 0}, o)
+	if second.Image.Bounds() != first.Image.Bounds() || second.Pivot != first.Pivot {
+		t.Errorf("the second box, alone, is %v at %v, not as the first, %v at %v", second.Image.Bounds(), second.Pivot, first.Image.Bounds(), first.Pivot)
+	}
+	if both.Image.Bounds().Dx() <= first.Image.Bounds().Dx() {
+		t.Error("both boxes are no wider than one")
 	}
 }

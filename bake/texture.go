@@ -12,8 +12,9 @@ type texture struct {
 	px   [][4]float64
 }
 
-// textureOf reads img into linear light: its sRGB colours decoded.
-func textureOf(img image.Image) *texture {
+// textureOf reads img: into linear light, its sRGB decoded, for colour;
+// as its values are, for a map of data, normals or roughness.
+func textureOf(img image.Image, colour bool) *texture {
 	b := img.Bounds()
 	t := &texture{w: b.Dx(), h: b.Dy(), px: make([][4]float64, b.Dx()*b.Dy())}
 	for y := range t.h {
@@ -24,7 +25,11 @@ func textureOf(img image.Image) *texture {
 			}
 			// RGBA is premultiplied: undo it before decoding the curve.
 			af := float64(a)
-			t.px[y*t.w+x] = [4]float64{linear(float64(r) / af), linear(float64(g) / af), linear(float64(bl) / af), af / 0xffff}
+			c := [3]float64{float64(r) / af, float64(g) / af, float64(bl) / af}
+			if colour {
+				c = [3]float64{linear(c[0]), linear(c[1]), linear(c[2])}
+			}
+			t.px[y*t.w+x] = [4]float64{c[0], c[1], c[2], af / 0xffff}
 		}
 	}
 	return t

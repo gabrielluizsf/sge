@@ -7,13 +7,17 @@ import (
 )
 
 // Shot is what to render of a model: an animation by name ("" for none)
-// and the seconds into it, looped round its length, and Yaw, the degrees
-// it is turned round the vertical, counterclockwise seen from above, from
-// facing straight at the viewer.
+// and the seconds into it, looped round its length; Yaw, the degrees it
+// is turned round the vertical, counterclockwise seen from above, from
+// facing straight at the viewer; and, when Only is set, only the scene's
+// root Root, stood on its own foot: one of the variants a model of
+// plants lays out side by side.
 type Shot struct {
 	Animation string
 	Time      float64
 	Yaw       float64
+	Only      bool
+	Root      int
 }
 
 // worlds are every node's matrix in the model's space, as shot: its parents'
@@ -42,8 +46,17 @@ func worlds(m *gltf.Model, p Shot) []mat {
 			walk(c, out[i])
 		}
 	}
-	for _, r := range m.Roots {
-		walk(r, identity)
+	for i, r := range m.Roots {
+		if p.Only && i != p.Root {
+			continue
+		}
+		base := identity
+		if p.Only {
+			// Stood on its own foot: its place across the ground undone.
+			t := m.Nodes[r].Translation
+			base = trs([3]float64{-t[0], 0, -t[2]}, [4]float64{0, 0, 0, 1}, [3]float64{1, 1, 1})
+		}
+		walk(r, base)
 	}
 	return out
 }

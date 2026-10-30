@@ -143,20 +143,35 @@ func (f *frame) groundShadow() {
 // the surface's alpha is cut away.
 func (f *frame) shade(t triangle, w [3]float64) ([4]float64, bool) {
 	var p, n [3]float64
+	var tg [4]float64
 	var uv [2]float64
 	for k, v := range t.v {
 		for i := range 3 {
 			p[i] += v.p[i] * w[k]
 			n[i] += v.n[i] * w[k]
+			tg[i] += v.t[i] * w[k]
 		}
+		tg[3] += v.t[3] * w[k]
 		uv[0] += v.uv[0] * w[k]
 		uv[1] += v.uv[1] * w[k]
 	}
 	n = normalize(n)
-	if dot(n, view) < 0 {
+	back := dot(n, view) < 0
+	if back {
 		n = scale(n, -1) // the back of a double-sided surface
 	}
 	m := t.mat
+	if m.normal != nil {
+		n = bend(n, tg, m.normal.at(uv), m.NormalScale)
+	}
+	rough, metal, occlusion := m.Roughness, m.Metallic, 1.0
+	if m.mr != nil {
+		s := m.mr.at(uv)
+		rough, metal = rough*s[1], metal*s[2]
+	}
+	if m.ao != nil {
+		occlusion = 1 + m.OcclusionStrength*(m.ao.at(uv)[0]-1)
+	}
 	albedo := [4]float64{linear(m.BaseColor[0]), linear(m.BaseColor[1]), linear(m.BaseColor[2]), m.BaseColor[3]}
 	if m.tex != nil {
 		tc := m.tex.at(uv)
@@ -169,16 +184,16 @@ func (f *frame) shade(t triangle, w [3]float64) ([4]float64, bool) {
 	}
 	lit := f.shadows.lit(p) * max(0, dot(n, f.sun))
 	up := 0.5 + 0.5*n[2]
-	rough := min(max(m.Roughness, 0.05), 1)
+	rough = min(max(rough, 0.05), 1)
 	shine := min(max(2/math.Pow(rough, 4)-2, 2), 512)
 	hv := normalize([3]float64{f.sun[0] + view[0], f.sun[1] + view[1], f.sun[2] + view[2]})
 	spec := math.Pow(max(0, dot(n, hv)), shine) * (1 - rough) * lit
 	var c [4]float64
 	for i := range 3 {
-		ambient := f.o.Ground[i]*(1-up) + f.o.Sky[i]*up
-		diffuse := albedo[i] * (1 - m.Metallic) * (ambient + f.o.Light[i]*lit)
-		reflect := 0.04*(1-m.Metallic) + albedo[i]*m.Metallic
-		c[i] = diffuse + reflect*spec*f.o.Light[i] + albedo[i]*m.Metallic*ambient
+		ambient := (f.o.Ground[i]*(1-up) + f.o.Sky[i]*up) * occlusion
+		diffuse := albedo[i] * (1 - metal) * (ambient + f.o.Light[i]*lit)
+		reflect := 0.04*(1-metal) + albedo[i]*metal
+		c[i] = diffuse + reflect*spec*f.o.Light[i] + albedo[i]*metal*ambient
 	}
 	c[3] = 1
 	return c, true
@@ -229,4 +244,17 @@ func (f *frame) resolve() Sprite {
 // the ACES curve, fitted.
 func tone(c float64) float64 {
 	return max(0, c*(2.51*c+0.03)/(c*(2.43*c+0.59)+0.14))
+}
+
+// bend is the normal n bent by a normal map's texel s, which leans it
+// along the tangent tg and its bitangent, strength times.
+func bend(n [3]float64, tg [4]float64, s [4]float64, strength float64) [3]float64 {
+	t := [3]float64{tg[0], tg[1], tg[2]}
+	t = normalize(sub(t, scale(n, dot(n, t))))
+	if t == ([3]float64{}) {
+		return n
+	}
+	b := scale(cross(n, t), map[bool]float64{true: -1, false: 1}[tg[3] < 0])
+	x, y, z := (s[0]*2-1)*strength, (s[1]*2-1)*strength, s[2]*2-1
+	return normalize(add3(scale(t, x), scale(b, y), scale(n, z)))
 }

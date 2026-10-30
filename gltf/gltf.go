@@ -37,11 +37,12 @@ type Mesh struct {
 }
 
 // Primitive is triangles of a material: its vertices' positions, normals,
-// texture coordinates, joints and weights (those it has), and their
-// indices, three a triangle.
+// tangents (x, y, z and the bitangent's sign), texture coordinates, joints
+// and weights (those it has), and their indices, three a triangle.
 type Primitive struct {
 	Positions [][3]float32
 	Normals   [][3]float32
+	Tangents  [][4]float32
 	UVs       [][2]float32
 	Joints    [][4]uint16
 	Weights   [][4]float32
@@ -51,12 +52,20 @@ type Primitive struct {
 
 // Material is how a surface looks: its base colour, times its texture's
 // when it has one (an index of Images, or -1), how metallic and rough it
-// is, and how its alpha is taken: "OPAQUE", "MASK" below AlphaCutoff, or
-// "BLEND".
+// is, times its metal-rough texture's blue and green; its normal map, and
+// how strongly it bends the surface; its occlusion map, its red, and how
+// strongly it darkens the ambient light; and how its alpha is taken:
+// "OPAQUE", "MASK" below AlphaCutoff, or "BLEND". Textures are indices of
+// Images, or -1 for none.
 type Material struct {
 	Name                string
 	BaseColor           [4]float64
 	Texture             int
+	MetalRough          int
+	Normal              int
+	NormalScale         float64
+	Occlusion           int
+	OcclusionStrength   float64
 	Metallic, Roughness float64
 	AlphaMode           string
 	AlphaCutoff         float64

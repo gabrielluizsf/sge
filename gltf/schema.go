@@ -50,9 +50,20 @@ type docMaterial struct {
 		BaseColorTexture *struct {
 			Index int `json:"index"`
 		} `json:"baseColorTexture"`
+		MetallicRoughnessTexture *struct {
+			Index int `json:"index"`
+		} `json:"metallicRoughnessTexture"`
 		MetallicFactor  *float64 `json:"metallicFactor"`
 		RoughnessFactor *float64 `json:"roughnessFactor"`
 	} `json:"pbrMetallicRoughness"`
+	NormalTexture *struct {
+		Index int      `json:"index"`
+		Scale *float64 `json:"scale"`
+	} `json:"normalTexture"`
+	OcclusionTexture *struct {
+		Index    int      `json:"index"`
+		Strength *float64 `json:"strength"`
+	} `json:"occlusionTexture"`
 	AlphaMode   string   `json:"alphaMode"`
 	AlphaCutoff *float64 `json:"alphaCutoff"`
 	DoubleSided bool     `json:"doubleSided"`

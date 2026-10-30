@@ -50,6 +50,11 @@ func primitive(v views, dp docPrimitive, nMaterials int) (Primitive, error) {
 			return p, err
 		}
 	}
+	if i, ok := dp.Attributes["TANGENT"]; ok {
+		if p.Tangents, err = attribute(v, i, n, vec4s, "VEC4"); err != nil {
+			return p, err
+		}
+	}
 	if i, ok := dp.Attributes["TEXCOORD_0"]; ok {
 		if p.UVs, err = attribute(v, i, n, vec2s, "VEC2"); err != nil {
 			return p, err
