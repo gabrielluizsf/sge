@@ -111,9 +111,21 @@ func report(name string, client, server *tls.Config) {
 	_, err = io.ReadFull(c, b)
 	st := c.ConnectionState()
 	ekm, kerr := st.ExportKeyingMaterial("label", []byte("ctx"), 16)
-	fmt.Println(name, string(b), err, tls.VersionName(st.Version), tls.CipherSuiteName(st.CipherSuite),
+	fmt.Println(name, string(b), err, tls.VersionName(st.Version), suite(st),
 		"resumed", st.DidResume, "ocsp", string(st.OCSPResponse), "chains", len(st.VerifiedChains), "ekm", len(ekm), kerr)
 	fmt.Println(name, <-done)
+}
+
+// suite is the connection's cipher suite. TLS 1.3 picks AES-GCM or
+// ChaCha20 as the machine's CPU has AES hardware or not, which Go asks of
+// the CPU and a transpiled program cannot, so either is printed the same;
+// TLS 1.2 uses the one its config names.
+func suite(st tls.ConnectionState) string {
+	switch st.CipherSuite {
+	case tls.TLS_AES_128_GCM_SHA256, tls.TLS_CHACHA20_POLY1305_SHA256:
+		return "AES-128-GCM or CHACHA20-POLY1305"
+	}
+	return tls.CipherSuiteName(st.CipherSuite)
 }
 
 func cert(name string, parent *x509.Certificate, parentKey *ecdsa.PrivateKey, isCA bool) (*x509.Certificate, *ecdsa.PrivateKey) {
