@@ -698,6 +698,69 @@ export class Root extends $.Native {
     return attempt("openat", name, null, () => $.slice<number>(deno().readFileSync(path)));
   }
 
+  Mkdir(name: string, perm: number): any {
+    const [path, err] = this.resolve("mkdirat", name);
+    if (path === "") return err;
+    if (err === null) return pathError("mkdirat", name, new (g.Deno.errors.AlreadyExists)("exists"));
+    const [, merr] = attempt("mkdirat", name, null, () => deno().mkdirSync(path, { mode: perm & 0o777 }));
+    return merr;
+  }
+
+  // MkdirAll makes the directory name and those above it not there yet,
+  // each inside the root.
+  MkdirAll(name: string, perm: number): any {
+    const [path, err] = this.resolve("mkdirat", name);
+    if (err === null) {
+      return deno().statSync(path).isDirectory ? null : pathError("mkdirat", name, new (g.Deno.errors.NotADirectory ?? Error)("not a directory"));
+    }
+    const n = js(name).replace(/\/+$/, "");
+    const cut = n.lastIndexOf("/");
+    if (path === "" && cut < 0) return err;
+    if (cut > 0) {
+      const perr = this.MkdirAll(go(n.slice(0, cut)), perm);
+      if (perr !== null) return perr;
+    }
+    const merr = this.Mkdir(name, perm);
+    return merr !== null && this.resolve("mkdirat", name)[1] === null ? null : merr;
+  }
+
+  WriteFile(name: string, data: $.Slice<number> | null, perm: number): any {
+    const [f, err] = this.OpenFile(name, O_WRONLY | O_CREATE | O_TRUNC, perm);
+    if (err !== null) return err;
+    const [, werr] = f!.Write(data);
+    const cerr = f!.Close();
+    return werr ?? cerr;
+  }
+
+  // Remove removes name itself, a link and not what it leads to, as Go's
+  // does: its directory resolved inside the root, its last step not
+  // followed; the root itself, ".", may not be removed.
+  Remove(name: string): any {
+    const raw = js(name);
+    // As resolve refuses them: absolute names, and on Windows a backslash
+    // or a drive, which would climb out in the last step, never resolved.
+    if (raw.startsWith("/") || raw.includes("\\") || raw.includes("\0") || /^[A-Za-z]:/.test(raw)) return escapes("removeat", name);
+    const n = raw.replace(/\/+$/, "");
+    const cut = n.lastIndexOf("/");
+    const last = n.slice(cut + 1);
+    if (last === "" || last === "." || last === "..") {
+      return new fs.PathError("removeat", name, $.val(syscall.Errno$type, 22) as any);
+    }
+    const [dir, err] = cut < 0 ? [this.real, null] : this.resolve("removeat", go(n.slice(0, cut)));
+    if (err !== null) return err;
+    const [, rerr] = attempt("removeat", name, null, () => deno().removeSync(dir + "/" + last));
+    return rerr;
+  }
+
+  Rename(oldname: string, newname: string): any {
+    const [from, err] = this.resolve("renameat", oldname);
+    if (err !== null) return err;
+    const [to, terr] = this.resolve("renameat", newname);
+    if (to === "") return terr;
+    const [, rerr] = attempt("renameat", oldname, null, () => deno().renameSync(from, to));
+    return rerr;
+  }
+
   OpenRoot(name: string): [Root | null, any] {
     const [path, err] = this.resolve("openat", name);
     if (err !== null) return [null, err];
