@@ -18,6 +18,7 @@ import (
 
 	"github.com/gabrielluizsf/sge/bake"
 	"github.com/gabrielluizsf/sge/examples/realfarm"
+	"github.com/gabrielluizsf/sge/flora"
 	"github.com/gabrielluizsf/sge/gltf"
 )
 
@@ -39,6 +40,7 @@ func main() {
 	file := flag.String("manifest", "assets.json", "the manifest of assets")
 	out := flag.String("out", "assets", "the directory to write sprites to")
 	only := flag.String("only", "", "bake only this asset")
+	crops := flag.Bool("crops", false, "bake the crops flora grows, and no asset")
 	flag.Parse()
 	m, err := realfarm.ReadManifest(*file)
 	if err != nil {
@@ -51,6 +53,11 @@ func main() {
 	index := filepath.Join(*out, "sprites.json")
 	if data, err := os.ReadFile(index); err == nil {
 		json.Unmarshal(data, &sprites)
+	}
+	if *crops {
+		bakeCrops(*out, sprites)
+		writeIndex(index, sprites)
+		return
 	}
 	fe := realfarm.Fetcher()
 	for _, a := range m.Assets {
@@ -85,6 +92,29 @@ func main() {
 		fmt.Println(a.ID, "baked")
 	}
 	writeIndex(index, sprites)
+}
+
+// cropSeeds are how many plants of each crop and stage are baked, so a
+// field of them is not one plant over and over.
+const cropSeeds = 3
+
+// bakeCrops bakes every crop flora grows, at every stage, a few plants of
+// each, into out.
+func bakeCrops(out string, sprites map[string]sprite) {
+	for _, c := range flora.Crops {
+		for stage := range c.Stages {
+			for seed := range cropSeeds {
+				s := bake.Render(c.Grow(stage, uint32(seed+1)), bake.Shot{Yaw: float64(seed) * 120}, options())
+				name := fmt.Sprintf("crop_%s_s%d_%d", c.Name, stage, seed)
+				if err := writePNG(filepath.Join(out, name+".png"), s); err != nil {
+					fail(err)
+				}
+				b := s.Image.Bounds()
+				sprites[name] = sprite{W: b.Dx(), H: b.Dy(), PivotX: s.Pivot.X, PivotY: s.Pivot.Y}
+			}
+		}
+		fmt.Println(c.Name, "grown")
+	}
 }
 
 // shot is a picture to bake of a model, and the suffix of its name.

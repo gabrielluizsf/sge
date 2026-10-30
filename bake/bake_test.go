@@ -1,6 +1,7 @@
 package bake
 
 import (
+	"image"
 	"image/color"
 	"testing"
 
@@ -157,6 +158,27 @@ func TestDaylightIsExposedTrue(t *testing.T) {
 		got := float64([]uint8{c.R, c.G, c.B}[i]) / 255
 		if got < want*0.85 || got > want*1.15 {
 			t.Errorf("channel %d is %.2f, not about %.2f", i, got, want)
+		}
+	}
+}
+
+// A cut-out card casts the shadow of what of it is there: a card cut
+// away entirely casts none.
+func TestCutOutsCastTheirOwnShadow(t *testing.T) {
+	wall := box(1, 1, [3]float64{1, 1, 1})
+	clear := image.NewNRGBA(image.Rect(0, 0, 2, 2)) // wholly transparent
+	wall.Images = []image.Image{clear}
+	wall.Materials[0].Texture, wall.Materials[0].AlphaMode, wall.Materials[0].AlphaCutoff = 0, "MASK", 0.5
+	for range wall.Meshes[0].Primitives[0].Positions {
+		wall.Meshes[0].Primitives[0].UVs = append(wall.Meshes[0].Primitives[0].UVs, [2]float32{0.5, 0.5})
+	}
+	s := Render(wall, Shot{Yaw: 45}, options())
+	b := s.Image.Bounds()
+	for y := range b.Dy() {
+		for x := range b.Dx() {
+			if s.Image.NRGBAAt(x, y).A != 0 {
+				t.Fatalf("a card cut away entirely shows at %d,%d: %v", x, y, s.Image.NRGBAAt(x, y))
+			}
 		}
 	}
 }

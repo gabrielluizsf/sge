@@ -46,7 +46,13 @@ func newShadowMap(tris []triangle, sun [3]float64) *shadowMap {
 		for k, v := range t.v {
 			p[k] = s.project(v.p)
 		}
+		cut := t.mat.AlphaMode != "OPAQUE" && t.mat.tex != nil
 		fill(p, s.size, s.size, func(x, y int, w [3]float64) {
+			// A cut-out surface, a leaf on its card, casts the shadow of
+			// what of it is there, not of its card.
+			if cut && t.mat.tex.at(uvAt(t, w))[3]*t.mat.BaseColor[3] < t.mat.AlphaCutoff {
+				return
+			}
 			d := w[0]*p[0][2] + w[1]*p[1][2] + w[2]*p[2][2]
 			if i := y*s.size + x; d > s.depth[i] {
 				s.depth[i] = d
@@ -77,4 +83,14 @@ func (s *shadowMap) lit(p [3]float64) float64 {
 		}
 	}
 	return float64(open) / 9
+}
+
+// uvAt is triangle t's texture place at weights w.
+func uvAt(t triangle, w [3]float64) [2]float64 {
+	var uv [2]float64
+	for k, v := range t.v {
+		uv[0] += v.uv[0] * w[k]
+		uv[1] += v.uv[1] * w[k]
+	}
+	return uv
 }
