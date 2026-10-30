@@ -32,6 +32,8 @@ Deno too.
 | `request` | orders of random items drawn from a book of offers, for a reward, filled from a bag |
 | `random` | a small random sequence that plays back the same in Go and on Deno |
 | `label` | text in a TrueType face, smooth at its edges and outlined, as a picture for a HUD |
+| `gltf` | glTF 2.0 and GLB models read as untrusted: meshes, materials, textures, nodes, skins, animations |
+| `bake` | 3D models rendered ahead of time into an isometric game's sprites, lit by a sun casting shadows |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
 draw anything itself.
@@ -329,6 +331,9 @@ instead of ending the program.
 
 gots itself has none of its own; what follows is Deno's.
 
+- `os.Root` checks a name a step at a time and then opens it, as Deno has no
+  `openat`: a link swapped in between the check and the open is not seen,
+  which Go's `Root`, opening each step from the last, would see.
 - Deno's permissions: `--allow-net` grants what a program connects to,
   by name and by address, and Unix sockets by path
   (`--allow-net=unix:/run/game.sock`); `--unstable-net` lets UDP and Unix
