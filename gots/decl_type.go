@@ -163,7 +163,7 @@ func (e *emitter) promoted(w *writer, ms *types.MethodSet, self string) {
 			dot := strings.LastIndex(path, ".")
 			recv = "new $.FieldPtr(" + path[:dot] + ", " + jsQuote(path[dot+1:]) + ")"
 		case !ptrRecv && isPointer(t):
-			recv = path + ".v"
+			recv = derefPtr(path, t)
 		}
 		w.line("%s(...a: any[]): any { return %s(%s, ...a); }", m, e.methodFunc(fn), recv)
 		if e.twin(fn) {
@@ -232,7 +232,7 @@ func (e *emitter) valClass(w *writer, cls string, ms *types.MethodSet, v string)
 		}
 		_, isPtrSet := ms.At(i).Recv().(*types.Pointer)
 		if isPtrSet && !ptrRecv {
-			recv = v + ".v"
+			recv = derefPtr(v, ms.At(i).Recv())
 		}
 		w.line("%s(...a: any[]): any { return %s(%s, ...a); }", fieldName(fn.Name()), e.methodFunc(fn), recv)
 		if e.twin(fn) {

@@ -42,9 +42,22 @@ func (e *emitter) function(w *writer, prefix string, sig *types.Signature, ft *a
 				continue
 			}
 			n := e.declare(obj)
+			in := n
+			if obj == e.copied {
+				e.copied = nil
+				in = e.cloneOf(n+"$in", t)
+				if !e.boxed[obj] {
+					boxes = append(boxes, "let "+n+" = "+in+";")
+					params = append(params, n+"$in: "+ts)
+					continue
+				}
+			}
 			if e.boxed[obj] {
 				params = append(params, n+"$in: "+ts)
-				boxes = append(boxes, "const "+n+" = new $.Cell("+n+"$in);")
+				if in == n {
+					in = n + "$in"
+				}
+				boxes = append(boxes, "const "+n+" = new $.Cell("+in+");")
 				continue
 			}
 			params = append(params, n+": "+ts)

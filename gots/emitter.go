@@ -23,6 +23,7 @@ type emitter struct {
 	pkgNames    map[string]bool            // names taken at module level
 	names       map[types.Object]string    // bindings handed out so far
 	boxed       map[types.Object]bool      // variables kept in a Cell
+	copied      types.Object               // a value receiver the method body changes, copied on entry
 	anon        map[string]string          // anonymous struct type → class
 	anonDecls   writer                     // classes for anonymous structs
 	typeConsts  map[string]string          // descriptor expression → const
