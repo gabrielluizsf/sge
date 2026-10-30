@@ -1,4 +1,4 @@
-package main
+package farm
 
 // axe is a kind of axe: its name, as its icon's; its label; how many
 // strokes fell a tree with it; what the smith sells it for; and at most

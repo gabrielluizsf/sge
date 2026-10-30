@@ -1,4 +1,4 @@
-package main
+package farm
 
 // Names are villagers' names, from all over the world.
 var (

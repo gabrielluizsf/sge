@@ -1,4 +1,4 @@
-package main
+package farm
 
 // wood is what a tree felled gives, and what it sells for.
 const (

@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func (h *hud) hotbar(cv *canvas.Canvas) {
 	y := cv.Height - size - 8
 	for i := range n {
 		x := x0 + i*gap
-		cv.Blit(x, y, panel(20, 20, i == f.slot))
+		cv.Blit(x, y, h.panel(20, 20, i == f.slot))
 		icon, count := "", -1
 		switch {
 		case i < slotCan:
@@ -26,7 +26,7 @@ func (h *hud) hotbar(cv *canvas.Canvas) {
 		case i == slotCan:
 			icon = "icon_can"
 		case i == slotAxe && f.axe == noAxe:
-			q := text("?", 'k')
+			q := h.text("?", 'k')
 			cv.Blit(x+(size-q.Width)/2, y+(size-q.Height)/2, q)
 		case i == slotAxe:
 			icon = "icon_axe_" + axes[f.axe].name
@@ -35,14 +35,14 @@ func (h *hud) hotbar(cv *canvas.Canvas) {
 			icon, count = "icon_"+item, f.bag.Count(item)
 		}
 		if icon != "" {
-			cv.Blit(x+2*scale, y+2*scale, look(icon))
+			cv.Blit(x+2*scale, y+2*scale, h.icon(icon))
 		}
 		if i < slots {
-			k := text(fmt.Sprint(i+1), 'w')
+			k := h.text(fmt.Sprint(i+1), 'w')
 			cv.Blit(x+(size-k.Width)/2, y-k.Height, k)
 		}
 		if count >= 0 {
-			t := text(fmt.Sprint(count), 'w')
+			t := h.text(fmt.Sprint(count), 'w')
 			cv.Blit(x+size-t.Width+outline, y+size-t.Height+2*outline, t)
 		}
 	}

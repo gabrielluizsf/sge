@@ -1,7 +1,6 @@
-package main
+package farm
 
 import (
-	"github.com/gabrielluizsf/sge/examples/farm/art"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/random"
 	"github.com/gabrielluizsf/sge/request"
@@ -17,7 +16,7 @@ type villager struct {
 	name  string
 	woman bool
 	role  string
-	look  art.Look
+	who   Who
 	kit   *kit
 	town  *town.Town
 	home  *town.House // nil for a smith with no house in town
@@ -31,8 +30,8 @@ type villager struct {
 	// at least, and all night when they have gone to bed.
 	inside  bool
 	homeFor float64
-	// frames are their pictures' SVG by name, drawn when first seen.
-	frames map[string]string
+	// body is how the art draws them, asked for when they are first seen.
+	body Body
 	// fuel is how much wood a smith's forge has left to burn.
 	fuel float64
 }

@@ -1,4 +1,4 @@
-package main
+package farm
 
 // crop is a kind of plant: what its seeds cost, what it sells for, and how
 // long each stage takes to grow once watered.

@@ -1,4 +1,4 @@
-package main
+package farm
 
 // plotAt is the plot at cell col, row, or nil where there is no soil.
 func (f *farm) plotAt(col, row int) *plot {

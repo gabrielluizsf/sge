@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"github.com/gabrielluizsf/sge/terrain"
@@ -9,9 +9,10 @@ import (
 // seed is the wild's: the same seed, the same land around the farm.
 const seed = 20261024
 
-// world is the land the farm lies in: its tiles, the endless wild, and the
-// towns in it.
+// world is the land the farm lies in: its tiles, the endless wild, the
+// towns in it, and the art it is drawn in.
 type world struct {
+	art   Art
 	tiles *tilemap.TileSet
 	wild  *terrain.World
 	towns *town.Layout
@@ -22,7 +23,8 @@ type world struct {
 // the water's edge; the towns, their streets and gardens, their houses'
 // cells and the smithy's, and the road to the farm, kept clear of both.
 // Nothing of it lies on the farm, nor beside its edge.
-func newWild(tiles *tilemap.TileSet, cols, rows int, towns *town.Layout) *terrain.World {
+func newWild(tiles *tilemap.TileSet, farmSize [2]int, towns *town.Layout) *terrain.World {
+	cols, rows := farmSize[0], farmSize[1]
 	onFarm := func(c, r int) bool { return c >= 0 && r >= 0 && c < cols && r < rows }
 	nearFarm := func(c, r int) bool { return c >= -2 && r >= -2 && c < cols+2 && r < rows+2 }
 	built := func(c, r, margin int) bool { return towns.Grounds(c, r, margin) || highway(c, r, margin) }

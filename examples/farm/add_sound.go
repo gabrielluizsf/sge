@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"github.com/gabrielluizsf/sge/examples/farm/sfx"

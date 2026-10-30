@@ -1,7 +1,6 @@
-package main
+package farm
 
 import (
-	"github.com/gabrielluizsf/sge/examples/farm/art"
 	"github.com/gabrielluizsf/sge/town"
 )
 
@@ -12,8 +11,8 @@ const townRegion = 40
 // newTowns is where the towns are: one a short walk east of the farm
 // along its path, one west, and others about the world, none on the farm.
 // The path's row, 4, runs on as each one's main street.
-func newTowns() *town.Layout {
-	return &town.Layout{Seed: seed + 7, Region: townRegion, Chance: 0.45, Kinds: art.Houses,
+func newTowns(kinds int) *town.Layout {
+	return &town.Layout{Seed: seed + 7, Region: townRegion, Chance: 0.45, Kinds: kinds,
 		Fixed: map[town.Cell]town.Cell{{Col: 1, Row: 0}: {Col: 58, Row: pathRow}, {Col: -1, Row: 0}: {Col: -22, Row: pathRow}},
 		Skip:  func(rx, ry int) bool { return rx == 0 && ry == 0 }}
 }

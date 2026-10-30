@@ -1,4 +1,4 @@
-package main
+package farm
 
 // notice is news shown in the middle of the screen for a few seconds.
 type notice struct {

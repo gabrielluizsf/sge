@@ -156,7 +156,12 @@ shops. Every
 picture in it is SVG, drawn from a fixed palette by
 [`cmd/farmart`](examples/farm/cmd/farmart), HUD included, the ground laid on
 the diamonds and what stands on it drawn upright; `go generate` in
-`examples/farm` writes the sprites and a preview of them.
+`examples/farm` writes the sprites and a preview of them. The game is a
+package, `farm`, and asks a `farm.Art` for every picture it shows, the
+tiles, icons, buildings and each person's clips in every way they face,
+so another look can play the same game: `farm.New(art, farm.Keyboard())`
+starts one, and [`examples/farm/cmd/farm`](examples/farm/cmd/farm) plays
+it in `farm.SVGArt()`.
 
 ## Sound
 
@@ -221,7 +226,7 @@ A Go program runs in a browser as it runs on Deno: its window is a
 `<canvas>` on the page and its input the page's keys, mouse and wheel.
 
 ```sh
-go run ./cmd/gots -web site ./examples/farm
+go run ./cmd/gots -web site ./examples/farm/cmd/farm
 # site/app.js and site/index.html: serve the directory, open the page
 ```
 

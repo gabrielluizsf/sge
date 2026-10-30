@@ -1,8 +1,6 @@
-package main
+package farm
 
 import (
-	"math"
-
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/tilemap"
 	"github.com/gabrielluizsf/sge/vector"
@@ -15,12 +13,14 @@ import (
 type farmer struct {
 	f      *farm
 	kit    *kit
-	ctl    controller
+	ctl    Controller
 	facing vector.Vector3 // the way they face, in the world
 	aim    *[2]int        // the cell the mouse picks, if any
 	acting float64        // seconds left of the use being shown
 	swims  bool           // whether they are in the water
 	heard  heard          // what of them was last heard
+	// facings is how many ways their body faces on screen, 4 or 8.
+	facings int
 }
 
 const (
@@ -96,10 +96,7 @@ func (p *farmer) pose(o *game.Object) string {
 	if pr := o.Game().Projection; pr != nil {
 		s = pr.Project(s)
 	}
-	if math.Abs(s.X) > math.Abs(s.Y) {
-		return map[bool]string{true: "right", false: "left"}[s.X > 0]
-	}
-	return map[bool]string{true: "down", false: "up"}[s.Y > 0]
+	return facingOf(s.X, s.Y, p.facings)
 }
 
 // target is the cell the farmer works: the mouse's, or the one in front.

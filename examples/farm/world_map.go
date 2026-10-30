@@ -1,4 +1,4 @@
-package main
+package farm
 
 // worldMap is the farm, a character a cell: g grass, G flowers, p path,
 // w water, d a plot of soil, f fence, T a tree, C the stall's

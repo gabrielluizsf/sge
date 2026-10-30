@@ -1,4 +1,4 @@
-package main
+package farm
 
 import "testing"
 
@@ -6,8 +6,9 @@ import "testing"
 // as in its drawing: the sheet they are cut from is copied onto, not
 // blended over, which would make them opaque.
 func TestTilesKeepTheirSoftPixels(t *testing.T) {
-	tiles := newTiles()
-	want, got := tileLook("tree0"), tiles.Tiles[tileID["tree0"]].Picture()
+	a := SVGArt()
+	tiles := newTiles(a)
+	want, got := a.Tile("tree0"), tiles.Tiles[tileID["tree0"]].Picture()
 	for y := range want.Height {
 		for x := range want.Width {
 			if w, g := want.At(x, y), got.At(x, y); w != g {

@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"fmt"
@@ -8,10 +8,12 @@ import (
 	"github.com/gabrielluizsf/sge/tilemap"
 )
 
-// tileNames are the sprites the maps are made of, in the order of their
-// ids in the tile set: the ground, the farm's things, the crops, what
-// stands in the towns, the houses' insides, and the shores of water, every mask four frames into its ripple.
-func tileNames() []string {
+// TileNames are the tiles the maps are made of, each of which an Art
+// draws, in the order of their ids in the tile set: the ground, the
+// farm's things, the crops, what stands in the towns, the houses'
+// insides, and the shores of water, every mask four frames into its
+// ripple.
+func TileNames() []string {
 	names := []string{
 		"grass0", "grass1", "grass2", "grass3",
 		"flowers0", "flowers1", "flowers2", "flowers3",
@@ -40,17 +42,17 @@ func shore(mask int) int { return tileID[shoreName(mask, 0)] }
 // tileID is the id of each tile in the set, by name.
 var tileID = map[string]int{}
 
-// newTiles is the tile set, each tile drawn from its SVG the first time a
-// map shows it, and which are solid and which sway. Each tile's picture is
+// newTiles is the tile set, each tile drawn by a the first time a map
+// shows it, and which are solid and which sway. Each tile's picture is
 // a cell's diamond, isoW by tile, at the bottom of isoH, what stands on
 // the cell reaching up out of it; its cell in the world stays tile square.
-func newTiles() *tilemap.TileSet {
-	names := tileNames()
+func newTiles(a Art) *tilemap.TileSet {
+	names := TileNames()
 	for i, name := range names {
 		tileID[name] = i
 	}
 	tiles := tilemap.NewLazyTileSet(tilemap.Lazy{Count: len(names), Width: isoW, Height: isoH,
-		Make: func(id int) *canvas.Canvas { return tileLook(names[id]) }})
+		Make: func(id int) *canvas.Canvas { return a.Tile(names[id]) }})
 	tiles.CellWidth, tiles.CellHeight = tile, tile
 	id := func(names ...string) []int {
 		ids := make([]int, len(names))

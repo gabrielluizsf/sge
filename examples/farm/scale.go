@@ -1,4 +1,4 @@
-package main
+package farm
 
 // scale is how many screen pixels a pixel of the art takes, tile the side
 // of a cell in the world, and isoW by isoH a tile's picture on screen: a

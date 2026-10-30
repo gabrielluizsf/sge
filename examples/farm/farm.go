@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"github.com/gabrielluizsf/antui/canvas"
@@ -28,6 +28,8 @@ const (
 type farm struct {
 	layers
 	*kit
+	// art draws every picture of the game.
+	art    Art
 	tiles  *tilemap.TileSet
 	wild   *terrain.World
 	towns  *town.Layout
@@ -65,7 +67,7 @@ type farm struct {
 // newFarm is a farm with some money and nothing growing on the soil of
 // the ground layer, in a world of towns.
 func newFarm(l layers, w world) *farm {
-	f := &farm{layers: l, kit: &kit{money: 20, axe: noAxe}, tiles: w.tiles, wild: w.wild, towns: w.towns, shop: &shop{},
+	f := &farm{layers: l, kit: &kit{money: 20, axe: noAxe}, art: w.art, tiles: w.tiles, wild: w.wild, towns: w.towns, shop: &shop{},
 		settled: map[*town.Town]bool{}, hits: map[int]int{}, luck: random.New(seed),
 		clock: &daytime.Clock{Hour: startHour, Speed: 24.0 / dayLength}, fainted: -1}
 	f.errand = errandBook.Draw(f.luck)

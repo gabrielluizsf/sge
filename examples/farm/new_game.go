@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"github.com/gabrielluizsf/antui/canvas"
@@ -9,10 +9,11 @@ import (
 	"github.com/gabrielluizsf/sge/town"
 )
 
-// newGame is the farm laid out, with the farmer on the path in front of
-// the stall, played by ctl; the towns around it, waking as the camera
-// nears them; the clock, the night's shade over it all, and the HUD.
-func newGame(ctl controller) (*game.Game, *farm) {
+// build is the farm laid out, drawn by a, with the farmer on the path in
+// front of the stall, played by ctl; the towns around it, waking as the
+// camera nears them; the clock, the night's shade over it all, and the
+// HUD.
+func build(a Art, ctl Controller) (*game.Game, *farm) {
 	g := game.New()
 	g.Background = canvas.RGB(43, 31, 46)
 	// Seen from a corner: each cell of the world a diamond twice as wide
@@ -20,12 +21,12 @@ func newGame(ctl controller) (*game.Game, *farm) {
 	g.Projection = iso.New(tile, isoW, tile)
 	// The farm and the land around it cover every pixel.
 	g.Covered = true
-	tiles := newTiles()
+	tiles := newTiles(a)
 	roomTiles = tiles
 	l := newLayers(g, tiles)
-	towns := newTowns()
-	wild := newWild(tiles, l.ground.Cols, l.ground.Rows, towns)
-	f := newFarm(l, world{tiles: tiles, wild: wild, towns: towns})
+	towns := newTowns(a.Houses())
+	wild := newWild(tiles, [2]int{l.ground.Cols, l.ground.Rows}, towns)
+	f := newFarm(l, world{art: a, tiles: tiles, wild: wild, towns: towns})
 	w := game.NewObject("world")
 	w.AddScript(f.clock)
 	w.AddScript(f)
@@ -34,8 +35,8 @@ func newGame(ctl controller) (*game.Game, *farm) {
 	f.player, f.hands = o, p
 	o.Transform.Position = standIn(f, stallCol, stallRow+1)
 	g.Add(o)
-	g.Add(newStall(farmStall))
-	g.Add(newHouse(0, homeCorner, true))
+	g.Add(f.newStall(farmStall))
+	g.Add(f.newHouse(0, homeCorner, true))
 	wild.Props = f.props
 	// The wild makes its chunks, and the towns wake, where the camera has
 	// just been pointed, so they come after the farmer, whom it follows.

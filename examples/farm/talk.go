@@ -1,4 +1,4 @@
-package main
+package farm
 
 // talk is a conversation with a villager: the choice on its menu.
 type talk struct {

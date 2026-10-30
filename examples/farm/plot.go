@@ -1,4 +1,4 @@
-package main
+package farm
 
 // plot is a cell of soil: what grows on it, how far, and whether it has
 // been watered since its last stage.

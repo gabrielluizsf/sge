@@ -1,43 +1,15 @@
-package main
+package farm
 
-import (
-	"fmt"
+import "github.com/gabrielluizsf/antui/canvas"
 
-	"github.com/gabrielluizsf/antui/canvas"
-	"github.com/gabrielluizsf/sge/examples/farm/art"
-	"github.com/gabrielluizsf/sge/label"
-)
+// text is s in the HUD's face, in the palette's ink, as the art writes
+// it.
+func (h *hud) text(s string, ink rune) *canvas.Canvas { return h.f.art.Text(s, ink) }
 
-// hudPictures holds the HUD's text and panels by what they show, so each
-// is drawn once, not every frame.
-var hudPictures = map[string]*canvas.Canvas{}
-
-// outline is how many pixels round text over the world is outlined.
-const outline = 2
-
-// text is s in the HUD's face, in the palette's ink: outlined round, but
-// for the panels' cocoa.
-func text(s string, ink rune) *canvas.Canvas {
-	key := fmt.Sprint("t", string(ink), s)
-	if cv, ok := hudPictures[key]; ok {
-		return cv
-	}
-	st := label.Style{Ink: inks[ink]}
-	if outlined(ink) {
-		st.Outline, st.Width = inkOutline, outline
-	}
-	cv := label.New(hudFace, s, st)
-	hudPictures[key] = cv
-	return cv
+// panel is a HUD panel of w by ht pixels of art, gold when selected.
+func (h *hud) panel(w, ht int, selected bool) *canvas.Canvas {
+	return h.f.art.Panel(w, ht, selected)
 }
 
-// panel is a HUD panel of w by h pixels of art, gold when selected.
-func panel(w, h int, selected bool) *canvas.Canvas {
-	key := fmt.Sprint("p", w, "x", h, selected)
-	if cv, ok := hudPictures[key]; ok {
-		return cv
-	}
-	cv := picture(art.Panel(w, h, selected), w, h)
-	hudPictures[key] = cv
-	return cv
-}
+// icon is the HUD's icon name.
+func (h *hud) icon(name string) *canvas.Canvas { return h.f.art.Icon(name) }

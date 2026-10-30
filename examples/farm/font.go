@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	_ "embed"

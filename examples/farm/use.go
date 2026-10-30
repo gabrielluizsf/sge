@@ -1,4 +1,4 @@
-package main
+package farm
 
 // use is k using what they hold on cell col, row: a ripe crop is picked
 // whatever they hold; otherwise seeds are sown in empty soil, the can

@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func (h *hud) talk(cv *canvas.Canvas) {
 		lines = append(lines, l.text)
 	}
 	lines = append(lines, "Espaço: escolher   E: sair")
-	menu(cv, lines, 2+len(say)+f.talk.choice)
+	h.menu(cv, lines, 2+len(say)+f.talk.choice)
 }
 
 // wants are the lines of a wish: each item, how many, and how many the

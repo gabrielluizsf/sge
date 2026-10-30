@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"github.com/gabrielluizsf/antui/canvas"
@@ -14,7 +14,7 @@ func (h *hud) bubbles(cv *canvas.Canvas) {
 			return
 		}
 		at := h.farmer.Game().ToScreen(o.Transform.Position)
-		b := look("icon_bubble")
+		b := h.icon("icon_bubble")
 		cv.Blit(int(at.X)-b.Width/2, int(at.Y)-tile-b.Height-2*scale, b)
 	}
 	if f.room != nil {

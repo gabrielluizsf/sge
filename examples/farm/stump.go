@@ -1,4 +1,4 @@
-package main
+package farm
 
 // stump is a tree felled, growing back: its cell, and the seconds left.
 type stump struct {

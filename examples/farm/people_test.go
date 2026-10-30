@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"testing"
@@ -45,7 +45,7 @@ func TestTownsArePeopled(t *testing.T) {
 		if v.woman {
 			women++
 		}
-		skins[v.look.Skin[0]] = true
+		skins[svgLook(v.who).Skin[0]] = true
 	}
 	if women == 0 || women == len(f.people) || len(skins) < 4 {
 		t.Errorf("%d women of %d, %d skins", women, len(f.people), len(skins))

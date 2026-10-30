@@ -1,7 +1,6 @@
-package main
+package farm
 
 import (
-	"github.com/gabrielluizsf/sge/examples/farm/art"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/town"
 )
@@ -30,11 +29,10 @@ func (f *farm) wake(t *town.Town) []*game.Object {
 // personOf is an object of villager v standing still, as they are seen
 // at home; wake gives the one outside their mind.
 func (f *farm) personOf(v *villager) (*game.Object, *farmer) {
-	if v.frames == nil {
-		v.frames = art.PersonFrames(v.look)
+	if v.body == nil {
+		v.body = f.art.Person(v.who)
 	}
-	frames := v.frames
-	return newPerson(f, person{name: "villager", frame: func(n string) string { return frames[n] }, kit: v.kit, ctl: still{}})
+	return newPerson(f, person{name: "villager", body: v.body, kit: v.kit, ctl: still{}})
 }
 
 // still is a controller that keeps one where they stand.

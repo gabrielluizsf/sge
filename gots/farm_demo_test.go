@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// TestFarmDemoOnDeno plays the farm example's demo in Go and, transpiled,
+// TestFarmDemoOnDeno plays the farm command's demo in Go and, transpiled,
 // on Deno, and wants the same farm at the end and the same last frame,
 // pixel for pixel: tile maps, endless terrain, SVG sprites and all, over
 // half a minute of play.
@@ -22,7 +22,7 @@ func TestFarmDemoOnDeno(t *testing.T) {
 		t.Skip("plays a minute of the game twice")
 	}
 	out := t.TempDir()
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"../examples/farm"}}); err != nil {
+	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"../examples/farm/cmd/farm"}}); err != nil {
 		t.Fatalf("transpile: %v", err)
 	}
 	env := func(shot string) []string {
@@ -30,13 +30,13 @@ func TestFarmDemoOnDeno(t *testing.T) {
 	}
 	goShot, denoShot := filepath.Join(out, "go.png"), filepath.Join(out, "deno.png")
 	goCmd := exec.Command("go", "run", ".")
-	goCmd.Dir, goCmd.Env = "../examples/farm", env(goShot)
+	goCmd.Dir, goCmd.Env = "../examples/farm/cmd/farm", env(goShot)
 	want, err := goCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("go run: %v\n%s", err, want)
 	}
 	denoCmd := exec.Command(deno, "run", "-q", "--no-config", "--no-lock", "--allow-read", "--allow-env", "--allow-write="+out,
-		filepath.Join(out, "examples", "farm", "mod.ts"))
+		filepath.Join(out, "examples", "farm", "cmd", "farm", "mod.ts"))
 	denoCmd.Env = env(denoShot)
 	got, err := denoCmd.CombinedOutput()
 	if err != nil {

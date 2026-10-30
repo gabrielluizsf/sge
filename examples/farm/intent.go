@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"github.com/gabrielluizsf/sge/game"
@@ -17,8 +17,9 @@ type intent struct {
 	use  bool
 }
 
-// controller decides a person's intent each frame, dt seconds after the
-// last: the keyboard, the demo's bot, or a villager's mind.
-type controller interface {
+// Controller decides a person's intent each frame, dt seconds after the
+// last: the keyboard, the demo's bot, or a villager's mind. Its method is
+// the farm's own, so a game takes one of Keyboard or Bot.
+type Controller interface {
 	control(f *farm, o *game.Object, dt float64) intent
 }

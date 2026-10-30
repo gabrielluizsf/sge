@@ -1,7 +1,6 @@
-package main
+package farm
 
 import (
-	"github.com/gabrielluizsf/sge/examples/farm/art"
 	"github.com/gabrielluizsf/sge/random"
 	"github.com/gabrielluizsf/sge/town"
 )
@@ -24,7 +23,7 @@ func (f *farm) settle(t *town.Town) {
 		}
 		v := &villager{
 			name: names[src.Intn(len(names))], woman: woman, role: role,
-			look: art.Villager(woman, [5]int{src.Intn(64), src.Intn(64), src.Intn(64), src.Intn(64), src.Intn(64)}),
+			who:  Who{Woman: woman, Role: role, Genes: [5]int{src.Intn(64), src.Intn(64), src.Intn(64), src.Intn(64), src.Intn(64)}},
 			kit:  &kit{money: 15, axe: 0, slot: slotCan},
 			town: t, home: home,
 			pos:  f.ground.CellCenter(stand.Col, stand.Row),
@@ -53,7 +52,6 @@ func (f *farm) settle(t *town.Town) {
 		}
 	}
 	smith := person(smithHome, roleSmith, town.Cell{Col: t.Anvil.Col, Row: t.Anvil.Row + 1})
-	smith.look.Overalls, smith.look.Pants = true, art.Trousers[2]
 	smith.kit.money, smith.fuel = 40, 2
 	f.people = append(f.people, smith)
 }

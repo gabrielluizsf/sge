@@ -1,4 +1,4 @@
-package main
+package farm
 
 import (
 	"github.com/gabrielluizsf/sge/game"
@@ -17,11 +17,11 @@ func (f *farm) props(cx, cy int) []*game.Object {
 	for _, t := range f.towns.Near(mid.Col, mid.Row, size/2+town.Reach+2) {
 		for _, h := range t.Houses {
 			if in(town.Cell{Col: h.Col, Row: h.Row}) {
-				objs = append(objs, newHouse(h.Kind, town.Cell{Col: h.Col, Row: h.Row}, h.Door.Row > h.Row))
+				objs = append(objs, f.newHouse(h.Kind, town.Cell{Col: h.Col, Row: h.Row}, h.Door.Row > h.Row))
 			}
 		}
 		if in(t.Stall) {
-			objs = append(objs, newStall(t.Stall))
+			objs = append(objs, f.newStall(t.Stall))
 		}
 	}
 	return objs
