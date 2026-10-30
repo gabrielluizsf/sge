@@ -3,8 +3,7 @@
 import * as $ from "../../../rt/mod.ts";
 
 function settings(): Map<string, string> {
-  const g: any = globalThis;
-  const raw: string = g.Deno?.env.get("GODEBUG") ?? g.process?.env.GODEBUG ?? "";
+  const raw = godebug();
   const m = new Map<string, string>();
   for (const kv of raw.split(",")) {
     const i = kv.indexOf("=");
@@ -35,4 +34,19 @@ export function New(name: string): Setting {
   const s = new Setting();
   s.name = name;
   return s;
+}
+
+// godebug is the GODEBUG variable, or "" when it is unset or the program
+// may not read it: a program not granted the environment runs as Go does
+// with GODEBUG unset, and is never prompted for it.
+function godebug(): string {
+  const g: any = globalThis;
+  const D = g.Deno;
+  if (D === undefined) return g.process?.env?.GODEBUG ?? "";
+  try {
+    if (D.permissions?.querySync?.({ name: "env", variable: "GODEBUG" })?.state !== "granted") return "";
+    return D.env.get("GODEBUG") ?? "";
+  } catch {
+    return "";
+  }
 }
