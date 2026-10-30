@@ -3,7 +3,9 @@
 // rendered from the game's corner, turned to a few headings so no two
 // trees look alike, a model of variants each variant alone, into assets/
 // as PNGs, with sprites.json saying where each stands. -crops bakes the
-// crops flora grows; -people the villagers, in every motion.
+// crops flora grows; -people the villagers, in every motion; -buildings
+// the houses and things package building builds, clad in the materials
+// the manifest pins.
 //
 //	go run ./cmd/realart -manifest assets.json -out assets
 package main
@@ -40,9 +42,10 @@ var headings = []float64{45, 135, 225, 315}
 func main() {
 	file := flag.String("manifest", "assets.json", "the manifest of assets")
 	out := flag.String("out", "assets", "the directory to write sprites to")
-	only := flag.String("only", "", "bake only this asset, or with -people this villager")
+	only := flag.String("only", "", "bake only this asset, or with -people this villager, or with -buildings this building")
 	crops := flag.Bool("crops", false, "bake the crops flora grows, and no asset")
 	people := flag.Bool("people", false, "bake the villagers, made as humans.json pins, and no asset")
+	buildings := flag.Bool("buildings", false, "bake the houses and things package building builds, and no asset")
 	flag.Parse()
 	m, err := realfarm.ReadManifest(*file)
 	if err != nil {
@@ -61,6 +64,11 @@ func main() {
 		writeIndex(index, sprites)
 		return
 	}
+	if *buildings {
+		bakeBuildings(batch{manifest: m, out: *out, only: *only}, sprites)
+		writeIndex(index, sprites)
+		return
+	}
 	if *crops {
 		bakeCrops(*out, sprites)
 		writeIndex(index, sprites)
@@ -68,8 +76,8 @@ func main() {
 	}
 	fe := realfarm.Fetcher()
 	for _, a := range m.Assets {
-		if *only != "" && a.ID != *only {
-			continue
+		if (*only != "" && a.ID != *only) || a.Kind == "material" {
+			continue // a material is baked into the buildings
 		}
 		model, err := load(fe.Cache, a)
 		if err != nil {
@@ -88,7 +96,7 @@ func main() {
 			fmt.Println(a.ID, "baked")
 			continue
 		}
-		for _, sh := range shots(model) {
+		for _, sh := range shots(model, a.Whole) {
 			s := bake.Render(model, sh.Shot, options())
 			if err := writePNG(filepath.Join(*out, a.ID+sh.suffix+".png"), s); err != nil {
 				fail(err)
@@ -130,11 +138,12 @@ type shot struct {
 	suffix string
 }
 
-// shots are the pictures baked of m: each heading of the whole model, or,
-// for a model of variants side by side, each variant alone at two.
-func shots(m *gltf.Model) []shot {
+// shots are the pictures baked of m: each heading of the whole model, if
+// it has one root or is whole, its roots the parts of one thing; or, for
+// a model of variants side by side, each variant alone at two.
+func shots(m *gltf.Model, whole bool) []shot {
 	var out []shot
-	if len(m.Roots) == 1 {
+	if len(m.Roots) == 1 || whole {
 		for i, yaw := range headings {
 			out = append(out, shot{bake.Shot{Yaw: yaw}, fmt.Sprintf("_%d", i)})
 		}

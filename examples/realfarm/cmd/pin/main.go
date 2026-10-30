@@ -3,9 +3,13 @@
 // resolution, fetches each once, checks it against the MD5 the API gives,
 // pins its SHA-256, so every later fetch is checked against that, and
 // keeps it in the asset cache.
-// Every asset on Poly Haven is CC0.
+// Every asset on Poly Haven is CC0. A texture is pinned as the ground's
+// unless -kind material says it is a material things are built of; a
+// texture's span, the metres one repeat covers, is pinned with it.
 //
 //	go run ./cmd/pin -biome campo -res 1k jacaranda_tree boulder_01
+//	go run ./cmd/pin -biome building -kind material brick_wall_006
+//	go run ./cmd/pin -biome town -whole wine_barrel_01
 package main
 
 import (
@@ -31,13 +35,19 @@ func main() {
 	file := flag.String("manifest", "assets.json", "the manifest to add to")
 	res := flag.String("res", "1k", "the textures' resolution")
 	biome := flag.String("biome", "", "the biome the assets are of")
+	kind := flag.String("kind", "", `"material" pins textures as materials to build with, not ground`)
+	whole := flag.Bool("whole", false, "the models' roots are the parts of one thing, not variants")
 	flag.Parse()
+	if *kind != "" && *kind != "material" {
+		fail(fmt.Errorf(`kind %q: only "material" may be asked for`, *kind))
+	}
 	m, err := realfarm.ReadManifest(*file)
 	if err != nil && !os.IsNotExist(err) {
 		fail(err)
 	}
 	for _, id := range flag.Args() {
-		a, err := pin(id, *res, *biome)
+		a, err := pin(request{id: id, res: *res, biome: *biome, kind: *kind})
+		a.Whole = *whole
 		if err != nil {
 			fail(fmt.Errorf("%s: %w", id, err))
 		}
@@ -60,12 +70,21 @@ type apiFile struct {
 	Include map[string]apiFile `json:"include"`
 }
 
-// pin is the asset id at resolution res, its files fetched and pinned.
-func pin(id, res, biome string) (realfarm.Asset, error) {
+// request is an asset to pin: its id, the resolution of its textures,
+// its biome, and the kind to pin a texture as, "" for the ground.
+type request struct {
+	id, res, biome, kind string
+}
+
+// pin is the asset r asks for, its files fetched and pinned.
+func pin(r request) (realfarm.Asset, error) {
+	id, res, biome := r.id, r.res, r.biome
 	var info struct {
 		Name    string            `json:"name"`
 		Authors map[string]string `json:"authors"`
 		Type    int               `json:"type"` // 1 a texture, 2 a model
+		// Dimensions are a texture's width and height, in millimetres.
+		Dimensions []float64 `json:"dimensions"`
 	}
 	if err := getJSON("https://api.polyhaven.com/info/"+id, &info); err != nil {
 		return realfarm.Asset{}, err
@@ -82,6 +101,16 @@ func pin(id, res, biome string) (realfarm.Asset, error) {
 	}
 	a := realfarm.Asset{ID: id, Name: info.Name, Biome: biome, Source: "https://polyhaven.com/a/" + id, License: "CC0-1.0",
 		Model: path.Join(id, path.Base(g.URL)), Kind: map[bool]string{true: "ground", false: "model"}[info.Type == 1]}
+	if info.Type == 1 {
+		span, err := spanOf(info.Dimensions)
+		if err != nil {
+			return a, err
+		}
+		a.Span = span
+		if r.kind != "" {
+			a.Kind = r.kind
+		}
+	}
 	for who := range info.Authors {
 		a.Authors = append(a.Authors, who)
 	}
@@ -112,6 +141,19 @@ func pin(id, res, biome string) (realfarm.Asset, error) {
 		a.Files = append(a.Files, file)
 	}
 	return a, nil
+}
+
+// spanOf is the metres a texture of dimensions, in millimetres, spans,
+// refused unless it is a sensible size: a centimetre to a hundred metres.
+func spanOf(dimensions []float64) (float64, error) {
+	if len(dimensions) == 0 {
+		return 0, fmt.Errorf("the texture's size is not given")
+	}
+	span := dimensions[0] / 1000
+	if !(span >= 0.01 && span <= 100) {
+		return 0, fmt.Errorf("the texture spans %v metres", span)
+	}
+	return span, nil
 }
 
 // pinned is the file at f.URL, fetched from Poly Haven's hosts only and

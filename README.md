@@ -37,6 +37,7 @@ Deno too.
 | `loader` | heavy assets loaded a few milliseconds a frame by priority, kept within a memory budget, with a loading screen |
 | `fetch` | a build's assets downloaded over HTTPS from trusted hosts, each checked against its pinned SHA-256 |
 | `flora` | crops grown in code, sprout to ripe, as glTF models: leaves painted and bent, stems, fruit |
+| `building` | houses and props built in code as glTF models: farmhouses, cottages and town houses of several styles, walls, roofs, doors, windows and chimneys, a market stall, a smithy and anvil, a well, fences; clad in tiling PBR textures at their real size |
 | `human` | realistic people from MakeHuman's CC0 assets: shaped by sex, age, ancestry and build, skinned, dressed, and moving: standing, walking, chopping, hoeing, swimming |
 | `life` | years in a game's calendar: ages, stages from baby to elder, lives drawn at random, ending in old age |
 | `bond` | how people come to love each other: gifts and talk a day at a time, asking out, proposing, a wedding; grown-ups only, never kin |

@@ -19,10 +19,18 @@ type Asset struct {
 	Source  string   `json:"source"`
 	Authors []string `json:"authors"`
 	License string   `json:"license"`
-	// Kind is "model", a thing standing on the ground, or "ground", a
-	// tiling material the ground is made of.
-	Kind  string       `json:"kind"`
-	Model string       `json:"model"` // the model's file, of Files
+	// Kind is "model", a thing standing on the ground; "ground", a
+	// tiling material the ground is made of; or "material", a tiling
+	// material things are built of: walls, roofs, posts.
+	Kind  string `json:"kind"`
+	Model string `json:"model"` // the model's file, of Files
+	// Span is how many metres one repeat of a tiling material covers,
+	// as Poly Haven measured it; 0 for a model.
+	Span float64 `json:"span,omitempty"`
+	// Whole is whether a model's roots are the parts of one thing, a
+	// barrel's staves, hoops and lid, baked together, rather than
+	// variants laid side by side, each baked alone.
+	Whole bool         `json:"whole,omitempty"`
 	Files []fetch.File `json:"files"`
 }
 
