@@ -15,7 +15,7 @@ var (
 var Carrot = Crop{Name: "carrot", Stages: 5,
 	leaf: Leaf{Width: 0.46, Widest: 0.55, Teeth: 0.9, Veins: 7, Base: color.NRGBA{60, 112, 40, 255}, Tip: color.NRGBA{98, 150, 58, 255}, Vein: lightLeaf},
 	grow: func(g *grower, stage int) {
-		g.rosette(3+stage*2, vec{}, 0.04+0.24*g.grown, 0.5, 0.9, 1.35)
+		g.rosette(whorl{3 + stage*2, vec{}, 0.04 + 0.24*g.grown, 0.5, 0.9, 1.35})
 		if stage >= 3 {
 			orange := g.solid(color.NRGBA{226, 118, 34, 255}, 0.5)
 			r := 0.012 + 0.006*float64(stage-2)
@@ -28,7 +28,7 @@ var Carrot = Crop{Name: "carrot", Stages: 5,
 var Lettuce = Crop{Name: "lettuce", Stages: 5,
 	leaf: Leaf{Width: 0.46, Widest: 0.62, Teeth: 0.25, Veins: 6, Base: color.NRGBA{170, 206, 110, 255}, Tip: color.NRGBA{108, 166, 66, 255}, Vein: color.NRGBA{214, 236, 170, 255}},
 	grow: func(g *grower, stage int) {
-		g.rosette(5+stage*3, vec{}, 0.05+0.14*g.grown, 0.95, 0.25, 1.25)
+		g.rosette(whorl{5 + stage*3, vec{}, 0.05 + 0.14*g.grown, 0.95, 0.25, 1.25})
 	}}
 
 // Tomato is a tomato: a stem climbing with its leaves, and clusters of
@@ -38,7 +38,7 @@ var Tomato = Crop{Name: "tomato", Stages: 5,
 	grow: func(g *grower, stage int) {
 		h := 0.1 + 0.75*g.grown
 		top := vec{g.between(-0.03, 0.03), h, g.between(-0.03, 0.03)}
-		g.add(stem(vec{}, top, 0.008, g.stemMat))
+		g.add(stem(rod{vec{}, top, 0.008, g.stemMat}))
 		nodes := 2 + stage*2
 		for i := range nodes {
 			at := scale(top, (float64(i)+1)/float64(nodes+1))
@@ -72,7 +72,7 @@ var Corn = Crop{Name: "corn", Stages: 5,
 	grow: func(g *grower, stage int) {
 		h := 0.15 + 1.75*g.grown
 		top := vec{0, h, 0}
-		g.add(stem(vec{}, top, 0.012+0.006*g.grown, g.stemMat))
+		g.add(stem(rod{vec{}, top, 0.012 + 0.006*g.grown, g.stemMat}))
 		n := 3 + stage*2
 		for i := range n {
 			at := scale(top, (float64(i)+0.5)/float64(n+1))
@@ -85,14 +85,14 @@ var Corn = Crop{Name: "corn", Stages: 5,
 		tassel := g.solid(color.NRGBA{196, 170, 92, 255}, 0.8)
 		for i := range 5 {
 			yaw := float64(i) * 1.26
-			g.add(stem(top, add(top, vec{math.Sin(yaw) * 0.05, 0.12, math.Cos(yaw) * 0.05}), 0.002, tassel))
+			g.add(stem(rod{top, add(top, vec{math.Sin(yaw) * 0.05, 0.12, math.Cos(yaw) * 0.05}), 0.002, tassel}))
 		}
 		husk := g.solid(color.NRGBA{150, 170, 80, 255}, 0.7)
 		if stage == 4 {
 			husk = g.solid(color.NRGBA{190, 176, 98, 255}, 0.75)
 		}
 		at := scale(top, 0.55)
-		g.add(stem(at, add(at, vec{0.06, 0.16, 0.02}), 0.022, husk))
+		g.add(stem(rod{at, add(at, vec{0.06, 0.16, 0.02}), 0.022, husk}))
 	}}
 
 // Wheat is a clump of wheat: thin stalks, green, then golden, each with
@@ -111,7 +111,7 @@ var Wheat = Crop{Name: "wheat", Stages: 5,
 			base := vec{g.between(-0.06, 0.06), 0, g.between(-0.06, 0.06)}
 			h := (0.08 + 0.75*g.grown) * g.between(0.85, 1.1)
 			top := add(base, vec{g.between(-0.08, 0.08) * g.grown, h, g.between(-0.08, 0.08) * g.grown})
-			g.add(stem(base, top, 0.002, stalk))
+			g.add(stem(rod{base, top, 0.002, stalk}))
 			if stage >= 3 {
 				g.add(fruit(Fruit{Center: add(top, vec{0, 0.03, 0}), Radius: 0.008, Squash: 4}, head))
 			} else {
@@ -131,7 +131,7 @@ var Pumpkin = Crop{Name: "pumpkin", Stages: 5,
 			yaw := float64(v)*2.4 + g.between(-0.3, 0.3)
 			reach := 0.1 + 0.4*g.grown
 			end := vec{math.Sin(yaw) * reach, 0.01, math.Cos(yaw) * reach}
-			g.add(stem(vec{0, 0.01, 0}, end, 0.006, g.stemMat))
+			g.add(stem(rod{vec{0, 0.01, 0}, end, 0.006, g.stemMat}))
 			for k := range 2 + stage {
 				at := scale(end, (float64(k)+1)/float64(2+stage))
 				l := 0.08 + 0.16*g.grown

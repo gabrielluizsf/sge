@@ -59,10 +59,19 @@ func (g *grower) add(p gltf.Primitive) { g.p.prims = append(g.p.prims, p) }
 // between is a random number from lo to hi.
 func (g *grower) between(lo, hi float64) float64 { return lo + (hi-lo)*g.luck.Float() }
 
-// rosette grows n leaves round a point, each turned round by the golden
-// angle as plants place them, rising between pitch lo and hi, as long as
-// size says, and as wide as width times that.
-func (g *grower) rosette(n int, at vec, size, width, lo, hi float64) {
+// whorl is leaves round a point, at: how many, how long, how wide for
+// their length, and the pitches they rise between, outer to inner.
+type whorl struct {
+	n           int
+	at          vec
+	size, width float64
+	lo, hi      float64
+}
+
+// rosette grows a whorl's leaves, each turned round by the golden angle
+// as plants place them.
+func (g *grower) rosette(w whorl) {
+	n, at, size, width, lo, hi := w.n, w.at, w.size, w.width, w.lo, w.hi
 	turn := g.between(0, 2*math.Pi)
 	for i := range n {
 		inner := float64(i) / math.Max(float64(n-1), 1)

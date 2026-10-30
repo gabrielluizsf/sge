@@ -50,8 +50,16 @@ func leaf(s LeafShape, mat int) gltf.Primitive {
 	return p
 }
 
-// stem is a round stem from a to b, radius r, of material mat.
-func stem(a, b vec, r float64, mat int) gltf.Primitive {
+// rod is a round stem from a to b, radius r, of material mat.
+type rod struct {
+	a, b vec
+	r    float64
+	mat  int
+}
+
+// stem is a rod's mesh.
+func stem(s rod) gltf.Primitive {
+	a, b, r, mat := s.a, s.b, s.r, s.mat
 	const sides = 6
 	axis := normalize(sub(b, a))
 	u := normalize(cross(axis, vec{1, 0, 0}))

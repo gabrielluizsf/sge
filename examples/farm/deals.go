@@ -21,9 +21,17 @@ func (f *farm) deliver(v *villager) {
 	v.wait = orderPause * (1 + v.luck.Float())
 }
 
-// tradeWood moves a piece of wood from seller to buyer for price, if the
-// one has wood and the other the money.
-func (f *farm) tradeWood(seller, buyer *kit, price int, at vector.Vector3) {
+// deal is a sale of a piece of wood: who sells it, who buys it, and for
+// how much.
+type deal struct {
+	seller, buyer *kit
+	price         int
+}
+
+// tradeWood moves a piece of wood from seller to buyer for the deal's
+// price, if the one has wood and the other the money, said at at.
+func (f *farm) tradeWood(d deal, at vector.Vector3) {
+	seller, buyer, price := d.seller, d.buyer, d.price
 	switch {
 	case !seller.bag.Take(wood, 1):
 		f.float(at, "Sem madeira", 'r')

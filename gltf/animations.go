@@ -11,7 +11,7 @@ func animations(doc *document, v views) ([]Animation, error) {
 			if dc.Target.Node == nil || dc.Target.Path == "weights" {
 				continue // morph targets are not read
 			}
-			ch, err := channel(doc, v, da, ci)
+			ch, err := channel(doc, v, animChannel{da, ci})
 			if err != nil {
 				return nil, malformed("animation %d channel %d: %v", ai, ci, err)
 			}
@@ -22,8 +22,17 @@ func animations(doc *document, v views) ([]Animation, error) {
 	return out, nil
 }
 
-func channel(doc *document, v views, da docAnimation, ci int) (Channel, error) {
-	dc := da.Channels[ci]
+// animChannel is an animation's channel ci.
+type animChannel struct {
+	da docAnimation
+	ci int
+}
+
+// channel reads an animation's channel: its node and path checked, its
+// sampler's times and values.
+func channel(doc *document, v views, at animChannel) (Channel, error) {
+	da := at.da
+	dc := da.Channels[at.ci]
 	node := *dc.Target.Node
 	if node < 0 || node >= len(doc.Nodes) {
 		return Channel{}, malformed("node %d", node)

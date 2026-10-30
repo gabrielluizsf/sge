@@ -10,13 +10,15 @@ import (
 	"github.com/gabrielluizsf/sge/game"
 )
 
-// job is a job making its name, slept so long, and counting its runs.
-func job(name, group string, bytes int64, sleep time.Duration, runs *[]string) Job {
-	return Job{Name: name, Group: group, Bytes: bytes, Make: func() (any, error) {
+// job is j making its name, slept so long, and counting its runs.
+func job(j Job, sleep time.Duration, runs *[]string) Job {
+	name := j.Name
+	j.Make = func() (any, error) {
 		time.Sleep(sleep)
 		*runs = append(*runs, name)
 		return name + "!", nil
-	}}
+	}
+	return j
 }
 
 // Jobs run most urgent first, in the order asked among equals; asking
@@ -24,10 +26,10 @@ func job(name, group string, bytes int64, sleep time.Duration, runs *[]string) J
 func TestJobsRunByPriority(t *testing.T) {
 	var runs []string
 	var l Loader
-	l.Request(job("far", "", 1, 0, &runs), 5)
-	l.Request(job("near", "", 1, 0, &runs), 1)
-	l.Request(job("also near", "", 1, 0, &runs), 1)
-	l.Request(job("far", "", 1, 0, &runs), 0)
+	l.Request(job(Job{Name: "far", Group: "", Bytes: 1}, 0, &runs), 5)
+	l.Request(job(Job{Name: "near", Group: "", Bytes: 1}, 0, &runs), 1)
+	l.Request(job(Job{Name: "also near", Group: "", Bytes: 1}, 0, &runs), 1)
+	l.Request(job(Job{Name: "far", Group: "", Bytes: 1}, 0, &runs), 0)
 	l.Drain()
 	if got := fmt.Sprint(runs); got != "[far near also near]" {
 		t.Errorf("ran %s", got)
@@ -35,7 +37,7 @@ func TestJobsRunByPriority(t *testing.T) {
 	if v, err, ok := l.Get("near"); !ok || err != nil || v != "near!" {
 		t.Errorf("near is %v %v %v", v, err, ok)
 	}
-	l.Request(job("near", "", 1, 0, &runs), 0)
+	l.Request(job(Job{Name: "near", Group: "", Bytes: 1}, 0, &runs), 0)
 	if l.Pending() != 0 {
 		t.Error("an asset made was asked for again")
 	}
@@ -46,7 +48,7 @@ func TestAFrameKeepsToItsBudget(t *testing.T) {
 	var runs []string
 	l := &Loader{Budget: 5 * time.Millisecond}
 	for i := range 10 {
-		l.Request(job(fmt.Sprint(i), "boot", 1, 3*time.Millisecond, &runs), 0)
+		l.Request(job(Job{Name: fmt.Sprint(i), Group: "boot", Bytes: 1}, 3*time.Millisecond, &runs), 0)
 	}
 	l.Update(nil, 0)
 	if n := len(runs); n < 1 || n > 3 {
@@ -68,11 +70,11 @@ func TestAFrameKeepsToItsBudget(t *testing.T) {
 func TestTheLeastLatelyUsedIsLetGo(t *testing.T) {
 	var runs []string
 	l := &Loader{Memory: 25}
-	l.Request(job("a", "", 10, 0, &runs), 0)
-	l.Request(job("b", "", 10, 0, &runs), 0)
+	l.Request(job(Job{Name: "a", Group: "", Bytes: 10}, 0, &runs), 0)
+	l.Request(job(Job{Name: "b", Group: "", Bytes: 10}, 0, &runs), 0)
 	l.Drain()
 	l.Get("a") // b is now the least lately used
-	l.Request(job("c", "", 10, 0, &runs), 0)
+	l.Request(job(Job{Name: "c", Group: "", Bytes: 10}, 0, &runs), 0)
 	l.Drain()
 	if _, _, ok := l.Get("b"); ok {
 		t.Error("b was kept past the budget")
@@ -80,7 +82,7 @@ func TestTheLeastLatelyUsedIsLetGo(t *testing.T) {
 	if _, _, ok := l.Get("a"); !ok {
 		t.Error("a, used lately, was let go")
 	}
-	l.Request(job("b", "", 10, 0, &runs), 0)
+	l.Request(job(Job{Name: "b", Group: "", Bytes: 10}, 0, &runs), 0)
 	l.Drain()
 	if _, _, ok := l.Get("b"); !ok || len(runs) != 4 {
 		t.Errorf("b was not made again: %v", runs)
@@ -104,7 +106,7 @@ func TestTheLoadingScreenShowsProgress(t *testing.T) {
 	var runs []string
 	l := &Loader{}
 	for i := range 4 {
-		l.Request(job(fmt.Sprint(i), "boot", 1, 0, &runs), 0)
+		l.Request(job(Job{Name: fmt.Sprint(i), Group: "boot", Bytes: 1}, 0, &runs), 0)
 	}
 	s := &Screen{Loader: l, Group: "boot", Back: canvas.RGB(0, 0, 0), Track: canvas.RGB(50, 50, 50), Fill: canvas.RGB(255, 255, 255)}
 	o := game.NewObject("loading")

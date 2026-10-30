@@ -46,22 +46,22 @@ func primitive(v views, dp docPrimitive, nMaterials int) (Primitive, error) {
 	n := a.count
 	p.Positions = vec3s(a)
 	if i, ok := dp.Attributes["NORMAL"]; ok {
-		if p.Normals, err = attribute(v, i, n, vec3s, "VEC3"); err != nil {
+		if p.Normals, err = attribute(v, i, want[[3]float32]{n, vec3s, "VEC3"}); err != nil {
 			return p, err
 		}
 	}
 	if i, ok := dp.Attributes["TANGENT"]; ok {
-		if p.Tangents, err = attribute(v, i, n, vec4s, "VEC4"); err != nil {
+		if p.Tangents, err = attribute(v, i, want[[4]float32]{n, vec4s, "VEC4"}); err != nil {
 			return p, err
 		}
 	}
 	if i, ok := dp.Attributes["TEXCOORD_0"]; ok {
-		if p.UVs, err = attribute(v, i, n, vec2s, "VEC2"); err != nil {
+		if p.UVs, err = attribute(v, i, want[[2]float32]{n, vec2s, "VEC2"}); err != nil {
 			return p, err
 		}
 	}
 	if i, ok := dp.Attributes["WEIGHTS_0"]; ok {
-		if p.Weights, err = attribute(v, i, n, vec4s, "VEC4"); err != nil {
+		if p.Weights, err = attribute(v, i, want[[4]float32]{n, vec4s, "VEC4"}); err != nil {
 			return p, err
 		}
 	}
@@ -77,42 +77,48 @@ func primitive(v views, dp docPrimitive, nMaterials int) (Primitive, error) {
 			}
 		}
 	}
-	// The indices first: Go leaves unsaid whether p would be read before
-	// or after a call in the same return changes it.
-	err = indices(v, dp, n, &p)
+	p.Indices, err = indices(v, dp, n)
 	return p, err
 }
 
 // indices reads the primitive's indices, each below n, or makes them.
-func indices(v views, dp docPrimitive, n int, p *Primitive) error {
+func indices(v views, dp docPrimitive, n int) ([]uint32, error) {
 	if dp.Indices == nil {
 		if n%3 != 0 {
-			return malformed("%d vertices are no triangles", n)
+			return nil, malformed("%d vertices are no triangles", n)
 		}
-		p.Indices = make([]uint32, n)
-		for i := range p.Indices {
-			p.Indices[i] = uint32(i)
+		out := make([]uint32, n)
+		for i := range out {
+			out[i] = uint32(i)
 		}
-		return nil
+		return out, nil
 	}
 	a, err := v.accessor(*dp.Indices, "SCALAR")
 	if err != nil || !a.integer() || a.count%3 != 0 {
-		return malformed("indices")
+		return nil, malformed("indices")
 	}
-	p.Indices = make([]uint32, a.count)
+	out := make([]uint32, a.count)
 	for e := range a.count {
 		x := a.uint(e, 0)
 		if int64(x) >= int64(n) {
-			return malformed("index %d of %d vertices", x, n)
+			return nil, malformed("index %d of %d vertices", x, n)
 		}
-		p.Indices[e] = x
+		out[e] = x
 	}
-	return nil
+	return out, nil
 }
 
-// attribute is accessor i read by conv, which must hold n elements.
-func attribute[T any](v views, i, n int, conv func(accessor) []T, kind string) ([]T, error) {
-	a, err := v.accessor(i, kind)
+// want is what an attribute must be: n elements of kind, read by conv.
+type want[T any] struct {
+	n    int
+	conv func(accessor) []T
+	kind string
+}
+
+// attribute is accessor i read as w wants.
+func attribute[T any](v views, i int, w want[T]) ([]T, error) {
+	n, conv := w.n, w.conv
+	a, err := v.accessor(i, w.kind)
 	if err != nil {
 		return nil, err
 	}
