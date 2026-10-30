@@ -41,6 +41,7 @@ Deno too.
 | `life` | years in a game's calendar: ages, stages from baby to elder, lives drawn at random, ending in old age |
 | `bond` | how people come to love each other: gifts and talk a day at a time, asking out, proposing, a wedding; grown-ups only, never kin |
 | `lineage` | a family tree: who is kin, so kin never court; who is heir, so a child takes over; a child on the way |
+| `native` | C libraries (OpenGL, EGL, X11) called from Go on linux/amd64 without cgo — or with it, unchanged; by bare soname only, never a path |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
 draw anything itself.

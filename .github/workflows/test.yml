@@ -35,6 +35,9 @@ jobs:
       - name: Test
         run: go test ./...
 
+      - name: Test native without cgo, as games build it
+        run: CGO_ENABLED=0 go test -count=3 ./native
+
       - name: Generate the TypeScript
         run: go generate .
 
