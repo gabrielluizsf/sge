@@ -26,7 +26,8 @@ func (h *hud) hotbar(cv *canvas.Canvas) {
 		case i == slotCan:
 			icon = "icon_can"
 		case i == slotAxe && f.axe == noAxe:
-			cv.Blit(x+7*scale, y+6*scale, text("?", 'w'))
+			q := text("?", 'k')
+			cv.Blit(x+(size-q.Width)/2, y+(size-q.Height)/2, q)
 		case i == slotAxe:
 			icon = "icon_axe_" + axes[f.axe].name
 		default:
@@ -37,11 +38,12 @@ func (h *hud) hotbar(cv *canvas.Canvas) {
 			cv.Blit(x+2*scale, y+2*scale, look(icon))
 		}
 		if i < slots {
-			cv.Blit(x+size/2-3*scale, y-10*scale, text(fmt.Sprint(i+1), 'w'))
+			k := text(fmt.Sprint(i+1), 'w')
+			cv.Blit(x+(size-k.Width)/2, y-k.Height, k)
 		}
 		if count >= 0 {
 			t := text(fmt.Sprint(count), 'w')
-			cv.Blit(x+size-t.Width-scale, y+size-t.Height, t)
+			cv.Blit(x+size-t.Width+outline, y+size-t.Height+2*outline, t)
 		}
 	}
 }

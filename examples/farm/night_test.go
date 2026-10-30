@@ -94,7 +94,7 @@ func TestSleepIsOfferedBesideTheBed(t *testing.T) {
 	o := g.Find("farmer")
 	f.enter(houseDoor{at: homeDoor, faceOut: "down", seed: seed, own: true})
 	g.Step(frame)
-	if words, _, _ := f.interaction(o); words == "E: DORMIR" {
+	if words, _, _ := f.interaction(o); words == "E: dormir" {
 		t.Fatal("offered sleep on the doormat")
 	}
 	for r := range roomRows {
@@ -104,7 +104,7 @@ func TestSleepIsOfferedBesideTheBed(t *testing.T) {
 			}
 		}
 	}
-	if words, _, ok := f.interaction(o); !ok || words != "E: DORMIR" {
+	if words, _, ok := f.interaction(o); !ok || words != "E: dormir" {
 		t.Errorf("beside the bed: %q", words)
 	}
 }

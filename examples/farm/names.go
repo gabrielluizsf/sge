@@ -1,8 +1,7 @@
 package main
 
-// Names are villagers' names, from all over the world, as the font
-// writes them: without accents.
+// Names are villagers' names, from all over the world.
 var (
-	womenNames = []string{"ANA", "AIYANA", "MEI", "FATIMA", "THANDI", "PRIYA", "YUKI", "AMARA", "LEILA", "SOFIA", "NAYELI", "ZAINAB", "IARA", "OLGA", "CHIOMA", "MARIANA"}
-	menNames   = []string{"KOFI", "RAJ", "JOAO", "OMAR", "HIROSHI", "DIEGO", "TARIQ", "WEI", "KWAME", "MATEUS", "ARJUN", "TUPA", "IVAN", "MALIK", "LUCAS", "BAYO"}
+	womenNames = []string{"Ana", "Aiyana", "Mei", "Fátima", "Thandi", "Priya", "Yuki", "Amara", "Leila", "Sofia", "Nayeli", "Zainab", "Iara", "Olga", "Chioma", "Mariana"}
+	menNames   = []string{"Kofi", "Raj", "João", "Omar", "Hiroshi", "Diego", "Tariq", "Wei", "Kwame", "Mateus", "Arjun", "Tupã", "Ivan", "Malik", "Lucas", "Bayo"}
 )

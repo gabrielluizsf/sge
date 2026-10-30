@@ -12,20 +12,20 @@ const talkReach = 1.5 * tile
 // their head, and doing it. ok is false where it does nothing.
 func (f *farm) interaction(o *game.Object) (words string, do func(), ok bool) {
 	if v := f.nearPerson(o); v != nil {
-		return "E: FALAR COM " + v.name, func() { f.talk = &talk{v: v}; f.sound("ui_open", nil) }, true
+		return "E: falar com " + v.name, func() { f.talk = &talk{v: v}; f.sound("ui_open", nil) }, true
 	}
 	if f.room != nil {
 		if f.room.own && f.byBed(o) {
-			return "E: DORMIR", func() { f.sleep() }, true
+			return "E: dormir", func() { f.sleep() }, true
 		}
 		return "", nil, false
 	}
 	col, row := f.cellOf(feet(o))
 	if d, ok := f.doorAt(col, row); ok {
-		return "E: ENTRAR", func() { f.enter(d) }, true
+		return "E: entrar", func() { f.enter(d) }, true
 	}
 	if s, ok := f.stallBy(o); ok {
-		return "E: LOJA", func() { f.shop.open, f.shop.choice, f.shop.at = true, 0, s; f.sound("ui_open", nil) }, true
+		return "E: loja", func() { f.shop.open, f.shop.choice, f.shop.at = true, 0, s; f.sound("ui_open", nil) }, true
 	}
 	return "", nil, false
 }

@@ -33,7 +33,7 @@ func (f *farm) use(k *kit, col, row int) bool {
 		p.watered = true
 		f.sound("pour", &at)
 	case p.crop < 0 && k.slot < slotCan:
-		f.float(at, "SEM SEMENTES", 'r')
+		f.float(at, "Sem sementes", 'r')
 		f.sound("deny", nil)
 		return false
 	default:

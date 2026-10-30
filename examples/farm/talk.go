@@ -26,22 +26,22 @@ const (
 func (f *farm) lines(v *villager) []line {
 	var ls []line
 	if !v.smith() && len(v.order.Want) > 0 {
-		ls = append(ls, line{text: "ENTREGAR PEDIDO", do: func(f *farm) { f.deliver(v) }})
+		ls = append(ls, line{text: "Entregar pedido", do: func(f *farm) { f.deliver(v) }})
 	}
 	switch v.role {
 	case roleLumberjack:
 		ls = append(ls,
-			line{text: "COMPRAR MADEIRA $" + itoa(lumberSells), do: func(f *farm) { f.tradeWood(v.kit, f.kit, lumberSells, v.pos) }},
-			line{text: "VENDER MADEIRA $" + itoa(lumberBuys), do: func(f *farm) { f.tradeWood(f.kit, v.kit, lumberBuys, v.pos) }})
+			line{text: "Comprar madeira $" + itoa(lumberSells), do: func(f *farm) { f.tradeWood(v.kit, f.kit, lumberSells, v.pos) }},
+			line{text: "Vender madeira $" + itoa(lumberBuys), do: func(f *farm) { f.tradeWood(f.kit, v.kit, lumberBuys, v.pos) }})
 	case roleSmith:
 		if !f.errandDone {
-			ls = append(ls, line{text: "ENTREGAR ENCOMENDA", do: func(f *farm) { f.doErrand(v) }})
+			ls = append(ls, line{text: "Entregar encomenda", do: func(f *farm) { f.doErrand(v) }})
 			break
 		}
 		for i := 1; i < len(axes); i++ {
-			ls = append(ls, line{text: "MACHADO DE " + axes[i].label + " $" + itoa(axes[i].price), do: func(f *farm) { f.buyAxe(i, v.pos) }})
+			ls = append(ls, line{text: "Machado de " + axes[i].label + " $" + itoa(axes[i].price), do: func(f *farm) { f.buyAxe(i, v.pos) }})
 		}
-		ls = append(ls, line{text: "VENDER LENHA $" + itoa(woodPrice), do: func(f *farm) { f.tradeWood(f.kit, v.kit, woodPrice, v.pos) }})
+		ls = append(ls, line{text: "Vender lenha $" + itoa(woodPrice), do: func(f *farm) { f.tradeWood(f.kit, v.kit, woodPrice, v.pos) }})
 	}
-	return append(ls, line{text: "TCHAU", do: func(f *farm) { f.talk = nil; f.sound("ui_close", nil) }})
+	return append(ls, line{text: "Tchau", do: func(f *farm) { f.talk = nil; f.sound("ui_close", nil) }})
 }

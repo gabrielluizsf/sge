@@ -62,18 +62,24 @@ func (h *hud) cursor(cv *canvas.Canvas) {
 
 // money is the purse at the top left: a coin and what is in it.
 func (h *hud) money(cv *canvas.Canvas) {
-	cv.Blit(8, 8, panel(52, 14, false))
-	cv.Blit(8-scale, 8-scale, look("icon_coin"))
-	cv.Blit(8+16*scale, 8+3*scale, text(fmt.Sprint("$", h.f.money), 'w'))
+	t := text(fmt.Sprint("$", h.f.money), 'k')
+	cv.Blit(8, 8, panel(max(52, t.Width/scale+24), rowH, false))
+	cv.Blit(8-scale, 8, look("icon_coin"))
+	cv.Blit(8+18*scale, 8+(rowH*scale-t.Height)/2, t)
 }
+
+// rowH is the height, in pixels of art, of a line of the HUD's panels.
+const rowH = 16
 
 // time is the day and the hour under the purse, red once it is late.
 func (h *hud) time(cv *canvas.Canvas) {
 	c := h.f.clock
-	ink := 'w'
+	ink := 'k'
 	if c.Between(22, wakeAt) {
 		ink = 'r'
 	}
-	cv.Blit(8, 8+16*scale, panel(78, 12, false))
-	cv.Blit(8+4*scale, 8+18*scale, text(fmt.Sprintf("DIA %d %02d:%02d", c.Day+1, int(c.Hour), int(c.Hour*60)%60), ink))
+	t := text(fmt.Sprintf("Dia %d  %02d:%02d", c.Day+1, int(c.Hour), int(c.Hour*60)%60), ink)
+	y := 8 + (rowH+2)*scale
+	cv.Blit(8, y, panel(t.Width/scale+12, rowH, false))
+	cv.Blit(8+6*scale, y+(rowH*scale-t.Height)/2, t)
 }

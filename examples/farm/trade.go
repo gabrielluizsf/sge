@@ -11,7 +11,7 @@ import (
 func (f *farm) buy(k *kit, c int, at vector.Vector3) bool {
 	price := crops[c].seedPrice
 	if k.money < price {
-		f.float(at, "SEM DINHEIRO", 'r')
+		f.float(at, "Sem dinheiro", 'r')
 		f.sound("deny", nil)
 		return false
 	}
@@ -26,7 +26,7 @@ func (f *farm) buy(k *kit, c int, at vector.Vector3) bool {
 func (f *farm) sell(k *kit, at vector.Vector3) bool {
 	earned := worth(k)
 	if earned == 0 {
-		f.float(at, "NADA A VENDER", 'r')
+		f.float(at, "Nada a vender", 'r')
 		f.sound("deny", nil)
 		return false
 	}

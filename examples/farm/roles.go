@@ -26,14 +26,19 @@ var schedules = map[string]daytime.Schedule{
 	roleWanderer:   {{From: 8, To: 20, Do: doStroll}, {From: 20, To: 8, Do: doSleep}},
 }
 
-// roleLabels are the trades' names on screen.
-var roleLabels = map[string]string{roleFarmer: "FAZENDEIRA", roleLumberjack: "MADEIREIRA", roleSmith: "FERREIRA", roleWanderer: "MORADORA"}
+// roleLabels are the trades' names on screen, a woman's and a man's.
+var roleLabels = map[string][2]string{
+	roleFarmer:     {"fazendeira", "fazendeiro"},
+	roleLumberjack: {"madeireira", "madeireiro"},
+	roleSmith:      {"ferreira", "ferreiro"},
+	roleWanderer:   {"moradora", "morador"},
+}
 
-// roleLabel is v's trade on screen, as a man's or a woman's.
+// roleLabel is v's trade on screen, as a woman's or a man's.
 func roleLabel(v *villager) string {
 	l := roleLabels[v.role]
-	if !v.woman {
-		l = l[:len(l)-1] + "O"
+	if v.woman {
+		return l[0]
 	}
-	return l
+	return l[1]
 }

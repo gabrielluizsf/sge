@@ -11,7 +11,7 @@ func (f *farm) chop(k *kit, col, row int) bool {
 	}
 	at := f.ground.CellCenter(col, row)
 	if k.axe == noAxe {
-		f.float(at, "SEM MACHADO", 'r')
+		f.float(at, "Sem machado", 'r')
 		f.sound("deny", nil)
 		return false
 	}
@@ -27,7 +27,7 @@ func (f *farm) chop(k *kit, col, row int) bool {
 	k.bag.Add(wood, n)
 	f.setThing(col, row, tileID["stump"])
 	f.stumps = append(f.stumps, &stump{col: col, row: row, left: regrowIn})
-	f.float(at, fmt.Sprint("+", n, " MADEIRA"), 'y')
+	f.float(at, fmt.Sprint("+", n, " madeira"), 'y')
 	f.sound("fell", &at)
 	return true
 }

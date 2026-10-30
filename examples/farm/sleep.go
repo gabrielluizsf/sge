@@ -16,12 +16,12 @@ const (
 // in the morning.
 func (f *farm) sleep() bool {
 	if !f.clock.Between(bedtime, wakeAt) {
-		f.float(f.player.Transform.Position, "AINDA E CEDO", 'r')
+		f.float(f.player.Transform.Position, "Ainda é cedo", 'r')
 		f.sound("deny", nil)
 		return false
 	}
 	f.nextMorning()
-	f.notify(fmt.Sprint("DIA ", f.clock.Day+1, ": BOM DIA!"))
+	f.notify(fmt.Sprint("Dia ", f.clock.Day+1, ": bom dia!"))
 	return true
 }
 
@@ -59,6 +59,6 @@ func (f *farm) curfew() {
 		}
 		f.enter(houseDoor{at: homeDoor, faceOut: "down", kind: 0, seed: seed, own: true})
 	}
-	f.notify(fmt.Sprint("VOCE DESMAIOU! PERDEU $", lost))
+	f.notify(fmt.Sprint("Você desmaiou! Perdeu $", lost))
 	f.sound("deny", nil)
 }

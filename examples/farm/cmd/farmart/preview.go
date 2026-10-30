@@ -122,8 +122,9 @@ func drawTestMap(cv *canvas.Canvas, dir string, x0, y0 int) error {
 	return nil
 }
 
-// drawHUD draws the HUD's pieces: the money box, the slots with the one in
-// use, and a line of text, at three times the size.
+// drawHUD draws the HUD's pieces: the money box and the slots with the one
+// in use, at three times the size; its text is the game's font, drawn by
+// the game.
 func drawHUD(cv *canvas.Canvas, x0, y0 int) error {
 	const s = 3
 	money, err := render(art.Panel(44, 14, false), s)
@@ -131,11 +132,6 @@ func drawHUD(cv *canvas.Canvas, x0, y0 int) error {
 		return err
 	}
 	cv.Blit(x0, y0, money)
-	text, err := render(art.Text("$125", 'w'), s)
-	if err != nil {
-		return err
-	}
-	cv.Blit(x0+16*s, y0+3*s, text)
 	coin, err := render(art.Icons()["coin"], s)
 	if err != nil {
 		return err
@@ -153,10 +149,5 @@ func drawHUD(cv *canvas.Canvas, x0, y0 int) error {
 		}
 		cv.Blit(x0+i*22*s+2*s, y0+22*s, ic)
 	}
-	line, err := render(art.Text("E: LOJA  ESPACO: USAR", 'y'), s/3*2)
-	if err != nil {
-		return err
-	}
-	cv.Blit(x0, y0+46*s, line)
 	return nil
 }

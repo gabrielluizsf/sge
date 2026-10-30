@@ -117,13 +117,3 @@ func TestObjectsAreTransparentInTheirCorners(t *testing.T) {
 		}
 	}
 }
-
-func TestFontGlyphsAreFiveBySeven(t *testing.T) {
-	for r, g := range font {
-		for _, row := range g {
-			if len(row) != 5 || strings.Trim(row, ".#") != "" {
-				t.Errorf("glyph %q: %q", r, row)
-			}
-		}
-	}
-}

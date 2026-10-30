@@ -33,7 +33,7 @@ func (m *mind) smithWork(f *farm) *job {
 			k.bag.Take(wood, n)
 			v.fuel += float64(n)
 			at := f.center(pathfind.Cell(t.Forge))
-			f.float(at, fmt.Sprint("+", n, " LENHA"), 'y')
+			f.float(at, fmt.Sprint("+", n, " lenha"), 'y')
 		}}
 	}
 	if lj := f.lumberjackWith(t, 2); lj != nil && k.money >= 2*woodPrice {
@@ -67,6 +67,6 @@ func (f *farm) buyWood(s, lj *villager) {
 	s.kit.bag.Add(wood, n)
 	s.kit.money -= n * woodPrice
 	lj.kit.money += n * woodPrice
-	f.float(lj.pos, fmt.Sprint(n, " MADEIRA $", n*woodPrice), 'y')
+	f.float(lj.pos, fmt.Sprint(n, " madeira $", n*woodPrice), 'y')
 	f.sound("coin", &lj.pos)
 }

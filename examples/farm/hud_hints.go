@@ -11,9 +11,9 @@ func (h *hud) hints(cv *canvas.Canvas) {
 		at := h.farmer.Game().ToScreen(h.farmer.Transform.Position)
 		cv.Blit(int(at.X)-t.Width/2, int(at.Y)-tile-t.Height-scale*6, t)
 	}
-	keys := "SETAS: ANDAR  1-4: ITEM  ESPACO/CLIQUE: USAR  E: FALAR"
+	keys := "Setas: andar   1-4: item   Espaço/clique: usar   E: interagir"
 	if h.f.room != nil {
-		keys = "SAIA PELO TAPETE DA PORTA"
+		keys = "Saia pelo tapete da porta"
 	}
 	t := text(keys, 'w')
 	cv.Blit(cv.Width-t.Width-8, 8, t)

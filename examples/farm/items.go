@@ -11,7 +11,7 @@ func seedsOf(c int) string { return crops[c].name + "_seeds" }
 func cropOf(c int) string  { return crops[c].name }
 
 // itemLabels are the items' names on screen.
-var itemLabels = map[string]string{wood: "MADEIRA", "carrot": "CENOURA", "tomato": "TOMATE"}
+var itemLabels = map[string]string{wood: "madeira", "carrot": "cenoura", "tomato": "tomate"}
 
 // worth is what kit k's harvest and wood sell for.
 func worth(k *kit) int {
