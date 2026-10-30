@@ -608,3 +608,120 @@ export function Stdout$set(v: File | null): void {
 export function Stderr$set(v: File | null): void {
   Stderr = v;
 }
+
+// Root is a directory files are opened within, as Go's: a name that is
+// absolute or climbs out of it with ".." is refused, and a link is
+// followed only to where it stays inside it. Deno has no openat, so the
+// name is checked and then opened: a link changed between the two is not
+// seen, which Go's Root, opening a step at a time, would see.
+export class Root extends $.Native {
+  name = "";
+  real = ""; // the directory's real path, links resolved
+  closed = false;
+
+  Name(): string {
+    return this.name;
+  }
+
+  Close(): any {
+    this.closed = true;
+    return null;
+  }
+
+  // resolve is name's path inside the root, for op, or an error. It walks
+  // the name a step at a time as Go's Root does: ".." may not climb above
+  // the root, and a link is followed only if its target is relative and
+  // stays inside; an absolute one escapes. A name not there yet resolves
+  // to its place in the directory that is, with the error of its absence.
+  private resolve(op: string, name: string): [string, any] {
+    const n = js(name);
+    if (this.closed) return ["", new fs.PathError(op, name, fs.ErrClosed)];
+    if (n.startsWith("/") || n.includes("\\") || n.includes("\0")) return ["", escapes(op, name)];
+    const todo = n.split("/").filter((p) => p !== "" && p !== ".");
+    const at: string[] = []; // the components resolved, under the root
+    let links = 0;
+    while (todo.length > 0) {
+      const p = todo.shift()!;
+      if (p === "..") {
+        if (at.length === 0) return ["", escapes(op, name)];
+        at.pop();
+        continue;
+      }
+      const path = [this.real, ...at, p].join("/");
+      let info: any;
+      try {
+        info = deno().lstatSync(path);
+      } catch (e) {
+        // Missing: only the last step may be, for a file to be made.
+        return todo.length === 0 ? [path, pathError(op, name, e)] : ["", pathError(op, name, e)];
+      }
+      if (!info.isSymlink) {
+        at.push(p);
+        continue;
+      }
+      if (++links > 255) return ["", pathError(op, name, new Error("too many links"))];
+      const target = deno().readLinkSync(path);
+      // An absolute target escapes, a Windows one too: a drive or backslash.
+      if (target.startsWith("/") || target.includes("\\") || /^[A-Za-z]:/.test(target)) return ["", escapes(op, name)];
+      todo.unshift(...target.split("/").filter((q: string) => q !== "" && q !== "."));
+    }
+    return [[this.real, ...at].join("/"), null];
+  }
+
+
+
+  OpenFile(name: string, flag: number, perm: number): [File | null, any] {
+    const [path, err] = this.resolve("openat", name);
+    if (path === "" || err !== null && (flag & O_CREATE) === 0) return [null, err];
+    const [f, oerr] = OpenFile(go(path), flag, perm);
+    if (f !== null) f.name = js(this.name) + "/" + js(name);
+    return [f, oerr === null ? null : pathError("openat", name, oerr)];
+  }
+
+  Open(name: string): [File | null, any] {
+    return this.OpenFile(name, O_RDONLY, 0);
+  }
+
+  Create(name: string): [File | null, any] {
+    return this.OpenFile(name, O_RDWR | O_CREATE | O_TRUNC, 0o666);
+  }
+
+  Stat(name: string): [any, any] {
+    const [path, err] = this.resolve("statat", name);
+    if (err !== null) return [null, err];
+    return attempt("statat", name, null, () => stat(deno().statSync(path), name));
+  }
+
+  ReadFile(name: string): [$.Slice<number> | null, any] {
+    const [path, err] = this.resolve("openat", name);
+    if (err !== null) return [null, err];
+    return attempt("openat", name, null, () => $.slice<number>(deno().readFileSync(path)));
+  }
+
+  OpenRoot(name: string): [Root | null, any] {
+    const [path, err] = this.resolve("openat", name);
+    if (err !== null) return [null, err];
+    return newRoot(go(path), go(js(this.name) + "/" + js(name)));
+  }
+}
+
+// escapes is Go's error for a name that leaves its root.
+function escapes(op: string, name: string): any {
+  return new fs.PathError(op, name, new osError("path escapes from parent"));
+}
+
+function newRoot(path: string, name: string): [Root | null, any] {
+  return attempt("open", name, null, () => {
+    const real = deno().realPathSync(js(path));
+    if (!deno().statSync(real).isDirectory) throw new (g.Deno.errors.NotADirectory ?? Error)("not a directory");
+    const r = new Root();
+    r.name = name;
+    r.real = real;
+    return r;
+  });
+}
+
+// OpenRoot opens the directory name as a Root.
+export function OpenRoot(name: string): [Root | null, any] {
+  return newRoot(name, name);
+}
