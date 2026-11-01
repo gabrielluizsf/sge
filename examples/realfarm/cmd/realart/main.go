@@ -5,7 +5,8 @@
 // as PNGs, with sprites.json saying where each stands. -crops bakes the
 // crops flora grows; -people the villagers, in every motion; -buildings
 // the houses and things package building builds, clad in the materials
-// the manifest pins.
+// the manifest pins; -water the shores of the lake and the sea, every
+// mask of them, in looping frames, over the grounds they lie on.
 //
 //	go run ./cmd/realart -manifest assets.json -out assets
 package main
@@ -46,6 +47,7 @@ func main() {
 	crops := flag.Bool("crops", false, "bake the crops flora grows, and no asset")
 	people := flag.Bool("people", false, "bake the villagers, made as humans.json pins, and no asset")
 	buildings := flag.Bool("buildings", false, "bake the houses and things package building builds, and no asset")
+	waterTiles := flag.Bool("water", false, "bake the shores of the lake and the sea, every mask, in looping frames, and no asset")
 	flag.Parse()
 	m, err := kit.ReadManifest(*file)
 	if err != nil {
@@ -66,6 +68,11 @@ func main() {
 	}
 	if *buildings {
 		bakeBuildings(batch{manifest: m, out: *out, only: *only}, sprites)
+		writeIndex(index, sprites)
+		return
+	}
+	if *waterTiles {
+		bakeWater(batch{manifest: m, out: *out, only: *only}, sprites)
 		writeIndex(index, sprites)
 		return
 	}
