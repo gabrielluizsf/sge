@@ -5,7 +5,8 @@
 // as PNGs, with sprites.json saying where each stands. -crops bakes the
 // crops flora grows; -people the villagers, in every motion; -buildings
 // the houses and things package building builds, clad in the materials
-// the manifest pins; -water the shores of the lake and the sea, every
+// the manifest pins; -trees the pines, ipês, cashews, coconut palms and
+// mandacarus package tree grows, in their barks; -water the shores of the lake and the sea, every
 // mask of them, in looping frames, over the grounds they lie on.
 //
 //	go run ./cmd/realart -manifest assets.json -out assets
@@ -43,10 +44,11 @@ var headings = []float64{45, 135, 225, 315}
 func main() {
 	file := flag.String("manifest", "assets.json", "the manifest of assets")
 	out := flag.String("out", "assets", "the directory to write sprites to")
-	only := flag.String("only", "", "bake only this asset, or with -people this villager, or with -buildings this building")
+	only := flag.String("only", "", "bake only this asset, or with -people this villager, or with -buildings this building, or with -trees this species")
 	crops := flag.Bool("crops", false, "bake the crops flora grows, and no asset")
 	people := flag.Bool("people", false, "bake the villagers, made as humans.json pins, and no asset")
 	buildings := flag.Bool("buildings", false, "bake the houses and things package building builds, and no asset")
+	trees := flag.Bool("trees", false, "bake the trees package tree grows, every species, size and seed, and no asset")
 	waterTiles := flag.Bool("water", false, "bake the shores of the lake and the sea, every mask, in looping frames, and no asset")
 	flag.Parse()
 	m, err := kit.ReadManifest(*file)
@@ -68,6 +70,11 @@ func main() {
 	}
 	if *buildings {
 		bakeBuildings(batch{manifest: m, out: *out, only: *only}, sprites)
+		writeIndex(index, sprites)
+		return
+	}
+	if *trees {
+		bakeTrees(batch{manifest: m, out: *out, only: *only}, sprites)
 		writeIndex(index, sprites)
 		return
 	}

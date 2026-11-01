@@ -25,10 +25,10 @@ type Leaf struct {
 	Vein          color.NRGBA
 }
 
-// texture paints a leaf on a size by size texture, its stalk at the
+// Texture paints a leaf on a size by size texture, its stalk at the
 // bottom middle and its tip at the top, transparent around it, its edge
 // soft over a pixel; seed varies its mottling.
-func (l Leaf) texture(size int, seed uint32) *image.NRGBA {
+func (l Leaf) Texture(size int, seed uint32) *image.NRGBA {
 	img := image.NewNRGBA(image.Rect(0, 0, size, size))
 	src := random.New(seed)
 	blotch := [8]float64{}

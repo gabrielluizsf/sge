@@ -25,7 +25,7 @@ func (c Crop) Grow(stage int, seed uint32) *gltf.Model {
 	g.p = newPlant([]gltf.Material{
 		{Name: "leaf", BaseColor: [4]float64{1, 1, 1, 1}, Texture: 0, MetalRough: -1, Normal: -1, Occlusion: -1,
 			Roughness: 0.6, AlphaMode: "MASK", AlphaCutoff: 0.5, DoubleSided: true},
-	}, []imageOf{c.leaf.texture(128, seed)})
+	}, []imageOf{c.leaf.Texture(128, seed)})
 	g.stemMat = g.solid(color.NRGBA{88, 120, 52, 255}, 0.7)
 	c.grow(g, stage)
 	return g.p.done()

@@ -48,7 +48,7 @@ func TestCropsGrow(t *testing.T) {
 // A leaf's texture is a leaf: opaque along its middle, clear at the
 // corners, green.
 func TestLeavesArePainted(t *testing.T) {
-	img := Carrot.leaf.texture(64, 3)
+	img := Carrot.leaf.Texture(64, 3)
 	mid := img.NRGBAAt(32, 32)
 	if mid.A != 255 || mid.G <= mid.R || mid.G <= mid.B {
 		t.Errorf("the middle is %v", mid)

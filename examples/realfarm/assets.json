@@ -1,6 +1,46 @@
 {
   "assets": [
     {
+      "id": "bark_platanus",
+      "name": "Bark Platanus",
+      "biome": "tree",
+      "source": "https://polyhaven.com/a/bark_platanus",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "bark_platanus/bark_platanus_1k.gltf",
+      "span": 1.5000001192092896,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/bark_platanus/bark_platanus.bin",
+          "path": "bark_platanus/bark_platanus.bin",
+          "sha256": "af2a14b6e037bc9b7744eca6a2d3f4eecb0ba04a316368104085ae7feb40fff3"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/bark_platanus/bark_platanus_1k.gltf",
+          "path": "bark_platanus/bark_platanus_1k.gltf",
+          "sha256": "28946e1d1cd46944687002e9c13023ba4fb31a84297cb959d9b96a7b94e888c6"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_platanus/bark_platanus_arm_1k.jpg",
+          "path": "bark_platanus/textures/bark_platanus_arm_1k.jpg",
+          "sha256": "d6ad1c4a3b3eff5afceb9b9efce8a87aec8a99609c7acf6135f39f8c633cdf93"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_platanus/bark_platanus_diff_1k.jpg",
+          "path": "bark_platanus/textures/bark_platanus_diff_1k.jpg",
+          "sha256": "4e302eeb6a66d50880484a08bd2c6e43974eb1636397d94d9c8bc54d508c2c1b"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/bark_platanus/bark_platanus_nor_gl_1k.jpg",
+          "path": "bark_platanus/textures/bark_platanus_nor_gl_1k.jpg",
+          "sha256": "af36a887dc9cac3ea70902bc6e26b1d3f2608f39f96880f6e7766d93fefe43f5"
+        }
+      ]
+    },
+    {
       "id": "boulder_01",
       "name": "Boulder 01",
       "biome": "campo",
@@ -1224,6 +1264,47 @@
       ]
     },
     {
+      "id": "palm_tree_bark",
+      "name": "Palm Tree Bark",
+      "biome": "tree",
+      "source": "https://polyhaven.com/a/palm_tree_bark",
+      "authors": [
+        "Dimitrios Savva",
+        "Rico Cilliers"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "palm_tree_bark/palm_tree_bark_1k.gltf",
+      "span": 1.2999999523162842,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/palm_tree_bark/palm_tree_bark.bin",
+          "path": "palm_tree_bark/palm_tree_bark.bin",
+          "sha256": "27519e3572d1f8898a1bf14067d5328d8c057aee3b13ffc0a6ba60d4b0dfc98a"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/palm_tree_bark/palm_tree_bark_1k.gltf",
+          "path": "palm_tree_bark/palm_tree_bark_1k.gltf",
+          "sha256": "417cef7681bfd1de0121c1e786ab553126f8e717907f8af4112a96f6a5d1c5c6"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/palm_tree_bark/palm_tree_bark_arm_1k.jpg",
+          "path": "palm_tree_bark/textures/palm_tree_bark_arm_1k.jpg",
+          "sha256": "382a67953ce3cf3dd1d75de0ff20743b455dce0ffc516a1a1fbdbd74bae6f929"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/palm_tree_bark/palm_tree_bark_diff_1k.jpg",
+          "path": "palm_tree_bark/textures/palm_tree_bark_diff_1k.jpg",
+          "sha256": "38da1d987ea88af120cedd66ad7d2f26ea3351d23c061e7d22bebc37ed22d9ef"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/palm_tree_bark/palm_tree_bark_nor_gl_1k.jpg",
+          "path": "palm_tree_bark/textures/palm_tree_bark_nor_gl_1k.jpg",
+          "sha256": "37fb300d7db0b3c6de701d533c6fdf0ec7a1028f244813eee63c9a63a867257d"
+        }
+      ]
+    },
+    {
       "id": "periwinkle_plant",
       "name": "Periwinkle Plant",
       "biome": "campo",
@@ -1259,6 +1340,46 @@
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/periwinkle_plant/periwinkle_plant_nor_gl_1k.jpg",
           "path": "periwinkle_plant/textures/periwinkle_plant_nor_gl_1k.jpg",
           "sha256": "36d2464e7500f741500228b955c1fb0f26d954e869bd26f93dd25c0fafc5087d"
+        }
+      ]
+    },
+    {
+      "id": "pine_bark",
+      "name": "Pine Bark",
+      "biome": "tree",
+      "source": "https://polyhaven.com/a/pine_bark",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "pine_bark/pine_bark_1k.gltf",
+      "span": 1.9999996423721313,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/pine_bark/pine_bark.bin",
+          "path": "pine_bark/pine_bark.bin",
+          "sha256": "94c17304462ff89981bc1e0d573506c57002aaf2fd7e93009ae8342e400ec92c"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/pine_bark/pine_bark_1k.gltf",
+          "path": "pine_bark/pine_bark_1k.gltf",
+          "sha256": "f229abb23f5b834baec37b79e195424e50b5e3f79ecbda5bc2b4c794f9a1b716"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/pine_bark/pine_bark_arm_1k.jpg",
+          "path": "pine_bark/textures/pine_bark_arm_1k.jpg",
+          "sha256": "1ba20ec25c9f43327d6aa0ea809917854cff553ad7f21fb548e853a5b5ec701a"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/pine_bark/pine_bark_diff_1k.jpg",
+          "path": "pine_bark/textures/pine_bark_diff_1k.jpg",
+          "sha256": "89ddfbff0388d30caff902ba600cdf75eb1e651ca71ece6594b5a9b27abb47ab"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/pine_bark/pine_bark_nor_gl_1k.jpg",
+          "path": "pine_bark/textures/pine_bark_nor_gl_1k.jpg",
+          "sha256": "666e5f175a010f12577687dd8029125bff99110e6a97958afb295b34266437db"
         }
       ]
     },
@@ -1660,6 +1781,7 @@
       "license": "CC0-1.0",
       "kind": "model",
       "model": "wicker_basket_02/wicker_basket_02_1k.gltf",
+      "whole": true,
       "files": [
         {
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wicker_basket_02/wicker_basket_02_arm_1k.jpg",
@@ -1686,8 +1808,7 @@
           "path": "wicker_basket_02/wicker_basket_02_1k.gltf",
           "sha256": "78c7a3bdd7025eb092b3ac744e9d83e9a75fbb242696b5dce87ec215af617768"
         }
-      ],
-      "whole": true
+      ]
     },
     {
       "id": "wine_barrel_01",
@@ -1700,6 +1821,7 @@
       "license": "CC0-1.0",
       "kind": "model",
       "model": "wine_barrel_01/wine_barrel_01_1k.gltf",
+      "whole": true,
       "files": [
         {
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wine_barrel_01/wine_barrel_01_arm_1k.jpg",
@@ -1726,8 +1848,7 @@
           "path": "wine_barrel_01/wine_barrel_01_1k.gltf",
           "sha256": "503d3339677217c3241a3cdbc1c803ed1eb82d1a48f51436d1545ec5745ae8d8"
         }
-      ],
-      "whole": true
+      ]
     },
     {
       "id": "wooden_bucket_01",
@@ -1740,6 +1861,7 @@
       "license": "CC0-1.0",
       "kind": "model",
       "model": "wooden_bucket_01/wooden_bucket_01_1k.gltf",
+      "whole": true,
       "files": [
         {
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_bucket_01/wooden_bucket_01_arm_1k.jpg",
@@ -1766,8 +1888,7 @@
           "path": "wooden_bucket_01/wooden_bucket_01_1k.gltf",
           "sha256": "f5338d760391b1f6183f09cbb3dfcb0d6b5d954d9a1d388e7debabce46fd999d"
         }
-      ],
-      "whole": true
+      ]
     },
     {
       "id": "wooden_crate_02",
@@ -1781,6 +1902,7 @@
       "license": "CC0-1.0",
       "kind": "model",
       "model": "wooden_crate_02/wooden_crate_02_1k.gltf",
+      "whole": true,
       "files": [
         {
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_crate_02/wooden_crate_02_arm_1k.jpg",
@@ -1807,8 +1929,7 @@
           "path": "wooden_crate_02/wooden_crate_02_1k.gltf",
           "sha256": "e90985d317664668988cb95ce707784c94ab0ccc6d13c980ca789fa69a5cf7b6"
         }
-      ],
-      "whole": true
+      ]
     },
     {
       "id": "wooden_lantern_01",
@@ -1821,6 +1942,7 @@
       "license": "CC0-1.0",
       "kind": "model",
       "model": "wooden_lantern_01/wooden_lantern_01_1k.gltf",
+      "whole": true,
       "files": [
         {
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_lantern_01/wooden_lantern_01_arm_1k.jpg",
@@ -1862,8 +1984,7 @@
           "path": "wooden_lantern_01/wooden_lantern_01_1k.gltf",
           "sha256": "2380275a5c90bf3442c426f3363e826e6b1ceff12a7e65f83b03cc8fac70a099"
         }
-      ],
-      "whole": true
+      ]
     },
     {
       "id": "wooden_stool_01",
