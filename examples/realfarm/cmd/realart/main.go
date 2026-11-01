@@ -5,213 +5,99 @@
 // as PNGs, with sprites.json saying where each stands. -crops bakes the
 // crops flora grows; -people the villagers, in every motion; -buildings
 // the houses and things package building builds, clad in the materials
-// the manifest pins; -trees the pines, ipês, cashews, coconut palms and
-// mandacarus package tree grows, in their barks; -water the shores of the lake and the sea, every
-// mask of them, in looping frames, over the grounds they lie on.
+// the manifest pins; -water the shores of the lake and the sea, every
+// mask of them, in looping frames, over the grounds they lie on. The
+// game bakes the same way by itself when it starts; this is for baking
+// ahead, or into a folder of one's own.
 //
-//	go run ./cmd/realart -manifest assets.json -out assets
+//	go run ./examples/realfarm/cmd/realart -manifest examples/realfarm/assets.json -humans examples/realfarm/humans.json -out assets
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"image/png"
 	"os"
-	"path"
-	"path/filepath"
+	"strings"
 
-	"github.com/gabrielluizsf/sge/bake"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
-	"github.com/gabrielluizsf/sge/flora"
-	"github.com/gabrielluizsf/sge/gltf"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 )
-
-// sprite is where a baked picture stands: the pixel its model's foot is.
-type sprite struct {
-	W, H   int
-	PivotX int
-	PivotY int
-}
-
-// patches are the cells a ground's texture spans: two by two metres, so
-// its four tiles laid by the cells' parity meet without a seam.
-var patches = []bake.Patch{{Span: 2, Col: 0, Row: 0}, {Span: 2, Col: 1, Row: 0}, {Span: 2, Col: 0, Row: 1}, {Span: 2, Col: 1, Row: 1}}
-
-// headings are the turns each model is baked at.
-var headings = []float64{45, 135, 225, 315}
 
 func main() {
 	file := flag.String("manifest", "assets.json", "the manifest of assets")
+	humans := flag.String("humans", "humans.json", "the pins of the people's data")
 	out := flag.String("out", "assets", "the directory to write sprites to")
-	only := flag.String("only", "", "bake only this asset, or with -people this villager, or with -buildings this building, or with -trees this species")
-	crops := flag.Bool("crops", false, "bake the crops flora grows, and no asset")
-	people := flag.Bool("people", false, "bake the villagers, made as humans.json pins, and no asset")
-	buildings := flag.Bool("buildings", false, "bake the houses and things package building builds, and no asset")
-	trees := flag.Bool("trees", false, "bake the trees package tree grows, every species, size and seed, and no asset")
-	waterTiles := flag.Bool("water", false, "bake the shores of the lake and the sea, every mask, in looping frames, and no asset")
+	only := flag.String("only", "", "bake only the tasks whose name has this in it")
+	kinds := map[string]*bool{
+		"crop":     flag.Bool("crops", false, "bake the crops flora grows, and no asset"),
+		"person":   flag.Bool("people", false, "bake the villagers, made as humans.json pins, and no asset"),
+		"building": flag.Bool("buildings", false, "bake the houses and things package building builds, and no asset"),
+		"tree":     flag.Bool("trees", false, "bake the trees package tree grows, every species, size and seed, and no asset"),
+		"water":    flag.Bool("water", false, "bake the shores of the lake and the sea, and no asset"),
+	}
+	workers := flag.Int("workers", 1, "how many frames are baked at once; each takes a core")
 	flag.Parse()
-	m, err := kit.ReadManifest(*file)
+	b, err := baker(*file, *humans, *out)
 	if err != nil {
 		fail(err)
 	}
-	if err := os.MkdirAll(*out, 0o755); err != nil {
-		fail(err)
-	}
-	sprites := map[string]sprite{}
-	index := filepath.Join(*out, "sprites.json")
-	if data, err := os.ReadFile(index); err == nil {
-		json.Unmarshal(data, &sprites)
-	}
-	if *people {
-		bakePeople(*out, sprites, *only)
-		writeIndex(index, sprites)
-		return
-	}
-	if *buildings {
-		bakeBuildings(batch{manifest: m, out: *out, only: *only}, sprites)
-		writeIndex(index, sprites)
-		return
-	}
-	if *trees {
-		bakeTrees(batch{manifest: m, out: *out, only: *only}, sprites)
-		writeIndex(index, sprites)
-		return
-	}
-	if *waterTiles {
-		bakeWater(batch{manifest: m, out: *out, only: *only}, sprites)
-		writeIndex(index, sprites)
-		return
-	}
-	if *crops {
-		bakeCrops(*out, sprites)
-		writeIndex(index, sprites)
-		return
-	}
-	fe := kit.Fetcher()
-	for _, a := range m.Assets {
-		if (*only != "" && a.ID != *only) || a.Kind == "material" {
-			continue // a material is baked into the buildings
-		}
-		model, err := load(fe.Cache, a)
-		if err != nil {
-			fail(fmt.Errorf("%s: %w", a.ID, err))
-		}
-		if a.Kind == "ground" {
-			for i, p := range patches {
-				s := bake.Ground(model, p, options())
-				name := fmt.Sprintf("%s_g%d", a.ID, i)
-				if err := writePNG(filepath.Join(*out, name+".png"), s); err != nil {
-					fail(err)
-				}
-				b := s.Image.Bounds()
-				sprites[name] = sprite{W: b.Dx(), H: b.Dy(), PivotX: s.Pivot.X, PivotY: s.Pivot.Y}
-			}
-			fmt.Println(a.ID, "baked")
+	b.Workers = *workers
+	prefixes := chosen(kinds)
+	for _, t := range b.Tasks() {
+		if !wanted(t.Name, prefixes) || !strings.Contains(t.Name, *only) {
 			continue
 		}
-		for _, sh := range shots(model, a.Whole) {
-			s := bake.Render(model, sh.Shot, options())
-			if err := writePNG(filepath.Join(*out, a.ID+sh.suffix+".png"), s); err != nil {
-				fail(err)
-			}
-			b := s.Image.Bounds()
-			sprites[a.ID+sh.suffix] = sprite{W: b.Dx(), H: b.Dy(), PivotX: s.Pivot.X, PivotY: s.Pivot.Y}
+		if err := b.Do(t); err != nil {
+			fail(err)
 		}
-		fmt.Println(a.ID, "baked")
+		fmt.Println(t.Name, "baked")
 	}
-	writeIndex(index, sprites)
-}
-
-// cropSeeds are how many plants of each crop and stage are baked, so a
-// field of them is not one plant over and over.
-const cropSeeds = 3
-
-// bakeCrops bakes every crop flora grows, at every stage, a few plants of
-// each, into out.
-func bakeCrops(out string, sprites map[string]sprite) {
-	for _, c := range flora.Crops {
-		for stage := range c.Stages {
-			for seed := range cropSeeds {
-				s := bake.Render(c.Grow(stage, uint32(seed+1)), bake.Shot{Yaw: float64(seed) * 120}, options())
-				name := fmt.Sprintf("crop_%s_s%d_%d", c.Name, stage, seed)
-				if err := writePNG(filepath.Join(out, name+".png"), s); err != nil {
-					fail(err)
-				}
-				b := s.Image.Bounds()
-				sprites[name] = sprite{W: b.Dx(), H: b.Dy(), PivotX: s.Pivot.X, PivotY: s.Pivot.Y}
-			}
-		}
-		fmt.Println(c.Name, "grown")
+	if err := b.Shelf.Save(); err != nil {
+		fail(err)
 	}
 }
 
-// shot is a picture to bake of a model, and the suffix of its name.
-type shot struct {
-	bake.Shot
-	suffix string
+// baker is a baker onto the folder out, from the manifest and humans
+// files.
+func baker(manifest, humans, out string) (*bakes.Baker, error) {
+	m, err := kit.ReadManifest(manifest)
+	if err != nil {
+		return nil, err
+	}
+	h, err := kit.ReadHumans(humans)
+	if err != nil {
+		return nil, err
+	}
+	shelf, err := bakes.Open(out)
+	if err != nil {
+		return nil, err
+	}
+	return &bakes.Baker{Shelf: shelf, Manifest: m, Humans: h}, nil
 }
 
-// shots are the pictures baked of m: each heading of the whole model, if
-// it has one root or is whole, its roots the parts of one thing; or, for
-// a model of variants side by side, each variant alone at two.
-func shots(m *gltf.Model, whole bool) []shot {
-	var out []shot
-	if len(m.Roots) == 1 || whole {
-		for i, yaw := range headings {
-			out = append(out, shot{bake.Shot{Yaw: yaw}, fmt.Sprintf("_%d", i)})
+// chosen are the kinds of task the flags ask for, or the assets' own,
+// the grounds and models, when none.
+func chosen(kinds map[string]*bool) []string {
+	var out []string
+	for k, on := range kinds {
+		if *on {
+			out = append(out, k+" ")
 		}
-		return out
 	}
-	for r := range m.Roots {
-		for i, yaw := range headings[:2] {
-			out = append(out, shot{bake.Shot{Yaw: yaw, Only: true, Root: r}, fmt.Sprintf("_v%d_%d", r, i)})
-		}
+	if len(out) == 0 {
+		return []string{"ground ", "model "}
 	}
 	return out
 }
 
-// load fetches asset a's files, checked, and reads its model.
-func load(cache string, a kit.Asset) (*gltf.Model, error) {
-	fe := kit.Fetcher()
-	for _, f := range a.Files {
-		if _, err := fe.Get(f); err != nil {
-			return nil, err
+// wanted reports whether the task name is one of the kinds in prefixes.
+func wanted(name string, prefixes []string) bool {
+	for _, p := range prefixes {
+		if strings.HasPrefix(name, p) {
+			return true
 		}
 	}
-	root, err := os.OpenRoot(cache)
-	if err != nil {
-		return nil, err
-	}
-	defer root.Close()
-	return gltf.Open(root, path.Clean(a.Model), gltf.DefaultLimits)
-}
-
-// options are the farm's light: a morning sun from the upper left.
-func options() bake.Options {
-	o := bake.DefaultOptions(kit.Projection)
-	o.Unit = kit.Cell
-	return o
-}
-
-func writePNG(name string, s bake.Sprite) error {
-	f, err := os.Create(name)
-	if err != nil {
-		return err
-	}
-	if err := png.Encode(f, s.Image); err != nil {
-		f.Close()
-		return err
-	}
-	return f.Close()
-}
-
-// writeIndex writes sprites as JSON; encoding/json sorts a map's keys.
-func writeIndex(name string, sprites map[string]sprite) {
-	data, _ := json.MarshalIndent(sprites, "", "  ")
-	if err := os.WriteFile(name, append(data, '\n'), 0o644); err != nil {
-		fail(err)
-	}
+	return false
 }
 
 func fail(err error) {

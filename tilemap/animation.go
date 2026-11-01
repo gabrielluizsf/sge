@@ -7,4 +7,9 @@ type Animation struct {
 	Frames    []int
 	FPS       float64
 	Staggered bool
+	// Parity shows each cell one frame for good, picked by where it lies:
+	// Frames[col%2 + 2*(row%2)], the four patches of a texture that
+	// spans two cells across, so they meet without a seam. FPS and
+	// Staggered do not matter.
+	Parity bool
 }

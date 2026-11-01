@@ -26,6 +26,9 @@ func (a *svgArt) Icon(name string) *canvas.Canvas {
 	return picture(spriteSVG(name), 16, 16)
 }
 
+// Gridded is false: the SVG grass sways.
+func (a *svgArt) Gridded() bool { return false }
+
 // Cursor is the outline of a cell's diamond.
 func (a *svgArt) Cursor() *canvas.Canvas {
 	return picture(spriteSVG("cursor"), isoW/scale, tile/scale)

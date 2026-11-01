@@ -65,8 +65,9 @@ func newTiles(a Art) *tilemap.TileSet {
 	tiles.SetSolid(true, id(interiorNames[len(interiorFloors):]...)...)
 	// Grass, flowers and trees sway each in their own time; water ripples
 	// all together, shores and all.
-	tiles.Animate(tileID["grass0"], tilemap.Animation{Frames: id("grass0", "grass1", "grass2", "grass3"), FPS: 2, Staggered: true})
-	tiles.Animate(tileID["flowers0"], tilemap.Animation{Frames: id("flowers0", "flowers1", "flowers2", "flowers3"), FPS: 2, Staggered: true})
+	gridded := a.Gridded()
+	tiles.Animate(tileID["grass0"], tilemap.Animation{Frames: id("grass0", "grass1", "grass2", "grass3"), FPS: 2, Staggered: true, Parity: gridded})
+	tiles.Animate(tileID["flowers0"], tilemap.Animation{Frames: id("flowers0", "flowers1", "flowers2", "flowers3"), FPS: 2, Staggered: true, Parity: gridded})
 	tiles.Animate(tileID["tree0"], tilemap.Animation{Frames: id("tree0", "tree1", "tree2", "tree3"), FPS: 1.5, Staggered: true})
 	// Water is no wall: the farmer swims in it.
 	for _, mask := range terrain.Masks() {

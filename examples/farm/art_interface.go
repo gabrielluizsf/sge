@@ -19,6 +19,11 @@ type Art interface {
 	// "icon_axe_" and an axe's name, or "icon_" and a seed's, a crop's or
 	// "wood".
 	Icon(name string) *canvas.Canvas
+	// Gridded is whether the grass and the flowers are laid by the cells'
+	// parity, not swaying: "grass0" to "grass3" and "flowers0" to
+	// "flowers3" are then the four patches of a ground that spans two
+	// cells across, [col%2 + 2*(row%2)], and meet without a seam.
+	Gridded() bool
 	// Cursor is the outline of the cell being worked: its diamond, TileW
 	// by Cell pixels.
 	Cursor() *canvas.Canvas
