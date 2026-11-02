@@ -2,6 +2,7 @@ package bakes
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/gabrielluizsf/sge/bake"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
@@ -54,7 +55,7 @@ func (b *Baker) peopleTasks() []Task {
 				core := g.Stage == life.Adult && (v.ID == "player" || mo.Name == human.Stand.Name || mo.Name == human.Walk.Name)
 				for d := range Facings {
 					l := look{v, g, mo, d}
-					name := fmt.Sprintf("person %s %s %s %d", v.ID, g.Stage, mo.Name, d)
+					name := fmt.Sprintf("person v%d %s %s %s %d", human.MotionsVersion, v.ID, g.Stage, mo.Name, d)
 					out = append(out, Task{Name: name, Kind: "person", ID: v.ID, Core: core, Run: func() error { return b.person(l) }})
 				}
 			}
@@ -89,11 +90,24 @@ func framesOf(l look) []frame {
 	for k := range Frames {
 		out = append(out, frame{
 			name: fmt.Sprintf("%s_d%d_f%d", prefix, l.facing, k),
-			shot: bake.Shot{Animation: l.mo.Name, Time: l.mo.Length * float64(k) / Frames, Yaw: float64(l.facing) * 360 / Facings},
-			wet:  l.mo.Name == human.Swim.Name || l.mo.Name == human.Tread.Name,
+			shot: bake.Shot{Animation: l.mo.Name, Time: timeOf(l.mo, k), Yaw: float64(l.facing) * 360 / Facings},
+			wet:  slices.Contains(wetMotions, l.mo.Name),
 		})
 	}
 	return out
+}
+
+// wetMotions are the motions in the water, baked with it round them.
+var wetMotions = []string{human.Swim.Name, human.Tread.Name, human.Dive.Name, human.Rise.Name}
+
+// timeOf is the moment of motion m that frame k of a bake shows: a loop's
+// frames are evenly round it; a motion run through once shows its first
+// and its last, which poses just short of the loop's wrap to the start.
+func timeOf(m human.Motion, k int) float64 {
+	if m.Once {
+		return m.Length * float64(k) / (Frames - 1) * (1 - 1e-9)
+	}
+	return m.Length * float64(k) / Frames
 }
 
 // shoot bakes frame f of m, in the water if f is wet.

@@ -32,12 +32,16 @@ func TestMotionsLoop(t *testing.T) {
 	}
 	for i, a := range m.Animations {
 		for _, ch := range a.Channels {
-			if len(ch.Values) != len(Motions[i].Poses)+1 || ch.Times[len(ch.Times)-1] != float32(Motions[i].Length) {
+			keys := len(Motions[i].Poses) + 1
+			if Motions[i].Once {
+				keys--
+			}
+			if len(ch.Values) != keys || ch.Times[len(ch.Times)-1] != float32(Motions[i].Length) {
 				t.Errorf("%s: %d keys to %v", a.Name, len(ch.Values), ch.Times[len(ch.Times)-1])
 			}
 			first, last := ch.Values[0], ch.Values[len(ch.Values)-1]
 			for c := range 4 {
-				if math.Abs(float64(first[c]-last[c])) > 1e-5 && math.Abs(float64(first[c]+last[c])) > 1e-5 {
+				if !Motions[i].Once && math.Abs(float64(first[c]-last[c])) > 1e-5 && math.Abs(float64(first[c]+last[c])) > 1e-5 {
 					t.Errorf("%s: node %d ends at %v, not %v", a.Name, ch.Node, last, first)
 				}
 			}

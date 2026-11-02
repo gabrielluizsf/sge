@@ -31,6 +31,8 @@ var motions = map[string][]string{
 	farm.AnimAct:   {"hoe", "chop", "stand"},
 	farm.AnimChop:  {"chop", "hoe", "stand"},
 	farm.AnimSwim:  {"swim", "tread", "walk", "stand"},
+	farm.AnimDive:  {"dive", "swim", "stand"},
+	farm.AnimRise:  {"rise", "stand"},
 }
 
 // turnOf is the facing the baker baked that looks the way dir says on

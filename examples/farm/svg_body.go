@@ -18,7 +18,8 @@ type svgBody struct {
 func (svgBody) Facings() int { return 4 }
 
 // Clip is anim facing dir: standing still, a step with each foot between
-// standing, a pour, two strokes of the axe, or two of swimming.
+// standing, a pour, two strokes of the axe, two of swimming, or the two that go into the
+// water or come out of it.
 func (b svgBody) Clip(anim, dir string) Clip {
 	switch anim {
 	case AnimWalk:
@@ -29,6 +30,10 @@ func (b svgBody) Clip(anim, dir string) Clip {
 		return b.clip(2/actFor, dir+"Chop", dir+"Chop1")
 	case AnimSwim:
 		return b.clip(3, dir+"Swim", dir+"Swim1")
+	case AnimDive:
+		return b.clip(2/DiveSeconds, dir, dir+"Swim")
+	case AnimRise:
+		return b.clip(2/RiseSeconds, dir+"Swim", dir)
 	}
 	return b.clip(1, dir)
 }

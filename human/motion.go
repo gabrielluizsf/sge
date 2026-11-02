@@ -6,13 +6,15 @@ import (
 	"github.com/gabrielluizsf/sge/gltf"
 )
 
-// Motion is a way of moving that loops: its name, how long a loop takes,
-// in seconds, and the poses it passes through, evenly spaced, the last
-// running on into the first.
+// Motion is a way of moving: its name, how long it takes, in seconds, and
+// the poses it passes through, evenly spaced. A loop's last runs on into
+// its first; a Once motion's is where it ends, and the first where it
+// began.
 type Motion struct {
 	Name   string
 	Length float64
 	Poses  []Pose
+	Once   bool
 }
 
 // Animate adds motions to m, a person Make made, as its animations, for
@@ -37,9 +39,13 @@ func Animate(m *gltf.Model, motions ...Motion) error {
 		an := gltf.Animation{Name: mo.Name}
 		chans := map[string]*gltf.Channel{}
 		lift := gltf.Channel{Node: root, Path: "translation", Interpolation: "LINEAR"}
-		for k := range len(mo.Poses) + 1 {
+		keys, spans := len(mo.Poses)+1, len(mo.Poses)
+		if mo.Once {
+			keys, spans = len(mo.Poses), len(mo.Poses)-1
+		}
+		for k := range keys {
 			p := mo.Poses[k%len(mo.Poses)]
-			at := float32(mo.Length * float64(k) / float64(len(mo.Poses)))
+			at := float32(mo.Length * float64(k) / float64(max(spans, 1)))
 			for name, q := range p.turns(a) {
 				node, ok := nodes[name]
 				if !ok {
@@ -86,6 +92,22 @@ func restArms(m *gltf.Model, nodes map[string]int) (arms, error) {
 		a.hang[s] = between(along, [3]float64{side.out * 0.12, -1, 0})
 		a.straighten[s] = between(fore, along)
 		a.elbow[s] = normalize(cross(normalize(along), zAxis))
+		a.plumb[s] = plumbLeg(m, nodes, side.suffix)
 	}
 	return a, nil
+}
+
+// plumbLeg is the turn that hangs a leg of m, whose bones' names end in
+// suffix, straight down from the hip to the ankle: MakeHuman's rest
+// stands with the legs apart. A model with no legs has none to turn.
+func plumbLeg(m *gltf.Model, nodes map[string]int, suffix string) quat {
+	var leg [3]float64
+	for _, name := range []string{"upperleg02", "lowerleg01", "lowerleg02", "foot"} {
+		n, ok := nodes[name+suffix]
+		if !ok {
+			return still
+		}
+		leg = add(leg, m.Nodes[n].Translation)
+	}
+	return between(leg, [3]float64{0, -1, 0})
 }

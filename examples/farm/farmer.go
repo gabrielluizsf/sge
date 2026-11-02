@@ -9,7 +9,9 @@ import (
 // farmer is a person, the player or a villager, who walks as their
 // controller says and uses what they hold
 // on the cell they work: the one the mouse picks within reach, or the one
-// they face. In water they swim, slower, and have nothing to work.
+// they face. In shallow water they wade, slower; where it is deep they dive
+// in, swim, and stand up again as they come out; in water they have
+// nothing to work.
 type farmer struct {
 	f      *farm
 	kit    *kit
@@ -17,7 +19,8 @@ type farmer struct {
 	facing vector.Vector3 // the way they face, in the world
 	aim    *[2]int        // the cell the mouse picks, if any
 	acting float64        // seconds left of the use being shown
-	swims  bool           // whether they are in the water
+	swims  bool           // whether they are in deep water, swimming
+	wet    bool           // whether they are in water, wading or swimming
 	heard  heard          // what of them was last heard
 	// facings is how many ways their body faces on screen, 4 or 8.
 	facings int
@@ -46,7 +49,12 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		p.facing = vector.Vector3{X: float64(d[0]), Y: float64(d[1])}
 	}
 	moves := p.move(o, in, dt)
-	p.swims = p.f.inWater(feet(o))
+	p.wet = p.f.inWater(feet(o))
+	if deep := p.f.deepAt(feet(o)); deep != p.swims {
+		p.swims = deep
+		p.cross(o)
+		return
+	}
 	switch {
 	case p.swims:
 		o.Animator.Play(p.pose(o) + "_swim")
@@ -56,7 +64,7 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		o.Animator.Play(p.pose(o))
 	}
 	p.footsteps(o)
-	if in.use && !p.swims {
+	if in.use && !p.wet {
 		col, row := p.target(o)
 		if p.f.use(p.kit, col, row) {
 			p.acting = actFor
@@ -78,8 +86,11 @@ func (p *farmer) move(o *game.Object, in intent, dt float64) bool {
 	}
 	p.facing = in.dir.Scale(1 / l)
 	step := walkSpeed * dt
-	if p.swims {
+	switch {
+	case p.swims:
 		step = swimSpeed * dt
+	case p.wet:
+		step = wadeSpeed * dt
 	}
 	if in.upTo > 0 {
 		step = min(step, in.upTo)

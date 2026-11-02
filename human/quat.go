@@ -48,3 +48,6 @@ func (q quat) turn(v [3]float64) [3]float64 {
 func dot4(k [4]float32, q quat) float64 {
 	return float64(k[0])*q[0] + float64(k[1])*q[1] + float64(k[2])*q[2] + float64(k[3])*q[3]
 }
+
+// inverse is the turn that undoes q.
+func (q quat) inverse() quat { return quat{-q[0], -q[1], -q[2], q[3]} }

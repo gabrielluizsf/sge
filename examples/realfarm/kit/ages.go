@@ -14,7 +14,7 @@ type Grown struct {
 }
 
 // young are the motions of one too young to work.
-var young = []human.Motion{human.Stand, human.Walk, human.Swim, human.Tread}
+var young = []human.Motion{human.Stand, human.Walk, human.Swim, human.Tread, human.Dive, human.Rise}
 
 // Stages are each villager's stages of life, baked: a baby, standing; a
 // child and a teen, playing; a grown-up, at their own age, and an elder,

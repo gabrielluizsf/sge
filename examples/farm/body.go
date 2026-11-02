@@ -22,13 +22,24 @@ type Clip struct {
 }
 
 // The animations a person's Body has: standing, walking, using what they
-// hold, chopping with the axe, and swimming.
+// hold, chopping with the axe, swimming, diving into deep water from
+// standing, and rising out of it to stand. The last two are shown once,
+// and should last DiveSeconds and RiseSeconds.
 const (
 	AnimStand = "stand"
 	AnimWalk  = "walk"
 	AnimAct   = "act"
 	AnimChop  = "chop"
 	AnimSwim  = "swim"
+	AnimDive  = "dive"
+	AnimRise  = "rise"
+)
+
+// DiveSeconds and RiseSeconds are how long going into deep water and
+// coming up out of it take, and so how long their clips should last.
+const (
+	DiveSeconds = 0.8
+	RiseSeconds = 1.0
 )
 
 // ActSeconds is how long a use of what one holds takes, chopping

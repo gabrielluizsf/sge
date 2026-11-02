@@ -67,7 +67,7 @@ func TestStepsSoundOfTheGround(t *testing.T) {
 			t.Errorf("walking from %v heard %v, not %s four times", c.from, e.heard, c.want)
 		}
 	}
-	e := walk(vector.Vector3{X: 1}, [2]int{20, 8}, 120)
+	e := walk(vector.Vector3{X: 1}, [2]int{20, 8}, 360)
 	if e.count("splash") != 1 || e.count("stroke") < 2 {
 		t.Errorf("swimming heard %v", e.heard)
 	}

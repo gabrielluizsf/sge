@@ -56,7 +56,7 @@ func (h *hud) cursor(cv *canvas.Canvas) {
 	col, row := h.p.target(h.farmer)
 	f := h.f
 	tree := f.slot == slotAxe && f.thingAt(col, row) == tileID["tree0"]
-	if h.p.swims || f.room != nil || f.plotAt(col, row) == nil && !tree {
+	if h.p.wet || f.room != nil || f.plotAt(col, row) == nil && !tree {
 		return
 	}
 	at := h.farmer.Game().ToScreen(f.ground.CellCenter(col, row))
