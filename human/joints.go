@@ -19,7 +19,7 @@ func deg(min, max float64) Range { return Range{min * math.Pi / 180, max * math.
 // plantarflexion to 50 and dorsiflexion to 20; shoulder flexion to 180
 // and extension to 60, abduction to 180; elbow flexion to 150; the trunk
 // bending to 80 and back 25, turning 45 each way; the neck bowing 45 and
-// tilting back 70. A Plane is the shoulder's horizontal motion, 135
+// tilting back 70, the wrist bending 80 down and 70 up. A Plane is the shoulder's horizontal motion, 135
 // forward and 45 back from the arm held out to the side, and a leg's
 // Abduct 45 out and 30 across. Pitch and Bob are the body's place on the
 // water or the ground, not a joint, and have no range.
@@ -35,6 +35,7 @@ var Healthy = map[string]Range{
 	"Raise":    deg(-10, 180),
 	"Plane":    deg(-45, 135),
 	"Elbow":    deg(0, 150),
+	"Wrist":    deg(-70, 80),
 }
 
 // Beyond lists every joint of p, by name and side, that is past its
@@ -54,7 +55,7 @@ func (p Pose) Beyond() []string {
 			name string
 			v    [2]float64
 		}{{"Hip", p.Hip}, {"Knee", p.Knee}, {"Ankle", p.Ankle}, {"Abduct", p.Abduct},
-			{"Shoulder", p.Shoulder}, {"Raise", p.Raise}, {"Plane", p.Plane}, {"Elbow", p.Elbow}} {
+			{"Shoulder", p.Shoulder}, {"Raise", p.Raise}, {"Plane", p.Plane}, {"Elbow", p.Elbow}, {"Wrist", p.Wrist}} {
 			check(j.name+" "+side, j.name, j.v[s])
 		}
 	}

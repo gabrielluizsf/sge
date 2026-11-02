@@ -13,12 +13,12 @@ import (
 // FARM_OPEN=inventory, pause, credits, licence or talk opens that screen for the
 // last frames; FARM_SHOT=file.png also saves the last frame, of a view
 // FARM_VIEW=widthxheight in size, and FARM_AT=col,row stands the player
-// on a cell first, to look at a place. Main exits on an error.
+// on a cell first, to look at a place. Without FARM_DEMO the main menu comes first. Main exits on an error.
 func Main(a Art, title string) {
 	frames, _ := strconv.Atoi(os.Getenv("FARM_DEMO"))
 	w, h := 1280, 720
 	if frames <= 0 {
-		exitOn(New(a, Keyboard()).Run(title, w, h))
+		play(a, title, w, h)
 		return
 	}
 	s := New(a, Bot(10))

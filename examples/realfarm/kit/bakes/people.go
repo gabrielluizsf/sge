@@ -24,6 +24,7 @@ var water = &bake.Water{Color: [3]float64{0.01, 0.06, 0.07}, Clear: 0.35}
 type stageKey struct {
 	id    string
 	stage life.Stage
+	tag   string // of the character the player made, if the villager is the player
 }
 
 // stageBody is the model of a villager at a stage, animated.
@@ -32,7 +33,7 @@ type stageBody struct{ model *gltf.Model }
 // PersonName is the name of the frames of villager id at stage, in the
 // motion: person_<id>_<stage>_<motion>, then _d<facing>_f<frame>.
 func PersonName(id string, stage life.Stage, motion string) string {
-	return fmt.Sprintf("person_%s_%s_%s", id, stage, motion)
+	return fmt.Sprintf("person_%s%s_%s_%s", id, kit.SpriteTag(id), stage, motion)
 }
 
 // look is a villager at a stage of life, in a motion, facing a way: what
@@ -55,7 +56,7 @@ func (b *Baker) peopleTasks() []Task {
 				core := g.Stage == life.Adult && (v.ID == "player" || mo.Name == human.Stand.Name || mo.Name == human.Walk.Name)
 				for d := range Facings {
 					l := look{v, g, mo, d}
-					name := fmt.Sprintf("person v%d %s %s %s %d", human.MotionsVersion, v.ID, g.Stage, mo.Name, d)
+					name := fmt.Sprintf("person %s %s %s %s %d%s", versionOf(mo), v.ID, g.Stage, mo.Name, d, kit.PlayerTag(v))
 					out = append(out, Task{Name: name, Kind: "person", ID: v.ID, Core: core, Run: func() error { return b.person(l) }})
 				}
 			}
@@ -117,4 +118,17 @@ func shoot(m *gltf.Model, f frame) bake.Sprite {
 		o.Water = water
 	}
 	return bake.Render(m, f.shot, o)
+}
+
+// versionOf is the version of the motion mo as baked: the motions', but
+// the chop's and the forge's own, so each alone is baked again when it
+// changes.
+func versionOf(mo human.Motion) string {
+	switch mo.Name {
+	case human.Chop.Name:
+		return fmt.Sprintf("v%dc%d", human.MotionsVersion, human.ChopVersion)
+	case human.Forge.Name:
+		return fmt.Sprintf("v%df%d", human.MotionsVersion, human.ForgeVersion)
+	}
+	return fmt.Sprintf("v%d", human.MotionsVersion)
 }

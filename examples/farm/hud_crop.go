@@ -2,13 +2,10 @@ package farm
 
 import "github.com/gabrielluizsf/antui/canvas"
 
-// cropLabel writes over the world, above the nearest planted plot, how
-// its crop is doing.
+// cropLabel writes over the world, above the planted plot the cursor
+// marks, how its crop is doing.
 func (h *hud) cropLabel(cv *canvas.Canvas) {
-	if h.f.room != nil {
-		return
-	}
-	p := h.f.nearPlot(h.farmer)
+	p := h.f.markedPlot(h.farmer)
 	if p == nil {
 		return
 	}

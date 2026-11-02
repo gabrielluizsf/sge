@@ -8,14 +8,14 @@ package human
 // the side, 0 straight down. A Shoulder swings an arm forward, a Raise
 // lifts it out to the side, 0 hanging, a Plane then turns the lifted arm
 // forward about the body's upright, the way the shoulder's plane of
-// elevation does, and an Elbow bends. Bob lifts the body, in metres.
+// elevation does, an Elbow bends and a Wrist bends the hand down. Bob lifts the body, in metres.
 // Healthy holds the range each may take.
 type Pose struct {
 	Pitch, Lean, Twist, Nod float64
 	Hip, Knee, Ankle        [2]float64
 	Abduct                  [2]float64
 	Shoulder, Raise, Elbow  [2]float64
-	Plane                   [2]float64
+	Plane, Wrist            [2]float64
 	Bob, Forward            float64
 }
 
@@ -60,6 +60,7 @@ func (p Pose) turns(a arms) map[string]quat {
 		t["foot"+side.suffix] = around(xAxis, p.Ankle[s]).then(a.plumb[s].inverse())
 		t["upperarm01"+side.suffix] = a.hang[s].then(around(zAxis, side.out*p.Raise[s])).then(around(yAxis, -side.out*p.Plane[s])).then(around(xAxis, -p.Shoulder[s]))
 		t["lowerarm01"+side.suffix] = a.straighten[s].then(around(a.elbow[s], p.Elbow[s]))
+		t["wrist"+side.suffix] = around(a.elbow[s], p.Wrist[s])
 	}
 	return t
 }

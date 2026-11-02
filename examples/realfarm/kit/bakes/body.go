@@ -13,7 +13,7 @@ import (
 func (b *Baker) bodyOf(v kit.Villager, g kit.Grown) (*stageBody, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	key := stageKey{v.ID, g.Stage}
+	key := stageKey{v.ID, g.Stage, kit.SpriteTag(v.ID)}
 	if b.body != nil && b.last == key {
 		return b.body, nil
 	}
@@ -27,6 +27,12 @@ func (b *Baker) bodyOf(v kit.Villager, g kit.Grown) (*stageBody, error) {
 	m, err := makers.Make(v.At(g.Years), v.Look)
 	if err == nil {
 		err = human.Animate(m, g.Motions...)
+		if err == nil {
+			err = b.holdAxe(m, g.Motions)
+		}
+		if err == nil {
+			err = b.holdForge(m, g.Motions)
+		}
 	}
 	if err != nil {
 		return nil, err

@@ -10,8 +10,7 @@ func (f *farm) use(k *kit, col, row int) bool {
 		return false
 	}
 	if k.slot == slotAxe && f.thingAt(col, row) == tileID["anvil"] {
-		at := f.ground.CellCenter(col, row)
-		f.sound("clang", &at)
+		f.soundIn(cue{name: "clang", at: f.ground.CellCenter(col, row), in: forgeImpact * ForgeSeconds})
 		return true
 	}
 	if k.slot == slotCan && f.isWater(col, row) {
@@ -74,5 +73,8 @@ func (f *farm) refill(k *kit, col, row int) bool {
 	k.fill()
 	at := f.ground.CellCenter(col, row)
 	f.sound("pour", &at)
+	if k == f.kit {
+		f.float(at, "Regador cheio", 'g')
+	}
 	return true
 }

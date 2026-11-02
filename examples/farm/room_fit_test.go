@@ -7,8 +7,11 @@ import (
 	"github.com/gabrielluizsf/sge/examples/farm/art"
 )
 
-// A bed two cells long is laid on two free cells, drawn from the front
+// A bed two cells long is laid on two free cells, drawn from the back
 // one, the other a block, in every room; one cell each without a span.
+// Behind each of its cells is the bed or a wall: no one can stand there,
+// so whoever stands beside it is in front and drawn over it, never under
+// it, as the player once walked under a bed's back half.
 func TestFurnitureCoversTheCellsItSpans(t *testing.T) {
 	long := func(p byte) (int, int) {
 		if p == 'b' || p == 'B' {
@@ -26,8 +29,15 @@ func TestFurnitureCoversTheCellsItSpans(t *testing.T) {
 					continue
 				}
 				beds++
-				if c == 0 || rows[r][c-1] != 'x' {
-					t.Fatalf("seed %d: the bed at %d,%d has no block behind it:\n%s", seed, c, r, things)
+				if c+1 >= len(row) || row[c+1] != 'x' {
+					t.Fatalf("seed %d: the bed at %d,%d is not drawn from its back cell:\n%s", seed, c, r, things)
+				}
+				for _, cell := range [][2]int{{c, r}, {c + 1, r}} {
+					for _, back := range [][2]int{{cell[0] - 1, cell[1]}, {cell[0], cell[1] - 1}} {
+						if back[0] > 0 && back[1] > 0 && back != [2]int{c, r} {
+							t.Fatalf("seed %d: someone could stand at %v behind the bed at %d,%d:\n%s", seed, back, c, r, things)
+						}
+					}
 				}
 			}
 		}

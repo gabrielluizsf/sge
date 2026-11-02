@@ -3,6 +3,7 @@ package human
 import (
 	"image"
 	"image/color"
+	"slices"
 )
 
 // skinShare is one of MakeHuman's skins and how much of it a body has.
@@ -56,7 +57,22 @@ func ageShares(years float64) [3]float64 {
 
 // blendSkin is the skins' textures mixed by their shares, each sampled
 // at the first's size.
+//
+// The last blend is kept: a person whose colours change, or who wears
+// something else, has the same skin.
 func (k *Kit) blendSkin(shares []skinShare) (*image.NRGBA, error) {
+	if k.blend.img != nil && slices.Equal(k.blend.shares, shares) {
+		return k.blend.img, nil
+	}
+	out, err := k.blended(shares)
+	if err == nil {
+		k.blend.shares, k.blend.img = slices.Clone(shares), out
+	}
+	return out, err
+}
+
+// blended is blendSkin, made afresh.
+func (k *Kit) blended(shares []skinShare) (*image.NRGBA, error) {
 	var out *image.NRGBA
 	var acc [][4]float64
 	for _, s := range shares {

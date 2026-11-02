@@ -1,0 +1,26 @@
+package bakes
+
+import (
+	"testing"
+
+	"github.com/gabrielluizsf/sge/human"
+)
+
+// Only the chop is baked again when it changes: every other motion keeps
+// its name, and so what the shelf already holds of it.
+func TestChopHasItsOwnVersion(t *testing.T) {
+	if versionOf(human.Hoe) != "v3" || versionOf(human.Walk) != "v3" {
+		t.Errorf("the other motions' versions changed: %s, %s", versionOf(human.Hoe), versionOf(human.Walk))
+	}
+	if versionOf(human.Chop) == versionOf(human.Hoe) {
+		t.Error("the chop's version is the others'")
+	}
+}
+
+// The forge has its own version too, and it is not the chop's, so
+// changing one bakes only that one again.
+func TestForgeHasItsOwnVersion(t *testing.T) {
+	if versionOf(human.Forge) == versionOf(human.Chop) || versionOf(human.Forge) == versionOf(human.Hoe) {
+		t.Errorf("the forge's version %s is another's", versionOf(human.Forge))
+	}
+}

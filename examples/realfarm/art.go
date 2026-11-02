@@ -5,6 +5,7 @@ import (
 	"github.com/gabrielluizsf/sge/building"
 	"github.com/gabrielluizsf/sge/examples/farm"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
+	"github.com/gabrielluizsf/sge/save"
 )
 
 // realArt is the farm drawn from baked sprites: the ground, water, crops,
@@ -15,6 +16,8 @@ type realArt struct {
 	shelf *bakes.Shelf
 	seen  map[string]*baked
 	hud   map[string]*canvas.Canvas // the HUD's text and panels, by what they draw
+	world *world                    // what bakes behind the game; nil with nothing to bake
+	store *save.Store               // where the player's character is kept; nil to keep none
 }
 
 // newArt is the realistic look, reading sprites from shelf as the game

@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"image"
 	"slices"
 	"testing"
 
+	"github.com/gabrielluizsf/sge/bake"
 	"github.com/gabrielluizsf/sge/building"
 	"github.com/gabrielluizsf/sge/examples/farm"
 	"github.com/gabrielluizsf/sge/examples/farm/art"
@@ -74,5 +76,38 @@ func TestEveryInsidePieceIsBaked(t *testing.T) {
 	}
 	if bakes.InsideName("floor") == "floor" {
 		t.Error("an inside's sprite shares the tile's name")
+	}
+}
+
+// A bed, drawn from its back cell, has its picture's middle half a cell
+// forward, down and right on the screen, between its two cells.
+func TestABedReachesForwardFromItsBackCell(t *testing.T) {
+	shelf, err := bakes.Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	img := image.NewNRGBA(image.Rect(0, 0, 40, 20))
+	for i := range img.Pix {
+		img.Pix[i] = 255
+	}
+	if err := shelf.Put(furnishings["bed"].id+"_0", bake.Sprite{Image: img, Pivot: image.Pt(20, 10)}); err != nil {
+		t.Fatal(err)
+	}
+	a := newArt(shelf).(*realArt)
+	cv := a.Tile("bed")
+	// The pivot stands half a cell, TileW/4 across and TileW/8 down, from
+	// the diamond's middle at the bottom of the frame.
+	left, top := cv.Width, cv.Height
+	for y := range cv.Height {
+		for x := range cv.Width {
+			if cv.At(x, y).A() > 0 {
+				left, top = min(left, x), min(top, y)
+			}
+		}
+	}
+	wantX := cv.Width/2 + farm.TileW/4 - 20
+	wantY := cv.Height - farm.TileW/4 + farm.TileW/8 - 10
+	if left != wantX || top != wantY {
+		t.Errorf("the bed's picture starts at %d,%d, not %d,%d", left, top, wantX, wantY)
 	}
 }

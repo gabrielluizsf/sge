@@ -42,6 +42,7 @@ type material struct {
 	texture     Texture
 	cut, double bool
 	id          int
+	owned       Texture // the texture Retexture made, which the material owns
 }
 
 // up turns glTF's Y up onto the game's Z, and glTF's Z, toward a model's
@@ -62,6 +63,11 @@ func (m *Model) Release(dev Device) {
 	for _, b := range []Buffer{m.static, m.skinned, m.indices, m.uniforms} {
 		if b != 0 {
 			dev.Release(b)
+		}
+	}
+	for _, mt := range m.materials {
+		if mt.owned != 0 {
+			dev.Release(mt.owned)
 		}
 	}
 	for _, t := range m.textures {

@@ -43,16 +43,6 @@ var Stand = loop{"stand", 4, 8}.of(func(t float64) Pose {
 		Elbow: both(0.2), Shoulder: both(0.03), Bob: 0.003 * b}
 })
 
-// Chop is chopping wood with an axe held in both hands: raised over the
-// right shoulder, brought down hard, and back up.
-var Chop = loop{"chop", 1.2, 12}.of(func(t float64) Pose {
-	up := 0.5 + 0.5*math.Cos(2*math.Pi*math.Pow(t, 0.7)) // 1 raised, 0 struck
-	return Pose{Lean: 0.1 + 0.35*(1-up), Nod: 0.25, Twist: -0.25 * up,
-		Hip: both(0.1), Knee: both(0.25), Abduct: both(0.1),
-		Shoulder: both(0.4 + 2.2*up), Raise: [2]float64{0.1, 0.25 + 0.2*up}, Elbow: both(0.5 + 0.9*up),
-		Bob: -0.03}
-})
-
 // Hoe is working the ground with a hoe: reaching forward, pulling back.
 var Hoe = loop{"hoe", 1.4, 12}.of(func(t float64) Pose {
 	r := 0.5 + 0.5*wave(t, 1, 0)
@@ -76,3 +66,12 @@ var Motions = []Motion{Stand, Walk, Chop, Hoe, Swim, Tread, Dive, Rise}
 // MotionsVersion changes whenever a motion does, so what was baked of the
 // old ones is baked again.
 const MotionsVersion = 3
+
+// ChopVersion changes whenever the chop does, or the axe in the hands
+// that swing it, so what was baked of it is baked again, and no other
+// motion is.
+const ChopVersion = 2
+
+// ForgeVersion is the same for the smith's stroke at the anvil, and the
+// hammer and tongs in their hands.
+const ForgeVersion = 1

@@ -15,7 +15,7 @@ import (
 // PortraitName is the sprite of villager id's portrait at stage:
 // portrait_<id>_<stage>.
 func PortraitName(id string, stage life.Stage) string {
-	return fmt.Sprintf("portrait_%s_%s", id, stage)
+	return fmt.Sprintf("portrait_%s%s_%s", id, kit.SpriteTag(id), stage)
 }
 
 // portraitZoom is how many times larger than in the world a portrait is

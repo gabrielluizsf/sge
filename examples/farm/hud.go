@@ -57,10 +57,9 @@ func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
 // cursor marks the cell the farmer works, a plot, or a tree with the axe
 // in hand: its diamond, outlined.
 func (h *hud) cursor(cv *canvas.Canvas) {
-	col, row := h.p.target(h.farmer)
+	col, row := h.p.useCell(h.farmer)
 	f := h.f
-	tree := f.slot == slotAxe && isTree(f.thingAt(col, row))
-	if h.p.wet || f.room != nil || f.plotAt(col, row) == nil && !tree {
+	if h.p.swims || f.room != nil || !f.marks(col, row) {
 		return
 	}
 	at := h.farmer.Game().ToScreen(f.ground.CellCenter(col, row))

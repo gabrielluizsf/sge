@@ -64,15 +64,12 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		o.Animator.Play(p.pose(o))
 	}
 	p.footsteps(o)
-	if in.use && !p.wet {
-		col, row := p.target(o)
+	if in.use && !p.swims {
+		col, row := p.useCell(o)
 		if p.f.use(p.kit, col, row) {
-			p.acting = actFor
-			if p.kit.slot == slotAxe {
-				o.Animator.Play(p.pose(o) + "_chop")
-			} else {
-				o.Animator.Play(p.pose(o) + "_act")
-			}
+			clip, seconds := useClip(p.kit.slot, p.f.thingAt(col, row) == tileID["anvil"])
+			p.acting = seconds
+			o.Animator.Play(p.pose(o) + clip)
 		}
 	}
 }

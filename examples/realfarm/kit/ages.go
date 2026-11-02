@@ -28,8 +28,8 @@ func (v Villager) Stages() []Grown {
 		{life.Baby, 1, []human.Motion{human.Stand}},
 		{life.Child, 8, young},
 		{life.Teen, 15, young},
-		{life.Adult, min(own, life.ElderFrom-1), human.Motions},
-		{life.Elder, 74, human.Motions},
+		{life.Adult, min(own, life.ElderFrom-1), v.Motions()},
+		{life.Elder, 74, v.Motions()},
 	}
 }
 

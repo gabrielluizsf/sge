@@ -3,8 +3,9 @@ package farm
 // FurnitureArt is what an Art may also have whose furniture is larger
 // than a cell, as a real bed is: how many cells across and deep the piece
 // name, one of the houses' insides, covers. A piece is drawn from its
-// front cell, the one of the most column and row, and its picture reaches
-// back over the others. Without it each piece covers its own cell.
+// back cell, the one of the least column and row, and its picture
+// reaches forward over the others; it stands only where walls are behind
+// it. Without it each piece covers its own cell.
 type FurnitureArt interface {
 	Furniture(name string) (cols, rows int)
 }

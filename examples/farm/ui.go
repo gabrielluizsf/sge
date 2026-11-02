@@ -41,6 +41,9 @@ type ui struct {
 	// save, when set, is what the pause menu's Salvar button does; it has
 	// no such button while it is nil.
 	save func()
+	// attract is set when the farm plays by itself behind the main menu:
+	// the player has none of its keys.
+	attract bool
 }
 
 // newUI is the farm's menus.
@@ -71,11 +74,11 @@ func (u *ui) Update(o *game.Object, dt float64) {
 	g := o.Game()
 	win := g.Window()
 	var in dialogue.Input
-	if win != nil && u.open == playing && !f.pack.Open {
+	if win != nil && u.open == playing && !f.pack.Open && !u.attract {
 		in = talkInput(win)
 	}
 	f.talkUpdate(dt, in)
-	if win != nil {
+	if win != nil && !u.attract {
 		u.keys(win, g)
 	}
 	g.Paused = f.pack.Open || u.open != playing

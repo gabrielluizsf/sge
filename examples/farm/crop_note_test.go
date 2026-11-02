@@ -1,6 +1,10 @@
 package farm
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/gabrielluizsf/sge/vector"
+)
 
 // A crop's note tells the days left and whether it is watered.
 func TestCropNote(t *testing.T) {
@@ -24,17 +28,23 @@ func TestCropNote(t *testing.T) {
 	}
 }
 
-// Only a planted plot near the farmer is found.
-func TestNearPlot(t *testing.T) {
+// The note is of the plot the cursor marks, the cell before the farmer or
+// the one the mouse is on, and of no other: not of one beside them.
+func TestTheNoteIsOfTheMarkedPlot(t *testing.T) {
 	g, f := newGame(idle{})
 	p := sown(f, 5)
 	o := g.Find("farmer")
 	o.Transform.Position = standIn(f, p.col, p.row+1)
-	if f.nearPlot(o) != p {
-		t.Fatal("the planted plot beside the farmer is not found")
+	f.hands.facing = vector.Vector3{Y: -1} // toward the plot
+	if f.markedPlot(o) != p {
+		t.Fatal("the plot the cursor marks has no note")
 	}
-	o.Transform.Position = standIn(f, p.col, p.row+9)
-	if f.nearPlot(o) != nil {
-		t.Fatal("a plot far away was found")
+	f.hands.facing = vector.Vector3{X: 1} // beside it, the cursor elsewhere
+	if f.markedPlot(o) != nil {
+		t.Fatal("a plot the cursor does not mark has a note")
+	}
+	f.hands.aim = &[2]int{p.col, p.row} // the mouse on it
+	if f.markedPlot(o) != p {
+		t.Fatal("the plot the mouse marks has no note")
 	}
 }

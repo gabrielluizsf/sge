@@ -8,6 +8,7 @@ import "github.com/gabrielluizsf/sge/game"
 // up too late.
 func (f *farm) Update(o *game.Object, dt float64) {
 	f.drift(dt)
+	f.ring(dt)
 	f.fade(dt)
 	f.regrow(dt)
 	for _, v := range f.people {

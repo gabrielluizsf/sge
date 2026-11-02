@@ -2,6 +2,7 @@ package bakes
 
 import (
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gabrielluizsf/sge/building"
@@ -20,6 +21,9 @@ type Baker struct {
 	Humans   kit.Humans
 	Workers  int
 	Pause    time.Duration
+	// Hold, while true, keeps Do from starting a task: the game is busy
+	// with something that needs the core, a character being made.
+	Hold atomic.Bool
 
 	paletteOnce sync.Once
 	palette     building.Palette
@@ -52,11 +56,17 @@ type Task struct {
 // saveEvery is how often the shelf's index is written between tasks.
 const saveEvery = 3 * time.Second
 
+// holdWait is how long Do waits between looks at Hold.
+const holdWait = 50 * time.Millisecond
+
 // Do runs t unless it ran to its end before, and records that it has;
 // the shelf is saved now and then, and at the end by Save.
 func (b *Baker) Do(t Task) error {
 	if b.Shelf.Finished(t.Name) {
 		return nil
+	}
+	for b.Hold.Load() {
+		time.Sleep(holdWait)
 	}
 	if err := t.Run(); err != nil {
 		return err

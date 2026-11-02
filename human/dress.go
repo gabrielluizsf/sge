@@ -17,6 +17,9 @@ type dresser struct {
 	parts  []part
 	images map[string]int
 	grey   float64 // how grey their hair is
+	look   Look
+	// retints are the materials whose colours Person.Recolour changes.
+	retints []retint
 }
 
 // part is a mesh of the person in MakeHuman's units, before it is stood
@@ -33,6 +36,7 @@ type part struct {
 
 // dress makes the body, in skin of l's, and every proxy l wears.
 func (d *dresser) dress(b Body, l Look) error {
+	d.look = l
 	proxies := make([]*proxy, len(l.Wear))
 	hide := map[int32]bool{}
 	for i, name := range l.Wear {
@@ -47,29 +51,49 @@ func (d *dresser) dress(b Body, l Look) error {
 			hide[v] = true
 		}
 	}
-	skin, err := d.skin(b, l.Skin)
+	skin, err := d.skin(b)
 	if err != nil {
 		return err
 	}
 	d.body(hide, skin)
 	for i, p := range proxies {
-		if err := d.wear(l.Wear[i], p, l.Eyes); err != nil {
+		if err := d.wear(i, p); err != nil {
 			return fmt.Errorf("%s: %w", l.Wear[i], err)
 		}
 	}
 	return nil
 }
 
-// skin is the body's material: of the .mhmat name, or blended for b.
-func (d *dresser) skin(b Body, name string) (int, error) {
-	if name != "" {
-		return d.material(name)
+// skin is the body's material: of the look's .mhmat, or blended for b,
+// in the look's tone, if it has one.
+func (d *dresser) skin(b Body) (int, error) {
+	if name := d.look.Skin; name != "" {
+		mat, err := d.material(name)
+		if err == nil {
+			d.track(mat, role{kind: roleSkin}, false)
+			if d.look.SkinTone > 0 {
+				d.recolour(mat, skinTint(d.look.SkinTone))
+			}
+		}
+		return mat, err
 	}
 	img, err := d.kit.blendSkin(skins(b))
 	if err != nil {
 		return 0, err
 	}
-	return d.textured("skin", material{color: [3]float64{1, 1, 1}}, maps{d.image("skin", img), -1, -1}), nil
+	raw := img
+	if d.look.SkinTone > 0 {
+		img = tinted(img, skinTint(d.look.SkinTone))
+	}
+	mat := d.textured("skin", material{color: [3]float64{1, 1, 1}}, maps{d.image("skin", img), -1, -1})
+	r := retint{mat: mat, role: role{kind: roleSkin}, src: raw, orig: -1, own: d.model.Materials[mat].Texture, color: d.model.Materials[mat].BaseColor}
+	if d.look.SkinTone <= 0 {
+		r.orig, r.own = r.own, -1
+	}
+	t, ok := tintFor(r.role, d.look)
+	r.want, r.wantSrc = keyOf(t, ok), r.src
+	d.retints = append(d.retints, r)
+	return mat, nil
 }
 
 // body is the base mesh's body, not its helpers, less the faces of
@@ -92,9 +116,10 @@ func (d *dresser) body(hide map[int32]bool, mat int) {
 	d.parts = append(d.parts, split(surface{faces, m.uv, d.pos, func(v int32) []influence { return d.kit.infl[v] }, mat}))
 }
 
-// wear fits the proxy in file name to the body, in its own material or,
-// for eyes, a proxy of the eyes folder, those of eyes.
-func (d *dresser) wear(name string, p *proxy, eyes string) error {
+// wear fits the proxy the look wears at i to the body, in its own
+// material or, for eyes, the look's, recoloured as the look asks.
+func (d *dresser) wear(i int, p *proxy) error {
+	name, eyes := d.look.Wear[i], d.look.Eyes
 	objName, err := beside(name, p.obj)
 	if err != nil {
 		return err
@@ -119,6 +144,10 @@ func (d *dresser) wear(name string, p *proxy, eyes string) error {
 	mat, err := d.material(matName)
 	if err != nil {
 		return err
+	}
+	d.track(mat, roleOf(name, i), greys(name))
+	if t, ok := d.tintOf(i); ok {
+		d.recolour(mat, t)
 	}
 	if greys(name) {
 		d.greyOut(mat)

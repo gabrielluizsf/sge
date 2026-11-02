@@ -14,7 +14,7 @@ func mix(a, b Pose, f float64) Pose {
 		Pitch: lerp(a.Pitch, b.Pitch, f), Lean: lerp(a.Lean, b.Lean, f), Twist: lerp(a.Twist, b.Twist, f), Nod: lerp(a.Nod, b.Nod, f),
 		Hip: lerp2(a.Hip, b.Hip, f), Knee: lerp2(a.Knee, b.Knee, f), Ankle: lerp2(a.Ankle, b.Ankle, f), Abduct: lerp2(a.Abduct, b.Abduct, f),
 		Shoulder: lerp2(a.Shoulder, b.Shoulder, f), Raise: lerp2(a.Raise, b.Raise, f), Elbow: lerp2(a.Elbow, b.Elbow, f),
-		Plane: lerp2(a.Plane, b.Plane, f), Bob: lerp(a.Bob, b.Bob, f),
+		Plane: lerp2(a.Plane, b.Plane, f), Wrist: lerp2(a.Wrist, b.Wrist, f), Bob: lerp(a.Bob, b.Bob, f),
 		Forward: lerp(a.Forward, b.Forward, f),
 	}
 }

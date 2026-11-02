@@ -22,7 +22,7 @@ type Clip struct {
 }
 
 // The animations a person's Body has: standing, walking, using what they
-// hold, chopping with the axe, swimming, diving into deep water from
+// hold, chopping with the axe, forging at the anvil, swimming, diving into deep water from
 // standing, and rising out of it to stand. The last two are shown once,
 // and should last DiveSeconds and RiseSeconds.
 const (
@@ -30,6 +30,7 @@ const (
 	AnimWalk  = "walk"
 	AnimAct   = "act"
 	AnimChop  = "chop"
+	AnimForge = "forge"
 	AnimSwim  = "swim"
 	AnimDive  = "dive"
 	AnimRise  = "rise"
@@ -41,6 +42,14 @@ const (
 	DiveSeconds = 0.8
 	RiseSeconds = 1.0
 )
+
+// ForgeSeconds is how long a smith's stroke at the anvil takes, and so
+// how long its clip should last: the hammer raised, struck and let rest.
+const ForgeSeconds = 1.0
+
+// forgeImpact is how far into a stroke the hammer lands on the iron, as
+// human.Forge strikes it.
+const forgeImpact = 0.7
 
 // ActSeconds is how long a use of what one holds takes, chopping
 // included, and so how long its clip should last.

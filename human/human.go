@@ -16,6 +16,7 @@ import (
 	"errors"
 	"image"
 	"io/fs"
+	"sync"
 
 	"github.com/gabrielluizsf/sge/gltf"
 )
@@ -31,7 +32,12 @@ type Kit struct {
 	infl     [][]influence
 	targets  map[string]target
 	pictures map[string]*image.NRGBA
-	faces    faceUnits // read when first needed
+	blend    struct {
+		shares []skinShare
+		img    *image.NRGBA
+	}
+	mu    sync.Mutex // one person is made at a time
+	faces faceUnits  // read when first needed
 }
 
 // The files of a Kit, in MakeHuman's data folder.
@@ -111,6 +117,17 @@ func (k *Kit) target(name string) (target, error) {
 // Make is a person of body b, as l looks: their skin, eyes and what they
 // wear, standing on the ground at the origin, facing +Z, in metres.
 func (k *Kit) Make(b Body, l Look) (*gltf.Model, error) {
+	d, err := k.dressed(b, l)
+	if err != nil {
+		return nil, err
+	}
+	return d.done(), nil
+}
+
+// dressed is the dresser that has made the person of b and l.
+func (k *Kit) dressed(b Body, l Look) (*dresser, error) {
+	k.mu.Lock()
+	defer k.mu.Unlock()
 	pos, err := k.shape(b)
 	if err != nil {
 		return nil, err
@@ -119,5 +136,6 @@ func (k *Kit) Make(b Body, l Look) (*gltf.Model, error) {
 	if err := d.dress(b, l); err != nil {
 		return nil, err
 	}
-	return d.done(), nil
+	d.settle()
+	return d, nil
 }

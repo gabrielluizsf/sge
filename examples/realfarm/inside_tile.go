@@ -33,7 +33,7 @@ func (a *realArt) Furniture(name string) (cols, rows int) {
 
 // insideTile is the piece of a house's inside name: a floor, a rug, the
 // doormat or a back wall, baked from package building, or a piece of
-// furniture, drawn from its front cell, its picture reaching back over
+// furniture, drawn from its back cell, its picture reaching forward over
 // the others it covers. Nil when name is none of them or is not baked.
 func (a *realArt) insideTile(name string) *canvas.Canvas {
 	if f, ok := furnishings[name]; ok {
@@ -54,14 +54,14 @@ func isInside(name string) bool {
 	return name == "floor" || name == "mat" || strings.HasPrefix(name, "rug") || strings.HasPrefix(name, "wall_")
 }
 
-// furnitureTile is furnishing f standing on the cells it covers, from the
-// front one: its middle half a cell back, up the screen, for each cell
-// more it covers across or deep.
+// furnitureTile is furnishing f standing on the cells it covers, drawn
+// from the back one: its middle half a cell forward, down the screen, for
+// each cell more it covers across or deep.
 func (a *realArt) furnitureTile(f furnishing) *canvas.Canvas {
 	b, ok := a.first(f.id+"_0", f.id+"_v0_0")
 	if !ok {
 		return nil
 	}
-	back := [2]float64{float64(f.cols-1) / 2, float64(f.rows-1) / 2}
-	return b.standingOff(-int((back[0]-back[1])*farm.TileW/2), -int((back[0]+back[1])*farm.TileW/4))
+	fwd := [2]float64{float64(f.cols-1) / 2, float64(f.rows-1) / 2}
+	return b.standingOff(int((fwd[0]-fwd[1])*farm.TileW/2), int((fwd[0]+fwd[1])*farm.TileW/4))
 }

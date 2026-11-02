@@ -30,6 +30,7 @@ var motions = map[string][]string{
 	farm.AnimWalk:  {"walk", "stand"},
 	farm.AnimAct:   {"hoe", "chop", "stand"},
 	farm.AnimChop:  {"chop", "hoe", "stand"},
+	farm.AnimForge: {"forge", "chop", "hoe", "stand"},
 	farm.AnimSwim:  {"swim", "tread", "walk", "stand"},
 	farm.AnimDive:  {"dive", "swim", "stand"},
 	farm.AnimRise:  {"rise", "stand"},
@@ -72,6 +73,9 @@ func (b *realBody) frames(prefix string, d int) []*sprite.Sprite {
 // loop at the pace the motion was made at, a use of what one holds or a
 // stroke of the axe once in the time the farm gives it.
 func fpsOf(anim, motion string) float64 {
+	if anim == farm.AnimForge {
+		return bakes.Frames / farm.ForgeSeconds
+	}
 	if anim == farm.AnimAct || anim == farm.AnimChop {
 		return bakes.Frames / farm.ActSeconds
 	}

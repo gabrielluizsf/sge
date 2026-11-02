@@ -19,6 +19,8 @@ type Person struct {
 // Tree is a family tree, its people by id, each added after their parents.
 type Tree struct {
 	people map[string]*member
+	// order is the ids in the order added, parents before children.
+	order []string
 }
 
 // member is a person of the tree, their children in the order born, and
@@ -50,6 +52,7 @@ func (t *Tree) Add(p Person) error {
 		return fmt.Errorf("lineage: %q twice a parent", p.Parents[0])
 	}
 	t.people[p.ID] = &member{Person: p}
+	t.order = append(t.order, p.ID)
 	for _, id := range p.Parents {
 		if id != "" {
 			t.people[id].children = append(t.people[id].children, p.ID)
