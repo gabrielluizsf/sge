@@ -20,12 +20,12 @@ func TestReadOnlyArgumentsAreNotCopied(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"sum(p)", "p.Add(p)", "first(a)"} {
+	for _, want := range []string{"sum(p)", "p.Add(p)", "first(a)", "norm(hold.v)", "norm(vs.a["} {
 		if !strings.Contains(string(src), want) {
 			t.Errorf("%s is copied:\n%s", want, src)
 		}
 	}
-	for _, want := range []string{"bump(p.$clone())", "later(p.$clone())", "sumThen(w.$clone()"} {
+	for _, want := range []string{"bump(p.$clone())", "later(p.$clone())", "sumThen(w.$clone()", "readAfter(hold.v.$clone()", "readAfterSlice(vs.a["} {
 		if !strings.Contains(string(src), want) {
 			t.Errorf("%s is not copied", want)
 		}

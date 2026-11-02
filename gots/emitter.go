@@ -38,6 +38,7 @@ type emitter struct {
 	files         []*ast.File              // the module's own files
 	info0         *types.Info              // their type information
 	localDecls    map[*types.Func]funcDecl // built by funcDeclOf on first use
+	pure          map[*types.Func]bool     // pureFunc's answers, by function
 	blk           *blocking                // built by blockingOf on first use
 	blkMay        *blocking                // built by mayBlockOf on first use
 	waiting       bool                     // the next function written is a twin that waits

@@ -2,7 +2,10 @@
 // where nothing could tell; every case here could tell.
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type V struct{ X, Y float64 }
 
@@ -93,6 +96,65 @@ func main() {
 	b, sl2, ar, iface := stash(z)
 	z.X = 99
 	fmt.Println(z, b, sl2, ar, iface, list, byName)
+
+	// A pure function may read what a pointer or a slice holds as it is;
+	// one writing through a pointer may not.
+	hold := &box{V{3, 4}}
+	vs := []V{{5, 6}}
+	fmt.Println(norm(hold.v), norm(vs[0]), readAfter(hold.v, hold), hold.v)
+	fmt.Println(readAfterSlice(vs[0], vs), vs)
+
+	// A range value only read shares its element; one written, or whose
+	// element the body changes, is a copy. A local returned is the
+	// value itself; one returned twice, or a parameter lent, is copied.
+	ws := []V{{1, 1}, {2, 2}}
+	sum2 := 0.0
+	for _, w := range ws {
+		sum2 += norm(w)
+	}
+	for i, w := range ws {
+		ws[i].X = 50
+		sum2 += w.X
+	}
+	for _, w := range ws {
+		w.Y = 70
+		sum2 += w.Y
+	}
+	fmt.Println(sum2, ws)
+	a2, b2 := twice()
+	a2.X = 3
+	lent := V{4, 4}
+	back := same(lent)
+	back.X = 5
+	fmt.Println(fresh(), a2, b2, lent, back)
+}
+
+// fresh returns a local of its own.
+func fresh() V {
+	f := V{6, 6}
+	f.Y = 7
+	return f
+}
+
+// twice returns the same local twice.
+func twice() (V, V) {
+	t := V{8, 8}
+	return t, t
+}
+
+// norm is pure: it only reads o and calls math.
+func norm(o V) float64 { return math.Sqrt(o.X*o.X + o.Y*o.Y) }
+
+// readAfter changes what o was read from before reading o.
+func readAfter(o V, b *box) float64 {
+	b.v.X = 100
+	return o.X
+}
+
+// readAfterSlice changes the slice o was read from before reading o.
+func readAfterSlice(o V, s []V) float64 {
+	s[0].X = 100
+	return o.X
 }
 
 type box struct{ v V }
