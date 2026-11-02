@@ -31,20 +31,3 @@ func spansOf(img *canvas.Canvas) [][2]int {
 	}
 	return spans
 }
-
-// copySpans copies t's runs onto cv at x, y, clipped to it: no pixel of
-// them needs blending.
-func copySpans(cv *canvas.Canvas, t trimmed, x, y int) {
-	for r, s := range t.spans {
-		cy := y + r
-		if cy < 0 || cy >= cv.Height || s[0] >= s[1] {
-			continue
-		}
-		a, b := max(s[0], -x), min(s[1], cv.Width-x)
-		if a >= b {
-			continue
-		}
-		src := t.img.Pixels[r*t.img.Stride+a : r*t.img.Stride+b]
-		copy(cv.Pixels[cy*cv.Stride+x+a:], src)
-	}
-}

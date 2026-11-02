@@ -40,5 +40,6 @@ type Game struct {
 	quit    bool
 
 	viewW, viewH int
-	items        []item // what Draw draws, reused every frame
+	items        []item   // what Draw draws, reused every frame
+	last, next   frameKey // of the frame Changed last answered true for, and of this one
 }

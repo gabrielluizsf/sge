@@ -30,6 +30,8 @@ type Map struct {
 	painted []int   // the tile each cell shows now
 	time    float64 // seconds the map has been in a world, for animations
 	picture *sprite.Sprite
-	opaques int // cells showing a tile with no transparent pixel
-	glassy  int // cells showing a tile with some
+	version uint64    // counts the cells that have come to show another tile
+	fresh   cellRange // the cells the last step brought up to its time
+	opaques int       // cells showing a tile with no transparent pixel
+	glassy  int       // cells showing a tile with some
 }

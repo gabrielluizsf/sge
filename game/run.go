@@ -15,16 +15,13 @@ func (g *Game) Run(title string, width, height int) error {
 		defer a.Close()
 	}
 	for !g.quit && win.Begin() {
-		// The view is the window's before the step, so scripts that fill
-		// it, as a world made up around the camera does, see its size
-		// from the first frame and after every resize.
-		g.viewW, g.viewH = win.Canvas().Width, win.Canvas().Height
 		dt := win.Delta()
 		if g.FixedStep > 0 {
 			dt = g.FixedStep
 		}
-		g.Step(dt)
-		g.Draw(win.Canvas())
+		// A frame the same as the one on the screen is not drawn, and End
+		// presents nothing for it.
+		g.Frame(win.Canvas(), dt)
 		win.End()
 	}
 	win.Close()

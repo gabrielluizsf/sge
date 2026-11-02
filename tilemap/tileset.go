@@ -19,5 +19,6 @@ type TileSet struct {
 	opaque                []int8       // by tile id: whether no pixel of it lets through, once known
 	anims                 []*Animation // by tile id; nil for a still tile
 	animated              int          // how many tiles are animated
+	turning               int          // how many of them turn over with time
 	trims                 []trimmed    // by tile id: its picture cut to what shows
 }

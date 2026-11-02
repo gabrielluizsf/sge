@@ -4,22 +4,68 @@ import (
 	"testing"
 
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
-// BenchmarkFrame is a frame of the demo drawn into a window's canvas: a
-// step of the world and every layer, the farmer and the HUD drawn.
-func BenchmarkFrame(b *testing.B) {
-	g, f := newGame(&bot{tends: 10})
-	cv, err := canvas.NewCanvas(f.ground.Cols*tile, f.ground.Rows*tile)
+// windowed is a game warmed up on a 1280 by 720 canvas, the window the
+// farm opens: stepped and drawn until the lazy tiles are painted and the
+// pictures made, so a benchmark measures a frame in steady state.
+func windowed(b *testing.B, ctl Controller) (*game.Game, *canvas.Canvas) {
+	g, _ := newGame(ctl)
+	cv, err := canvas.NewCanvas(1280, 720)
 	if err != nil {
 		b.Fatal(err)
 	}
 	for range 600 {
 		g.Step(frame)
+		g.Draw(cv)
 	}
 	b.ResetTimer()
+	return g, cv
+}
+
+// BenchmarkFrame is a frame of the demo drawn into a window's canvas: a
+// step of the world and every layer, the farmer and the HUD drawn, the
+// bot tending the farm.
+func BenchmarkFrame(b *testing.B) {
+	g, cv := windowed(b, &bot{tends: 10})
 	for range b.N {
+		g.Step(frame)
+		g.Draw(cv)
+	}
+}
+
+// BenchmarkFrameIdle is a frame of the farm with the player standing
+// still: only what sways moves.
+func BenchmarkFrameIdle(b *testing.B) {
+	g, cv := windowed(b, idle{})
+	for range b.N {
+		g.Step(frame)
+		g.Draw(cv)
+	}
+}
+
+// BenchmarkStepIdle is just the step of a frame of the farm with the player
+// standing still: the clocks of the maps and the scripts, no drawing.
+func BenchmarkStepIdle(b *testing.B) {
+	g, _ := windowed(b, idle{})
+	for range b.N {
+		g.Step(frame)
+	}
+}
+
+// BenchmarkFrameScroll is a frame of the farmer walking to and fro in the
+// farm, the camera following, so the view scrolls a pixel or so a frame.
+func BenchmarkFrameScroll(b *testing.B) {
+	g, cv := windowed(b, idle{})
+	o := g.Find("farmer")
+	dx := 1.5
+	for i := range b.N {
+		if i%200 == 0 {
+			dx = -dx
+		}
+		o.Transform.Position.X += dx
 		g.Step(frame)
 		g.Draw(cv)
 	}
