@@ -123,6 +123,9 @@ func (d *dresser) wear(name string, p *proxy, eyes string) error {
 	if greys(name) {
 		d.greyOut(mat)
 	}
+	if insideMouth(name) {
+		shadeMouth(&d.model.Materials[mat])
+	}
 	at := p.fit(d.pos)
 	infl := func(v int32) []influence { r := p.refs[v]; return mixed(d.kit.infl, r.v, r.w) }
 	d.parts = append(d.parts, split(surface{m.faces, m.uv, at, infl, mat}))

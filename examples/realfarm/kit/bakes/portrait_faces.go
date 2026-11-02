@@ -26,6 +26,10 @@ var PortraitFaces = []PortraitFace{
 	{"say1", human.Mouth(0.25, 0)}, {"say2", human.Mouth(0.55, 0)}, {"say3", human.Mouth(0.3, 0.8)},
 }
 
+// facesVersion counts the changes in how the talking faces are made that
+// bake them all again: 2 shaded the teeth as the inside of a mouth.
+const facesVersion = 2
+
 // PortraitFaceName is the sprite of villager id's portrait at stage with
 // the face called face.
 func PortraitFaceName(id string, stage life.Stage, face string) string {
@@ -38,7 +42,7 @@ func (b *Baker) portraitFaceTasks() []Task {
 	var out []Task
 	for _, v := range kit.Villagers {
 		for _, g := range v.Stages() {
-			name := fmt.Sprintf("portrait face %s %s", v.ID, g.Stage)
+			name := fmt.Sprintf("portrait face %s %s%s v%d", v.ID, g.Stage, v.LookTag(), facesVersion)
 			out = append(out, Task{Name: name, Kind: "portrait", ID: v.ID, Run: func() error { return b.portraitFaces(v, g) }})
 		}
 	}

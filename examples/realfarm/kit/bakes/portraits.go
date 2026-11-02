@@ -37,7 +37,7 @@ func (b *Baker) portraitTasks() []Task {
 	var out []Task
 	for _, v := range kit.Villagers {
 		for _, g := range v.Stages() {
-			name := fmt.Sprintf("portrait %s %s", v.ID, g.Stage)
+			name := fmt.Sprintf("portrait %s %s%s", v.ID, g.Stage, v.LookTag())
 			out = append(out, Task{Name: name, Kind: "portrait", ID: v.ID, Run: func() error { return b.portrait(v, g) }})
 		}
 	}
