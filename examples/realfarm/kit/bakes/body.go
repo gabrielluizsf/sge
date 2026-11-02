@@ -33,6 +33,12 @@ func (b *Baker) bodyOf(v kit.Villager, g kit.Grown) (*stageBody, error) {
 		if err == nil {
 			err = b.holdForge(m, g.Motions)
 		}
+		if err == nil {
+			err = b.holdHoe(m, g.Motions)
+		}
+		if err == nil {
+			err = b.holdCan(m, g.Motions)
+		}
 	}
 	if err != nil {
 		return nil, err

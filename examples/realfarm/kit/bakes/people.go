@@ -121,14 +121,20 @@ func shoot(m *gltf.Model, f frame) bake.Sprite {
 }
 
 // versionOf is the version of the motion mo as baked: the motions', but
-// the chop's and the forge's own, so each alone is baked again when it
-// changes.
+// the chop's, the forge's, the hoe's and the pour's own, so each alone is
+// baked again when it changes.
 func versionOf(mo human.Motion) string {
 	switch mo.Name {
 	case human.Chop.Name:
 		return fmt.Sprintf("v%dc%d", human.MotionsVersion, human.ChopVersion)
 	case human.Forge.Name:
 		return fmt.Sprintf("v%df%d", human.MotionsVersion, human.ForgeVersion)
+	case human.Hoe.Name:
+		return fmt.Sprintf("v%dh%d", human.MotionsVersion, human.HoeVersion)
+	case human.Water.Name:
+		return fmt.Sprintf("v%dw%d", human.MotionsVersion, human.WaterVersion)
+	case human.Pick.Name:
+		return fmt.Sprintf("v%dp%d", human.MotionsVersion, human.PickVersion)
 	}
 	return fmt.Sprintf("v%d", human.MotionsVersion)
 }

@@ -90,3 +90,21 @@ func glows(k Building) bool {
 	}
 	return false
 }
+
+// The stream a watering can pours is a thin column of a metre, standing
+// from the ground, pale as water in the light.
+func TestPouredStreamIsAThinMetre(t *testing.T) {
+	lo, hi := extent(Stream)
+	if h := hi[1] - lo[1]; h < 0.99 || h > 1.01 || lo[1] < -0.001 {
+		t.Errorf("the stream is %.2f m tall from %.2f", h, lo[1])
+	}
+	if w := hi[0] - lo[0]; w < 0.015 || w > 0.05 {
+		t.Errorf("the stream is %.3f m across", w)
+	}
+	for _, p := range Stream.Model(Plain()).Meshes[0].Primitives {
+		sound(t, soundOf{Stream.Name, Stream.Model(Plain()), p})
+	}
+	if m := Stream.Model(Plain()); m.Materials[0].BaseColor[2] < 0.7 || m.Materials[0].BaseColor[0] > m.Materials[0].BaseColor[2] {
+		t.Errorf("the stream's colour is %v", m.Materials[0].BaseColor)
+	}
+}

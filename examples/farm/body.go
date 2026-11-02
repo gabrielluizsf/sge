@@ -22,7 +22,7 @@ type Clip struct {
 }
 
 // The animations a person's Body has: standing, walking, using what they
-// hold, chopping with the axe, forging at the anvil, swimming, diving into deep water from
+// hold, chopping with the axe, forging at the anvil, hoeing, watering, picking a crop, swimming, diving into deep water from
 // standing, and rising out of it to stand. The last two are shown once,
 // and should last DiveSeconds and RiseSeconds.
 const (
@@ -31,6 +31,9 @@ const (
 	AnimAct   = "act"
 	AnimChop  = "chop"
 	AnimForge = "forge"
+	AnimHoe   = "hoe"
+	AnimWater = "water"
+	AnimPick  = "pick"
 	AnimSwim  = "swim"
 	AnimDive  = "dive"
 	AnimRise  = "rise"
@@ -46,6 +49,14 @@ const (
 // ForgeSeconds is how long a smith's stroke at the anvil takes, and so
 // how long its clip should last: the hammer raised, struck and let rest.
 const ForgeSeconds = 1.0
+
+// HoeSeconds, WaterSeconds and PickSeconds are the same for a stroke of
+// the hoe, a pour from the can and the picking of a crop.
+const (
+	HoeSeconds   = 1.4
+	WaterSeconds = 2.0
+	PickSeconds  = 1.6
+)
 
 // forgeImpact is how far into a stroke the hammer lands on the iron, as
 // human.Forge strikes it.

@@ -10,11 +10,19 @@ import (
 // picks from by trade and gender.
 var smiths = []string{"beto", "mei", "iara"}
 
-// Motions are the motions a grown-up villager has: everyone's, and the
-// smiths' strokes at the anvil.
+// farmers are the villagers that may be drawn as a farmer, or are the
+// player: those who water a plot.
+var farmers = []string{"joao", "ana", "iara", "player"}
+
+// Motions are the motions a grown-up villager has: everyone's, the
+// smiths' strokes at the anvil and the farmers' pours from the can.
 func (v Villager) Motions() []human.Motion {
+	out := slices.Clone(human.Motions)
 	if slices.Contains(smiths, v.ID) {
-		return append(slices.Clone(human.Motions), human.Crafts...)
+		out = append(out, human.Crafts...)
 	}
-	return human.Motions
+	if slices.Contains(farmers, v.ID) {
+		out = append(out, human.Farming...)
+	}
+	return out
 }

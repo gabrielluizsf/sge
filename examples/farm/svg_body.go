@@ -28,6 +28,8 @@ func (b svgBody) Clip(anim, dir string) Clip {
 		return b.clip(1, dir+"Act")
 	case AnimChop:
 		return b.clip(2/actFor, dir+"Chop", dir+"Chop1")
+	case AnimHoe, AnimWater, AnimPick:
+		return b.clip(1, dir+"Act")
 	case AnimForge:
 		return b.clip(2/ForgeSeconds, dir+"Chop", dir+"Chop1")
 	case AnimSwim:

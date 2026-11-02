@@ -43,13 +43,6 @@ var Stand = loop{"stand", 4, 8}.of(func(t float64) Pose {
 		Elbow: both(0.2), Shoulder: both(0.03), Bob: 0.003 * b}
 })
 
-// Hoe is working the ground with a hoe: reaching forward, pulling back.
-var Hoe = loop{"hoe", 1.4, 12}.of(func(t float64) Pose {
-	r := 0.5 + 0.5*wave(t, 1, 0)
-	return Pose{Lean: 0.35 + 0.25*r, Nod: 0.3, Hip: [2]float64{0.35, -0.1}, Knee: [2]float64{0.35, 0.15}, Abduct: both(0.1),
-		Shoulder: both(0.5 + 0.7*r), Raise: both(0.1), Elbow: both(1.1 - 0.7*r), Bob: -0.04}
-})
-
 // Tread is treading water: upright, head above it, the legs pedalling and
 // the hands sculling out and in.
 var Tread = loop{"tread", 1.5, 12}.of(func(t float64) Pose {
@@ -75,3 +68,11 @@ const ChopVersion = 2
 // ForgeVersion is the same for the smith's stroke at the anvil, and the
 // hammer and tongs in their hands.
 const ForgeVersion = 1
+
+// HoeVersion is the same for the hoe's stroke and the hoe in the hands
+// that swing it, WaterVersion for the pour and its can, and PickVersion for picking a crop.
+const (
+	HoeVersion   = 1
+	WaterVersion = 1
+	PickVersion  = 1
+)

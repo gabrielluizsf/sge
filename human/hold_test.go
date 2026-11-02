@@ -110,3 +110,61 @@ func TestToolInOneHandFollowsTheWrist(t *testing.T) {
 		}
 	}
 }
+
+// A stream stands on the ground below the spout's tip and is tall as the
+// tip is high, but only in the poses where the spout points down: in the
+// others it is out of sight.
+func TestStreamFollowsTheSpoutWhileItPointsDown(t *testing.T) {
+	m := armed(t)
+	if err := Animate(m, Chop); err != nil {
+		t.Fatal(err)
+	}
+	s := Spill{
+		Can:   Grip{Hands: [2]string{"wrist.R", "wrist.R"}, During: []string{"chop"}, Offset: [3]float64{0.1, -0.2, 0.05}, Turn: [4]float64{0, 0, 0, 1}},
+		Spout: [3]float64{0.55, 0.1, 0}, Out: [3]float64{1, 0, 0}, Tilt: 0.3, Ground: -3, During: []string{"chop"},
+	}
+	if err := Hold(m, pick(), s.Can); err != nil {
+		t.Fatal(err)
+	}
+	if err := Pour(m, pick(), s); err != nil {
+		t.Fatal(err)
+	}
+	node := boneOf(m, "stream")
+	a := &m.Animations[0]
+	var shown, hidden int
+	var move, size *gltf.Channel
+	for i := range a.Channels {
+		if a.Channels[i].Node == node && a.Channels[i].Path == "translation" {
+			move = &a.Channels[i]
+		}
+		if a.Channels[i].Node == node && a.Channels[i].Path == "scale" {
+			size = &a.Channels[i]
+		}
+	}
+	if move == nil || size == nil {
+		t.Fatal("the stream has no channels")
+	}
+	for k := range a.Channels[0].Times {
+		tip, down := spoutAt(m, a, s, k)
+		if move.Values[k][0] != float32(tip[0]) || move.Values[k][1] != float32(s.Ground) || move.Values[k][2] != float32(tip[2]) {
+			t.Fatalf("pose %d: the stream stands at %v, not below %v", k, move.Values[k], tip)
+		}
+		if down {
+			shown++
+			if size.Values[k][1] != float32(tip[1]-s.Ground) {
+				t.Fatalf("pose %d: the stream is %v tall, not %v", k, size.Values[k][1], tip[1])
+			}
+		} else {
+			hidden++
+			if size.Values[k][1] > 0.001 {
+				t.Fatalf("pose %d: the stream shows with the spout not down", k)
+			}
+		}
+	}
+	if shown == 0 || hidden == 0 {
+		t.Errorf("the stream is shown in %d poses and hidden in %d", shown, hidden)
+	}
+	if Pour(m, pick(), Spill{Can: s.Can, During: []string{"dance"}}) == nil {
+		t.Error("poured in a motion that is not there")
+	}
+}

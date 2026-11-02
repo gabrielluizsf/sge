@@ -66,8 +66,8 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 	p.footsteps(o)
 	if in.use && !p.swims {
 		col, row := p.useCell(o)
-		if p.f.use(p.kit, col, row) {
-			clip, seconds := useClip(p.kit.slot, p.f.thingAt(col, row) == tileID["anvil"])
+		if did := p.f.useAs(p.kit, col, row); did != actNone {
+			clip, seconds := useClip(did)
 			p.acting = seconds
 			o.Animator.Play(p.pose(o) + clip)
 		}

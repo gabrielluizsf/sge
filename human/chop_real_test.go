@@ -13,33 +13,44 @@ type swing struct {
 	turn        quat
 }
 
-func swings(t *testing.T) []swing {
+// swings are the real chop's swings, made once for every test of them.
+func swings(t *testing.T) []swing { return swingsOf(t, Chop, ChopGrip) }
+
+// swingsOf are the swings of motion mo and the grip g of its two hands,
+// made once for each.
+func swingsOf(t *testing.T, mo Motion, g Grip) []swing {
 	t.Helper()
-	if keptSwings == nil {
-		keptSwings = makeSwings(t)
+	if kept, ok := keptSwings[mo.Name]; ok {
+		return kept
 	}
-	return keptSwings
+	made := makeSwings(t, mo, g)
+	if keptSwings == nil {
+		keptSwings = map[string][]swing{}
+	}
+	keptSwings[mo.Name] = made
+	return made
 }
 
-// keptSwings are the swings made once for every test of them.
-var keptSwings []swing
+// keptSwings are the swings made, by the motion's name.
+var keptSwings map[string][]swing
 
-// makeSwings makes the real chop's swings.
-func makeSwings(t *testing.T) []swing {
+// makeSwings makes the swings of mo as the real kit's person holds the
+// tool in g.
+func makeSwings(t *testing.T, mo Motion, g Grip) []swing {
 	t.Helper()
 	m, err := realKit(t).Make(baselines[0].body, baselines[0].look)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := Animate(m, Chop); err != nil {
+	if err := Animate(m, mo); err != nil {
 		t.Fatal(err)
 	}
 	a := &m.Animations[0]
 	var out []swing
-	for k := range Chop.Poses {
+	for k := range mo.Poses {
 		w := worldAt(m, a, k)
 		var s swing
-		for i, h := range ChopGrip.Hands {
+		for i, h := range g.Hands {
 			n := boneOf(m, h)
 			p := add(w[n].at, w[n].turn.turn(palm(m, n)))
 			if i == 0 {
@@ -48,7 +59,7 @@ func makeSwings(t *testing.T) []swing {
 				s.right = p
 			}
 		}
-		s.at, s.turn = handle(m, a, ChopGrip, k)
+		s.at, s.turn = handle(m, a, g, k)
 		out = append(out, s)
 	}
 	return out
