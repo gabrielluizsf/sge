@@ -46,8 +46,8 @@ type ui struct {
 // newUI is the farm's menus.
 func newUI(f *farm) *ui {
 	u := &ui{f: f, list: creditsOf(f.art)}
-	u.pause = menu.List{Title: "Pausa", Hint: "Setas: escolher   Enter: confirmar   Esc: continuar", Scale: scale, MinW: 130}
-	u.credits = menu.List{Title: "Créditos", Hint: "Setas ou roda: rolar   Enter: ver a licença   Esc: voltar", Scale: scale, MinW: 260}
+	u.pause = menu.List{Title: "Pausa", Scale: scale, MinW: 130}
+	u.credits = menu.List{Title: "Créditos", Scale: scale, MinW: 260}
 	u.reader.Scale = scale
 	for _, c := range u.list {
 		u.credits.Lines = append(u.credits.Lines, menu.Line{Text: c.Name + " - " + c.Author, Sub: c.URL, Button: "[Visualizar licença]"})
