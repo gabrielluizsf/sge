@@ -36,7 +36,7 @@ func main() {
 		"water":    flag.Bool("water", false, "bake the shores of the lake and the sea, and no asset"),
 		"icon":     flag.Bool("icons", false, "bake the icons of what the player carries, and no asset"),
 		"portrait": flag.Bool("portraits", false, "bake the villagers' head and shoulders, and no asset"),
-		"import":   flag.Bool("imports", false, "bake the models of your own in SGE_IMPORTS the farm draws, and no asset"),
+		"inside":   flag.Bool("insides", false, "bake the floors, rugs and back walls of the houses' insides, and no asset"),
 	}
 	workers := flag.Int("workers", 1, "how many frames are baked at once; each takes a core")
 	flag.Parse()

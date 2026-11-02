@@ -16,7 +16,7 @@ func (h *hud) talk(cv *canvas.Canvas) {
 	f := h.f
 	v := f.talk.v
 	b := f.talkBox()
-	b.Paint(cv, f.art, f.art.Portrait(v.who))
+	b.Paint(cv, f.art, f.talkPortrait(v))
 	fr := b.Frame()
 	label := h.text(heartsLabel(v), 'k')
 	pw := label.Width + (heartsW+24)*scale

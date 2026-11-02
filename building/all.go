@@ -1,7 +1,7 @@
 package building
 
 // Props are the things of a farm and a town that are not houses.
-var Props = []Building{Stall, Smithy, Anvil, Well, FenceStraight, FenceCorner, FenceEnd, Bench, Wheelbarrow}
+var Props = []Building{Stall, Smithy, Anvil, Forge, Stump, Stove, Well, FenceStraight, FenceCorner, FenceEnd, Bench, Wheelbarrow}
 
 // All are every house and every prop.
 func All() []Building {

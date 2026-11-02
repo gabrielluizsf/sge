@@ -13,7 +13,7 @@ import (
 func (b *Baker) buildingTasks() []Task {
 	var out []Task
 	for _, k := range building.All() {
-		core := k.Name == "stall" || k.Name == "anvil" || IsHouse(k.Name)
+		core := k.Name == "stall" || k.Name == "anvil" || k.Name == "forge" || k.Name == "stump" || k.Name == "stove" || IsHouse(k.Name)
 		out = append(out, Task{Name: "building " + k.Name, Kind: "building", ID: k.Name, Core: core, Run: func() error { return b.building(k) }})
 	}
 	return out

@@ -75,7 +75,10 @@ func leaned(m *gltf.Model) *gltf.Model {
 // Bust is the top share of the figure in s, its head and shoulders, cut
 // to the figure's width there, but no wider than a little under its height,
 // about the head, so the face is large in a portrait.
-func Bust(s bake.Sprite, share float64) bake.Sprite {
+func Bust(s bake.Sprite, share float64) bake.Sprite { return Cut(s, BustRect(s, share)) }
+
+// BustRect is the part of s Bust keeps; all of it when s is blank.
+func BustRect(s bake.Sprite, share float64) image.Rectangle {
 	b := s.Image.Bounds()
 	top, bottom := -1, b.Min.Y
 	for y := b.Min.Y; y < b.Max.Y; y++ {
@@ -89,7 +92,7 @@ func Bust(s bake.Sprite, share float64) bake.Sprite {
 		}
 	}
 	if top < 0 {
-		return s
+		return b
 	}
 	cut := top + max(1, int(float64(bottom-top)*share))
 	left, right := b.Max.X, b.Min.X
@@ -106,6 +109,11 @@ func Bust(s bake.Sprite, share float64) bake.Sprite {
 		x0 := max(left, min(mid-w/2, right-w))
 		r = image.Rect(x0, top, x0+w, cut)
 	}
+	return r
+}
+
+// Cut is the part r of s, its pivot at its bottom middle.
+func Cut(s bake.Sprite, r image.Rectangle) bake.Sprite {
 	out := image.NewNRGBA(image.Rect(0, 0, r.Dx(), r.Dy()))
 	for y := range r.Dy() {
 		for x := range r.Dx() {

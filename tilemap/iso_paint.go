@@ -1,6 +1,9 @@
 package tilemap
 
-import "github.com/gabrielluizsf/antui/canvas"
+import (
+	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/game"
+)
 
 // paintIso draws a projected map's cells that show, farthest first, a
 // diagonal at a time, so a nearer tile is drawn over a farther one.
@@ -26,6 +29,10 @@ func (m *Map) paintCell(cv *canvas.Canvas, col, row int) {
 	x, y = x+t.dx, y+t.dy
 	clip := cv.Clip
 	if x >= clip.X+clip.Width || y >= clip.Y+clip.Height || x+t.img.Width <= clip.X || y+t.img.Height <= clip.Y {
+		return
+	}
+	if t.h > m.Tiles.Height && game.Hides(game.Placed{Img: t.img, X: x, Y: y}, m.isoDepth(col, row), m.Game().Covers()) {
+		game.BlendFaded(cv, game.Placed{Img: t.img, X: x, Y: y}) // a tall tile over what is kept in sight
 		return
 	}
 	if t.spans != nil {

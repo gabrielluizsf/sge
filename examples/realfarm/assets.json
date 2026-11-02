@@ -160,6 +160,46 @@
       ]
     },
     {
+      "id": "brown_planks_09",
+      "name": "Brown Planks 09",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/brown_planks_09",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "brown_planks_09/brown_planks_09_1k.gltf",
+      "span": 1,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/brown_planks_09/brown_planks_09.bin",
+          "path": "brown_planks_09/brown_planks_09.bin",
+          "sha256": "976125468971f20116e2ab370b5e10497169c6fe4b9a6195acefd0eddcd75e2e"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/brown_planks_09/brown_planks_09_1k.gltf",
+          "path": "brown_planks_09/brown_planks_09_1k.gltf",
+          "sha256": "05fcd54f8d038a1964f056bbea374305d3ca284853baa714a00a4a3caf4a5cf7"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_09/brown_planks_09_diff_1k.jpg",
+          "path": "brown_planks_09/textures/brown_planks_09_diff_1k.jpg",
+          "sha256": "6a890d75d48787518ccf32cb44e7557d1695e8a9180e813f79f7bfed075896ed"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_09/brown_planks_09_nor_gl_1k.jpg",
+          "path": "brown_planks_09/textures/brown_planks_09_nor_gl_1k.jpg",
+          "sha256": "a42c35ecd2104765e1e06e7370be6673c6c7b8527d9abf3f34cf3cd444ea9e16"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_09/brown_planks_09_rough_1k.jpg",
+          "path": "brown_planks_09/textures/brown_planks_09_rough_1k.jpg",
+          "sha256": "48eca07057e5a2ba9a4de92f71f660620bcaa8e142b4c57ed7bf65e6deb5270c"
+        }
+      ]
+    },
+    {
       "id": "cheiridopsis_succulent",
       "name": "Cheiridopsis Succulent",
       "biome": "semiarido",
@@ -394,6 +434,52 @@
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/crystalline_iceplant/crystalline_iceplant_nor_gl_1k.jpg",
           "path": "crystalline_iceplant/textures/crystalline_iceplant_nor_gl_1k.jpg",
           "sha256": "860252c828abd312600ab0daff531dfa4573b1a3ee6293bdbc5b53093f082cec"
+        }
+      ]
+    },
+    {
+      "id": "curly_teddy_checkered",
+      "name": "Curly Teddy Checkered",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/curly_teddy_checkered",
+      "authors": [
+        "Rico Cilliers",
+        "colormass"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "curly_teddy_checkered/curly_teddy_checkered_1k.gltf",
+      "span": 0.5618443344798735,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/curly_teddy_checkered/curly_teddy_checkered.bin",
+          "path": "curly_teddy_checkered/curly_teddy_checkered.bin",
+          "sha256": "fdfe13ffb553c8ea9eed0a0dccc6aca55d8005065bc74cbf05d9f423d85490ef"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/curly_teddy_checkered/curly_teddy_checkered_1k.gltf",
+          "path": "curly_teddy_checkered/curly_teddy_checkered_1k.gltf",
+          "sha256": "e8d4ca1f240b0886faf591395984bef2bc5c2b63fe94d5c553d769d8998de525"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/curly_teddy_checkered/curly_teddy_checkered_arm_1k.jpg",
+          "path": "curly_teddy_checkered/textures/curly_teddy_checkered_arm_1k.jpg",
+          "sha256": "73d2f63697ae089687f656a0b9a0d83fcfac8741ba9eab832a40bcde28558604"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/curly_teddy_checkered/curly_teddy_checkered_diff_1k.jpg",
+          "path": "curly_teddy_checkered/textures/curly_teddy_checkered_diff_1k.jpg",
+          "sha256": "936df3ddbe8f775be9f6dd84a6112a9b96ddba307f6fb5fbe04902ae1c05aa44"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/curly_teddy_checkered/curly_teddy_checkered_nor_gl_1k.jpg",
+          "path": "curly_teddy_checkered/textures/curly_teddy_checkered_nor_gl_1k.jpg",
+          "sha256": "191b900d570e804f5c0e4529ad7f0eb65ba27ee7dece77cd33bd50213526c109"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/curly_teddy_checkered/curly_teddy_checkered_spec_ior_1k.jpg",
+          "path": "curly_teddy_checkered/textures/curly_teddy_checkered_spec_ior_1k.jpg",
+          "sha256": "d6b34cfea44fa49e85b1163e9c4ab8fa73885c771f26d39dfcf3951e28f02dd6"
         }
       ]
     },
@@ -671,6 +757,46 @@
           "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dry_ground_01/dry_ground_01_rough_1k.jpg",
           "path": "dry_ground_01/textures/dry_ground_01_rough_1k.jpg",
           "sha256": "1e2587819279786a45b3a6b766cd75cd571e7e524b787ebd7e534bc7f9bd143e"
+        }
+      ]
+    },
+    {
+      "id": "fabric_pattern_07",
+      "name": "Fabric Pattern 07",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/fabric_pattern_07",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "fabric_pattern_07/fabric_pattern_07_1k.gltf",
+      "span": 0.4000000059604645,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/fabric_pattern_07/fabric_pattern_07.bin",
+          "path": "fabric_pattern_07/fabric_pattern_07.bin",
+          "sha256": "5a7788a065ff51e9b7fd7838271772c1e7773bfb049347ef4dfe3266e6b5a1c5"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/fabric_pattern_07/fabric_pattern_07_1k.gltf",
+          "path": "fabric_pattern_07/fabric_pattern_07_1k.gltf",
+          "sha256": "1baa3df34e031a27c67f74cc3f8f1f93a4e922b17c350a5ed563324624c92323"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_col_1_1k.jpg",
+          "path": "fabric_pattern_07/textures/fabric_pattern_07_col_1_1k.jpg",
+          "sha256": "aeb7a1487b77aec55e39de662def4d371f5c7c617f62d1f291d7f9932ffebdc9"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_nor_gl_1k.jpg",
+          "path": "fabric_pattern_07/textures/fabric_pattern_07_nor_gl_1k.jpg",
+          "sha256": "f6955bbdead9f023f2357f6f8808ed49627d10882cd2a3cb6b5a5ace155abc45"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fabric_pattern_07/fabric_pattern_07_rough_1k.jpg",
+          "path": "fabric_pattern_07/textures/fabric_pattern_07_rough_1k.jpg",
+          "sha256": "3d90ac40b5c32a15649cc8525b7eeed133ea46b63a0e3eae5e34911d5c967e3a"
         }
       ]
     },
@@ -1045,6 +1171,52 @@
       ]
     },
     {
+      "id": "hessian_380",
+      "name": "Hessian 380",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/hessian_380",
+      "authors": [
+        "Rico Cilliers",
+        "colormass"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "hessian_380/hessian_380_1k.gltf",
+      "span": 0.2738657700451184,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/hessian_380/hessian_380.bin",
+          "path": "hessian_380/hessian_380.bin",
+          "sha256": "61fab44090c10413f461d1879fc38da79895f2b125dfccea8bdee4b28f60d1bf"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/hessian_380/hessian_380_1k.gltf",
+          "path": "hessian_380/hessian_380_1k.gltf",
+          "sha256": "d0e091ce33b1efc982ed89d64e608d6aefe26c8f95ddeaf1336f801cfc391759"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/hessian_380/hessian_380_arm_1k.jpg",
+          "path": "hessian_380/textures/hessian_380_arm_1k.jpg",
+          "sha256": "745b3c59fac3fd795da6a685cc1dae889ac8795e156c31d58d734739ff7fcbd7"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/hessian_380/hessian_380_diff_1k.jpg",
+          "path": "hessian_380/textures/hessian_380_diff_1k.jpg",
+          "sha256": "5727302df3a9c845e6320ff186ac13fc7d0f1ffcd6fda71667e808e09379fe6f"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/hessian_380/hessian_380_nor_gl_1k.jpg",
+          "path": "hessian_380/textures/hessian_380_nor_gl_1k.jpg",
+          "sha256": "3994fd74148cb413892edd08155976497b3e7e15a403a182f07325a6b1e7be1a"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/hessian_380/hessian_380_spec_ior_1k.jpg",
+          "path": "hessian_380/textures/hessian_380_spec_ior_1k.jpg",
+          "sha256": "5388ab24ff5ff29ff3ef1ab21f6f8e6e45a04792d5defd469e899df8cd8e9963"
+        }
+      ]
+    },
+    {
       "id": "island_tree_02",
       "name": "Island Tree 02",
       "biome": "campo",
@@ -1260,6 +1432,84 @@
           "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/painted_plaster_wall/painted_plaster_wall_nor_gl_1k.jpg",
           "path": "painted_plaster_wall/textures/painted_plaster_wall_nor_gl_1k.jpg",
           "sha256": "8eb01647d126eb5341e2c325821ad48c8ca11349dbef53447c95422c5d91cc9d"
+        }
+      ]
+    },
+    {
+      "id": "painted_wooden_chair_02",
+      "name": "Painted Wooden Chair 02",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/painted_wooden_chair_02",
+      "authors": [
+        "Kirill Sannikov"
+      ],
+      "license": "CC0-1.0",
+      "kind": "model",
+      "model": "painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/painted_wooden_chair_02/painted_wooden_chair_02.bin",
+          "path": "painted_wooden_chair_02/painted_wooden_chair_02.bin",
+          "sha256": "6125c4ac10e1b53803bf468eb21769fd43a3669564bfc8885a9346c8302e121f"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+          "path": "painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+          "sha256": "e69f4558d236e0fcc9d31a85ab75117e75d224d21e04836aa438821ccf1fd2c1"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_chair_02/painted_wooden_chair_02_arm_1k.jpg",
+          "path": "painted_wooden_chair_02/textures/painted_wooden_chair_02_arm_1k.jpg",
+          "sha256": "7b0b2254ab2ea3dae685207b8b591bbb10cca47d0157ce8e515f03ff61ccb5d9"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_chair_02/painted_wooden_chair_02_diff_1k.jpg",
+          "path": "painted_wooden_chair_02/textures/painted_wooden_chair_02_diff_1k.jpg",
+          "sha256": "bc944fc83f440198658199080d761b19c3e2f42daa793062aa283563683a732b"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_chair_02/painted_wooden_chair_02_nor_gl_1k.jpg",
+          "path": "painted_wooden_chair_02/textures/painted_wooden_chair_02_nor_gl_1k.jpg",
+          "sha256": "2c2c2f92e4aebadf06c7c675a3c903c1a647dde6f875ac55aa4945d47e053d9a"
+        }
+      ]
+    },
+    {
+      "id": "painted_wooden_shelves",
+      "name": "Painted Wooden Shelves",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/painted_wooden_shelves",
+      "authors": [
+        "Kirill Sannikov"
+      ],
+      "license": "CC0-1.0",
+      "kind": "model",
+      "model": "painted_wooden_shelves/painted_wooden_shelves_1k.gltf",
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/painted_wooden_shelves/painted_wooden_shelves.bin",
+          "path": "painted_wooden_shelves/painted_wooden_shelves.bin",
+          "sha256": "894c032cda1c5668014c87b15ddcc42bccaede15e369e59f628d5219d38edf5f"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/painted_wooden_shelves/painted_wooden_shelves_1k.gltf",
+          "path": "painted_wooden_shelves/painted_wooden_shelves_1k.gltf",
+          "sha256": "f4d9ffc04ad1e9ce3155522ac962c336bf1fa74b4a27b8a5fd4c8bdb81c2e8f6"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_shelves/painted_wooden_shelves_arm_1k.jpg",
+          "path": "painted_wooden_shelves/textures/painted_wooden_shelves_arm_1k.jpg",
+          "sha256": "256c99e04dc99961ad08e085b01adc03641e861f66d4b325b1acb0f822d1e9a9"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_shelves/painted_wooden_shelves_diff_1k.jpg",
+          "path": "painted_wooden_shelves/textures/painted_wooden_shelves_diff_1k.jpg",
+          "sha256": "430aef90494d0aa16c354bb4d39fc1a768dd822a0da7e6b746f1891a0cb7cf3a"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/painted_wooden_shelves/painted_wooden_shelves_nor_gl_1k.jpg",
+          "path": "painted_wooden_shelves/textures/painted_wooden_shelves_nor_gl_1k.jpg",
+          "sha256": "9dcd7e3783da2a2cd44cd4f7a78ac976d2866e02d8dd0799d180d0ab746ae239"
         }
       ]
     },
@@ -1493,6 +1743,107 @@
       ]
     },
     {
+      "id": "potted_plant_02",
+      "name": "Potted Plant 02",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/potted_plant_02",
+      "authors": [
+        "Rico Cilliers"
+      ],
+      "license": "CC0-1.0",
+      "kind": "model",
+      "model": "potted_plant_02/potted_plant_02_1k.gltf",
+      "whole": true,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/potted_plant_02/potted_plant_02.bin",
+          "path": "potted_plant_02/potted_plant_02.bin",
+          "sha256": "9c9812482c78a59789ed32fa842b4cbd9365e09c900c31ebb998e5efe627fe97"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/potted_plant_02/potted_plant_02_1k.gltf",
+          "path": "potted_plant_02/potted_plant_02_1k.gltf",
+          "sha256": "c533dcce0d1aa4379eb7db04601a04983f8df2422b28578de922655a416e64a9"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_02/potted_plant_02_leaves_diff_1k.jpg",
+          "path": "potted_plant_02/textures/potted_plant_02_leaves_diff_1k.jpg",
+          "sha256": "3643dce6e6c0a9f40129bd837ec1a11802e8f43ea43cb29e58219d82e0ac632b"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_02/potted_plant_02_leaves_nor_gl_1k.jpg",
+          "path": "potted_plant_02/textures/potted_plant_02_leaves_nor_gl_1k.jpg",
+          "sha256": "e0fe090ff7a511729c9bbe59df7288b400430fdab178529443dec75e0f06007d"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_02/potted_plant_02_leaves_rough_1k.jpg",
+          "path": "potted_plant_02/textures/potted_plant_02_leaves_rough_1k.jpg",
+          "sha256": "ac8959f70c0e91e77f3cd6fd3f73578b8aed64ac6c33fc34ac027a4e88276960"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_02/potted_plant_02_pot_diff_1k.jpg",
+          "path": "potted_plant_02/textures/potted_plant_02_pot_diff_1k.jpg",
+          "sha256": "684949bf24821d7e951d46915366b5a388d2e4ccaaa9d5284e718c83604705e9"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_02/potted_plant_02_pot_nor_gl_1k.jpg",
+          "path": "potted_plant_02/textures/potted_plant_02_pot_nor_gl_1k.jpg",
+          "sha256": "981a68721c8b7b9ac26b96d0210334599d5e8f529362f505082c071a0a58e86c"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/potted_plant_02/potted_plant_02_pot_rough_1k.jpg",
+          "path": "potted_plant_02/textures/potted_plant_02_pot_rough_1k.jpg",
+          "sha256": "4e92ad8ee0f098050785d9a025e2c5a7d55bc7a7f7e1916cc7627fc7824a938f"
+        }
+      ]
+    },
+    {
+      "id": "quatrefoil_jacquard_fabric",
+      "name": "Quatrefoil Jacquard Fabric",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/quatrefoil_jacquard_fabric",
+      "authors": [
+        "Rico Cilliers",
+        "colormass"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric_1k.gltf",
+      "span": 0.28011855714681566,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric.bin",
+          "path": "quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric.bin",
+          "sha256": "47755a09f109c10d65ca441d22793763d8ddaa0d3d35431fbaab9b0c65e7b1e6"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric_1k.gltf",
+          "path": "quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric_1k.gltf",
+          "sha256": "0b7fa5d2053affabe75e0ea916f6b46afaee049c6df118282bdc3242768c8b50"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric_arm_1k.jpg",
+          "path": "quatrefoil_jacquard_fabric/textures/quatrefoil_jacquard_fabric_arm_1k.jpg",
+          "sha256": "fcd0915319a2792104d16c5a9ef049abe408319666fe505ab11c034f26001732"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric_diff_1k.jpg",
+          "path": "quatrefoil_jacquard_fabric/textures/quatrefoil_jacquard_fabric_diff_1k.jpg",
+          "sha256": "674e9d4c2c116099b79ab364eb04e2101031745f2eb27e4a9e198a81e31c8cd7"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric_nor_gl_1k.jpg",
+          "path": "quatrefoil_jacquard_fabric/textures/quatrefoil_jacquard_fabric_nor_gl_1k.jpg",
+          "sha256": "9320e4ce8f986d26d30711dbb654e8d88371dc1ea28337f7bb373b243ea30286"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/quatrefoil_jacquard_fabric/quatrefoil_jacquard_fabric_spec_ior_1k.jpg",
+          "path": "quatrefoil_jacquard_fabric/textures/quatrefoil_jacquard_fabric_spec_ior_1k.jpg",
+          "sha256": "41c692515c5ab022b93c742d0ea0d43b80781d3e305dbd250d1b634518b1abd0"
+        }
+      ]
+    },
+    {
       "id": "red_laterite_soil_stones",
       "name": "Red Laterite Soil Stones",
       "biome": "semiarido",
@@ -1651,6 +2002,52 @@
       ]
     },
     {
+      "id": "rough_linen",
+      "name": "Rough Linen",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/rough_linen",
+      "authors": [
+        "Rico Cilliers",
+        "colormass"
+      ],
+      "license": "CC0-1.0",
+      "kind": "material",
+      "model": "rough_linen/rough_linen_1k.gltf",
+      "span": 0.2707081392676629,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/8k/rough_linen/rough_linen.bin",
+          "path": "rough_linen/rough_linen.bin",
+          "sha256": "50f832d997ce0632a9a68667db6e64d498d92c6320163a693583afd67de912ad"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/gltf/1k/rough_linen/rough_linen_1k.gltf",
+          "path": "rough_linen/rough_linen_1k.gltf",
+          "sha256": "23b9bf7d634ad6a5fd47b76904b5b7af90e8b6da128536241c29901186efcf61"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_arm_1k.jpg",
+          "path": "rough_linen/textures/rough_linen_arm_1k.jpg",
+          "sha256": "e1ca6b51ed62834063253e08f8f2e23836aa00d72675b960ddd8e608d9f0c7e6"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_diff_1k.jpg",
+          "path": "rough_linen/textures/rough_linen_diff_1k.jpg",
+          "sha256": "04897d7611d7390ddf5b2c6f7273f448dfc48341fdbd1f4f207fa30b331d7f57"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_nor_gl_1k.jpg",
+          "path": "rough_linen/textures/rough_linen_nor_gl_1k.jpg",
+          "sha256": "e2402166d1a489f7414814e69e1836ab672aa24e30bec2d41fea356f81687e53"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_spec_ior_1k.jpg",
+          "path": "rough_linen/textures/rough_linen_spec_ior_1k.jpg",
+          "sha256": "91e9ad0f3747aa8399e465c610f02b5142229383be9b74501f634843e1abef46"
+        }
+      ]
+    },
+    {
       "id": "rough_wood",
       "name": "Rough Wood",
       "biome": "building",
@@ -1767,6 +2164,85 @@
           "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/stone_wall/stone_wall_rough_1k.jpg",
           "path": "stone_wall/textures/stone_wall_rough_1k.jpg",
           "sha256": "8c06e7c67d0d9701966732cc90c4e356b5bd5656aa35bf82650576e78322cbdd"
+        }
+      ]
+    },
+    {
+      "id": "treasure_chest",
+      "name": "Treasure Chest",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/treasure_chest",
+      "authors": [
+        "Rico Cilliers"
+      ],
+      "license": "CC0-1.0",
+      "kind": "model",
+      "model": "treasure_chest/treasure_chest_1k.gltf",
+      "whole": true,
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/treasure_chest/treasure_chest_arm_1k.jpg",
+          "path": "treasure_chest/textures/treasure_chest_arm_1k.jpg",
+          "sha256": "1f09896cfad5b2f80483ab440b732fb03e94a67c3b09eee4c864af7ad2c6cc12"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/treasure_chest/treasure_chest_diff_1k.jpg",
+          "path": "treasure_chest/textures/treasure_chest_diff_1k.jpg",
+          "sha256": "4a2ee3b53835e7d4a3e411863c7829f37df1221aeb1cd78d89e24239cf8bbd0b"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/treasure_chest/treasure_chest_nor_gl_1k.jpg",
+          "path": "treasure_chest/textures/treasure_chest_nor_gl_1k.jpg",
+          "sha256": "c86a694f7d40e46dfdd0293a5a9bae32061a8476132bbd679b63404cc1795b68"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/treasure_chest/treasure_chest.bin",
+          "path": "treasure_chest/treasure_chest.bin",
+          "sha256": "6e8fd5b5c641c3535bf26767fc7b0e7295c314d43613726da9679ee8cffecb03"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/treasure_chest/treasure_chest_1k.gltf",
+          "path": "treasure_chest/treasure_chest_1k.gltf",
+          "sha256": "5edb8df3a45d2709b9407102ba4dd63025adff401ed8eba939d0117a74dd8dd5"
+        }
+      ]
+    },
+    {
+      "id": "vintage_day_bed",
+      "name": "Vintage Day Bed",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/vintage_day_bed",
+      "authors": [
+        "Aron Łyczek"
+      ],
+      "license": "CC0-1.0",
+      "kind": "model",
+      "model": "vintage_day_bed/vintage_day_bed_1k.gltf",
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/vintage_day_bed/vintage_day_bed_arm_1k.jpg",
+          "path": "vintage_day_bed/textures/vintage_day_bed_arm_1k.jpg",
+          "sha256": "b60e71c345fc1d16396a94a133390b4cdde5c05a38ebaadf2f5dc96be2895b11"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/vintage_day_bed/vintage_day_bed_diff_1k.jpg",
+          "path": "vintage_day_bed/textures/vintage_day_bed_diff_1k.jpg",
+          "sha256": "78b7036a3254c780052b87ac962ac6ba212501821af03c56faa2d7a9ccb955ce"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/vintage_day_bed/vintage_day_bed_nor_gl_1k.jpg",
+          "path": "vintage_day_bed/textures/vintage_day_bed_nor_gl_1k.jpg",
+          "sha256": "2902f47f4778fce0667c2a1dbff7e2e861a0aed475668ea3fce8a485487598eb"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/vintage_day_bed/vintage_day_bed.bin",
+          "path": "vintage_day_bed/vintage_day_bed.bin",
+          "sha256": "08172858c3f9d4225780013e4e9afd01bb9db42e17001fc6c790a183227ecf07"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/vintage_day_bed/vintage_day_bed_1k.gltf",
+          "path": "vintage_day_bed/vintage_day_bed_1k.gltf",
+          "sha256": "fb255992b6e651de9709b17c083a14b405e99cbc26774b31bf252e38cf9287fb"
         }
       ]
     },
@@ -2022,6 +2498,45 @@
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/wooden_stool_01/wooden_stool_01_1k.gltf",
           "path": "wooden_stool_01/wooden_stool_01_1k.gltf",
           "sha256": "f28566454af27175839c10645a37a2a16b373e4be8aecddd0d8a3d704cfc0330"
+        }
+      ]
+    },
+    {
+      "id": "wooden_table_02",
+      "name": "Wooden Table 02",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/wooden_table_02",
+      "authors": [
+        "Serhii Khromov"
+      ],
+      "license": "CC0-1.0",
+      "kind": "model",
+      "model": "wooden_table_02/wooden_table_02_1k.gltf",
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_table_02/wooden_table_02_arm_1k.jpg",
+          "path": "wooden_table_02/textures/wooden_table_02_arm_1k.jpg",
+          "sha256": "b970a81e4b03f3b8a341c9eb639f112fff1782d681c846255ebc9073cd803ced"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_table_02/wooden_table_02_diff_1k.jpg",
+          "path": "wooden_table_02/textures/wooden_table_02_diff_1k.jpg",
+          "sha256": "2334ac3e23d69222322515d9bad066b4e90d7d81989fe231b8fb12f39179ad9e"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/wooden_table_02/wooden_table_02_nor_gl_1k.jpg",
+          "path": "wooden_table_02/textures/wooden_table_02_nor_gl_1k.jpg",
+          "sha256": "9470e08e5dab4ab6a7cafab2a488a50fb54fa8f38890e9032c39dcbf7f5846d2"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/wooden_table_02/wooden_table_02.bin",
+          "path": "wooden_table_02/wooden_table_02.bin",
+          "sha256": "52ed7cc67b3aa403375cf9bd18050e8cc21bcced6532a0183c1a733f0965df6d"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/wooden_table_02/wooden_table_02_1k.gltf",
+          "path": "wooden_table_02/wooden_table_02_1k.gltf",
+          "sha256": "bb38e301840cb629d72c43c83fdb7fb308518efe2d0bc01e1ed0e9a9e43ed9d3"
         }
       ]
     }

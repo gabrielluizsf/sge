@@ -79,6 +79,7 @@ func (f *farm) talkUpdate(dt float64, in dialogue.Input) {
 	}
 	b := f.talkBox()
 	b.Update(dt)
+	f.faceUpdate(dt)
 	ls := f.lines(f.talk.v)
 	b.Choices = b.Choices[:0]
 	for _, l := range ls {

@@ -29,6 +29,10 @@ type Game struct {
 	// collide, and only what is drawn turns. Objects of one Z are then
 	// drawn nearer over farther, by where they stand (Object.Footing).
 	Projection Projector
+	// Reveals, when set, tells each frame what to keep in sight in a
+	// projected world: tall tiles and Fades objects nearer than one of
+	// them, covering it, are drawn faded.
+	Reveals func() []Reveal
 	// Sound, when set, is the mixer Run plays to the speakers while the
 	// window is open: the world's sounds. Where there are no speakers the
 	// game runs in silence.
@@ -45,5 +49,6 @@ type Game struct {
 
 	viewW, viewH int
 	items        []item   // what Draw draws, reused every frame
+	covers       []Cover  // where the Reveals stand, for this frame
 	last, next   frameKey // of the frame Changed last answered true for, and of this one
 }

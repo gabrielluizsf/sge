@@ -6,8 +6,9 @@ import "github.com/gabrielluizsf/sge/random"
 // the walls, a window in the back one, invisible walls round the open
 // sides, the doormat, a rug, and the furniture: a bed, a shelf, a stove,
 // a table and a chair, a plant and a chest, each somewhere of its own as
-// seed falls.
-func roomLayout(seed uint32) (ground, things string) {
+// seed falls, over as many cells as span says it covers: those behind
+// and to the left of the one it is drawn from are blocks.
+func roomLayout(seed uint32, span func(piece byte) (cols, rows int)) (ground, things string) {
 	src := random.New(seed)
 	g := make([][]byte, roomRows)
 	t := make([][]byte, roomRows)
@@ -29,12 +30,12 @@ func roomLayout(seed uint32) (ground, things string) {
 	}
 	g[roomRows-1][matCol], t[roomRows-1][matCol] = 'm', ' '
 	t[0][2+src.Intn(4)] = 'W'
-	// The furniture, each on a free cell of the places it may stand.
+	// The furniture, each on free cells round one of the places it may
+	// stand.
 	put := func(ch byte, places [][2]int) {
+		cols, rows := span(ch)
 		for range 8 {
-			p := places[src.Intn(len(places))]
-			if t[p[1]][p[0]] == ' ' {
-				t[p[1]][p[0]] = ch
+			if fit(t, places[src.Intn(len(places))], cols, rows, ch) {
 				return
 			}
 		}

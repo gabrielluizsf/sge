@@ -31,7 +31,7 @@ func (l *Layout) reachOf(n int) int { return l.lead() + (n-1)*l.pitch() + l.lot(
 // west ones end that many cells from it, the east ones start one cell
 // nearer, the stall, anvil and forge being on the west side of it.
 func (l *Layout) lead() int {
-	return max(l.Lead, defaultLead)
+	return max(l.Lead, defaultLead) + max(l.Margin, 0)
 }
 
 // Lots is how many houses line a side of the street each way from the

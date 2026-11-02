@@ -15,7 +15,7 @@ const outside = "outside"
 // as it is, and the room is laid out with whoever of the house is in,
 // the player's family in their own, the player on the mat facing in.
 func (f *farm) enter(d houseDoor) {
-	r := newRoom(d)
+	r := newRoom(d, f.art)
 	name := fmt.Sprint("house ", d.at.Col, ",", d.at.Row)
 	f.stage.Switch(name, func(g *game.Game) {
 		g.Add(r.ground.Object)

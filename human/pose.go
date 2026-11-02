@@ -16,7 +16,7 @@ type Pose struct {
 	Abduct                  [2]float64
 	Shoulder, Raise, Elbow  [2]float64
 	Plane                   [2]float64
-	Bob                     float64
+	Bob, Forward            float64
 }
 
 // side is a side's suffix in MakeHuman's bone names, and which way out

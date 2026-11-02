@@ -58,13 +58,17 @@ func (a *realArt) treeTile(name string) *canvas.Canvas {
 // the tree's foot, on the diamond's middle, the frame as large as the
 // picture needs: the tile set places a larger picture by its own bottom
 // middle.
-func (b *baked) standing() *canvas.Canvas {
-	w := max(farm.TileW, 2*max(b.at.PivotX, b.cv.Width-b.at.PivotX))
-	h := max(farm.TileH, b.at.PivotY+farm.TileW/4)
+func (b *baked) standing() *canvas.Canvas { return b.standingOff(0, 0) }
+
+// standingOff is b standing as standing has it, its pivot dx across and
+// dy down from the diamond's middle.
+func (b *baked) standingOff(dx, dy int) *canvas.Canvas {
+	w := max(farm.TileW, 2*max(b.at.PivotX-dx, b.cv.Width-b.at.PivotX+dx))
+	h := max(farm.TileH, b.at.PivotY-dy+farm.TileW/4)
 	cv, err := canvas.NewCanvas(w, h)
 	if err != nil {
 		panic(err)
 	}
-	b.put(cv, [2]int{w / 2, h - farm.TileW/4})
+	b.put(cv, [2]int{w/2 + dx, h - farm.TileW/4 + dy})
 	return cv
 }

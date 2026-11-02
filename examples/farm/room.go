@@ -3,6 +3,7 @@ package farm
 import (
 	"fmt"
 
+	"github.com/gabrielluizsf/sge/examples/farm/art"
 	"github.com/gabrielluizsf/sge/tilemap"
 	"github.com/gabrielluizsf/sge/town"
 )
@@ -36,17 +37,19 @@ type houseDoor struct {
 }
 
 // newRoom lays out the inside of the house at door, its furniture placed
-// as its seed falls.
-func newRoom(d houseDoor) *room {
-	g, t := roomLayout(d.seed)
+// as its seed falls, each as large as a draws it.
+func newRoom(d houseDoor, a Art) *room {
+	g, t := roomLayout(d.seed, spanOf(a))
+	walls := d.kind % art.WallKinds
 	r := &room{door: d.at, faceOut: d.faceOut, own: d.own, kind: d.kind}
 	legend := map[rune]int{'.': tileID["floor"], 'm': tileID["mat"], 'r': tileID[fmt.Sprint("rug", d.seed%4)]}
 	r.ground = parseRoom("room floor", g, legend)
 	things := map[rune]int{
-		'C': tileID[fmt.Sprint("wall_nw", d.kind)], 'n': tileID[fmt.Sprint("wall_n", d.kind)],
-		'W': tileID[fmt.Sprint("wall_nwin", d.kind)], 'w': tileID[fmt.Sprint("wall_w", d.kind)],
-		'x': tileID["block"], 'b': tileID["bed"], 'B': tileID["bed_blue"], 't': tileID["table"], 'c': tileID["chair"],
-		's': tileID["shelf"], 'o': tileID["stove"], 'p': tileID["plant"], 'h': tileID["chest"],
+		'C': tileID[fmt.Sprint("wall_nw", walls)], 'n': tileID[fmt.Sprint("wall_n", walls)],
+		'W': tileID[fmt.Sprint("wall_nwin", walls)], 'w': tileID[fmt.Sprint("wall_w", walls)], 'x': tileID["block"],
+	}
+	for ch, name := range pieceNames {
+		things[rune(ch)] = tileID[name]
 	}
 	r.things = parseRoom("room things", t, things)
 	r.ground.Z, r.things.Z = zGround, zThings

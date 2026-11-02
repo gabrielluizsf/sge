@@ -30,7 +30,7 @@ func newWild(w world, farmSize [2]int) *terrain.World {
 	onFarm := func(c, r int) bool { return c >= 0 && r >= 0 && c < cols && r < rows }
 	edge := 2 // a look with trees grown large keeps them further off the farm's fence
 	if w.art.Reach() > 0 {
-		edge = 6
+		edge = 16
 	}
 	nearFarm := func(c, r int) bool { return c >= -edge && r >= -edge && c < cols+edge && r < rows+edge }
 	built := func(c, r, margin int) bool { return towns.Grounds(c, r, margin) || road(c, r, margin) }
@@ -71,7 +71,7 @@ func newWild(w world, farmSize [2]int) *terrain.World {
 	// larger than a cell spaces them wider.
 	thickGap, loneGap, keepOff := 1, 2, 1
 	if w.art.Reach() > 0 {
-		thickGap, loneGap, keepOff = 3, 4, 5
+		thickGap, loneGap, keepOff = 3, 4, 6
 	}
 	thick := terrain.Scatter(seed+3, 0.5, thickGap)
 	lone := terrain.Scatter(seed+4, 0.04, loneGap)

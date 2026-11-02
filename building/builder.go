@@ -99,5 +99,6 @@ func linear(v uint8) float64 {
 var materialNames = map[Material]string{
 	Plaster: "plaster", Brick: "brick", Stone: "stone", Planks: "planks", Timber: "timber",
 	Tiles: "tiles", Thatch: "thatch", Slates: "slates", Iron: "iron", Glass: "glass",
-	Water: "water", Soot: "soot", Canvas: "canvas", Flat: "paint",
+	Water: "water", Soot: "soot", Canvas: "canvas", Flat: "paint", Bark: "bark", Floorboards: "floorboards",
+	Hessian: "hessian", Check: "check", Plaid: "plaid", Jacquard: "jacquard", Linen: "linen",
 }

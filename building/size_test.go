@@ -30,6 +30,7 @@ func TestBuildingsAreLifeSize(t *testing.T) {
 	sizes := map[string][2]float64{ // the least and most height
 		"farmhouse": {5, 9}, "cottage": {5, 9}, "cabin": {4, 8}, "townhouse": {8, 13}, "brickhouse": {8, 13}, "sobrado": {7, 11},
 		"stall": {2.4, 2.8}, "smithy": {4.5, 5.2}, "anvil": {0.75, 0.9}, "well": {2.4, 3},
+		"forge": {2.9, 3.1}, "stump": {0.35, 0.45}, "stove": {2.3, 2.5},
 		"fence_straight": {1, 1.1}, "fence_corner": {1, 1.1}, "fence_end": {1, 1.1}, "bench": {0.4, 0.5}, "wheelbarrow": {0.6, 0.85},
 	}
 	for _, k := range All() {

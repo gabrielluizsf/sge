@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -68,7 +66,6 @@ func TestNoHUDPictureIsTheStylizedArts(t *testing.T) {
 // The credits name the font, MakeHuman, each Poly Haven asset with its
 // authors, each with the text of its licence.
 func TestTheCreditsNameEveryComponent(t *testing.T) {
-	t.Setenv("SGE_IMPORTS", t.TempDir()) // none of the user's own models
 	list := testArt(t).(farm.Credited).Credits()
 	var serif, human, haven int
 	for _, c := range list {
@@ -97,26 +94,10 @@ func TestTheCreditsNameEveryComponent(t *testing.T) {
 	}
 }
 
-// The user's Sketchfab models are credited from the licence files in their
-// own folder, read when asked for, and not at all where there is none.
-func TestSketchfabCreditsComeFromTheUsersFolder(t *testing.T) {
-	dir := t.TempDir()
-	t.Setenv("SGE_IMPORTS", dir)
-	if got := sketchfab(); len(got) != 0 {
-		t.Fatalf("credits with no folder: %v", got)
-	}
-	if err := os.MkdirAll(filepath.Join(dir, "water"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	text := "Model Information:\n* title:\tRealistic Water\n* source:\thttps://sketchfab.com/3d-models/x\n* author:\tNegitropic (https://sketchfab.com/negitropic)\n\nModel License:\n* license type:\tSKETCHFAB Standard\n"
-	if err := os.WriteFile(filepath.Join(dir, "water", licenceFile), []byte(text), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	got := sketchfab()
-	if len(got) != 1 || got[0].Name != "Sketchfab - Realistic Water" || !strings.HasPrefix(got[0].Author, "Negitropic") || got[0].URL != "https://sketchfab.com/3d-models/x" {
-		t.Fatalf("credits %+v", got)
-	}
-	if got[0].License() != text {
-		t.Error("the licence shown is not the file's text")
+// No bird of the stylized farm flies over the realistic one: until a
+// shippable model of one is pinned, its art draws no birds at all.
+func TestNoBirdIsTheStylizedArts(t *testing.T) {
+	if _, ok := testArt(t).(farm.BirdArt); ok {
+		t.Error("the realistic art draws birds with no model of its own")
 	}
 }

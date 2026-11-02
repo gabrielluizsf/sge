@@ -73,3 +73,16 @@ func TestBigTownsStayInTheirRegion(t *testing.T) {
 		}
 	}
 }
+
+// A Margin pushes the first houses further from the plaza's props.
+func TestMarginWidensTheLead(t *testing.T) {
+	l := bigLayout()
+	before := l.Reach()
+	l.Margin = 3
+	if l.Reach() != before+3 {
+		t.Fatalf("reach %d, want %d", l.Reach(), before+3)
+	}
+	if got := l.slots()[len(l.slots())/2].start; got != l.lead()-1 {
+		t.Fatalf("first east house starts %d, want %d", got, l.lead()-1)
+	}
+}

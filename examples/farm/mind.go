@@ -56,6 +56,9 @@ func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 		}
 		v.inside, o.Hidden = false, false
 	}
+	if f.talk != nil && f.talk.v == v {
+		return intent{face: faceTo(feet(o), f.player)} // listening, not walking off
+	}
 	if m.rest > 0 {
 		m.rest -= dt
 		return intent{}

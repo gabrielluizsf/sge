@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/farm/art"
 	"github.com/gabrielluizsf/sge/terrain"
 	"github.com/gabrielluizsf/sge/tilemap"
 )
@@ -102,8 +103,16 @@ func newTiles(a Art) *tilemap.TileSet {
 // all their tiles, the floors first: what stands on them is solid.
 var (
 	interiorFloors = []string{"floor", "mat", "rug0", "rug1", "rug2", "rug3"}
-	interiorNames  = append(append([]string{}, interiorFloors...),
-		"forge", "bed", "bed_blue", "table", "chair", "shelf", "stove", "plant", "chest",
-		"wall_n0", "wall_nwin0", "wall_w0", "wall_nw0", "wall_n1", "wall_nwin1", "wall_w1", "wall_nw1",
-		"wall_n2", "wall_nwin2", "wall_w2", "wall_nw2", "wall_n3", "wall_nwin3", "wall_w3", "wall_nw3")
+	interiorNames  = append(append(append([]string{}, interiorFloors...),
+		"forge", "bed", "bed_blue", "table", "chair", "shelf", "stove", "plant", "chest"), wallNames()...)
 )
+
+// wallNames are the back walls of each kind of house's inside: along a
+// cell's north edge, the same with a window, along its west, and both.
+func wallNames() []string {
+	var out []string
+	for k := range art.WallKinds {
+		out = append(out, fmt.Sprint("wall_n", k), fmt.Sprint("wall_nwin", k), fmt.Sprint("wall_w", k), fmt.Sprint("wall_nw", k))
+	}
+	return out
+}

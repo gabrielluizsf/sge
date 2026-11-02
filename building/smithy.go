@@ -1,7 +1,6 @@
 package building
 
 import (
-	"image/color"
 	"math"
 )
 
@@ -17,7 +16,7 @@ const smithyW, smithyD, smithyEaves = 2.5, 2, 2.7
 
 func smithy(b *builder) {
 	shed(b)
-	forge(b)
+	b.forge(hearth{x0: -smithyW + 0.1, x1: -smithyW + 1.5, z0: -smithyD + 0.1, z1: -smithyD + 1.15, top: 4.75})
 	trough(b, vec{0.1, 0, -1.55})
 	for i, l := range []float64{0.55, 0.42, 0.62} {
 		x := 0.9 + float64(i)*0.22
@@ -45,28 +44,6 @@ func shed(b *builder) {
 	p := pitched{w: 2 * smithyW, d: 2 * smithyD, eaves: e + 0.2, slope: math.Tan(32 * math.Pi / 180), over: 0.35}
 	b.gable(cover{p, paint{of: Tiles}})
 	b.gableEnds(cover{p, boards})
-}
-
-// forge is the smith's hearth of stone in the back left corner, its
-// coals glowing, and over it a hood narrowing into a chimney up through
-// the roof.
-func forge(b *builder) {
-	stone := paint{of: Stone}
-	x0, x1, z0, z1 := -smithyW+0.1, -smithyW+1.5, -smithyD+0.1, -smithyD+1.15
-	b.block(box{lo: vec{x0, 0, z0}, hi: vec{x1, 0.82, z1}, paint: stone})
-	b.block(box{lo: vec{x0 + 0.2, 0.82, z0 + 0.15}, hi: vec{x1 - 0.2, 0.86, z1 - 0.2}, paint: paint{of: Soot}})
-	glow := paint{of: Flat, tint: color.NRGBA{255, 112, 30, 255}}
-	for i, at := range [][2]float64{{0.45, 0.4}, {0.62, 0.55}, {0.8, 0.42}, {0.55, 0.7}, {0.9, 0.62}} {
-		r := 0.05 + 0.012*float64(i%2)
-		b.roll(ball{c: vec{x0 + at[0], 0.86, z0 + at[1]}, r: r, squash: 0.5, paint: glow})
-	}
-	cx, cz := (x0+x1)/2, (z0+z1)/2
-	b.raiseTaper(taper{at: vec{cx, 1.55, cz}, h: 0.9, base: [2]float64{(x1 - x0) / 2, (z1 - z0) / 2}, top: [2]float64{0.3, 0.28}, paint: stone})
-	b.block(box{lo: vec{cx - 0.3, 2.45, cz - 0.28}, hi: vec{cx + 0.3, 4.75, cz + 0.28}, paint: stone})
-	b.block(box{lo: vec{cx - 0.2, 4.6, cz - 0.18}, hi: vec{cx + 0.2, 4.755, cz + 0.18}, paint: paint{of: Soot}})
-	for _, x := range []float64{x0 + 0.05, x1 - 0.05} {
-		b.block(box{lo: vec{x - 0.05, 0.82, z0}, hi: vec{x + 0.05, 1.55, z0 + 0.12}, paint: stone})
-	}
 }
 
 // trough is a quenching trough of boards, full of water, its foot's

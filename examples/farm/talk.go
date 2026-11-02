@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/dialogue"
+import (
+	"github.com/gabrielluizsf/sge/dialogue"
+	"github.com/gabrielluizsf/sge/face"
+)
 
 // talk is a conversation with a villager: the choice on its menu.
 type talk struct {
@@ -8,6 +11,9 @@ type talk struct {
 	choice int
 	// box is the dialogue box the conversation is shown in.
 	box *dialogue.Box
+	// blink and mouth are the speaker's face, alive while they talk.
+	blink *face.Blinker
+	mouth face.Speaker
 }
 
 // line is a choice in a conversation: its words, and what choosing it

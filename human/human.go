@@ -31,6 +31,7 @@ type Kit struct {
 	infl     [][]influence
 	targets  map[string]target
 	pictures map[string]*image.NRGBA
+	faces    faceUnits // read when first needed
 }
 
 // The files of a Kit, in MakeHuman's data folder.

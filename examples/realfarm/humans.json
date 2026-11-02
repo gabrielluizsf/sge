@@ -18,6 +18,16 @@
       "sha256": "0f3641d651ae3d00ad6b4ccee43142edb109d3bd909d27d9e4139ef1beed8625"
     },
     {
+      "url": "https://raw.githubusercontent.com/makehumancommunity/makehuman/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data/poseunits/face-poseunits.json",
+      "path": "makehuman/data/poseunits/face-poseunits.json",
+      "sha256": "e7224f76e9610049b79e5f9e8ac2985d1e9a367333395c07537919258cb42cc3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/makehumancommunity/makehuman/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data/poseunits/face-poseunits.bvh",
+      "path": "makehuman/data/poseunits/face-poseunits.bvh",
+      "sha256": "42a8e69692e30010371ee6993a6e5d3b468d35065559ec0953c936e31b8d903f"
+    },
+    {
       "url": "https://raw.githubusercontent.com/makehumancommunity/makehuman/a8bc2d54ff0ac92e78ff71431b1023eda42bf482/makehuman/data/targets/macrodetails/african-female-baby.target",
       "path": "makehuman/data/targets/macrodetails/african-female-baby.target",
       "sha256": "b1d4b5c76c73107b8f433bba6e224addf9da542287612868a02109d0f5a1c235"

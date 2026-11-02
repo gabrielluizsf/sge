@@ -39,6 +39,10 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	g.Add(menus)
 	o, p := newFarmer(f, ctl)
 	f.player, f.hands = o, p
+	g.Reveals = f.reveals
+	if bs := newBirds(f); bs != nil {
+		w.AddScript(bs)
+	}
 	o.Transform.Position = standIn(f, where.spawn.Col, where.spawn.Row)
 	g.Add(o)
 	homeDoor = where.door
@@ -63,6 +67,6 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	h.AddScript(&hud{f: f, farmer: o, p: p})
 	g.Add(h)
 	kept := map[*game.Object]bool{w: true, menus: true, o: true, night: true, h: true}
-	f.stage = &scene.Stage{Game: g, Current: outside, Keep: func(o *game.Object) bool { return kept[o] || o.Name == "ambience" }}
+	f.stage = &scene.Stage{Game: g, Current: outside, Keep: func(o *game.Object) bool { return kept[o] || o.Name == "ambience" || o.Name == "bird" }}
 	return g, f
 }

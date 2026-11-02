@@ -21,6 +21,7 @@ func (f *farm) newHouse(kind int, corner town.Cell, front bool) *game.Object {
 	o := game.NewObject("house")
 	o.Z = zThings
 	o.Sprite = f.art.Building(spriteName("house", kind, front))
+	o.Fades = true
 	cols, rows := f.art.Footprint(spriteName("house", kind, true))
 	o.Transform.Position = rect{corner.Col, corner.Row, cols, rows}.middle()
 	return o

@@ -20,8 +20,12 @@ type Layout struct {
 	Gap int
 	// Lead is how many cells of plaza the first houses keep from its
 	// middle, at least four.
-	Lead  int
-	Fixed map[Cell]Cell
-	Skip  func(rx, ry int) bool
-	towns map[int]*Town // by region key; nil where there is none
+	Lead int
+	// Margin is how many cells more the houses keep from the plaza's
+	// props, the stall, the forge and the well, whose pictures stand
+	// taller than their cells: it widens the Lead.
+	Margin int
+	Fixed  map[Cell]Cell
+	Skip   func(rx, ry int) bool
+	towns  map[int]*Town // by region key; nil where there is none
 }

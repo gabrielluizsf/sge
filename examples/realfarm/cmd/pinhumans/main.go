@@ -28,8 +28,8 @@ import (
 var packs = []string{"makehuman_system_assets", "shirts01", "pants01", "shoes01", "skirts01", "dress01"}
 
 // data are the data files a kit reads: the base mesh, skeleton and
-// weights, and the macro targets.
-var data = []string{"3dobjs/base.obj", "rigs/default.mhskel", "rigs/default_weights.mhw", "targets/macrodetails"}
+// weights, the face's pose units, and the macro targets.
+var data = []string{"3dobjs/base.obj", "rigs/default.mhskel", "rigs/default_weights.mhw", "poseunits/face-poseunits.bvh", "poseunits/face-poseunits.json", "targets/macrodetails"}
 
 func main() {
 	dir := flag.String("data", "", "MakeHuman's data folder, of its repository at the commit")

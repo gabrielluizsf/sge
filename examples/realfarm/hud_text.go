@@ -32,11 +32,17 @@ func (a *realArt) Text(s string, ink rune) *canvas.Canvas {
 	if cv, ok := a.hud[key]; ok {
 		return cv
 	}
+	cv := serifText(s, ink)
+	a.hud[key] = cv
+	return cv
+}
+
+// serifText is s in Source Serif, in the palette's ink, uncached: outlined
+// round, but for what is on a panel.
+func serifText(s string, ink rune) *canvas.Canvas {
 	st := label.Style{Ink: hudInks[ink]}
 	if ink != 'k' {
 		st.Outline, st.Width = hudOutline, hudOutlineWidth
 	}
-	cv := label.New(hudFace, s, st)
-	a.hud[key] = cv
-	return cv
+	return label.New(hudFace, s, st)
 }

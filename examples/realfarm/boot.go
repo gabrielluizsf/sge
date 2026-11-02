@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gabrielluizsf/antui/canvas"
-	"github.com/gabrielluizsf/sge/examples/farm"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/loader"
@@ -34,12 +33,11 @@ func boot(b *bakes.Baker, tasks []bakes.Task) error {
 			return nil, err
 		}}, 0)
 	}
-	hud := farm.SVGArt()
 	g := game.New()
 	screen := &loader.Screen{Loader: &l, Group: bootGroup,
 		Back: canvas.RGB(20, 24, 22), Track: canvas.RGB(52, 60, 54), Fill: canvas.RGB(150, 200, 110),
 		Label: func(done, asked int) *canvas.Canvas {
-			return hud.Text(fmt.Sprintf("Preparando o mundo %d/%d - %s", done, asked, current), 'w')
+			return bootLabel(done, asked, current)
 		}}
 	o := game.NewObject("boot")
 	o.Screen = true
@@ -63,4 +61,11 @@ func boot(b *bakes.Baker, tasks []bakes.Task) error {
 		return fmt.Errorf("closed while the world was being prepared")
 	}
 	return b.Shelf.Save()
+}
+
+// bootLabel is the loading screen's line: how many of the tasks asked are
+// done and which one is baking, in the HUD's own serif, never the
+// stylized farm's face.
+func bootLabel(done, asked int, current string) *canvas.Canvas {
+	return serifText(fmt.Sprintf("Preparando o mundo %d/%d - %s", done, asked, current), 'w')
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gabrielluizsf/sge/building"
-	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 	"github.com/gabrielluizsf/sge/sprite"
 )
 
@@ -15,13 +14,13 @@ const (
 	backHeading  = 2
 )
 
-// Building is the stall or the house called name, baked; a plain sprite
-// of the stylized art's while the baker has not made it.
+// Building is the stall or the house called name, baked; blank while the
+// baker has not made it.
 func (a *realArt) Building(name string) *sprite.Sprite {
 	id, heading := buildingOf(name)
-	b, ok := a.first(bakes.ImportName(id, heading), fmt.Sprintf("building_%s_%d", id, heading))
+	b, ok := a.bake(fmt.Sprintf("building_%s_%d", id, heading))
 	if !ok {
-		return a.Art.Building(name)
+		return &sprite.Sprite{Image: newFrame(), PivotX: 0.5, PivotY: 1}
 	}
 	dx, dy := a.pivotShift(name, heading)
 	return &sprite.Sprite{Image: b.cv, PivotX: (float64(b.at.PivotX) + dx) / float64(b.at.W), PivotY: (float64(b.at.PivotY) + dy) / float64(b.at.H)}

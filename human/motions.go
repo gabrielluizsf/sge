@@ -75,4 +75,4 @@ var Motions = []Motion{Stand, Walk, Chop, Hoe, Swim, Tread, Dive, Rise}
 
 // MotionsVersion changes whenever a motion does, so what was baked of the
 // old ones is baked again.
-const MotionsVersion = 2
+const MotionsVersion = 3

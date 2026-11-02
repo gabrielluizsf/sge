@@ -1,10 +1,6 @@
 package bake
 
-import (
-	"image/color"
-
-	"github.com/gabrielluizsf/sge/gltf"
-)
+import "github.com/gabrielluizsf/sge/gltf"
 
 // Patch is a cell of ground of a tiling material, Material of a model:
 // Span cells its texture spans across and down, and which of those cells,
@@ -43,15 +39,6 @@ func Ground(m *gltf.Model, p Patch, o Options) Sprite {
 	// The cell's far corner at the origin, so a map stands the tile on it;
 	// turned so its sides run along the game's rows and columns.
 	s := Render(cell, Shot{Yaw: 225}, o)
-	b := s.Image.Bounds()
-	for y := range b.Dy() {
-		for x := range b.Dx() {
-			if c := s.Image.NRGBAAt(x, y); c.A >= 96 {
-				s.Image.SetNRGBA(x, y, color.NRGBA{c.R, c.G, c.B, 255})
-			} else {
-				s.Image.SetNRGBA(x, y, color.NRGBA{})
-			}
-		}
-	}
+	Opaque(s)
 	return s
 }

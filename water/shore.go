@@ -19,7 +19,10 @@ type Shore struct {
 	Surface  *Surface
 	Normals  *image.NRGBA
 	Ground   *image.NRGBA
-	Phase    float64
+	// Bed, when set, is the picture of the bed under the water, seen
+	// through it, in place of the ground's colour.
+	Bed   *image.NRGBA
+	Phase float64
 }
 
 // Span is how many cells across the world's waves and shoreline repeat.
@@ -101,6 +104,9 @@ func (s *Shore) water(p spot, x float64) [3]float64 {
 	lace := 0.45 + 0.55*noise([2]float64{p.wu, p.wv}, 28, 14)
 	foam := math.Min(1, (1-smooth(0, reachNow, x))*lace*1.25)
 	bed := [3]float64{p.ground[0] * 0.75, p.ground[1] * 0.75, p.ground[2] * 0.75}
+	if s.Bed != nil {
+		bed = bedAt(s.Bed, p.wu, p.wv)
+	}
 	return sf.Shade(Look{Normal: n, Depth: depth, Bed: bed, Foam: foam})
 }
 

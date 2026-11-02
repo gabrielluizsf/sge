@@ -10,21 +10,28 @@ type Material int
 
 // The materials buildings are made of.
 const (
-	Plaster   Material = iota // rendered walls, painted
-	Brick                     // brick walls and chimneys
-	Stone                     // stone walls, plinths, wells and forges
-	Planks                    // boarded walls, doors, shutters, counters
-	Timber                    // posts, beams and rails, rough sawn
-	Tiles                     // clay roof tiles
-	Thatch                    // reed thatch
-	Slates                    // slate roof
-	Iron                      // wrought iron: anvils, hinges, hoops
-	Glass                     // window panes
-	Water                     // a well's or trough's water
-	Soot                      // a chimney's flue, a forge's coals
-	Canvas                    // a stall's striped awning
-	Flat                      // a plain colour, as a paint's tint says
-	materials                 // how many there are
+	Plaster     Material = iota // rendered walls, painted
+	Brick                       // brick walls and chimneys
+	Stone                       // stone walls, plinths, wells and forges
+	Planks                      // boarded walls, doors, shutters, counters
+	Timber                      // posts, beams and rails, rough sawn
+	Tiles                       // clay roof tiles
+	Thatch                      // reed thatch
+	Slates                      // slate roof
+	Iron                        // wrought iron: anvils, hinges, hoops
+	Glass                       // window panes
+	Water                       // a well's or trough's water
+	Soot                        // a chimney's flue, a forge's coals
+	Canvas                      // a stall's striped awning
+	Flat                        // a plain colour, as a paint's tint says
+	Floorboards                 // a house's floor inside
+	Bark                        // a felled tree's bark: stumps
+	Hessian                     // coarse jute: doormats
+	Check                       // woven checked cloth: rugs
+	Plaid                       // a woollen plaid: rugs
+	Jacquard                    // a figured weave: rugs
+	Linen                       // plain linen: rugs
+	materials                   // how many there are
 )
 
 // Surface is how a material looks: a PBR texture set, as Poly Haven's
@@ -77,17 +84,24 @@ func canvas() Surface {
 
 // plain are the materials' plain colours, and how rough each is.
 var plain = map[Material]Surface{
-	Plaster: {Span: 1, Color: color.NRGBA{226, 218, 200, 255}, Roughness: 0.9},
-	Brick:   {Span: 1, Color: color.NRGBA{150, 72, 52, 255}, Roughness: 0.85},
-	Stone:   {Span: 1, Color: color.NRGBA{138, 132, 120, 255}, Roughness: 0.9},
-	Planks:  {Span: 1, Color: color.NRGBA{120, 92, 64, 255}, Roughness: 0.8},
-	Timber:  {Span: 1, Color: color.NRGBA{92, 68, 46, 255}, Roughness: 0.85},
-	Tiles:   {Span: 1, Color: color.NRGBA{170, 82, 50, 255}, Roughness: 0.7},
-	Thatch:  {Span: 1, Color: color.NRGBA{170, 140, 88, 255}, Roughness: 0.95},
-	Slates:  {Span: 1, Color: color.NRGBA{78, 82, 90, 255}, Roughness: 0.6},
-	Iron:    {Span: 1, Color: color.NRGBA{58, 58, 62, 255}, Roughness: 0.45, Metallic: 1},
-	Glass:   {Span: 1, Color: color.NRGBA{40, 52, 60, 255}, Roughness: 0.08},
-	Water:   {Span: 1, Color: color.NRGBA{22, 34, 36, 255}, Roughness: 0.05},
-	Soot:    {Span: 1, Color: color.NRGBA{30, 27, 25, 255}, Roughness: 1},
-	Flat:    {Span: 1, Color: color.NRGBA{255, 255, 255, 255}, Roughness: 0.7},
+	Plaster:     {Span: 1, Color: color.NRGBA{226, 218, 200, 255}, Roughness: 0.9},
+	Brick:       {Span: 1, Color: color.NRGBA{150, 72, 52, 255}, Roughness: 0.85},
+	Stone:       {Span: 1, Color: color.NRGBA{138, 132, 120, 255}, Roughness: 0.9},
+	Planks:      {Span: 1, Color: color.NRGBA{120, 92, 64, 255}, Roughness: 0.8},
+	Timber:      {Span: 1, Color: color.NRGBA{92, 68, 46, 255}, Roughness: 0.85},
+	Tiles:       {Span: 1, Color: color.NRGBA{170, 82, 50, 255}, Roughness: 0.7},
+	Thatch:      {Span: 1, Color: color.NRGBA{170, 140, 88, 255}, Roughness: 0.95},
+	Slates:      {Span: 1, Color: color.NRGBA{78, 82, 90, 255}, Roughness: 0.6},
+	Iron:        {Span: 1, Color: color.NRGBA{58, 58, 62, 255}, Roughness: 0.45, Metallic: 1},
+	Glass:       {Span: 1, Color: color.NRGBA{40, 52, 60, 255}, Roughness: 0.08},
+	Water:       {Span: 1, Color: color.NRGBA{22, 34, 36, 255}, Roughness: 0.05},
+	Soot:        {Span: 1, Color: color.NRGBA{30, 27, 25, 255}, Roughness: 1},
+	Flat:        {Span: 1, Color: color.NRGBA{255, 255, 255, 255}, Roughness: 0.7},
+	Floorboards: {Span: 1, Color: color.NRGBA{150, 112, 74, 255}, Roughness: 0.8},
+	Bark:        {Span: 1, Color: color.NRGBA{84, 70, 58, 255}, Roughness: 0.95},
+	Hessian:     {Span: 1, Color: color.NRGBA{168, 140, 98, 255}, Roughness: 1},
+	Check:       {Span: 1, Color: color.NRGBA{150, 48, 44, 255}, Roughness: 1},
+	Plaid:       {Span: 1, Color: color.NRGBA{70, 120, 100, 255}, Roughness: 1},
+	Jacquard:    {Span: 1, Color: color.NRGBA{140, 36, 40, 255}, Roughness: 1},
+	Linen:       {Span: 1, Color: color.NRGBA{120, 150, 190, 255}, Roughness: 1},
 }

@@ -173,6 +173,11 @@ func forgeTile() string {
 	})
 }
 
+// WallKinds is how many kinds of house the insides have walls for: as
+// many as the realistic look has houses; the stylized look's four
+// colours repeat past their own.
+const WallKinds = 6
+
 // Interior is every tile of the houses' insides, by name: the floors,
 // each kind of house's walls, and the furniture.
 func Interior() map[string]string {
@@ -185,8 +190,8 @@ func Interior() map[string]string {
 	for i, c := range Shirts[:4] {
 		s[fmt.Sprint("rug", i)] = rugTile(c)
 	}
-	for k, st := range houseStyles {
-		walls := st.walls
+	for k := range WallKinds {
+		walls := houseStyles[k%len(houseStyles)].walls
 		s[fmt.Sprint("wall_n", k)] = wallTile(walls, "north", false)
 		s[fmt.Sprint("wall_nwin", k)] = wallTile(walls, "north", true)
 		s[fmt.Sprint("wall_w", k)] = wallTile(walls, "west", false)

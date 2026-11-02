@@ -107,3 +107,14 @@ func armed(t *testing.T) *gltf.Model {
 	}
 	return m
 }
+
+// TestDiveTravelsForward keeps the leap: the root moves ahead of where it began.
+func TestDiveTravelsForward(t *testing.T) {
+	far := 0.0
+	for _, p := range Dive.Poses {
+		far = max(far, p.Forward)
+	}
+	if far < 1.4 {
+		t.Fatalf("dive travels %.2f m, want about 1.5", far)
+	}
+}

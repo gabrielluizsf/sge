@@ -22,7 +22,7 @@ func newTowns(a Art) *town.Layout {
 		Fixed: map[town.Cell]town.Cell{{Col: 1, Row: 0}: {Col: 58, Row: pathRow}, {Col: -1, Row: 0}: {Col: -22, Row: pathRow}},
 		Skip:  func(rx, ry int) bool { return rx == 0 && ry == 0 }}
 	if cols, _ := a.Footprint("house0"); cols > 2 { // houses with room between and around the plaza
-		l.Gap, l.Lead = 3, 7
+		l.Gap, l.Lead, l.Margin = 3, 7, 3
 	}
 	return l
 }

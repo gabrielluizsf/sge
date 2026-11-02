@@ -18,6 +18,7 @@ func (g *Game) Draw(cv *canvas.Canvas) {
 		cv.Clear(g.Background)
 	}
 	g.items = g.items[:0]
+	g.findCovers()
 	for _, o := range g.Objects() {
 		if !o.Hidden {
 			g.collect(o)
@@ -64,7 +65,9 @@ func (g *Game) drawObject(o *Object, cv *canvas.Canvas) {
 	if !o.Screen {
 		t.Position = g.ToScreen(t.Position)
 	}
-	o.Look().Draw(cv, t)
+	if !(o.Fades && g.fadeObject(o, t, cv)) {
+		o.Look().Draw(cv, t)
+	}
 	for _, s := range o.scripts {
 		if p, ok := s.(Painter); ok {
 			p.Paint(o, cv)

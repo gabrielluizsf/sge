@@ -25,9 +25,7 @@ func (a *realArt) buildingTile(id string) *canvas.Canvas {
 	if !ok {
 		return nil
 	}
-	cv := newFrame()
-	b.put(cv, centreAt)
-	return cv
+	return b.standing() // a forge's chimney stands taller than a tile
 }
 
 // cropStages are the stage of the crop that grows each of the farm's

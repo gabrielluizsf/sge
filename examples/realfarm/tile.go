@@ -8,13 +8,13 @@ import (
 	"github.com/gabrielluizsf/sge/examples/farm/art"
 )
 
-// Tile is the tile name drawn from baked sprites where there are some,
-// and the stylized art's where there are none.
+// Tile is the tile name drawn from baked sprites, blank while they are
+// not baked.
 func (a *realArt) Tile(name string) *canvas.Canvas {
 	if cv := a.tile(name); cv != nil {
 		return cv
 	}
-	return a.Art.Tile(name)
+	return newFrame()
 }
 
 // tile is the baked picture of the tile name, nil when it is not baked or
@@ -48,12 +48,12 @@ func (a *realArt) tile(name string) *canvas.Canvas {
 		return a.wetSoilTile()
 	case "block": // what stands on a building's cells: they show its picture, not a rock
 		return newFrame()
-	case "anvil":
-		return a.buildingTile("anvil")
+	case "anvil", "forge", "stump", "stove":
+		return a.buildingTile(name)
 	case "fence":
 		return a.buildingTile("fence_straight")
 	}
-	return nil
+	return a.insideTile(name)
 }
 
 // splitNumber is name without the digits it ends in, and those digits as
