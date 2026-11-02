@@ -27,6 +27,9 @@ func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
 		h.cursor(cv)
 	}
 	h.bubbles(cv)
+	if !menu {
+		h.cropLabel(cv)
+	}
 	for _, w := range h.f.floats {
 		t := h.text(w.text, w.ink)
 		at := o.Game().ToScreen(w.at)
