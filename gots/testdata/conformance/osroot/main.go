@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -78,6 +79,21 @@ func main() {
 	fmt.Println("remove an absolute name refused:", root.Remove("/abs.txt") != nil)
 	_, err = os.Stat(filepath.Join(inside, "abs.txt"))
 	fmt.Println("its namesake inside kept:", err == nil)
+	fsys := root.FS()
+	b, err := fs.ReadFile(fsys, "a.txt")
+	fmt.Println("fs read:", len(b), err == nil)
+	_, err = fs.ReadFile(fsys, "../a.txt")
+	fmt.Println("fs climb refused:", errors.Is(err, fs.ErrInvalid))
+	_, err = fsys.Open("/a.txt")
+	fmt.Println("fs absolute refused:", errors.Is(err, fs.ErrInvalid))
+	st, err := fs.Stat(fsys, "a.txt")
+	fmt.Println("fs stat:", err == nil && st.Name() == "a.txt")
+	ff, err := fsys.Open("a.txt")
+	if err == nil {
+		got, _ := io.ReadAll(ff)
+		ff.Close()
+		fmt.Println("fs open and read:", len(got) == len(b))
+	}
 	root.Close()
 	_, err = root.Open("a.txt")
 	fmt.Println("closed refused:", err != nil)

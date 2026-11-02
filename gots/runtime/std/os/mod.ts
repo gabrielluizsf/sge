@@ -766,6 +766,35 @@ export class Root extends $.Native {
     if (err !== null) return [null, err];
     return newRoot(go(path), go(js(this.name) + "/" + js(name)));
   }
+
+  // FS is the root as an fs.FS, as Go's Root.FS: names as fs.ValidPath
+  // has them, opened inside the root.
+  FS(): RootFS {
+    const f = new RootFS();
+    f.root = this;
+    return f;
+  }
+}
+
+// RootFS is a Root as an fs.FS: an fs.StatFS and an fs.ReadFileFS too. A
+// name fs.ValidPath refuses is an fs.ErrInvalid, as in Go.
+export class RootFS extends $.Native {
+  root: Root | null = null;
+
+  Open(name: string): [File | null, any] {
+    if (!fs.ValidPath(name)) return [null, new fs.PathError("open", name, fs.ErrInvalid)];
+    return this.root!.Open(name);
+  }
+
+  Stat(name: string): [any, any] {
+    if (!fs.ValidPath(name)) return [null, new fs.PathError("stat", name, fs.ErrInvalid)];
+    return this.root!.Stat(name);
+  }
+
+  ReadFile(name: string): [$.Slice<number> | null, any] {
+    if (!fs.ValidPath(name)) return [null, new fs.PathError("readfile", name, fs.ErrInvalid)];
+    return this.root!.ReadFile(name);
+  }
 }
 
 // escapes is Go's error for a name that leaves its root.
