@@ -42,7 +42,7 @@ func (f *farm) settle(t *town.Town) {
 	trades := []string{roleFarmer, roleFarmer, roleWanderer, roleLumberjack}
 	for i := range t.Houses {
 		h := &t.Houses[i]
-		f.plots = append(f.plots, &plot{col: h.Garden.Col, row: h.Garden.Row, crop: -1})
+		f.plots = append(f.plots, &plot{col: h.Garden.Col, row: h.Garden.Row, crop: -1, town: t})
 		switch i {
 		case 0:
 			smithHome = h

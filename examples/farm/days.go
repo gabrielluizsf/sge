@@ -9,10 +9,12 @@ func (f *farm) days() {
 	}
 }
 
-// newDay is the morning of day: the engaged wed, children due are born,
-// couples in the towns may decide on one, everyone is a day older, and
-// those whose time is up die, the player too, an heir taking over.
+// newDay is the morning of day: the crops grow or wither, the engaged
+// wed, children due are born, couples in the towns may decide on one,
+// everyone is a day older, and those whose time is up die, the player
+// too, an heir taking over.
 func (f *farm) newDay(day int) {
+	f.growCrops()
 	f.weddings(day)
 	f.births(day)
 	f.townBirths(day)

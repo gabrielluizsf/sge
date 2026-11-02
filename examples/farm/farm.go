@@ -14,13 +14,13 @@ import (
 	"github.com/gabrielluizsf/sge/town"
 )
 
-// The hands: a slot of the hotbar holds seeds of a crop, the watering
-// can, or the axe.
+// The hands: a slot of the hotbar holds seeds, of the crop chosen, the watering
+// can, the axe or the hoe.
 const (
-	slotCarrot = iota
-	slotTomato
+	slotSeeds = iota
 	slotCan
 	slotAxe
+	slotHoe
 	slots
 )
 

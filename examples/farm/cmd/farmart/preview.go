@@ -8,18 +8,29 @@ import (
 const scale = 5
 
 // rows are the preview's lines of sprites, each an animation or a group.
-var rows = [][]string{
+var rows = append(fixedRows, cropRows()...)
+
+var fixedRows = [][]string{
 	{"grass0", "grass1", "grass2", "grass3", "flowers0", "flowers1", "flowers2", "flowers3"},
 	{"path", "soil_dry", "soil_wet", "fence", "tree0", "tree1", "tree2", "tree3"},
-	{"carrot0", "carrot1", "carrot2", "carrot3", "carrot4", "tomato0", "tomato1", "tomato2", "tomato3", "tomato4"},
 	{"farmer_down", "farmer_down1", "farmer_down", "farmer_down2", "farmer_downAct", "farmer_up", "farmer_up1", "farmer_up", "farmer_up2", "farmer_upAct"},
 	{"farmer_right", "farmer_right1", "farmer_right", "farmer_right2", "farmer_rightAct", "farmer_left", "farmer_left1", "farmer_left", "farmer_left2", "farmer_leftAct"},
 	{"farmer_downSwim", "farmer_downSwim1", "farmer_upSwim", "farmer_upSwim1", "farmer_rightSwim", "farmer_rightSwim1", "farmer_leftSwim", "farmer_leftSwim1"},
-	{"icon_coin", "icon_carrotSeeds", "icon_tomatoSeeds", "icon_can", "icon_carrot", "icon_tomato", "cursor", "stall"},
+	{"icon_coin", "icon_can", "icon_hoe", "withered", "cursor", "stall"},
 	{"farmer_downChop", "farmer_downChop1", "farmer_upChop", "farmer_upChop1", "farmer_rightChop", "farmer_rightChop1", "farmer_leftChop", "farmer_leftChop1", "stump", "anvil"},
 	{"icon_wood", "icon_bubble", "forge", "floor", "mat", "rug0", "rug1", "wall_nw0", "wall_nwin1", "wall_w2"},
 	{"bed", "bed_blue", "table", "chair", "shelf", "stove", "plant", "chest", "wall_n3", "wall_nwin3"},
 	{"icon_axe_stone", "icon_axe_iron", "icon_axe_gold", "icon_axe_diamond"},
+}
+
+// cropRows are the crops, a row of each in its five pictures, and their
+// seed packets and harvests.
+func cropRows() [][]string {
+	var out [][]string
+	for _, c := range art.CropNames {
+		out = append(out, []string{c + "0", c + "1", c + "2", c + "3", c + "4", "icon_" + c + "Seeds", "icon_" + c})
+	}
+	return out
 }
 
 // testMap is a small farm laid out in tiles, to see them meet.

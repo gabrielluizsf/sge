@@ -63,3 +63,14 @@ func (a *realArt) cropTile(crop string, k int) *canvas.Canvas {
 	}
 	return cv
 }
+
+// witheredTile is the plant that went a day dry, standing on the cell.
+func (a *realArt) witheredTile() *canvas.Canvas {
+	b, ok := a.bake("crop_withered_s0_0")
+	if !ok {
+		return nil
+	}
+	cv := newFrame()
+	b.put(cv, centreAt)
+	return cv
+}

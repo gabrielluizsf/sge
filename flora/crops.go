@@ -150,4 +150,5 @@ var Pumpkin = Crop{Name: "pumpkin", Stages: 5,
 	}}
 
 // Crops are every crop flora grows.
-var Crops = []Crop{Carrot, Lettuce, Tomato, Corn, Wheat, Pumpkin}
+var Crops = []Crop{Carrot, Lettuce, Potato, Tomato, Beans, Corn, Wheat, Pumpkin, Cassava, Strawberry, Watermelon, Pepper,
+	Sugarcane, Sunflower, Coffee, Withered}

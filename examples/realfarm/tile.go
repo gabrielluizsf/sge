@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/farm/art"
 )
 
 // Tile is the tile name drawn from baked sprites where there are some,
@@ -31,10 +32,13 @@ func (a *realArt) tile(name string) *canvas.Canvas {
 		return a.flowersTile(k)
 	case "tree":
 		return a.treeTile(k)
-	case "carrot", "tomato":
+	}
+	if contains(art.CropNames, base) {
 		return a.cropTile(base, k)
 	}
 	switch name {
+	case "withered":
+		return a.witheredTile()
 	case "path":
 		return a.groundTile(pathGround, 0)
 	case "soil_dry":

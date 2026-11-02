@@ -31,7 +31,7 @@ func (s *Session) Play(d Demo) (*canvas.Canvas, error) {
 // seeds and how many plots have a crop on them.
 func (s *Session) Report() string {
 	f := s.f
-	return fmt.Sprintf("money: %d, sold: %d, seeds: [%d %d], growing: %d", f.money, f.sold, f.bag.Count(seedsOf(0)), f.bag.Count(seedsOf(1)), growing(f))
+	return fmt.Sprintf("money: %d, sold: %d, seeds: %d, growing: %d", f.money, f.sold, seedCount(f.kit), growing(f))
 }
 
 // Shot draws the game on cv and writes it to the PNG file path.
@@ -47,6 +47,15 @@ func growing(f *farm) int {
 		if p.crop >= 0 {
 			n++
 		}
+	}
+	return n
+}
+
+// seedCount is how many packets of seeds k has, of any crop.
+func seedCount(k *kit) int {
+	n := 0
+	for c := range crops {
+		n += k.bag.Count(seedsOf(c))
 	}
 	return n
 }

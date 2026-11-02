@@ -7,16 +7,19 @@ package art
 func Icons() map[string]string {
 	m := map[string]string{
 		"coin":        coinIcon(),
-		"carrotSeeds": packetIcon(orange, leafBase),
-		"tomatoSeeds": packetIcon(red, leafBase),
 		"can":         canIcon(),
-		"carrot":      carrotIcon(),
-		"tomato":      tomatoIcon(),
+		"hoe":         hoeIcon(),
 		"wood":        woodIcon(),
 		"bubble":      bubbleIcon(),
 		"heart":       heartIcon(true),
 		"heart_empty": heartIcon(false),
 	}
+	for name, c := range cropIcons {
+		m[name+"Seeds"] = packetIcon(c[0], c[1])
+		m[name] = harvestIcon(c)
+	}
+	m["carrot"], m["tomato"] = carrotIcon(), tomatoIcon()
+	m["carrotSeeds"], m["tomatoSeeds"] = packetIcon(orange, leafBase), packetIcon(red, leafBase)
 	for name, head := range Axes {
 		m["axe_"+name] = axeIcon(head)
 	}

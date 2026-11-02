@@ -12,7 +12,7 @@ func TestThePlayerSleepsAtNight(t *testing.T) {
 		t.Fatal("slept in the morning")
 	}
 	f.clock.Hour = 21
-	if !f.sleep() || f.clock.Day != 1 || f.clock.Hour != wakeAt || p.stage != 1 || p.watered {
+	if !f.sleep() || f.clock.Day != 1 || f.clock.Hour != wakeAt || p.stage != stageOf(crops[0], 1) || p.days != 1 || p.watered {
 		t.Fatalf("day %d hour %v, plot %+v", f.clock.Day, f.clock.Hour, p)
 	}
 }

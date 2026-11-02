@@ -19,9 +19,12 @@ func TileNames() []string {
 		"flowers0", "flowers1", "flowers2", "flowers3",
 		"path", "soil_dry", "soil_wet", "fence", "block",
 		"tree0", "tree1", "tree2", "tree3",
-		"carrot0", "carrot1", "carrot2", "carrot3", "carrot4",
-		"tomato0", "tomato1", "tomato2", "tomato3", "tomato4",
-		"stump", "anvil",
+		"stump", "anvil", witheredTile,
+	}
+	for _, c := range crops {
+		for stage := range 5 {
+			names = append(names, fmt.Sprint(c.name, stage))
+		}
 	}
 	names = append(names, interiorNames...)
 	for _, mask := range terrain.Masks() {
@@ -74,8 +77,10 @@ func newTiles(a Art) *tilemap.TileSet {
 		tiles.Animate(shore(mask), tilemap.Animation{Frames: id(shoreName(mask, 0), shoreName(mask, 1), shoreName(mask, 2), shoreName(mask, 3)), FPS: 4})
 	}
 	// A ripe crop sways, asking to be picked.
-	tiles.Animate(tileID["carrot3"], tilemap.Animation{Frames: id("carrot3", "carrot4"), FPS: 2, Staggered: true})
-	tiles.Animate(tileID["tomato3"], tilemap.Animation{Frames: id("tomato3", "tomato4"), FPS: 2, Staggered: true})
+	for _, c := range crops {
+		ripe3, ripe4 := fmt.Sprint(c.name, 3), fmt.Sprint(c.name, 4)
+		tiles.Animate(tileID[ripe3], tilemap.Animation{Frames: id(ripe3, ripe4), FPS: 2, Staggered: true})
+	}
 	return tiles
 }
 

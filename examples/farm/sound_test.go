@@ -87,7 +87,7 @@ func TestTheFarmsWorkIsHeard(t *testing.T) {
 	f.bag.Add(cropOf(0), 1)
 	f.choose(f.kit, &shop{choice: sellChoice, at: farmStall})
 	p := f.plots[0]
-	f.slot = slotCarrot
+	f.slot = slotSeeds
 	f.use(f.kit, p.col, p.row)
 	f.slot = slotCan
 	f.use(f.kit, p.col, p.row)

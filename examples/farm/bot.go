@@ -14,6 +14,9 @@ type bot struct {
 	task *task
 	// tends is how many plots it keeps, the first ones of the field.
 	tends int
+	// shore is the water it fills its can at, once it has looked for it.
+	shore         spring
+	looked, found bool
 }
 
 // task is a place to stand, a way to face there, and what to do then.

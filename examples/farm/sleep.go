@@ -12,7 +12,7 @@ const (
 )
 
 // sleep puts the player to bed in their house, if it is late enough: the
-// night passes, the watered crops grow a stage overnight, and they wake
+// night passes, the watered crops grow a day, and they wake
 // in the morning.
 func (f *farm) sleep() bool {
 	if !f.clock.Between(bedtime, wakeAt) {
@@ -32,13 +32,7 @@ func (f *farm) nextMorning() {
 		f.clock.Day++
 	}
 	f.clock.Hour = wakeAt
-	for _, p := range f.plots {
-		if p.watered && p.stage < ripe {
-			p.stage++
-			p.watered, p.growing = false, 0
-			f.show(p)
-		}
-	}
+	f.days()
 }
 
 // curfew makes the player faint if they are still up past midnight: they

@@ -2,7 +2,7 @@ package farm
 
 import "github.com/gabrielluizsf/sge/town"
 
-// shop is a stall's menu: buying either crop's seeds, or selling the
+// shop is a stall's menu: buying any crop's seeds, or selling the
 // harvest and wood; at is the stall's cell.
 type shop struct {
 	open   bool
@@ -11,8 +11,8 @@ type shop struct {
 }
 
 // The menu's lines are a crop's seeds, by the crop's index, then
-// selling.
-const sellChoice = 2
+// selling, which is the last.
+var sellChoice = len(crops)
 
 // choose does the menu's chosen line for k at the stall.
 func (f *farm) choose(k *kit, s *shop) {

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#e0a820"/></linearGradient>
+<linearGradient id="g9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4b2a"/><stop offset="1" stop-color="#4a2c1a"/></linearGradient>
+</defs>
+<ellipse cx="16" cy="40" rx="4" ry="1.6" fill="#1f3a22" opacity="0.35"/>
+<ellipse cx="16" cy="40" rx="3.4" ry="1.5" fill="#c08a52" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.4" cy="39.6" rx="1.6" ry="0.6" fill="#f1d79a"/>
+<path d="M16 39.6 l0 -18" stroke="#3a2a2e" stroke-width="1.7000000000000002" stroke-linecap="round"/>
+<path d="M16 39.6 l0 -18" stroke="#5fb14a" stroke-width="1.1" stroke-linecap="round"/>
+<path d="M16.00 36.00 Q14.31 33.74 11.50 34.00 Q13.19 36.26 16.00 36.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 36.00 L12.40 34.40" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 33.00 Q18.81 33.26 20.50 31.00 Q17.69 30.74 16.00 33.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 33.00 L19.60 31.40" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<ellipse cx="19.6" cy="22" rx="1.5" ry="1.1" fill="url(#g1)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="19.075000000000003" cy="21.615" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="18.54659776900192" cy="24.544570651979317" rx="1.5" ry="1.1" fill="url(#g2)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="18.02159776900192" cy="24.159570651979315" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="16.00286677615864" cy="25.599998858554606" rx="1.5" ry="1.1" fill="url(#g3)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.47786677615864" cy="25.214998858554605" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="13.457458078647981" cy="24.548623271134357" rx="1.5" ry="1.1" fill="url(#g4)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="12.932458078647981" cy="24.163623271134355" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="12.400004565780858" cy="22.005733550499354" rx="1.5" ry="1.1" fill="url(#g5)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="11.875004565780857" cy="21.620733550499352" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="13.449352842907818" cy="19.459488421593484" rx="1.5" ry="1.1" fill="url(#g6)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="12.924352842907817" cy="19.074488421593482" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="15.991399678795787" cy="18.400010273004217" rx="1.5" ry="1.1" fill="url(#g7)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.466399678795787" cy="18.015010273004215" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="18.538479624430323" cy="19.44733057440802" rx="1.5" ry="1.1" fill="url(#g8)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="18.013479624430325" cy="19.06233057440802" rx="0.42000000000000004" ry="0.275" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="16" cy="22" rx="2.4" ry="2.4" fill="url(#g9)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.16" cy="21.16" rx="0.672" ry="0.6" fill="#ffffff" opacity="0.6"/>
+</svg>

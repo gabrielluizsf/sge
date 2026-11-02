@@ -38,12 +38,13 @@ func Sprites() map[string]string {
 			s[fmt.Sprint("shore", mask, "_", f)] = shoreTile(mask, f)
 		}
 	}
-	for i := range 4 {
-		s[fmt.Sprint("carrot", i)] = carrotTile(i, 0)
-		s[fmt.Sprint("tomato", i)] = tomatoTile(i, 0)
+	for _, name := range CropNames {
+		for i := range 4 {
+			s[fmt.Sprint(name, i)] = CropTile(name, i, 0)
+		}
+		s[fmt.Sprint(name, 4)] = CropTile(name, 3, 0.9)
 	}
-	s["carrot4"] = carrotTile(3, 0.9)
-	s["tomato4"] = tomatoTile(3, 0.9)
+	s["withered"] = witheredTile()
 	for name, svg := range Interior() {
 		s[name] = svg
 	}

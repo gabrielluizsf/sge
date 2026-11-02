@@ -9,13 +9,23 @@ import (
 // shop is the stall's menu, in a panel in the middle: the seeds for sale
 // and selling the harvest, the chosen line on a gold bar.
 func (h *hud) shop(cv *canvas.Canvas) {
+	choice := h.f.shop.choice
+	first := min(max(0, choice-shopRows/2), len(crops)-shopRows)
 	lines := []string{"Loja"}
-	for _, c := range crops {
-		lines = append(lines, fmt.Sprintf("Semente de %s $%d", c.label, c.seedPrice))
+	for _, c := range crops[first : first+shopRows] {
+		lines = append(lines, fmt.Sprintf("Semente de %s $%d (%d dias)", c.label, c.seedPrice, c.daysToRipe))
 	}
 	lines = append(lines, fmt.Sprint("Vender colheita e madeira $", worth(h.f.kit)), "Espaço: escolher   E: sair")
-	h.menu(cv, menuOf{lines: lines, chosen: 1 + h.f.shop.choice})
+	chosen := 1 + choice - first
+	if choice == sellChoice {
+		chosen = 1 + shopRows
+	}
+	h.menu(cv, menuOf{lines: lines, chosen: chosen})
 }
+
+// shopRows is how many crops' seeds the shop lists at once, scrolling to
+// the one chosen.
+const shopRows = 8
 
 // menuOf is a menu's lines of text, the first its title, which of them
 // is chosen, and how wide its panel is at least, in pixels of art.

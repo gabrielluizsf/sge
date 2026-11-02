@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef5a4f"/><stop offset="1" stop-color="#b93a35"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef5a4f"/><stop offset="1" stop-color="#b93a35"/></linearGradient>
+<linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef5a4f"/><stop offset="1" stop-color="#b93a35"/></linearGradient>
+</defs>
+<ellipse cx="16" cy="40" rx="4" ry="1.6" fill="#1f3a22" opacity="0.35"/>
+<ellipse cx="16" cy="40" rx="3.4" ry="1.5" fill="#c08a52" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.4" cy="39.6" rx="1.6" ry="0.6" fill="#f1d79a"/>
+<path d="M16.00 40.00 Q15.98 37.78 14.08 36.64 Q14.10 38.86 16.00 40.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 40.00 L14.46 37.31" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 40.00 Q16.60 37.81 15.04 36.16 Q14.44 38.35 16.00 40.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 40.00 L15.23 36.93" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 40.00 Q17.12 38.00 16.00 36.00 Q14.88 38.00 16.00 40.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 40.00 L16.00 36.80" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 40.00 Q17.56 38.35 16.96 36.16 Q15.40 37.81 16.00 40.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 40.00 L16.77 36.93" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 40.00 Q17.90 38.86 17.92 36.64 Q16.02 37.78 16.00 40.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 40.00 L17.54 37.31" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<ellipse cx="13" cy="38.4" rx="1.4" ry="1.6" fill="url(#g1)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="12.51" cy="37.839999999999996" rx="0.392" ry="0.4" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="18.8" cy="38" rx="1.4" ry="1.6" fill="url(#g2)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="18.310000000000002" cy="37.44" rx="0.392" ry="0.4" fill="#ffffff" opacity="0.6"/>
+<ellipse cx="16.4" cy="36.6" rx="1.4" ry="1.6" fill="url(#g3)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.909999999999998" cy="36.04" rx="0.392" ry="0.4" fill="#ffffff" opacity="0.6"/>
+</svg>

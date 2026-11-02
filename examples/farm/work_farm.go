@@ -2,9 +2,10 @@ package farm
 
 import "github.com/gabrielluizsf/sge/pathfind"
 
-// farmWork is a farmer's work: their garden first, picking, watering and
-// sowing it from the doorstep; then selling what they have grown at the
-// stall, or buying seeds there when they have none.
+// farmWork is a farmer's work: their garden first, picking, clearing
+// what withered, watering and sowing it from the doorstep, and going to
+// water to fill the can when it is empty; then selling what they have
+// grown at the stall, or buying seeds there when they have none.
 func (m *mind) farmWork(f *farm) *job {
 	v := m.v
 	k := v.kit
@@ -16,15 +17,19 @@ func (m *mind) farmWork(f *farm) *job {
 	}
 	if p := f.plotAt(v.home.Garden.Col, v.home.Garden.Row); p != nil {
 		switch {
-		case p.crop >= 0 && p.stage == ripe:
+		case p.ripened():
 			return tend(-1)
+		case p.dead:
+			return tend(slotHoe)
+		case p.thirsty() && k.inCan() == 0:
+			return m.fetchWater(f)
 		case p.thirsty():
 			return tend(slotCan)
 		case p.crop < 0:
-			for c := len(crops) - 1; c >= 0; c-- {
-				if k.bag.Count(seedsOf(c)) > 0 {
-					return tend(c)
-				}
+			if c, ok := k.sowing(); ok {
+				j := tend(slotSeeds)
+				j.seed = c
+				return j
 			}
 		}
 	}
@@ -46,6 +51,21 @@ func (m *mind) farmWork(f *farm) *job {
 		})
 	}
 	return nil
+}
+
+// fetchWater is a trip to the nearest water to fill the can; with none
+// in reach, the can is filled at the well of home, the doorstep.
+func (m *mind) fetchWater(f *farm) *job {
+	v := m.v
+	if !m.looked {
+		m.shore, m.found = f.springNear(pathfind.Cell(v.home.Door))
+		m.looked = true
+	}
+	if !m.found {
+		v.kit.fill()
+		return nil
+	}
+	return &job{to: m.shore.stand, face: m.shore.face, slot: slotCan, uses: 1, rest: 1}
 }
 
 // atStall is a trip to the town's stall, dealing there.

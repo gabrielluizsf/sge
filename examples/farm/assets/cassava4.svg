@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8a070"/><stop offset="1" stop-color="#8a6540"/></linearGradient>
+</defs>
+<ellipse cx="16" cy="40" rx="4" ry="1.6" fill="#1f3a22" opacity="0.35"/>
+<ellipse cx="16" cy="40" rx="3.4" ry="1.5" fill="#c08a52" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.4" cy="39.6" rx="1.6" ry="0.6" fill="#f1d79a"/>
+<path d="M16 39.6 l0.45 -14" stroke="#3a2a2e" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M16 39.6 l0.45 -14" stroke="#b0645a" stroke-width="1" stroke-linecap="round"/>
+<path d="M16.45 26.00 Q15.17 22.66 11.65 22.00 Q12.93 25.34 16.45 26.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.45 26.00 L12.61 22.80" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.45 26.00 Q16.09 23.83 14.05 23.00 Q14.41 25.17 16.45 26.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.45 26.00 L14.53 23.60" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.45 26.00 Q17.57 24.00 16.45 22.00 Q15.33 24.00 16.45 26.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.45 26.00 L16.45 22.80" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.45 26.00 Q18.49 25.17 18.85 23.00 Q16.81 23.83 16.45 26.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.45 26.00 L18.37 23.60" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.45 26.00 Q19.97 25.34 21.25 22.00 Q17.73 22.66 16.45 26.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.45 26.00 L20.29 22.80" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<ellipse cx="19" cy="39.6" rx="2.8" ry="1.2" fill="url(#g1)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="18.02" cy="39.18" rx="0.784" ry="0.3" fill="#ffffff" opacity="0.6"/>
+</svg>

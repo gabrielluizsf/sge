@@ -20,6 +20,10 @@ type mind struct {
 	// since last.
 	stuck float64
 	last  vector.Vector3
+	// spring is the water a farmer fills their can at, found once looked
+	// for.
+	shore         spring
+	looked, found bool
 }
 
 // job is a place to stand, the way to face there, what to hold (-1 keeps
@@ -29,6 +33,7 @@ type job struct {
 	to   pathfind.Cell
 	face string
 	slot int
+	seed int // the crop whose seeds are sown, with the seeds slot
 	uses int
 	then func(f *farm)
 	rest float64
@@ -79,6 +84,9 @@ func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 	in := intent{face: j.face}
 	if j.slot >= 0 {
 		v.kit.slot = j.slot
+		if j.slot == slotSeeds {
+			v.kit.seed = j.seed
+		}
 	}
 	if j.uses > 0 {
 		j.uses--

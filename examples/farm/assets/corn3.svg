@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe16b"/><stop offset="1" stop-color="#d6a428"/></linearGradient>
+</defs>
+<ellipse cx="16" cy="40" rx="4" ry="1.6" fill="#1f3a22" opacity="0.35"/>
+<ellipse cx="16" cy="40" rx="3.4" ry="1.5" fill="#c08a52" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.4" cy="39.6" rx="1.6" ry="0.6" fill="#f1d79a"/>
+<path d="M16 39.6 l0 -16" stroke="#3a2a2e" stroke-width="1.7999999999999998" stroke-linecap="round"/>
+<path d="M16 39.6 l0 -16" stroke="#5fb14a" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M16.00 39.00 Q19.06 39.40 21.00 37.00 Q17.94 36.60 16.00 39.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 39.00 L20.00 37.40" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 35.60 Q14.06 33.20 11.00 33.60 Q12.94 36.00 16.00 35.60 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 35.60 L12.00 34.00" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 32.20 Q19.06 32.60 21.00 30.20 Q17.94 29.80 16.00 32.20 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 32.20 L20.00 30.60" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 28.80 Q14.06 26.40 11.00 26.80 Q12.94 29.20 16.00 28.80 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 28.80 L12.00 27.20" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 25.40 Q19.06 25.80 21.00 23.40 Q17.94 23.00 16.00 25.40 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 25.40 L20.00 23.80" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16 24 l0 -2.4" stroke="#3a2a2e" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M16 24 l0 -2.4" stroke="#d8b85a" stroke-width="0.6" stroke-linecap="round"/>
+<ellipse cx="18.4" cy="31.2" rx="1.2" ry="2.6" fill="url(#g1)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="17.979999999999997" cy="30.29" rx="0.336" ry="0.65" fill="#ffffff" opacity="0.6"/>
+</svg>

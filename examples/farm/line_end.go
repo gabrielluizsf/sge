@@ -20,7 +20,7 @@ func (f *farm) restart() {
 	f.errand, f.errandDone = errandBook.Draw(f.luck), false
 	for _, p := range f.plots {
 		if f.onFarm(p.col, p.row) {
-			p.crop, p.stage, p.watered, p.growing = -1, 0, false, 0
+			p.clear()
 			f.show(p)
 		}
 	}

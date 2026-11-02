@@ -7,16 +7,22 @@ import (
 )
 
 // show sets p's tiles to what it is: wet or dry soil, and its crop's
-// stage on it.
+// stage on it, or a withered plant.
 func (f *farm) show(p *plot) {
 	soil := "soil_dry"
 	if p.watered {
 		soil = "soil_wet"
 	}
 	f.setGround(p.col, p.row, tileID[soil])
-	if p.crop < 0 {
+	switch {
+	case p.crop < 0:
 		f.setCrop(p.col, p.row, tilemap.Empty)
-		return
+	case p.dead:
+		f.setCrop(p.col, p.row, tileID[witheredTile])
+	default:
+		f.setCrop(p.col, p.row, tileID[fmt.Sprint(crops[p.crop].name, p.stage)])
 	}
-	f.setCrop(p.col, p.row, tileID[fmt.Sprint(crops[p.crop].name, p.stage)])
 }
+
+// witheredTile is the tile of a plant that went a day dry.
+const witheredTile = "withered"

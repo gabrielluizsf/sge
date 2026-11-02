@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fb14a"/><stop offset="1" stop-color="#2f7a3a"/></linearGradient>
+</defs>
+<ellipse cx="16" cy="40" rx="4" ry="1.6" fill="#1f3a22" opacity="0.35"/>
+<ellipse cx="16" cy="40" rx="3.4" ry="1.5" fill="#c08a52" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.4" cy="39.6" rx="1.6" ry="0.6" fill="#f1d79a"/>
+<path d="M16 39.6 l-7.300000000000001 -0.8" stroke="#3a2a2e" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M16 39.6 l-7.300000000000001 -0.8" stroke="#3f8a3c" stroke-width="0.6" stroke-linecap="round"/>
+<path d="M12.35 39.00 Q11.60 36.35 8.95 35.60 Q9.70 38.25 12.35 39.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M12.35 39.00 L9.63 36.28" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M8.70 39.00 Q7.87 36.96 5.70 36.60 Q6.53 38.64 8.70 39.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M8.70 39.00 L6.30 37.08" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16 39.6 l7.300000000000001 -0.8" stroke="#3a2a2e" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M16 39.6 l7.300000000000001 -0.8" stroke="#3f8a3c" stroke-width="0.6" stroke-linecap="round"/>
+<path d="M19.65 39.00 Q22.30 38.25 23.05 35.60 Q20.40 36.35 19.65 39.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M19.65 39.00 L22.37 36.28" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M23.30 39.00 Q25.47 38.64 26.30 36.60 Q24.13 36.96 23.30 39.00 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M23.30 39.00 L25.70 37.08" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<path d="M16.00 39.60 Q17.23 37.40 16.00 35.20 Q14.77 37.40 16.00 39.60 Z" fill="#5fb14a" stroke="#3a2a2e" stroke-width="0.4" stroke-linejoin="round"/>
+<path d="M16.00 39.60 L16.00 36.08" stroke="#d4f59a" stroke-width="0.3" opacity="0.8"/>
+<ellipse cx="17" cy="38" rx="4.8" ry="3.4" fill="url(#g1)" stroke="#3a2a2e" stroke-width="0.4"/>
+<ellipse cx="15.32" cy="36.81" rx="1.344" ry="0.85" fill="#ffffff" opacity="0.6"/>
+<path d="M15.8 35.6 q0.6 2 0 4.4" stroke="#245f2c" stroke-width="0.5" fill="none"/>
+<path d="M17.96 35.6 q0.6 2 0 4.4" stroke="#245f2c" stroke-width="0.5" fill="none"/>
+<path d="M20.12 35.6 q0.6 2 0 4.4" stroke="#245f2c" stroke-width="0.5" fill="none"/>
+</svg>
