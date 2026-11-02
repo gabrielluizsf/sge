@@ -1,9 +1,13 @@
 package farm
 
+import "github.com/gabrielluizsf/sge/dialogue"
+
 // talk is a conversation with a villager: the choice on its menu.
 type talk struct {
 	v      *villager
 	choice int
+	// box is the dialogue box the conversation is shown in.
+	box *dialogue.Box
 }
 
 // line is a choice in a conversation: its words, and what choosing it
@@ -35,17 +39,17 @@ func (f *farm) lines(v *villager) []line {
 	switch v.role {
 	case roleLumberjack:
 		ls = append(ls,
-			line{text: "Comprar madeira $" + itoa(lumberSells), do: func(f *farm) { f.tradeWood(deal{v.kit, f.kit, lumberSells}, v.pos) }},
-			line{text: "Vender madeira $" + itoa(lumberBuys), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, lumberBuys}, v.pos) }})
+			line{text: "Comprar madeira $" + itoa(lumberSells), do: func(f *farm) { f.tradeWood(deal{v.kit, f.kit, lumberSells, v}) }},
+			line{text: "Vender madeira $" + itoa(lumberBuys), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, lumberBuys, v}) }})
 	case roleSmith:
 		if !f.errandDone {
 			ls = append(ls, line{text: "Entregar encomenda", do: func(f *farm) { f.doErrand(v) }})
 			break
 		}
 		for i := 1; i < len(axes); i++ {
-			ls = append(ls, line{text: "Machado de " + axes[i].label + " $" + itoa(axes[i].price), do: func(f *farm) { f.buyAxe(i, v.pos) }})
+			ls = append(ls, line{text: "Machado de " + axes[i].label + " $" + itoa(axes[i].price), do: func(f *farm) { f.buyAxe(i, v) }})
 		}
-		ls = append(ls, line{text: "Vender lenha $" + itoa(woodPrice), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, woodPrice}, v.pos) }})
+		ls = append(ls, line{text: "Vender lenha $" + itoa(woodPrice), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, woodPrice, v}) }})
 	}
 	ls = append(ls, f.bondLines(v)...)
 	return append(ls, bye)

@@ -9,6 +9,8 @@ func (b *Baker) Tasks() []Task {
 	all = append(all, b.groundTasks()...)
 	all = append(all, b.waterTasks()...)
 	all = append(all, b.cropTasks()...)
+	all = append(all, b.iconTasks()...)
+	all = append(all, b.portraitTasks()...)
 	all = append(all, b.buildingTasks()...)
 	all = append(all, b.modelTasks()...)
 	all = append(all, b.treeTasks()...)

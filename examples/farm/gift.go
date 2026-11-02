@@ -46,18 +46,18 @@ func (f *farm) gift(v *villager, item string) error {
 	}
 	n := liking(v, item)
 	if err := v.bond.Give(n, f.clock.Day); err != nil {
-		f.float(f.spot(v), "Já ganhei presente hoje", 'r')
+		f.speak(v, "Já ganhei presente hoje.")
 		f.sound("deny", nil)
 		return err
 	}
 	f.bag.Take(item, 1)
 	switch {
 	case n == loved:
-		f.float(f.spot(v), "Adorei! Obrigad"+ending(v), 'y')
+		f.speak(v, "Adorei! Obrigad"+ending(v)+"!")
 	case n < 0:
-		f.float(f.spot(v), "Hum... não gosto disso.", 'r')
+		f.speak(v, "Hum... não gosto disso.")
 	default:
-		f.float(f.spot(v), "Obrigad"+ending(v)+"!", 'g')
+		f.speak(v, "Obrigad"+ending(v)+"!")
 	}
 	f.sound("coin", nil)
 	return nil

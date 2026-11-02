@@ -102,9 +102,9 @@ func TestTheSmithsAxes(t *testing.T) {
 		t.Fatalf("axe %d after the errand", f.axe)
 	}
 	f.money = 100
-	f.buyAxe(2, s.pos) // gold, $150
-	f.buyAxe(1, s.pos) // iron, $60
-	f.buyAxe(1, s.pos)
+	f.buyAxe(2, s) // gold, $150
+	f.buyAxe(1, s) // iron, $60
+	f.buyAxe(1, s)
 	if f.axe != 1 || f.money != 40 {
 		t.Errorf("axe %d, money %d", f.axe, f.money)
 	}
@@ -116,18 +116,18 @@ func TestWoodIsTradedWithTheLumberjack(t *testing.T) {
 	_, f := newGame(idle{})
 	lj := tradesman(f, eastTown(f), roleLumberjack)
 	lj.kit.bag.Add(wood, 1)
-	f.tradeWood(deal{lj.kit, f.kit, lumberSells}, lj.pos)
-	f.tradeWood(deal{lj.kit, f.kit, lumberSells}, lj.pos)
+	f.tradeWood(deal{lj.kit, f.kit, lumberSells, lj})
+	f.tradeWood(deal{lj.kit, f.kit, lumberSells, lj})
 	if f.bag.Count(wood) != 1 || f.money != 20-lumberSells || lj.kit.bag.Count(wood) != 0 {
 		t.Fatalf("bought: wood %d, money %d", f.bag.Count(wood), f.money)
 	}
 	lj.kit.money = 0
-	f.tradeWood(deal{f.kit, lj.kit, lumberBuys}, lj.pos)
+	f.tradeWood(deal{f.kit, lj.kit, lumberBuys, lj})
 	if f.bag.Count(wood) != 1 {
 		t.Fatal("sold to one with no money")
 	}
 	lj.kit.money = 10
-	f.tradeWood(deal{f.kit, lj.kit, lumberBuys}, lj.pos)
+	f.tradeWood(deal{f.kit, lj.kit, lumberBuys, lj})
 	if f.bag.Count(wood) != 0 || lj.kit.bag.Count(wood) != 1 || f.money != 20-lumberSells+lumberBuys {
 		t.Errorf("sold: wood %d, money %d", f.bag.Count(wood), f.money)
 	}

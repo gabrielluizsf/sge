@@ -42,7 +42,7 @@ func (b *bot) next(f *farm) *task {
 		if p.crop >= 0 {
 			continue
 		}
-		if c, ok := f.sowing(); ok {
+		if c, ok := f.anySeeds(); ok {
 			f.seed = c
 			return tend(p, slotSeeds)
 		}

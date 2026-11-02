@@ -53,6 +53,10 @@ type Art interface {
 	// on a panel, and over the world 'w' the lightest, 'y' gold, 'r'
 	// coral or 'g' leaf.
 	Text(s string, ink rune) *canvas.Canvas
+	// Portrait is who's head and shoulders, for the conversation box:
+	// a picture of any size, which is put at the bottom of the box's
+	// portrait panel.
+	Portrait(who Who) *canvas.Canvas
 	// Panel is a HUD panel of w by h pixels of art, highlighted when
 	// selected.
 	Panel(w, h int, selected bool) *canvas.Canvas

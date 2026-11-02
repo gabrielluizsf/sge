@@ -2,6 +2,7 @@ package farm
 
 import (
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/backpack"
 	"github.com/gabrielluizsf/sge/daytime"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/life"
@@ -21,7 +22,6 @@ const (
 	slotCan
 	slotAxe
 	slotHoe
-	slots
 )
 
 // farm is the game's state: the player's kit, the plots of soil on the
@@ -31,8 +31,11 @@ type farm struct {
 	layers
 	*kit
 	// art draws every picture of the game.
-	art    Art
-	tiles  *tilemap.TileSet
+	art   Art
+	tiles *tilemap.TileSet
+	// pack is the player's inventory screen and hotbar; ui the menus.
+	pack   *backpack.Pack
+	ui     *ui
 	wild   *terrain.World
 	towns  *town.Layout
 	keeper *town.Keeper
@@ -81,9 +84,11 @@ type farm struct {
 // newFarm is a farm with some money and nothing growing on the soil of
 // the ground layer, in a world of towns.
 func newFarm(l layers, w world) *farm {
-	f := &farm{layers: l, kit: &kit{money: 20, axe: noAxe}, art: w.art, tiles: w.tiles, wild: w.wild, towns: w.towns, shop: &shop{},
+	f := &farm{layers: l, kit: &kit{money: 20, axe: noAxe, exact: true}, art: w.art, tiles: w.tiles, wild: w.wild, towns: w.towns, shop: &shop{},
 		settled: map[*town.Town]bool{}, hits: map[int]int{}, luck: random.New(seed),
 		clock: &daytime.Clock{Hour: startHour, Speed: 24.0 / dayLength}, fainted: -1}
+	f.pack = newPack(f)
+	f.hold(0)
 	f.errand = errandBook.Draw(f.luck)
 	f.family, f.fate = &lineage.Tree{}, random.New(seed+101)
 	f.self = f.found()

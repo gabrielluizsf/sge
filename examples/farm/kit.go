@@ -14,4 +14,7 @@ type kit struct {
 	axe   int // an index of axes, or noAxe
 	sold  int
 	used  int // the can's water poured; none is a full can
+	// exact says the seeds in hand are the only ones sown, never others
+	// when they run out: the player chose them.
+	exact bool
 }

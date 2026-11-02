@@ -13,10 +13,10 @@ var errTaken = errors.New("farm: one of them is taken")
 // chat is talking with v, fonder a little, once a day.
 func (f *farm) chat(v *villager) error {
 	if err := v.bond.Chat(f.clock.Day); err != nil {
-		f.float(f.spot(v), "Já conversamos hoje!", 'r')
+		f.speak(v, "Já conversamos hoje!")
 		return err
 	}
-	f.float(f.spot(v), "Que bom conversar com você!", 'g')
+	f.speak(v, "Que bom conversar com você!")
 	f.sound("ui_tick", nil)
 	return nil
 }
@@ -81,10 +81,10 @@ func refusal(err error) string {
 // it is not.
 func (f *farm) answer(v *villager, err error, yes string) {
 	if err != nil {
-		f.float(f.spot(v), refusal(err), 'r')
+		f.speak(v, refusal(err))
 		f.sound("deny", nil)
 		return
 	}
-	f.notify(v.name + ": " + yes)
+	f.speak(v, yes)
 	f.sound("sell", nil)
 }

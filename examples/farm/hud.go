@@ -22,7 +22,7 @@ type hud struct {
 func (h *hud) Update(*game.Object, float64) {}
 
 func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
-	menu := h.f.shop.open || h.f.talk != nil || h.f.question != nil
+	menu := h.f.shop.open || h.f.talk != nil || h.f.question != nil || h.f.ui.open != playing || h.f.pack.Open
 	if !menu {
 		h.cursor(cv)
 	}
@@ -48,6 +48,7 @@ func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
 	case h.f.talk != nil:
 		h.talk(cv)
 	}
+	h.f.ui.paint(cv)
 }
 
 // cursor marks the cell the farmer works, a plot, or a tree with the axe

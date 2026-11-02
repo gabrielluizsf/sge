@@ -16,7 +16,9 @@ func (f *farm) endLine(old *self) {
 // back to their own house.
 func (f *farm) restart() {
 	f.self = f.found()
-	*f.kit = kit{money: 20, axe: noAxe}
+	*f.kit = kit{money: 20, axe: noAxe, exact: true}
+	f.pack.Hotbar = defaultHotbar()
+	f.hold(0)
 	f.errand, f.errandDone = errandBook.Draw(f.luck), false
 	for _, p := range f.plots {
 		if f.onFarm(p.col, p.row) {

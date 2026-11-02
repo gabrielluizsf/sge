@@ -1,7 +1,8 @@
 package game
 
 // Step advances the world dt seconds: objects new to it start, every
-// script updates, animations move on, touching objects are told about
+// script updates (but, while the game is Paused, only those of objects
+// that are Always), animations move on, touching objects are told about
 // each other, and destroyed objects leave. Objects added during the step
 // take part from the next one.
 func (g *Game) Step(dt float64) {
@@ -19,7 +20,7 @@ func (g *Game) Step(dt float64) {
 	}
 	for _, o := range objs {
 		for _, s := range o.scripts {
-			if !o.destroyed {
+			if !o.destroyed && (!g.Paused || o.Always) {
 				s.Update(o, dt)
 			}
 		}

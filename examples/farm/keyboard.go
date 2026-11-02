@@ -7,7 +7,7 @@ import (
 )
 
 // keyboard is a player at the keys and the mouse: arrows or WASD walk the
-// way they point on the screen, 1 to 4 pick what to hold, 1 again the next seeds, space or a
+// way they point on the screen, 1 to 6 take in hand what the hotbar holds (what is on it is chosen in the inventory, with I or Tab), space or a
 // click uses it, on the cell under the mouse when it is in reach and on
 // the one in front otherwise, and E talks, goes in, sleeps or shops, as
 // where they stand allows. In a room, the doormat is the way out. A
@@ -27,7 +27,6 @@ func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
 		f.passDays(daysPerYear)
 		return intent{}
 	case f.talk != nil:
-		f.talkKeys(win)
 		return intent{}
 	case f.shop.open:
 		f.shopKeys(win)
@@ -43,12 +42,8 @@ func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
 			return intent{}
 		}
 	}
-	for i, k := range []antui.Key{antui.Key1, antui.Key2, antui.Key3, antui.Key4} {
-		if win.KeyPressed(k) {
-			if f.slot == i && i == slotSeeds {
-				f.nextSeed() // 1 again: the next crop's seeds
-			}
-			f.slot = i
+	for i, k := range numberKeys {
+		if win.KeyPressed(k) && f.hold(i) {
 			f.sound("ui_tick", nil)
 		}
 	}

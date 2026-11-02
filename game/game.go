@@ -33,6 +33,10 @@ type Game struct {
 	// window is open: the world's sounds. Where there are no speakers the
 	// game runs in silence.
 	Sound *sound.Mixer
+	// Paused stops the world's time: scripts do not update, but for those
+	// of objects that are Always, while animations go on moving and
+	// everything is still drawn, as a game's menu holds it.
+	Paused bool
 
 	objects []*Object
 	window  *antui.Window

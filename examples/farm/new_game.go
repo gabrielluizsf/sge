@@ -32,6 +32,11 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	w.AddScript(f.clock)
 	w.AddScript(f)
 	g.Add(w)
+	f.ui = newUI(f)
+	menus := game.NewObject("menus")
+	menus.Always = true
+	menus.AddScript(f.ui)
+	g.Add(menus)
 	o, p := newFarmer(f, ctl)
 	f.player, f.hands = o, p
 	o.Transform.Position = standIn(f, where.spawn.Col, where.spawn.Row)
@@ -57,7 +62,7 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	h.Z, h.Screen = zHUD, true
 	h.AddScript(&hud{f: f, farmer: o, p: p})
 	g.Add(h)
-	kept := map[*game.Object]bool{w: true, o: true, night: true, h: true}
+	kept := map[*game.Object]bool{w: true, menus: true, o: true, night: true, h: true}
 	f.stage = &scene.Stage{Game: g, Current: outside, Keep: func(o *game.Object) bool { return kept[o] || o.Name == "ambience" }}
 	return g, f
 }

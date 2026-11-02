@@ -26,6 +26,9 @@ type Object struct {
 	// farther, so a farmer below a tree's trunk stands in front of it.
 	Footing vector.Vector3
 	Hidden  bool
+	// Always keeps the object's scripts running while the game is Paused:
+	// a menu's, a HUD's, the music's.
+	Always bool
 	// Screen fixes the object to the screen: its position is a point of
 	// the canvas, where the camera does not move it, as a HUD's is.
 	Screen bool
