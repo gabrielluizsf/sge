@@ -107,9 +107,15 @@ export function append<T>(s: Slice<T> | null, backing: any, ...vals: T[]): Slice
   return appendArray(s, backing, vals, 0, vals.length);
 }
 
-// appendSlice is append(s, t...).
-export function appendSlice<T>(s: Slice<T> | null, backing: any, t: Slice<T> | null): Slice<T> | null {
+// appendSlice is append(s, t...). clone copies an element of a value type,
+// a struct or an array, so s holds copies of t's, as Go's append does.
+export function appendSlice<T>(s: Slice<T> | null, backing: any, t: Slice<T> | null, clone?: (e: T) => T): Slice<T> | null {
   if (t === null || t.n === 0) return s;
+  if (clone) {
+    const vals = new Array(t.n);
+    for (let i = 0; i < t.n; i++) vals[i] = clone(t.a[t.o + i]);
+    return appendArray(s, backing, vals, 0, t.n);
+  }
   return appendArray(s, backing, t.a, t.o, t.n);
 }
 
@@ -148,11 +154,24 @@ function copyIn(dst: any, at: number, src: any, o: number, k: number): void {
   for (let i = 0; i < k; i++) dst[at + i] = src[o + i];
 }
 
-// copy is copy(dst, src), safe when the two share a backing array.
-export function copy(dst: Slice<any> | null, src: Slice<any> | null): number {
+// copy is copy(dst, src), safe when the two share a backing array. For
+// elements of a value type, clone copies one and set copies one into
+// another in place, so what points at dst's elements sees their new
+// values, as in Go.
+export function copy(dst: Slice<any> | null, src: Slice<any> | null, clone?: (e: any) => any, set?: (d: any, s: any) => void): number {
   if (dst === null || src === null) return 0;
   const k = Math.min(dst.n, src.n);
   if (k === 0) return 0;
+  if (clone && set) {
+    const tmp = new Array(k);
+    for (let i = 0; i < k; i++) tmp[i] = clone(src.a[src.o + i]);
+    for (let i = 0; i < k; i++) {
+      const d = dst.a[dst.o + i];
+      if (d == null) dst.a[dst.o + i] = tmp[i];
+      else set(d, tmp[i]);
+    }
+    return k;
+  }
   if (dst.a === src.a) {
     if (Array.isArray(dst.a)) {
       const tmp = src.a.slice(src.o, src.o + k);

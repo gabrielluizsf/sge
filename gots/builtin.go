@@ -56,6 +56,9 @@ func (e *emitter) builtin(c *ast.CallExpr) string {
 		if isString(e.typeOf(c.Args[1])) {
 			return "$.copyString(" + arg(0) + ", " + arg(1) + ")"
 		}
+		if el := e.typeOf(c.Args[0]).Underlying().(*types.Slice).Elem(); isValue(el) {
+			return "$.copy(" + arg(0) + ", " + arg(1) + ", " + e.cloneFn(el) + ", (d: any, s: any) => { " + e.setOf("d", "s", el) + "; })"
+		}
 		return "$.copy(" + arg(0) + ", " + arg(1) + ")"
 	case "delete":
 		m := e.typeOf(c.Args[0]).Underlying().(*types.Map)
@@ -124,6 +127,9 @@ func (e *emitter) appendCall(c *ast.CallExpr) string {
 	if c.Ellipsis.IsValid() {
 		if isString(e.typeOf(c.Args[1])) {
 			return "$.appendString(" + s + ", " + e.expr(c.Args[1]) + ")"
+		}
+		if isValue(st.Elem()) {
+			return "$.appendSlice(" + s + ", " + b + ", " + e.expr(c.Args[1]) + ", " + e.cloneFn(st.Elem()) + ")"
 		}
 		return "$.appendSlice(" + s + ", " + b + ", " + e.expr(c.Args[1]) + ")"
 	}
