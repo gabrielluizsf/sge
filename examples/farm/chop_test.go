@@ -7,7 +7,7 @@ import "testing"
 func TestATreeIsFelledAndGrowsBack(t *testing.T) {
 	g, f := newGame(idle{})
 	col, row := 3, 2 // the farm's tree at T
-	if f.thingAt(col, row) != tileID["tree0"] {
+	if !isTree(f.thingAt(col, row)) {
 		t.Fatal("no tree at 3,2")
 	}
 	f.slot = slotAxe
@@ -29,7 +29,7 @@ func TestATreeIsFelledAndGrowsBack(t *testing.T) {
 	for range int(regrowIn/frame) + 2 {
 		g.Step(frame)
 	}
-	if f.thingAt(col, row) != tileID["tree0"] {
+	if !isTree(f.thingAt(col, row)) {
 		t.Error("the tree did not grow back")
 	}
 }
@@ -41,7 +41,7 @@ func TestAWildTreeIsFelled(t *testing.T) {
 	col, row := -1, 0
 	for c := 31; c < 60 && col < 0; c++ {
 		for r := -10; r < 30; r++ {
-			if f.thingAt(c, r) == tileID["tree0"] {
+			if isTree(f.thingAt(c, r)) {
 				col, row = c, r
 				break
 			}

@@ -1,8 +1,10 @@
 package farm
 
-// stump is a tree felled, growing back: its cell, and the seconds left.
+// stump is a tree felled, growing back: its cell, the tile of the tree it
+// was, and the seconds left.
 type stump struct {
 	col, row int
+	tree     int
 	left     float64
 }
 
@@ -20,7 +22,7 @@ func (f *farm) regrow(dt float64) {
 			continue
 		}
 		if f.thingAt(s.col, s.row) == tileID["stump"] {
-			f.setThing(s.col, s.row, tileID["tree0"])
+			f.setThing(s.col, s.row, s.tree)
 		}
 	}
 	f.stumps = kept

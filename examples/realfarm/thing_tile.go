@@ -4,20 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gabrielluizsf/antui/canvas"
-	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 )
-
-// treeTile is the tree, a sapling of the farm's species, leaning as frame
-// k of its sway says.
-func (a *realArt) treeTile(k int) *canvas.Canvas {
-	b, ok := a.bake("tree_" + bakes.FarmTree + "_s0_0_0")
-	if !ok {
-		return nil
-	}
-	cv := newFrame()
-	b.put(cv, centreAt)
-	return sway(cv, swayOf(k))
-}
 
 // thingTile is the model id standing on the middle of the cell, at its
 // first heading; its first variant when the model is of several.

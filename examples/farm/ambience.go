@@ -81,7 +81,7 @@ func (f *farm) around(p vector.Vector3) around {
 // cellHas reports whether cell col, row has a tree, and water.
 func (f *farm) cellHas(col, row int) (tree, water bool) {
 	if f.onFarm(col, row) {
-		return f.things.At(col, row) == tileID["tree0"], f.water.At(col, row) != tilemap.Empty
+		return isTree(f.things.At(col, row)), f.water.At(col, row) != tilemap.Empty
 	}
-	return f.wild.TileAt(wildThings, col, row) == tileID["tree0"], f.wild.TileAt(wildWater, col, row) != tilemap.Empty
+	return isTree(f.wild.TileAt(wildThings, col, row)), f.wild.TileAt(wildWater, col, row) != tilemap.Empty
 }

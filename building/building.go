@@ -12,10 +12,12 @@ package building
 import "github.com/gabrielluizsf/sge/gltf"
 
 // Building is a kind of building or prop: its name, its footprint, the
-// metres it covers along X and Z, overhangs aside, and how it is built.
+// metres it covers along X and Z, overhangs aside, how far a porch reaches
+// out of its front, past its Depth, and how it is built.
 type Building struct {
 	Name         string
 	Width, Depth float64
+	Front        float64
 	build        func(b *builder)
 }
 

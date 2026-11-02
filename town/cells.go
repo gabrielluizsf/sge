@@ -4,14 +4,14 @@ package town
 // plaza.
 func (t *Town) Road(col, row int) bool {
 	dx, dy := col-t.Center.Col, row-t.Center.Row
-	return dy == 0 && abs(dx) <= Reach || abs(dx) <= plazaW && abs(dy) <= plazaH
+	return dy == 0 && abs(dx) <= t.Reach || abs(dx) <= plazaW && abs(dy) <= plazaH
 }
 
 // House is the house standing on cell col, row, or nil.
 func (t *Town) House(col, row int) *House {
 	for i := range t.Houses {
 		h := &t.Houses[i]
-		if col >= h.Col && col < h.Col+Size && row >= h.Row && row < h.Row+Size {
+		if col >= h.Col && col < h.Col+h.Width && row >= h.Row && row < h.Row+h.Depth {
 			return h
 		}
 	}
@@ -23,7 +23,7 @@ func (t *Town) House(col, row int) *House {
 // out of it.
 func (t *Town) Grounds(col, row, margin int) bool {
 	dx, dy := col-t.Center.Col, row-t.Center.Row
-	return abs(dx) <= Reach+margin && abs(dy) <= houseDepth+margin
+	return abs(dx) <= t.Reach+margin && abs(dy) <= t.Depth+margin
 }
 
 // Grounds reports whether cell col, row is on the grounds of the town of

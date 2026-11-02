@@ -18,6 +18,9 @@ func SVGArt() Art { return &svgArt{hud: map[string]*canvas.Canvas{}} }
 // Tile is the tile name's picture at the game's scale: a cell's diamond
 // with room above it.
 func (a *svgArt) Tile(name string) *canvas.Canvas {
+	if f, ok := TreeFrame(name); ok { // one tree, in any biome
+		name = "tree" + itoa(f)
+	}
 	return picture(spriteSVG(name), isoW/scale, isoH/scale)
 }
 

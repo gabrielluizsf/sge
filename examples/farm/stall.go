@@ -9,19 +9,18 @@ import (
 // stall.
 const stallCol, stallRow = 11, 3
 
-// farmStall is the farm's stall, and home the player's house: its two by
-// two cells from homeCorner, and its doorstep.
+// farmStall is the farm's stall, and homeDoor the doorstep of the
+// player's house, set by the site the farm is laid out on.
 var (
-	farmStall  = town.Cell{Col: stallCol, Row: stallRow}
-	homeCorner = town.Cell{Col: 16, Row: 1}
-	homeDoor   = town.Cell{Col: 16, Row: 3}
+	farmStall = town.Cell{Col: stallCol, Row: stallRow}
+	homeDoor  = town.Cell{Col: 16, Row: 3}
 )
 
 // stallBy is the stall o stands in front of, the farm's or a town's.
 func (f *farm) stallBy(o *game.Object) (town.Cell, bool) {
 	col, row := f.cellOf(feet(o))
 	stalls := []town.Cell{farmStall}
-	for _, t := range f.towns.Near(col, row, town.Reach+4) {
+	for _, t := range f.towns.Near(col, row, f.towns.Reach()+4) {
 		stalls = append(stalls, t.Stall)
 	}
 	for _, s := range stalls {

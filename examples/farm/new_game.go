@@ -23,9 +23,10 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	g.Covered = true
 	tiles := newTiles(a)
 	roomTiles = tiles
-	l := newLayers(g, tiles)
-	towns := newTowns(a.Houses())
-	wild := newWild(tiles, [2]int{l.ground.Cols, l.ground.Rows}, towns)
+	where := siteFor(a)
+	l := newLayers(g, tiles, where)
+	towns := newTowns(a)
+	wild := newWild(world{art: a, tiles: tiles, towns: towns}, [2]int{l.ground.Cols, l.ground.Rows})
 	f := newFarm(l, world{art: a, tiles: tiles, wild: wild, towns: towns})
 	w := game.NewObject("world")
 	w.AddScript(f.clock)
@@ -33,10 +34,11 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	g.Add(w)
 	o, p := newFarmer(f, ctl)
 	f.player, f.hands = o, p
-	o.Transform.Position = standIn(f, stallCol, stallRow+1)
+	o.Transform.Position = standIn(f, where.spawn.Col, where.spawn.Row)
 	g.Add(o)
+	homeDoor = where.door
 	g.Add(f.newStall(farmStall))
-	g.Add(f.newHouse(0, homeCorner, true))
+	g.Add(f.newHouse(0, town.Cell{Col: where.home.col, Row: where.home.row}, true))
 	wild.Props = f.props
 	// The wild makes its chunks, and the towns wake, where the camera has
 	// just been pointed, so they come after the farmer, whom it follows.

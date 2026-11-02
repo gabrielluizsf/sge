@@ -34,6 +34,7 @@ func main() {
 		"building": flag.Bool("buildings", false, "bake the houses and things package building builds, and no asset"),
 		"tree":     flag.Bool("trees", false, "bake the trees package tree grows, every species, size and seed, and no asset"),
 		"water":    flag.Bool("water", false, "bake the shores of the lake and the sea, and no asset"),
+		"import":   flag.Bool("imports", false, "bake the models of your own in SGE_IMPORTS the farm draws, and no asset"),
 	}
 	workers := flag.Int("workers", 1, "how many frames are baked at once; each takes a core")
 	flag.Parse()

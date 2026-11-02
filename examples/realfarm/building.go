@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gabrielluizsf/sge/building"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 	"github.com/gabrielluizsf/sge/sprite"
 )
 
@@ -18,18 +19,19 @@ const (
 // of the stylized art's while the baker has not made it.
 func (a *realArt) Building(name string) *sprite.Sprite {
 	id, heading := buildingOf(name)
-	b, ok := a.bake(fmt.Sprintf("building_%s_%d", id, heading))
+	b, ok := a.first(bakes.ImportName(id, heading), fmt.Sprintf("building_%s_%d", id, heading))
 	if !ok {
 		return a.Art.Building(name)
 	}
-	return &sprite.Sprite{Image: b.cv, PivotX: float64(b.at.PivotX) / float64(b.at.W), PivotY: float64(b.at.PivotY) / float64(b.at.H)}
+	dx, dy := a.pivotShift(name, heading)
+	return &sprite.Sprite{Image: b.cv, PivotX: (float64(b.at.PivotX) + dx) / float64(b.at.W), PivotY: (float64(b.at.PivotY) + dy) / float64(b.at.H)}
 }
 
 // buildingOf is the building and the heading of the sprite called name:
 // "stall", or "house" and a kind, with "_back" after it when the door
 // faces away.
 func buildingOf(name string) (string, int) {
-	if name == "stall" {
+	if name == "stall" || name == "well" {
 		return name, frontHeading
 	}
 	var kind int

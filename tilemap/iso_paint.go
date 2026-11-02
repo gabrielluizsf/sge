@@ -22,7 +22,7 @@ func (m *Map) paintCell(cv *canvas.Canvas, col, row int) {
 		return
 	}
 	t := m.Tiles.trim(id)
-	x, y := m.isoAt(col, row)
+	x, y := m.isoAt(col, row, t)
 	x, y = x+t.dx, y+t.dy
 	clip := cv.Clip
 	if x >= clip.X+clip.Width || y >= clip.Y+clip.Height || x+t.img.Width <= clip.X || y+t.img.Height <= clip.Y {

@@ -12,6 +12,7 @@ func (b *Baker) Tasks() []Task {
 	all = append(all, b.buildingTasks()...)
 	all = append(all, b.modelTasks()...)
 	all = append(all, b.treeTasks()...)
+	all = append(all, b.importTasks()...)
 	all = append(all, b.peopleTasks()...)
 	var core, rest []Task
 	for _, t := range all {

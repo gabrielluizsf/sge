@@ -41,7 +41,7 @@ func (m *mind) chopJob(f *farm) *job {
 	var near []*job
 	for r := c.Row - 9; r <= c.Row+9; r++ {
 		for col := c.Col - 15; col <= c.Col+15; col++ {
-			if f.thingAt(col, r) != tileID["tree0"] {
+			if !isTree(f.thingAt(col, r)) {
 				continue
 			}
 			for _, s := range []struct {

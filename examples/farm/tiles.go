@@ -18,12 +18,18 @@ func TileNames() []string {
 		"grass0", "grass1", "grass2", "grass3",
 		"flowers0", "flowers1", "flowers2", "flowers3",
 		"path", "soil_dry", "soil_wet", "fence", "block",
-		"tree0", "tree1", "tree2", "tree3",
 		"stump", "anvil", witheredTile,
 	}
 	for _, c := range crops {
 		for stage := range 5 {
 			names = append(names, fmt.Sprint(c.name, stage))
+		}
+	}
+	for _, biome := range TreeBiomes {
+		for v := range TreeVariants {
+			for f := range TreeFrames {
+				names = append(names, treeName(biome, v, f))
+			}
 		}
 	}
 	names = append(names, interiorNames...)
@@ -57,6 +63,7 @@ func newTiles(a Art) *tilemap.TileSet {
 	tiles := tilemap.NewLazyTileSet(tilemap.Lazy{Count: len(names), Width: isoW, Height: isoH,
 		Make: func(id int) *canvas.Canvas { return a.Tile(names[id]) }})
 	tiles.CellWidth, tiles.CellHeight = tile, tile
+	tiles.Reach = a.Reach()
 	id := func(names ...string) []int {
 		ids := make([]int, len(names))
 		for i, n := range names {
@@ -64,14 +71,21 @@ func newTiles(a Art) *tilemap.TileSet {
 		}
 		return ids
 	}
-	tiles.SetSolid(true, id("fence", "block", "tree0", "anvil")...)
+	tiles.SetSolid(true, id("fence", "block", "stump", "anvil")...)
 	tiles.SetSolid(true, id(interiorNames[len(interiorFloors):]...)...)
 	// Grass, flowers and trees sway each in their own time; water ripples
 	// all together, shores and all.
 	gridded := a.Gridded()
 	tiles.Animate(tileID["grass0"], tilemap.Animation{Frames: id("grass0", "grass1", "grass2", "grass3"), FPS: 2, Staggered: true, Parity: gridded})
 	tiles.Animate(tileID["flowers0"], tilemap.Animation{Frames: id("flowers0", "flowers1", "flowers2", "flowers3"), FPS: 2, Staggered: true, Parity: gridded})
-	tiles.Animate(tileID["tree0"], tilemap.Animation{Frames: id("tree0", "tree1", "tree2", "tree3"), FPS: 1.5, Staggered: true})
+	for _, biome := range TreeBiomes {
+		for v := range TreeVariants {
+			frames := id(treeName(biome, v, 0), treeName(biome, v, 1), treeName(biome, v, 2), treeName(biome, v, 3))
+			treeIDs[frames[0]] = true
+			tiles.SetSolid(true, frames[0])
+			tiles.Animate(frames[0], tilemap.Animation{Frames: frames, FPS: 1.5, Staggered: true})
+		}
+	}
 	// Water is no wall: the farmer swims in it.
 	for _, mask := range terrain.Masks() {
 		tiles.Animate(shore(mask), tilemap.Animation{Frames: id(shoreName(mask, 0), shoreName(mask, 1), shoreName(mask, 2), shoreName(mask, 3)), FPS: 4})

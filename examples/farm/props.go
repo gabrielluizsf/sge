@@ -14,7 +14,7 @@ func (f *farm) props(cx, cy int) []*game.Object {
 	}
 	var objs []*game.Object
 	mid := town.Cell{Col: cx*size + size/2, Row: cy*size + size/2}
-	for _, t := range f.towns.Near(mid.Col, mid.Row, size/2+town.Reach+2) {
+	for _, t := range f.towns.Near(mid.Col, mid.Row, size/2+f.towns.Reach()+2) {
 		for _, h := range t.Houses {
 			if in(town.Cell{Col: h.Col, Row: h.Row}) {
 				objs = append(objs, f.newHouse(h.Kind, town.Cell{Col: h.Col, Row: h.Row}, h.Door.Row > h.Row))
@@ -22,6 +22,9 @@ func (f *farm) props(cx, cy int) []*game.Object {
 		}
 		if in(t.Stall) {
 			objs = append(objs, f.newStall(t.Stall))
+		}
+		if r := wellRect(f.art, t); r.cols > 0 && in(t.Well) {
+			objs = append(objs, f.newWell(r))
 		}
 	}
 	return objs

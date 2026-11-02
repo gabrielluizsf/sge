@@ -26,11 +26,12 @@ func (m *Map) isoBox(v collider.Box) cellRange {
 	// lower: a tile reaching up tall cells high shows from that far in.
 	o := m.cellBox(0, 0)
 	diamond := g.ToScreen(vector.Vector3{X: o.X + o.Width, Y: o.Y + o.Height}).Y - g.ToScreen(vector.Vector3{X: o.X, Y: o.Y}).Y
-	tall := 0
+	tall, wide := 0, 0
 	if diamond > 0 {
-		tall = int(math.Ceil(float64(m.Tiles.Height) / (diamond / 2)))
+		tall = int(math.Ceil(float64(m.Tiles.Height+m.Tiles.Reach) / (diamond / 2)))
+		wide = int(math.Ceil(float64(m.Tiles.Reach) / (diamond / 2)))
 	}
 	c0, r0, _ := m.CellAt(v.X, v.Y)
 	c1, r1, _ := m.CellAt(v.X+v.Width, v.Y+v.Height)
-	return cellRange{c0: max(c0, 0), r0: max(r0, 0), c1: min(c1+tall, m.Cols-1), r1: min(r1+tall, m.Rows-1)}.checked()
+	return cellRange{c0: max(c0-wide, 0), r0: max(r0-wide, 0), c1: min(c1+tall, m.Cols-1), r1: min(r1+tall, m.Rows-1)}.checked()
 }

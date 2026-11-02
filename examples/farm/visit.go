@@ -5,7 +5,6 @@ import (
 
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/pathfind"
-	"github.com/gabrielluizsf/sge/town"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
@@ -61,7 +60,7 @@ func (f *farm) doorAt(col, row int) (houseDoor, bool) {
 	if col == homeDoor.Col && row == homeDoor.Row {
 		return houseDoor{at: homeDoor, faceOut: "down", kind: 0, seed: seed, own: true}, true
 	}
-	for _, t := range f.towns.Near(col, row, town.Reach+4) {
+	for _, t := range f.towns.Near(col, row, f.towns.Reach()+4) {
 		for i, h := range t.Houses {
 			if h.Door.Col == col && h.Door.Row == row {
 				out := "up"

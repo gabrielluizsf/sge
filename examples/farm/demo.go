@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/pathfind"
 )
 
 // Demo is a run of the game by itself, without a window or sound: Frames
@@ -25,6 +26,11 @@ func (s *Session) Play(d Demo) (*canvas.Canvas, error) {
 		s.Game.Step(1.0 / 60)
 	}
 	return cv, nil
+}
+
+// Stand puts the player on cell col, row, to look at the world there.
+func (s *Session) Stand(col, row int) {
+	s.f.player.Transform.Position = s.f.center(pathfind.Cell{Col: col, Row: row})
 }
 
 // Report is how the farm is doing: its money, what it has sold, its

@@ -55,10 +55,19 @@ func TestNewDrawsWithItsArt(t *testing.T) {
 	if _, err := s.Play(Demo{Frames: 1, Width: 320, Height: 240}); err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"tile grass0", "tile tree0", "building stall", "building house0", "person true"} {
+	for _, want := range []string{"tile grass0", "building stall", "building house0", "person true"} {
 		if !r.asked[want] {
 			t.Errorf("the art was not asked for %s", want)
 		}
+	}
+	trees := 0
+	for name := range r.asked {
+		if _, ok := TreeFrame(strings.TrimPrefix(name, "tile ")); ok && strings.HasPrefix(name, "tile ") {
+			trees++
+		}
+	}
+	if trees == 0 {
+		t.Error("the art was not asked for a tree")
 	}
 	o, p := s.f.player, s.f.hands
 	p.facing = vector.Vector3{X: 1} // east in the world, down and right on screen

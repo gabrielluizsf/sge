@@ -8,7 +8,7 @@ import "github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 var (
 	grounds   = []string{"sparse_grass", "farm_soil", "grass_path_2", "coast_sand_01"}
 	models    = []string{"dandelion_01", "rock_07"}
-	buildings = []string{"stall", "anvil"}
+	buildings = []string{"stall", "anvil", "well", "fence_straight"}
 )
 
 // needed reports whether the farm draws what t bakes. The houses are all

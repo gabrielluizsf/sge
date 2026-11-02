@@ -24,14 +24,15 @@ func (a *realArt) tile(name string) *canvas.Canvas {
 	if n, _ := fmt.Sscanf(name, "shore%d_%d", &mask, &f); n == 2 {
 		return a.shoreTile(mask, f)
 	}
+	if cv := a.treeTile(name); cv != nil {
+		return cv
+	}
 	base, k := splitNumber(name)
 	switch base {
 	case "grass":
 		return a.groundTile(grassGround, k)
 	case "flowers":
 		return a.flowersTile(k)
-	case "tree":
-		return a.treeTile(k)
 	}
 	if contains(art.CropNames, base) {
 		return a.cropTile(base, k)
@@ -45,10 +46,12 @@ func (a *realArt) tile(name string) *canvas.Canvas {
 		return a.groundTile(soilGround, 0)
 	case "soil_wet":
 		return a.wetSoilTile()
-	case "block":
-		return a.thingTile("rock_07")
+	case "block": // what stands on a building's cells: they show its picture, not a rock
+		return newFrame()
 	case "anvil":
 		return a.buildingTile("anvil")
+	case "fence":
+		return a.buildingTile("fence_straight")
 	}
 	return nil
 }

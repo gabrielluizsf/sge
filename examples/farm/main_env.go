@@ -11,7 +11,8 @@ import (
 // frames by itself instead, without a window, at a fixed step, and prints
 // how the farm did, so a run in Go and one on Deno can be compared;
 // FARM_SHOT=file.png also saves the last frame, of a view
-// FARM_VIEW=widthxheight in size. Main exits on an error.
+// FARM_VIEW=widthxheight in size, and FARM_AT=col,row stands the player
+// on a cell first, to look at a place. Main exits on an error.
 func Main(a Art, title string) {
 	frames, _ := strconv.Atoi(os.Getenv("FARM_DEMO"))
 	w, h := 1280, 720
@@ -20,6 +21,10 @@ func Main(a Art, title string) {
 		return
 	}
 	s := New(a, Bot(10))
+	var col, row int
+	if n, _ := fmt.Sscanf(os.Getenv("FARM_AT"), "%d,%d", &col, &row); n == 2 {
+		s.Stand(col, row)
+	}
 	fmt.Sscanf(os.Getenv("FARM_VIEW"), "%dx%d", &w, &h)
 	cv, err := s.Play(Demo{Frames: frames, Width: w, Height: h})
 	exitOn(err)

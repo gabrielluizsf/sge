@@ -19,6 +19,12 @@ type Art interface {
 	// "icon_axe_" and an axe's name, or "icon_" and a seed's, a crop's or
 	// "wood".
 	Icon(name string) *canvas.Canvas
+	// Reach is how many pixels beyond TileW by TileH a tile's picture
+	// may reach, up and to each side: the trees a look grows to their real
+	// size are larger than a cell, and stand on their bottom middle. A
+	// picture of another size than TileW by TileH is placed so; 0 when
+	// all are of that size.
+	Reach() int
 	// Gridded is whether the grass and the flowers are laid by the cells'
 	// parity, not swaying: "grass0" to "grass3" and "flowers0" to
 	// "flowers3" are then the four patches of a ground that spans two
@@ -36,6 +42,11 @@ type Art interface {
 	// Houses is how many kinds of house there are; the towns are laid out
 	// with as many.
 	Houses() int
+	// Footprint is how many cells across and deep the building name, as
+	// Building has it, stands on: what it covers, and so what is solid
+	// and what no other building may touch. The houses and the stall of
+	// a look as large as its pictures are are spaced by it.
+	Footprint(name string) (cols, rows int)
 	// Person is how who looks and moves.
 	Person(who Who) Body
 	// Text is s in the HUD's letters, in the palette's ink: 'k' for text

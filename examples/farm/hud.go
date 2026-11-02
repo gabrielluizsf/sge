@@ -55,7 +55,7 @@ func (h *hud) Paint(o *game.Object, cv *canvas.Canvas) {
 func (h *hud) cursor(cv *canvas.Canvas) {
 	col, row := h.p.target(h.farmer)
 	f := h.f
-	tree := f.slot == slotAxe && f.thingAt(col, row) == tileID["tree0"]
+	tree := f.slot == slotAxe && isTree(f.thingAt(col, row))
 	if h.p.wet || f.room != nil || f.plotAt(col, row) == nil && !tree {
 		return
 	}

@@ -23,11 +23,17 @@ type world struct {
 // the water's edge; the towns, their streets and gardens, their houses'
 // cells and the smithy's, and the road to the farm, kept clear of both.
 // Nothing of it lies on the farm, nor beside its edge.
-func newWild(tiles *tilemap.TileSet, farmSize [2]int, towns *town.Layout) *terrain.World {
+func newWild(w world, farmSize [2]int) *terrain.World {
+	tiles, towns := w.tiles, w.towns
+	road := highway(towns.Reach())
 	cols, rows := farmSize[0], farmSize[1]
 	onFarm := func(c, r int) bool { return c >= 0 && r >= 0 && c < cols && r < rows }
-	nearFarm := func(c, r int) bool { return c >= -2 && r >= -2 && c < cols+2 && r < rows+2 }
-	built := func(c, r, margin int) bool { return towns.Grounds(c, r, margin) || highway(c, r, margin) }
+	edge := 2 // a look with trees grown large keeps them further off the farm's fence
+	if w.art.Reach() > 0 {
+		edge = 6
+	}
+	nearFarm := func(c, r int) bool { return c >= -edge && r >= -edge && c < cols+edge && r < rows+edge }
+	built := func(c, r, margin int) bool { return towns.Grounds(c, r, margin) || road(c, r, margin) }
 	gen := &terrain.Generator{Tiles: tiles, Layers: 3}
 	gen.Add(terrain.Area{Name: "grass", Layer: wildGround,
 		In: func(c, r int) bool { return !onFarm(c, r) },
@@ -39,7 +45,7 @@ func newWild(tiles *tilemap.TileSet, farmSize [2]int, towns *town.Layout) *terra
 		}})
 	gen.Add(terrain.Area{Name: "road", Layer: wildGround, In: func(c, r int) bool {
 		t := towns.At(c, r)
-		return highway(c, r, 0) || t != nil && t.Road(c, r)
+		return road(c, r, 0) || t != nil && t.Road(c, r)
 	}, Tile: func(int, int) int { return tileID["path"] }})
 	gen.Add(terrain.Area{Name: "gardens", Layer: wildGround, In: func(c, r int) bool {
 		t := towns.At(c, r)
@@ -61,28 +67,34 @@ func newWild(tiles *tilemap.TileSet, farmSize [2]int, towns *town.Layout) *terra
 	water := terrain.Memo(terrain.Open(raw), 1<<14)
 	gen.Add(terrain.Area{Name: "water", Layer: wildWater, In: water, Tile: terrain.Edged(water, shore)})
 	woods := terrain.Blob(seed+2, 12, 0.55)
-	thick := terrain.Scatter(seed+3, 0.5, 1)
-	lone := terrain.Scatter(seed+4, 0.04, 2)
+	// Trees grown to their real size need room: a look whose pictures are
+	// larger than a cell spaces them wider.
+	thickGap, loneGap, keepOff := 1, 2, 1
+	if w.art.Reach() > 0 {
+		thickGap, loneGap, keepOff = 3, 4, 5
+	}
+	thick := terrain.Scatter(seed+3, 0.5, thickGap)
+	lone := terrain.Scatter(seed+4, 0.04, loneGap)
 	tree := func(c, r int) bool {
 		if !(woods(c, r) && thick(c, r) || lone(c, r)) {
 			return false
 		}
-		return !nearFarm(c, r) && !built(c, r, 1) && !gen.Near("water", c, r, 1)
+		return !nearFarm(c, r) && !built(c, r, keepOff) && !gen.Near("water", c, r, 1)
 	}
-	gen.Add(terrain.Area{Name: "trees", Layer: wildThings, In: tree, Tile: func(int, int) int { return tileID["tree0"] }})
-	gen.Add(terrain.Area{Name: "buildings", Layer: wildThings, In: func(c, r int) bool { return buildingAt(towns, c, r) >= 0 },
-		Tile: func(c, r int) int { return buildingAt(towns, c, r) }})
-	w := terrain.New("wild", gen, 16, zGround, zWater, zThings)
+	gen.Add(terrain.Area{Name: "trees", Layer: wildThings, In: tree, Tile: treeAt})
+	gen.Add(terrain.Area{Name: "buildings", Layer: wildThings, In: func(c, r int) bool { return buildingAt(w, c, r) >= 0 },
+		Tile: func(c, r int) int { return buildingAt(w, c, r) }})
+	wild := terrain.New("wild", gen, 16, zGround, zWater, zThings)
 	// Its trees stand among the farmer and each other.
-	w.Sorted = []int{wildThings}
-	return w
+	wild.Sorted = []int{wildThings}
+	return wild
 }
 
-// buildingAt is the tile of what is built on cell col, row of a town: a
-// house's or the stall's cells, solid and drawn by their objects, the
+// buildingAt is the tile of what is built on cell col, row of a town: the
+// cells of a house or of the stall, solid and drawn by their objects, the
 // anvil or the forge; -1 where nothing is.
-func buildingAt(towns *town.Layout, col, row int) int {
-	t := towns.At(col, row)
+func buildingAt(w world, col, row int) int {
+	t := w.towns.At(col, row)
 	if t == nil {
 		return -1
 	}
@@ -92,7 +104,7 @@ func buildingAt(towns *town.Layout, col, row int) int {
 		return tileID["anvil"]
 	case c == t.Forge:
 		return tileID["forge"]
-	case c == t.Stall || t.House(col, row) != nil:
+	case stallRect(w.art, t.Stall).has(col, row) || wellRect(w.art, t).has(col, row) || t.House(col, row) != nil:
 		return tileID["block"]
 	}
 	return -1

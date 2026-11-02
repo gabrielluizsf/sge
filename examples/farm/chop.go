@@ -6,7 +6,8 @@ import "fmt"
 // many strokes as their axe takes, it falls, leaving a stump and giving k
 // some wood. It reports whether there was a tree to strike.
 func (f *farm) chop(k *kit, col, row int) bool {
-	if f.thingAt(col, row) != tileID["tree0"] {
+	tree := f.thingAt(col, row)
+	if !isTree(tree) {
 		return false
 	}
 	at := f.ground.CellCenter(col, row)
@@ -26,7 +27,7 @@ func (f *farm) chop(k *kit, col, row int) bool {
 	n := f.luck.Between(1, a.most)
 	k.bag.Add(wood, n)
 	f.setThing(col, row, tileID["stump"])
-	f.stumps = append(f.stumps, &stump{col: col, row: row, left: regrowIn})
+	f.stumps = append(f.stumps, &stump{col: col, row: row, tree: tree, left: regrowIn})
 	f.float(at, fmt.Sprint("+", n, " madeira"), 'y')
 	f.sound("fell", &at)
 	return true

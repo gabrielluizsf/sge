@@ -17,6 +17,10 @@ const TreeSeeds = 3
 // ipê, of the fields.
 const FarmTree = "ipe_green"
 
+// TreeHeadings is how many of the headings a tree is baked at: the game
+// stands each tree at one, and trees differ by seed.
+const TreeHeadings = 1
+
 // barkIDs are the assets, by id, the species' barks are read from.
 var barkIDs = struct{ Pine, Smooth, Palm string }{"pine_bark", "bark_platanus", "palm_tree_bark"}
 
@@ -34,7 +38,7 @@ func TreeTask(species string, size tree.Size, seed int) string {
 }
 
 // treeTasks bake every species package tree grows, at every size, a few
-// trees of each, at every heading, clad in the barks the manifest pins:
+// trees of each, at its headings, clad in the barks the manifest pins:
 // tree_<species>_s<size>_<seed>_<heading>.
 func (b *Baker) treeTasks() []Task {
 	var out []Task
@@ -42,21 +46,21 @@ func (b *Baker) treeTasks() []Task {
 		for size := tree.Sapling; size < tree.Sizes; size++ {
 			for seed := range TreeSeeds {
 				t := treeSpot{s, size, seed}
-				out = append(out, Task{Name: TreeTask(s.Name, size, seed), Kind: "tree", ID: s.Name, Core: s.Name == FarmTree && size == tree.Sapling && seed == 0, Run: func() error { return b.tree(t) }})
+				out = append(out, Task{Name: TreeTask(s.Name, size, seed), Kind: "tree", ID: s.Name, Core: true, Run: func() error { return b.tree(t) }})
 			}
 		}
 	}
 	return out
 }
 
-// tree bakes the tree t at every heading, a core each.
+// tree bakes the tree t at its headings, a core each.
 func (b *Baker) tree(t treeSpot) error {
 	barks, err := b.Barks()
 	if err != nil {
 		return err
 	}
 	model := t.species.Grow(tree.Spec{Size: t.size, Seed: uint32(t.seed + 1), Barks: barks})
-	return b.each(len(Headings), func(i int) error {
+	return b.each(TreeHeadings, func(i int) error {
 		sp := bake.Render(model, bake.Shot{Yaw: Headings[i]}, Options())
 		return b.Shelf.Put(fmt.Sprintf("tree_%s_s%d_%d_%d", t.species.Name, t.size, t.seed, i), sp)
 	})

@@ -43,7 +43,11 @@ func (h House) Building(name string) Building {
 		h.Storey = 2.8
 	}
 	h.Storeys = max(h.Storeys, 1)
-	return Building{Name: name, Width: h.Width, Depth: h.Depth, build: func(b *builder) { raise(b, h) }}
+	front := 0.0
+	if h.Porch {
+		front = porchDepth + 0.6 // its deck and the steps in front of it
+	}
+	return Building{Name: name, Width: h.Width, Depth: h.Depth, Front: front, build: func(b *builder) { raise(b, h) }}
 }
 
 // raising is a house going up: its builder, its style, and the height of

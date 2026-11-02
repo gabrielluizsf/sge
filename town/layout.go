@@ -10,6 +10,17 @@ type Layout struct {
 	Chance float64
 	// Kinds is how many kinds of houses there are to choose from.
 	Kinds int
+	// Footprint is how many cells across, and deep, a house of a kind
+	// stands on; with none, two by two. The towns are spaced by the
+	// largest, so no two houses touch, and as many houses line a side of
+	// the street, up to two each way, as the region has room for.
+	Footprint func(kind int) Cell
+	// Gap is the cells left between two houses along the street, at least
+	// one.
+	Gap int
+	// Lead is how many cells of plaza the first houses keep from its
+	// middle, at least four.
+	Lead  int
 	Fixed map[Cell]Cell
 	Skip  func(rx, ry int) bool
 	towns map[int]*Town // by region key; nil where there is none
