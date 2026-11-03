@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/antui/canvas"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 	"github.com/gabrielluizsf/sge/game"
@@ -12,10 +13,10 @@ import (
 // bootGroup is the loader group of what the game cannot start without.
 const bootGroup = "boot"
 
-// boot bakes what the farm cannot start without, tasks, in a window of
-// title that shows how far it has come, and returns when it is all baked
-// or the window is closed (an error then).
-func boot(b *bakes.Baker, tasks []bakes.Task) error {
+// boot bakes what the farm cannot start without, tasks, showing how far
+// it has come in the game's one window, win, which it leaves open, and
+// returns when it is all baked or the window is closed (an error then).
+func boot(win *antui.Window, b *bakes.Baker, tasks []bakes.Task) error {
 	var l loader.Loader
 	l.Budget = 1 // one task a frame: each is long, the window is drawn between
 	failed := make(chan error, 1)
@@ -49,9 +50,7 @@ func boot(b *bakes.Baker, tasks []bakes.Task) error {
 		}
 	}))
 	g.Add(o)
-	if err := g.Run("sge realfarm", 960, 540); err != nil {
-		return err
-	}
+	g.Show(win)
 	select {
 	case err := <-failed:
 		return err

@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/sge/examples/farm"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 )
@@ -31,13 +32,25 @@ func main() {
 	if c, ok := kit.LoadCharacter(store); ok { // a hostile or missing file leaves the default player
 		kit.SetPlayer(c)
 	}
-	w := &world{baker: b, demo: os.Getenv("FARM_DEMO") != ""}
+	w := &world{baker: b}
+	art := newArt(b.Shelf).(*realArt)
+	art.world, art.store = w, store
+	if os.Getenv("FARM_DEMO") != "" { // a demo plays what is baked, with no window
+		farm.Main(art, gameTitle)
+		return
+	}
+	// One window for the whole game: the loading screen, the menu, the
+	// character's making and the play follow one another in it.
+	win, err := antui.Open(gameTitle, 1280, 720)
+	if err != nil {
+		fail(err)
+	}
+	w.win = win
 	if err := w.start(); err != nil {
 		fail(err)
 	}
-	art := newArt(b.Shelf).(*realArt)
-	art.world, art.store = w, store
-	farm.Main(art, gameTitle)
+	farm.Play(win, art, gameTitle)
+	win.Close()
 }
 
 func fail(err error) {

@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/game"
+import (
+	"github.com/gabrielluizsf/antui"
+	"github.com/gabrielluizsf/sge/game"
+)
 
 // attract makes s an attract mode with the main menu of the game titled
 // title over it: the world plays on, its farmer the bot's, and the menus
@@ -15,14 +18,15 @@ func (s *Session) attract(title string) *mainMenu {
 	return m
 }
 
-// Menu shows the main menu of the game titled title in a window w by h
-// pixels, over the farm drawn by a playing by itself, until the player
-// chooses; closing the window or "Sair" is StartQuit.
-func Menu(a Art, title string, w, h int) (Pick, error) {
+// Menu shows the main menu of the game titled title in the open window
+// win, over the farm drawn by a playing by itself, until the player
+// chooses; closing the window or "Sair" is StartQuit. The window stays
+// open for the game chosen.
+func Menu(win *antui.Window, a Art, title string) Pick {
 	s := New(a, Bot(10))
 	m := s.attract(title)
-	if err := s.Run(title, w, h); err != nil {
-		return Pick{}, err
+	if !s.Show(win) {
+		return Pick{Start: StartQuit}
 	}
-	return m.pick, nil
+	return m.pick
 }

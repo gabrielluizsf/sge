@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/game"
+import (
+	"github.com/gabrielluizsf/antui"
+	"github.com/gabrielluizsf/sge/game"
+)
 
 // Session is a game of the farm: the engine's game, which plays and draws
 // it, and the farm in it.
@@ -23,4 +26,12 @@ func New(a Art, ctl Controller) *Session {
 func (s *Session) Run(title string, w, h int) error {
 	addSound(s.Game, s.f)
 	return s.Game.Run(title, w, h)
+}
+
+// Show plays s in the open window win, with its sounds, until the window
+// is closed or s quits, leaving win open for what comes next. It reports
+// whether win is still open.
+func (s *Session) Show(win *antui.Window) bool {
+	addSound(s.Game, s.f)
+	return s.Game.Show(win)
 }

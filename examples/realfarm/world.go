@@ -3,22 +3,23 @@ package main
 import (
 	"sync/atomic"
 
+	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 )
 
 // world is the baker and the bakes in the background behind the game.
 type world struct {
 	baker *bakes.Baker
-	stop  *atomic.Bool // set to stop the background bakes under way
-	demo  bool         // a demo has no window to load in
+	stop  *atomic.Bool  // set to stop the background bakes under way
+	win   *antui.Window // the game's one window, nil in a demo, which has none to load in
 }
 
 // start bakes what the game cannot begin without, in a loading screen,
 // and the rest in the background.
 func (w *world) start() error {
 	core, rest := plan(w.baker)
-	if !w.demo {
-		if err := boot(w.baker, core); err != nil {
+	if w.win != nil {
+		if err := boot(w.win, w.baker, core); err != nil {
 			return err
 		}
 		w.stop = new(atomic.Bool)

@@ -1,10 +1,21 @@
 package farm
 
-// play shows the main menu and then plays what it chose, in a window w
-// by h pixels. It exits on an error.
+import "github.com/gabrielluizsf/antui"
+
+// play opens the game's one window, titled title, w by h pixels, and plays
+// in it: the main menu, then what it chose. It exits on an error.
 func play(a Art, title string, w, h int) {
-	p, err := Menu(a, title, w, h)
+	win, err := antui.Open(title, w, h)
 	exitOn(err)
+	Play(win, a, title)
+	win.Close()
+}
+
+// Play shows the main menu of the game titled title in the open window
+// win, and then plays what it chose in the same window: scenes change, the
+// window stays. It returns when the player quits or closes the window.
+func Play(win *antui.Window, a Art, title string) {
+	p := Menu(win, a, title)
 	if p.Start == StartQuit {
 		return
 	}
@@ -16,5 +27,5 @@ func play(a Art, title string, w, h int) {
 		exitOn(s.Load(title))
 	}
 	s.EnableSave(title)
-	exitOn(s.Run(title, w, h))
+	s.Show(win)
 }
