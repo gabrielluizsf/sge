@@ -21,13 +21,14 @@ type Clip struct {
 	FPS    float64
 }
 
-// The animations a person's Body has: standing, walking, using what they
+// The animations a person's Body has: standing, walking, running, using what they
 // hold, chopping with the axe, forging at the anvil, hoeing, watering, picking a crop, swimming, diving into deep water from
 // standing, and rising out of it to stand. The last two are shown once,
 // and should last DiveSeconds and RiseSeconds.
 const (
 	AnimStand = "stand"
 	AnimWalk  = "walk"
+	AnimRun   = "run"
 	AnimAct   = "act"
 	AnimChop  = "chop"
 	AnimForge = "forge"

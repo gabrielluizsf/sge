@@ -29,6 +29,7 @@ func (f *farm) drop(v *villager) {
 		}
 	}
 	f.people = kept
+	f.release(v)
 	if v.obj != nil {
 		v.obj.Destroy()
 		v.obj = nil

@@ -20,6 +20,7 @@ type farmer struct {
 	aim    *[2]int        // the cell the mouse picks, if any
 	acting float64        // seconds left of the use being shown
 	swims  bool           // whether they are in deep water, swimming
+	runs   bool           // whether they are running, on land
 	wet    bool           // whether they are in water, wading or swimming
 	heard  heard          // what of them was last heard
 	// facings is how many ways their body faces on screen, 4 or 8.
@@ -59,7 +60,7 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 	case p.swims:
 		o.Animator.Play(p.pose(o) + "_swim")
 	case moves:
-		o.Animator.Play(p.pose(o) + "_walk")
+		o.Animator.Play(p.pose(o) + moveClip(p.runs, false))
 	default:
 		o.Animator.Play(p.pose(o))
 	}
@@ -82,13 +83,8 @@ func (p *farmer) move(o *game.Object, in intent, dt float64) bool {
 		return false
 	}
 	p.facing = in.dir.Scale(1 / l)
-	step := walkSpeed * dt
-	switch {
-	case p.swims:
-		step = swimSpeed * dt
-	case p.wet:
-		step = wadeSpeed * dt
-	}
+	p.runs = running(in, p.wet, p.swims)
+	step := speedOf(in.run, p.wet, p.swims) * dt
 	if in.upTo > 0 {
 		step = min(step, in.upTo)
 	}

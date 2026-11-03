@@ -27,7 +27,7 @@ func (p *farmer) footsteps(o *game.Object) {
 		switch {
 		case strings.HasSuffix(anim, "_swim") && frame == 0:
 			p.f.sound("stroke", &at)
-		case strings.HasSuffix(anim, "_walk") && frame%2 == 0:
+		case (strings.HasSuffix(anim, "_walk") || strings.HasSuffix(anim, "_run")) && frame%2 == 0:
 			p.f.sound(p.f.stepOn(at.X, at.Y), &at)
 		}
 	}

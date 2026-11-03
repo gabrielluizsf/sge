@@ -113,6 +113,9 @@ type plotState struct {
 	Days    int        `json:"days"`
 	Watered bool       `json:"watered"`
 	Dead    bool       `json:"dead"`
+	// Owner is 1 plus the index in People of the villager whose crop it is
+	// on the farm, 0 for the player's (and for a save with no owners).
+	Owner int `json:"owner"`
 }
 
 // stumpState is a tree felled, growing back.

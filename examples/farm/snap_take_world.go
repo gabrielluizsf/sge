@@ -10,7 +10,7 @@ import (
 func takePlots(f *farm) []plotState {
 	out := make([]plotState, 0, len(f.plots))
 	for _, p := range f.plots {
-		out = append(out, plotState{Col: p.col, Row: p.row, Town: takeRegion(p.town), Crop: p.crop, Stage: p.stage, Days: p.days, Watered: p.watered, Dead: p.dead})
+		out = append(out, plotState{Col: p.col, Row: p.row, Town: takeRegion(p.town), Crop: p.crop, Stage: p.stage, Days: p.days, Watered: p.watered, Dead: p.dead, Owner: 1 + indexOfPerson(f, p.owner)})
 	}
 	return out
 }

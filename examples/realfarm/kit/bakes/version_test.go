@@ -28,7 +28,7 @@ func TestForgeHasItsOwnVersion(t *testing.T) {
 // The hoe and the pour each have their own, apart from every other.
 func TestHoeAndPourHaveTheirOwnVersions(t *testing.T) {
 	seen := map[string]string{}
-	for _, mo := range []human.Motion{human.Stand, human.Chop, human.Forge, human.Hoe, human.Water, human.Pick} {
+	for _, mo := range []human.Motion{human.Stand, human.Chop, human.Forge, human.Hoe, human.Water, human.Pick, human.Run} {
 		v := versionOf(mo)
 		if other, ok := seen[v]; ok {
 			t.Errorf("%s and %s are both %s", mo.Name, other, v)

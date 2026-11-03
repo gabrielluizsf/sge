@@ -32,31 +32,17 @@ func (m *mind) lumberWork(f *farm) *job {
 	return m.chopJob(f)
 }
 
-// chopJob is felling a tree near the town: standing beside it, facing it,
-// striking as many times as the axe takes. Of the trees about, one is
-// picked at random, so the woodcutters spread out.
+// chopJob is felling a tree near the town, or, for the pair on duty
+// today, around the farm: standing beside it, facing it, striking as many
+// times as the axe takes. Of the trees about, one is picked at random, so
+// the woodcutters spread out.
 func (m *mind) chopJob(f *farm) *job {
 	v := m.v
-	c := v.town.Center
-	var near []*job
-	for r := c.Row - 9; r <= c.Row+9; r++ {
-		for col := c.Col - 15; col <= c.Col+15; col++ {
-			if !isTree(f.thingAt(col, r)) {
-				continue
-			}
-			for _, s := range []struct {
-				dc, dr int
-				face   string
-			}{{-1, 0, "right"}, {1, 0, "left"}, {0, -1, "down"}, {0, 1, "up"}} {
-				if f.open(col+s.dc, r+s.dr) {
-					near = append(near, &job{to: pathfind.Cell{Col: col + s.dc, Row: r + s.dr}, face: s.face, slot: slotAxe, uses: axes[v.kit.axe].hits, rest: 1})
-					break
-				}
-			}
+	if f.onDuty(v) {
+		around := area{center: pathfind.Cell{Col: f.ground.Cols / 2, Row: f.ground.Rows / 2}, cols: f.ground.Cols/2 + 12, rows: f.ground.Rows/2 + 9}
+		if j := m.chopIn(f, around, func(col, row int) bool { return !f.onFarm(col, row) }); j != nil {
+			return j
 		}
 	}
-	if len(near) == 0 {
-		return nil
-	}
-	return near[v.luck.Intn(len(near))]
+	return m.chopIn(f, area{center: pathfind.Cell(v.town.Center), cols: 15, rows: 9}, func(int, int) bool { return true })
 }

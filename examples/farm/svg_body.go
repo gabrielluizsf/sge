@@ -24,6 +24,8 @@ func (b svgBody) Clip(anim, dir string) Clip {
 	switch anim {
 	case AnimWalk:
 		return b.clip(8, dir+"1", dir, dir+"2", dir)
+	case AnimRun:
+		return b.clip(13, dir+"1", dir, dir+"2", dir)
 	case AnimAct:
 		return b.clip(1, dir+"Act")
 	case AnimChop:

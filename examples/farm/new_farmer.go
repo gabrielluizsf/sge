@@ -42,7 +42,7 @@ func newPerson(f *farm, who person) (*game.Object, *farmer) {
 }
 
 // addMoves gives an the clips of body facing dir, each under the name the
-// farmer plays it by: dir standing, and dir with "_walk", "_act", "_chop", "_forge", "_hoe", "_water", "_pick"
+// farmer plays it by: dir standing, and dir with "_walk", "_run", "_act", "_chop", "_forge", "_hoe", "_water", "_pick"
 // "_swim", "_dive" or "_rise" after it.
 func addMoves(an *animation.Animator, body Body, dir string) {
 	clip := func(anim string, loop bool) *animation.Animation {
@@ -51,6 +51,7 @@ func addMoves(an *animation.Animator, body Body, dir string) {
 	}
 	an.Add(dir, clip(AnimStand, true))
 	an.Add(dir+"_walk", clip(AnimWalk, true))
+	an.Add(dir+"_run", clip(AnimRun, true))
 	an.Add(dir+"_act", clip(AnimAct, false))
 	an.Add(dir+"_chop", clip(AnimChop, false))
 	an.Add(dir+"_forge", clip(AnimForge, false))

@@ -7,7 +7,7 @@ import "fmt"
 // and whether it is watered today.
 func cropNote(p *plot) string {
 	c := crops[p.crop]
-	name := upperFirst(c.label)
+	name := upperFirst(c.label) + ownerLabel(p)
 	switch {
 	case p.dead:
 		return name + " - murcho"

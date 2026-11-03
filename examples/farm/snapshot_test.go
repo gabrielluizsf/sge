@@ -190,3 +190,38 @@ func TestAnEmptySnapshotIsRefused(t *testing.T) {
 		t.Error("an empty save was taken")
 	}
 }
+
+// A villager's ownership of a plot survives a save, and a hostile owner
+// is refused.
+func TestPlotOwnersRoundTripAndHostileOnesAreRefused(t *testing.T) {
+	f := played(t)
+	if len(f.people) < 2 {
+		t.Skip("no town at region 0, 0")
+	}
+	own := f.people[len(f.people)-1]
+	p := f.plots[0]
+	p.crop, p.owner = cornCrop, own
+	a := takeSnapshot(f)
+	_, g := newGame(idle{})
+	if err := restore(g, &a); err != nil {
+		t.Fatal(err)
+	}
+	if g.plots[0].owner == nil || g.plots[0].owner.id != own.id {
+		t.Fatalf("owner lost: %+v", g.plots[0].owner)
+	}
+	for name, owner := range map[string]int{"past the people": len(a.People) + 1, "negative": -1} {
+		bad := takeSnapshot(f)
+		bad.Plots[0].Owner = owner
+		_, g2 := newGame(idle{})
+		if err := restore(g2, &bad); err == nil {
+			t.Errorf("%s owner accepted", name)
+		}
+	}
+	bare := takeSnapshot(f)
+	last := &bare.Plots[len(bare.Plots)-1]
+	last.Crop, last.Owner = -1, 1
+	_, g3 := newGame(idle{})
+	if err := restore(g3, &bare); err == nil {
+		t.Error("an owner of bare soil accepted")
+	}
+}

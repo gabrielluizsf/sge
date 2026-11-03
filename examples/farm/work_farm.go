@@ -33,6 +33,9 @@ func (m *mind) farmWork(f *farm) *job {
 			}
 		}
 	}
+	if j := m.fieldTend(f); j != nil {
+		return j
+	}
 	seeds := 0
 	for c := range crops {
 		seeds += k.bag.Count(seedsOf(c))
@@ -50,7 +53,7 @@ func (m *mind) farmWork(f *farm) *job {
 			}
 		})
 	}
-	return nil
+	return m.fieldSow(f)
 }
 
 // fetchWater is a trip to the nearest water to fill the can; with none

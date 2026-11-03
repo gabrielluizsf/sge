@@ -54,7 +54,7 @@ var Tread = loop{"tread", 1.5, 12}.of(func(t float64) Pose {
 
 // Motions are every motion a person has: the loops, and the Dive into
 // the water and the Rise out of it, which are run through once.
-var Motions = []Motion{Stand, Walk, Chop, Hoe, Swim, Tread, Dive, Rise}
+var Motions = []Motion{Stand, Walk, Chop, Hoe, Swim, Tread, Dive, Rise, Run}
 
 // MotionsVersion changes whenever a motion does, so what was baked of the
 // old ones is baked again.
@@ -70,9 +70,10 @@ const ChopVersion = 2
 const ForgeVersion = 1
 
 // HoeVersion is the same for the hoe's stroke and the hoe in the hands
-// that swing it, WaterVersion for the pour and its can, and PickVersion for picking a crop.
+// that swing it, WaterVersion for the pour and its can, PickVersion for picking a crop and RunVersion for running.
 const (
 	HoeVersion   = 1
 	WaterVersion = 1
 	PickVersion  = 1
+	RunVersion   = 2
 )

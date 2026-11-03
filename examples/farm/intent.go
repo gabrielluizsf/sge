@@ -15,6 +15,7 @@ type intent struct {
 	face string
 	aim  *[2]int
 	use  bool
+	run  bool // whether they mean to run, holding Shift
 }
 
 // Controller decides a person's intent each frame, dt seconds after the

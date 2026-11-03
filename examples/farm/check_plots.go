@@ -51,6 +51,9 @@ func (c *checker) take(saved map[string]plotState, p *plot) {
 	k := plotSpot(takeRegion(p.town), p.col, p.row)
 	if s, ok := saved[k]; ok {
 		p.crop, p.stage, p.days, p.watered, p.dead = s.Crop, s.Stage, s.Days, s.Watered, s.Dead
+		if s.Owner > 0 {
+			p.owner = c.out.people[s.Owner-1]
+		}
 		delete(saved, k)
 	}
 	c.out.plots = append(c.out.plots, p)
@@ -64,6 +67,9 @@ func (c *checker) checkPlot(p plotState) error {
 		inRange("crop stage", p.Stage, 0, ripe),
 		inRange("crop days", p.Days, 0, maxDays),
 	); err != nil {
+		return err
+	}
+	if err := c.checkOwner(p); err != nil {
 		return err
 	}
 	if p.Crop < 0 && (p.Stage != 0 || p.Days != 0 || p.Dead) {

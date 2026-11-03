@@ -28,6 +28,7 @@ func (b *realBody) Facings() int { return bakes.Facings }
 var motions = map[string][]string{
 	farm.AnimStand: {"stand"},
 	farm.AnimWalk:  {"walk", "stand"},
+	farm.AnimRun:   {"run", "walk", "stand"},
 	farm.AnimAct:   {"hoe", "chop", "stand"},
 	farm.AnimChop:  {"chop", "hoe", "stand"},
 	farm.AnimForge: {"forge", "chop", "hoe", "stand"},

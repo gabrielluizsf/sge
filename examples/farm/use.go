@@ -29,6 +29,10 @@ func (f *farm) useAs(k *kit, col, row int) action {
 		}
 		return actNone
 	}
+	if !f.mayTend(k, p) {
+		f.refuse(k, p)
+		return actNone
+	}
 	at := f.ground.CellCenter(col, row)
 	did := actNone
 	switch {
@@ -75,6 +79,7 @@ func (f *farm) sow(k *kit, p *plot) bool {
 		return false
 	}
 	p.crop, p.stage, p.days = c, 0, 0
+	f.claim(k, p)
 	return true
 }
 
