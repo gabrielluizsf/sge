@@ -55,6 +55,7 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 	}
 	vals := make([]string, st.NumFields())
 	var promoted []string
+	var els []keyed
 	for i, el := range lit.Elts {
 		if kv, ok := el.(*ast.KeyValueExpr); ok {
 			name := kv.Key.(*ast.Ident).Name
@@ -62,6 +63,7 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 			for j := 0; j < st.NumFields(); j++ {
 				if st.Field(j).Name() == name {
 					vals[j] = e.value(kv.Value, st.Field(j).Type())
+					els = append(els, keyed{field: j, js: vals[j], effect: e.effectful(kv.Value)})
 					direct = true
 				}
 			}
@@ -82,6 +84,9 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 		}
 	}
 	made := "new " + e.structClass(t) + "(" + strings.Join(vals[:n], ", ") + ")"
+	if outOfOrder(els) {
+		made = inWrittenOrder(els, vals[:n], e.structClass(t))
+	}
 	if len(promoted) == 0 {
 		return made
 	}
