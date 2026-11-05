@@ -29,7 +29,7 @@ var schedules = map[string]daytime.Schedule{
 // roleLabels are the trades' names on screen, a woman's and a man's.
 var roleLabels = map[string][2]string{
 	roleFarmer:     {"fazendeira", "fazendeiro"},
-	roleLumberjack: {"madeireira", "madeireiro"},
+	roleLumberjack: {"lenhadora", "lenhador"},
 	roleSmith:      {"ferreira", "ferreiro"},
 	roleWanderer:   {"moradora", "morador"},
 }
