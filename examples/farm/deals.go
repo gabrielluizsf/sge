@@ -32,7 +32,7 @@ func (f *farm) tradeWood(d deal) {
 	seller, buyer, price, v := d.seller, d.buyer, d.price, d.with
 	switch {
 	case !seller.bag.Take(wood, 1):
-		f.speak(v, "Não tenho madeira para isso.")
+		f.speak(v, "Você não tem madeira para isso.")
 	case buyer.money < price:
 		seller.bag.Add(wood, 1)
 		f.speak(v, "Falta dinheiro para essa troca.")
