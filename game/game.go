@@ -21,6 +21,12 @@ type Game struct {
 	// Covered says the world draws over the whole canvas every frame, as
 	// an endless terrain does, so the canvas is not cleared first.
 	Covered bool
+	// LazyReach, when above zero, is how many pixels beyond its position a
+	// sprite that makes its image on first use may reach: one not made
+	// yet, and standing further than that outside the canvas, is not
+	// made, as it could show nothing, until it comes near. What is drawn
+	// is the same; only the cost of pictures never seen is saved.
+	LazyReach float64
 	// Camera is the point of the world drawn at the canvas's top-left
 	// corner; objects fixed to the Screen ignore it.
 	Camera vector.Vector3

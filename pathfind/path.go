@@ -14,7 +14,8 @@ func (g Grid) Path(from, to Cell) []Cell {
 	if from == to {
 		return []Cell{}
 	}
-	if !g.Open(to.Col, to.Row) {
+	open := g.asked()
+	if !open(to.Col, to.Row) {
 		return nil
 	}
 	start, ok := key(from)
@@ -35,14 +36,17 @@ func (g Grid) Path(from, to Cell) []Cell {
 		}
 		for i, s := range steps {
 			next := Cell{n.c.Col + s[0], n.c.Row + s[1]}
-			if !g.Open(next.Col, next.Row) || i >= 4 && !(g.Open(n.c.Col+s[0], n.c.Row) && g.Open(n.c.Col, n.c.Row+s[1])) {
+			if !open(next.Col, next.Row) || i >= 4 && !(open(n.c.Col+s[0], n.c.Row) && open(n.c.Col, n.c.Row+s[1])) {
 				continue
 			}
 			nk, ok := key(next)
 			if !ok {
 				continue
 			}
-			c := n.cost + map[bool]float64{true: 1, false: math.Sqrt2}[i < 4]
+			c := n.cost + 1
+			if i >= 4 {
+				c = n.cost + math.Sqrt2
+			}
 			if old, seen := cost[nk]; seen && old <= c {
 				continue
 			}

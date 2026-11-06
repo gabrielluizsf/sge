@@ -38,6 +38,7 @@ func (d drawing) Paint(o *game.Object, cv *canvas.Canvas) {
 		cv.Copy(x0, y0, m.Picture())
 		return
 	}
+	m.tally()
 	if 2*m.glassy >= len(m.cells) {
 		cv.Blit(x0, y0, m.Picture())
 		return

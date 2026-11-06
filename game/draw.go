@@ -65,7 +65,7 @@ func (g *Game) drawObject(o *Object, cv *canvas.Canvas) {
 	if !o.Screen {
 		t.Position = g.ToScreen(t.Position)
 	}
-	if !(o.Fades && g.fadeObject(o, t, cv)) {
+	if !g.farUnmade(o, t) && !(o.Fades && g.fadeObject(o, t, cv)) {
 		o.Look().Draw(cv, t)
 	}
 	for _, s := range o.scripts {

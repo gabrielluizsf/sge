@@ -25,13 +25,14 @@ type Map struct {
 	// Sorted has the map's tiles, in a projected world, each drawn among
 	// the objects of its Z by where it stands, as the trees of a wood a
 	// farmer walks between are; otherwise the map is drawn whole.
-	Sorted  bool
-	cells   []int
-	painted []int   // the tile each cell shows now
-	time    float64 // seconds the map has been in a world, for animations
-	picture *sprite.Sprite
-	version uint64    // counts the cells that have come to show another tile
-	fresh   cellRange // the cells the last step brought up to its time
-	opaques int       // cells showing a tile with no transparent pixel
-	glassy  int       // cells showing a tile with some
+	Sorted   bool
+	cells    []int
+	painted  []int   // the tile each cell shows now
+	time     float64 // seconds the map has been in a world, for animations
+	picture  *sprite.Sprite
+	version  uint64    // counts the cells that have come to show another tile
+	fresh    cellRange // the cells the last step brought up to its time
+	opaques  int       // cells showing a tile with no transparent pixel
+	glassy   int       // cells showing a tile with some
+	counting bool      // whether the two counts above are being kept
 }

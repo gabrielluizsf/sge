@@ -13,6 +13,7 @@ import (
 func (w *World) makeChunk(key, cx, cy int) {
 	cw, ch := w.chunkSize()
 	layers := make([]*tilemap.Map, w.Gen.Layers)
+	seen := map[int]bool{}
 	for l := range layers {
 		m, err := tilemap.New(fmt.Sprint(w.Name, " ", cx, ",", cy, " layer ", l), w.Gen.Tiles, w.Size, w.Size)
 		if err != nil {
@@ -27,6 +28,7 @@ func (w *World) makeChunk(key, cx, cy int) {
 			for c := range w.Size {
 				if id := w.Gen.Tile(l, cx*w.Size+c, cy*w.Size+r); id != tilemap.Empty {
 					m.Set(c, r, id)
+					w.warmUp(id, seen)
 				}
 			}
 		}

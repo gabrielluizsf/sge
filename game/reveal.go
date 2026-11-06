@@ -67,14 +67,8 @@ func Hides(p Placed, nearness float64, covers []Cover) bool {
 	return false
 }
 
-// BlendFaded blends the picture p over cv at RevealOpacity.
+// BlendFaded blends the picture p over cv at RevealOpacity: the picture
+// faded once, and kept for the next frames, is blended as any is.
 func BlendFaded(cv *canvas.Canvas, p Placed) {
-	img, x, y := p.Img, p.X, p.Y
-	for py := range img.Height {
-		for px := range img.Width {
-			if c := img.At(px, py); c.A() > 0 {
-				cv.Pixel(x+px, y+py, canvas.Fade(c, int(float64(c.A())*RevealOpacity+0.5)))
-			}
-		}
-	}
+	cv.Blit(p.X, p.Y, fadedOf(p.Img))
 }
