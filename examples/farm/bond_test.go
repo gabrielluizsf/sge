@@ -66,16 +66,16 @@ func TestAskingOutIsRefused(t *testing.T) {
 	if err := f.askOut(v); err != bond.ErrNotYet {
 		t.Errorf("not fond enough: %v", err)
 	}
-	if offers(f, v, "Pedir em namoro") {
+	if offers(f, v, "Ask out") {
 		t.Error("offered before fond enough")
 	}
 	v.bond.Affection = bond.DateAt
-	if !offers(f, v, "Pedir em namoro") {
+	if !offers(f, v, "Ask out") {
 		t.Error("not offered to a friend fond enough")
 	}
 	young := *v
 	young.life = calendar.Draw(f.fate, 10, f.clock.Day)
-	if err := f.askOut(&young); err != bond.ErrYoung || offers(f, &young, "Pedir em namoro") {
+	if err := f.askOut(&young); err != bond.ErrYoung || offers(f, &young, "Ask out") {
 		t.Errorf("a child: %v", err)
 	}
 	wed(t, f, v)
@@ -83,7 +83,7 @@ func TestAskingOutIsRefused(t *testing.T) {
 	f.passDays(life.AdultFrom * daysPerYear)
 	f.bury(v) // widowed, so free to court
 	kid.bond.Affection = bond.Most
-	if err := f.askOut(kid); err != bond.ErrKin || offers(f, kid, "Pedir em namoro") {
+	if err := f.askOut(kid); err != bond.ErrKin || offers(f, kid, "Ask out") {
 		t.Errorf("their own child: %v", err)
 	}
 }
@@ -101,7 +101,7 @@ func TestCourtingEndsInAWedding(t *testing.T) {
 	if err := f.askOut(v); err != nil || v.bond.Stage() != bond.Dating {
 		t.Fatalf("asked out: %v", err)
 	}
-	if !offers(f, v, "Pedir em casamento") {
+	if !offers(f, v, "Propose") {
 		t.Error("marriage not offered")
 	}
 	other := &villager{id: "other", life: v.life}

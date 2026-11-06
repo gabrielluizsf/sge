@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gabrielluizsf/antui/canvas"
@@ -57,11 +58,30 @@ func isInside(name string) bool {
 // furnitureTile is furnishing f standing on the cells it covers, drawn
 // from the back one: its middle half a cell forward, down the screen, for
 // each cell more it covers across or deep.
-func (a *realArt) furnitureTile(f furnishing) *canvas.Canvas {
-	b, ok := a.first(f.id+"_0", f.id+"_v0_0")
+func (a *realArt) furnitureTile(f furnishing) *canvas.Canvas { return a.turned(f, 0) }
+
+// Turned is the piece name turned heading quarter turns, as its model is
+// baked at four headings, standing as Tile has it; nil when that heading
+// is not baked. A quarter turn swaps the cells it covers across and deep.
+func (a *realArt) Turned(name string, heading int) *canvas.Canvas {
+	if f, ok := furnishings[name]; ok {
+		return a.turned(f, heading)
+	}
+	return nil
+}
+
+// turned is f at heading, or nil if it is not baked at that heading. A
+// model of variants side by side is baked at two headings only, the ones
+// after those turn it the other way round.
+func (a *realArt) turned(f furnishing, heading int) *canvas.Canvas {
+	b, ok := a.first(fmt.Sprintf("%s_%d", f.id, heading), fmt.Sprintf("%s_v0_%d", f.id, heading))
 	if !ok {
 		return nil
 	}
-	fwd := [2]float64{float64(f.cols-1) / 2, float64(f.rows-1) / 2}
-	return b.standingOff(int((fwd[0]-fwd[1])*farm.TileW/2), int((fwd[0]+fwd[1])*farm.TileW/4))
+	cols, rows := f.cols, f.rows
+	if heading%2 == 1 {
+		cols, rows = rows, cols
+	}
+	fwd := [2]float64{float64(cols-1) / 2, float64(rows-1) / 2}
+	return b.standingOff(int((fwd[0]-fwd[1])*farm.TileW/2), int((fwd[0]+fwd[1])*farm.TileW/4), (cols+rows-2)*farm.TileW/4)
 }

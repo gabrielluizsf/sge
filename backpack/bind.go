@@ -44,10 +44,24 @@ func (p *Pack) place(s Spot) Event {
 	id, from := p.held, p.from
 	p.let()
 	switch {
+	case s.Area == Chest && from.Area == Grid && p.Side != nil:
+		return p.crossed(p.Side.Put(id))
+	case s.Area == Grid && from.Area == Chest && p.Side != nil:
+		return p.crossed(p.Side.Take(id))
+	case s.Area == Bar && from.Area == Chest, s.Area == Chest && from.Area == Bar:
+		return Refused
 	case s.Area == Bar:
 		return p.Bind(id, s.Index)
 	case from.Area == Bar:
 		return p.Unbind(from.Index)
 	}
 	return Dropped
+}
+
+// crossed is Stored when an item went between the grid and the store.
+func (p *Pack) crossed(ok bool) Event {
+	if ok {
+		return Stored
+	}
+	return Refused
 }

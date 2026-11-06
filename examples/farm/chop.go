@@ -1,6 +1,6 @@
 package farm
 
-import "fmt"
+import "github.com/gabrielluizsf/sge/examples/i18n"
 
 // chop is k's stroke of their axe at the tree on cell col, row: after as
 // many strokes as their axe takes, it falls, leaving a stump and giving k
@@ -12,7 +12,7 @@ func (f *farm) chop(k *kit, col, row int) bool {
 	}
 	at := f.ground.CellCenter(col, row)
 	if k.axe == noAxe {
-		f.float(at, "Sem machado", 'r')
+		f.float(at, i18n.T("No axe"), 'r')
 		f.sound("deny", nil)
 		return false
 	}
@@ -28,7 +28,8 @@ func (f *farm) chop(k *kit, col, row int) bool {
 	k.bag.Add(wood, n)
 	f.setThing(col, row, tileID["stump"])
 	f.stumps = append(f.stumps, &stump{col: col, row: row, tree: tree, left: regrowIn})
-	f.float(at, fmt.Sprint("+", n, " madeira"), 'y')
+	f.earnBy(k, xpFell)
+	f.float(at, i18n.T("+%d wood", n), 'y')
 	f.sound("fell", &at)
 	return true
 }

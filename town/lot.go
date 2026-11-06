@@ -10,8 +10,18 @@ func (l *Layout) size(kind int) Cell {
 	return Cell{Col: max(c.Col, 1), Row: max(c.Row, 1)}
 }
 
-// lot is the largest footprint of any kind of house.
+// lot is the largest footprint of any kind of house, worked out once:
+// asking Footprint for every kind is too much to repeat for each cell
+// the wild asks a town about.
 func (l *Layout) lot() Cell {
+	if !l.lotKnown {
+		l.biggest, l.lotKnown = l.largest(), true
+	}
+	return l.biggest
+}
+
+// largest is the largest footprint of any kind of house, asked afresh.
+func (l *Layout) largest() Cell {
 	var lot Cell
 	for k := range max(l.Kinds, 1) {
 		c := l.size(k)

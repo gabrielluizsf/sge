@@ -33,14 +33,24 @@ func TileNames() []string {
 			}
 		}
 	}
+	for _, biome := range TreeBiomes {
+		for v := range RockVariants {
+			names = append(names, rockName(biome, v))
+		}
+	}
 	names = append(names, interiorNames...)
 	for _, mask := range terrain.Masks() {
 		for f := range 4 {
 			names = append(names, shoreName(mask, f))
 		}
 	}
+	// Last, so the ids of the trees and rocks a save names stay as they were.
+	names = append(names, fenceDown)
 	return names
 }
+
+// fenceDown is the tile of a fence turned to run down the rows.
+const fenceDown = "fence_down"
 
 // shoreName is the sprite of water f steps into its ripple, with water
 // beside it as mask says.
@@ -48,6 +58,9 @@ func shoreName(mask, f int) string { return fmt.Sprint("shore", mask, "_", f) }
 
 // shore is the tile of water with water beside it as mask says.
 func shore(mask int) int { return tileID[shoreName(mask, 0)] }
+
+// isFence reports whether id is a fence's tile, turned either way.
+func isFence(id int) bool { return id == tileID["fence"] || id == tileID[fenceDown] }
 
 // tileID is the id of each tile in the set, by name.
 var tileID = map[string]int{}
@@ -57,12 +70,12 @@ var tileID = map[string]int{}
 // a cell's diamond, isoW by tile, at the bottom of isoH, what stands on
 // the cell reaching up out of it; its cell in the world stays tile square.
 func newTiles(a Art) *tilemap.TileSet {
-	names := TileNames()
+	names := append(TileNames(), pieceTileNames()...)
 	for i, name := range names {
 		tileID[name] = i
 	}
 	tiles := tilemap.NewLazyTileSet(tilemap.Lazy{Count: len(names), Width: isoW, Height: isoH,
-		Make: func(id int) *canvas.Canvas { return a.Tile(names[id]) }})
+		Make: func(id int) *canvas.Canvas { return drawTile(a, names[id]) }})
 	tiles.CellWidth, tiles.CellHeight = tile, tile
 	tiles.Reach = a.Reach()
 	id := func(names ...string) []int {
@@ -72,8 +85,9 @@ func newTiles(a Art) *tilemap.TileSet {
 		}
 		return ids
 	}
-	tiles.SetSolid(true, id("fence", "block", "stump", "anvil")...)
+	tiles.SetSolid(true, id("fence", fenceDown, "block", "stump", "anvil")...)
 	tiles.SetSolid(true, id(interiorNames[len(interiorFloors):]...)...)
+	tiles.SetSolid(true, id(pieceTileNames()...)...)
 	// Grass, flowers and trees sway each in their own time; water ripples
 	// all together, shores and all.
 	gridded := a.Gridded()
@@ -85,6 +99,13 @@ func newTiles(a Art) *tilemap.TileSet {
 			treeIDs[frames[0]] = true
 			tiles.SetSolid(true, frames[0])
 			tiles.Animate(frames[0], tilemap.Animation{Frames: frames, FPS: 1.5, Staggered: true})
+		}
+	}
+	for _, biome := range TreeBiomes {
+		for v := range RockVariants {
+			id := tileID[rockName(biome, v)]
+			rockIDs[id] = true
+			tiles.SetSolid(true, id)
 		}
 	}
 	// Water is no wall: the farmer swims in it.

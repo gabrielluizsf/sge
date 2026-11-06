@@ -1,11 +1,13 @@
 package bakes
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 
 	"github.com/gabrielluizsf/sge/bake"
 	"github.com/gabrielluizsf/sge/building"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 	"github.com/gabrielluizsf/sge/flora"
 	"github.com/gabrielluizsf/sge/gltf"
 )
@@ -28,6 +30,11 @@ func (b *Baker) iconTasks() []Task {
 	for _, k := range building.Items {
 		out = append(out, Task{Name: "icon " + k.Name, Kind: "icon", ID: k.Name, Core: true, Run: func() error { return b.itemIcon(k) }})
 	}
+	for _, a := range b.Manifest.Assets {
+		if a.ID == StoneModel {
+			out = append(out, Task{Name: "icon stone", Kind: "icon", ID: "stone", Core: true, Run: func() error { return b.stoneIcon(a) }})
+		}
+	}
 	for _, c := range flora.Crops {
 		if c.Name == "withered" {
 			continue // a plant's state, not an item
@@ -44,6 +51,18 @@ func (b *Baker) itemIcon(k building.Building) error {
 		return err
 	}
 	return b.Shelf.Put("icon_"+k.Name, Icon(k.Model(palette)))
+}
+
+// StoneModel is the asset a stone in the bag looks like.
+const StoneModel = "rock_07"
+
+// stoneIcon bakes asset a, a rock, as icon_stone.
+func (b *Baker) stoneIcon(a kit.Asset) error {
+	m, err := Load(a)
+	if err != nil {
+		return fmt.Errorf("%s: %w", a.ID, err)
+	}
+	return b.Shelf.Put("icon_stone", Icon(m))
 }
 
 // cropIcons bakes crop c as picked, its ripe plant, and as seeds, a

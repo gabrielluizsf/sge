@@ -25,7 +25,6 @@ type world struct {
 // Nothing of it lies on the farm, nor beside its edge.
 func newWild(w world, farmSize [2]int) *terrain.World {
 	tiles, towns := w.tiles, w.towns
-	road := highway(towns.Reach())
 	cols, rows := farmSize[0], farmSize[1]
 	onFarm := func(c, r int) bool { return c >= 0 && r >= 0 && c < cols && r < rows }
 	edge := 2 // a look with trees grown large keeps them further off the farm's fence
@@ -33,7 +32,9 @@ func newWild(w world, farmSize [2]int) *terrain.World {
 		edge = 16
 	}
 	nearFarm := func(c, r int) bool { return c >= -edge && r >= -edge && c < cols+edge && r < rows+edge }
-	built := func(c, r, margin int) bool { return towns.Grounds(c, r, margin) || road(c, r, margin) }
+	// The roads between the towns keep off the farm and its edge.
+	towns.Keep = []town.Rect{{C0: -edge, R0: -edge, C1: cols + edge, R1: rows + edge}}
+	built := func(c, r, margin int) bool { return towns.Grounds(c, r, margin) || towns.OnRoad(c, r, margin) }
 	gen := &terrain.Generator{Tiles: tiles, Layers: 3}
 	gen.Add(terrain.Area{Name: "grass", Layer: wildGround,
 		In: func(c, r int) bool { return !onFarm(c, r) },
@@ -45,8 +46,15 @@ func newWild(w world, farmSize [2]int) *terrain.World {
 		}})
 	gen.Add(terrain.Area{Name: "road", Layer: wildGround, In: func(c, r int) bool {
 		t := towns.At(c, r)
-		return road(c, r, 0) || t != nil && t.Road(c, r)
+		return towns.OnRoad(c, r, 0) || t != nil && t.Road(c, r)
 	}, Tile: func(int, int) int { return tileID["path"] }})
+	gen.Add(terrain.Area{Name: "fences", Layer: wildThings, In: towns.Fence,
+		Tile: func(c, r int) int {
+			if towns.FenceDown(c, r) {
+				return tileID[fenceDown]
+			}
+			return tileID["fence"]
+		}})
 	gen.Add(terrain.Area{Name: "gardens", Layer: wildGround, In: func(c, r int) bool {
 		t := towns.At(c, r)
 		if t == nil {
@@ -82,6 +90,16 @@ func newWild(w world, farmSize [2]int) *terrain.World {
 		return !nearFarm(c, r) && !built(c, r, keepOff) && !gen.Near("water", c, r, 1)
 	}
 	gen.Add(terrain.Area{Name: "trees", Layer: wildThings, In: tree, Tile: treeAt})
+	// Rocks lie by biome, apart from each other, the trees and the water,
+	// off the farm, the towns and the roads.
+	rocks := terrain.Scatter(seed+6, rockCeiling, rockGap(w.art))
+	rock := func(c, r int) bool {
+		if !rocks(c, r) || terrain.Chance(seed+13, c, r)*rockCeiling >= rockSpace(c, r) {
+			return false
+		}
+		return !nearFarm(c, r) && !built(c, r, 2) && !gen.Near("water", c, r, 1) && !tree(c, r)
+	}
+	gen.Add(terrain.Area{Name: "rocks", Layer: wildThings, In: rock, Tile: rockAt})
 	gen.Add(terrain.Area{Name: "buildings", Layer: wildThings, In: func(c, r int) bool { return buildingAt(w, c, r) >= 0 },
 		Tile: func(c, r int) int { return buildingAt(w, c, r) }})
 	wild := terrain.New("wild", gen, 16, zGround, zWater, zThings)

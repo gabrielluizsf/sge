@@ -1,6 +1,10 @@
 package farm
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/gabrielluizsf/sge/examples/i18n"
+)
 
 // gifts are what the player may give from the hotbar: the harvest and
 // wood.
@@ -46,30 +50,22 @@ func (f *farm) gift(v *villager, item string) error {
 	}
 	n := liking(v, item)
 	if err := v.bond.Give(n, f.clock.Day); err != nil {
-		f.speak(v, "Já ganhei presente hoje.")
+		f.speak(v, i18n.T("I already got a gift today."))
 		f.sound("deny", nil)
 		return err
 	}
 	f.bag.Take(item, 1)
+	f.earn(xpGift)
 	switch {
 	case n == loved:
-		f.speak(v, "Adorei! Obrigad"+ending(v)+"!")
+		f.speak(v, i18n.TF(v.woman, "I love it! Thank you!"))
 	case n < 0:
-		f.speak(v, "Hum... não gosto disso.")
+		f.speak(v, i18n.T("Hmm... I don't like that."))
 	default:
-		f.speak(v, "Obrigad"+ending(v)+"!")
+		f.speak(v, i18n.TF(v.woman, "Thank you!"))
 	}
 	f.sound("coin", nil)
 	return nil
-}
-
-// ending is the ending of words v says of themself: "a" for a woman, "o"
-// for a man.
-func ending(v *villager) string {
-	if v.woman {
-		return "a"
-	}
-	return "o"
 }
 
 // errNone is having none of what was to be given.

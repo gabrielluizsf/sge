@@ -1,21 +1,18 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/bond"
+import (
+	"github.com/gabrielluizsf/sge/bond"
+	"github.com/gabrielluizsf/sge/examples/i18n"
+)
 
 // bury is villager v dying of old age: gone from their town and the
 // game, dead in the family tree, their partner or the player widowed;
 // their house stays. The player hears of it if they knew them.
 func (f *farm) bury(v *villager) {
 	f.family.Die(v.id)
-	f.drop(v)
-	if v.partner != nil {
-		v.partner.partner = nil
-	}
-	if f.self.spouse == v {
-		f.self.spouse = nil
-	}
+	f.leaveLife(v)
 	if v.ours || v.bond.Affection >= bond.Acquaint {
-		f.notify(v.name + " morreu de velhice.")
+		f.notify(i18n.T("%s died of old age.", v.name))
 	}
 }
 
@@ -45,5 +42,17 @@ func (f *farm) drop(v *villager) {
 	f.residents = home
 	if f.talk != nil && f.talk.v == v {
 		f.talk = nil
+	}
+}
+
+// leaveLife takes the dead villager v out of the game, and out of their
+// partner's life and the player's.
+func (f *farm) leaveLife(v *villager) {
+	f.drop(v)
+	if v.partner != nil {
+		v.partner.partner = nil
+	}
+	if f.self.spouse == v {
+		f.self.spouse = nil
 	}
 }

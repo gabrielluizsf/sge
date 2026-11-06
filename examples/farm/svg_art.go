@@ -21,6 +21,9 @@ func (a *svgArt) Tile(name string) *canvas.Canvas {
 	if f, ok := TreeFrame(name); ok { // one tree, in any biome
 		name = "tree" + itoa(f)
 	}
+	if v, ok := RockVariant(name); ok {
+		name = "rock" + itoa(v)
+	}
 	return picture(spriteSVG(name), isoW/scale, isoH/scale)
 }
 

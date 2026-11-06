@@ -23,7 +23,7 @@ type Clip struct {
 
 // The animations a person's Body has: standing, walking, running, using what they
 // hold, chopping with the axe, forging at the anvil, hoeing, watering, picking a crop, swimming, diving into deep water from
-// standing, and rising out of it to stand. The last two are shown once,
+// standing, rising out of it to stand, and sitting on a chair. The last two are shown once,
 // and should last DiveSeconds and RiseSeconds.
 const (
 	AnimStand = "stand"
@@ -35,9 +35,11 @@ const (
 	AnimHoe   = "hoe"
 	AnimWater = "water"
 	AnimPick  = "pick"
+	AnimMine  = "mine"
 	AnimSwim  = "swim"
 	AnimDive  = "dive"
 	AnimRise  = "rise"
+	AnimSit   = "sit"
 )
 
 // DiveSeconds and RiseSeconds are how long going into deep water and
@@ -57,6 +59,7 @@ const (
 	HoeSeconds   = 1.4
 	WaterSeconds = 2.0
 	PickSeconds  = 1.6
+	MineSeconds  = 0.6
 )
 
 // forgeImpact is how far into a stroke the hammer lands on the iron, as

@@ -106,8 +106,40 @@ func TestABedReachesForwardFromItsBackCell(t *testing.T) {
 		}
 	}
 	wantX := cv.Width/2 + farm.TileW/4 - 20
-	wantY := cv.Height - farm.TileW/4 + farm.TileW/8 - 10
+	// The frame ends at the front cell's corner, a quarter of TileW below
+	// the back one's.
+	wantY := cv.Height - farm.TileW/4 - farm.TileW/4 + farm.TileW/8 - 10
 	if left != wantX || top != wantY {
 		t.Errorf("the bed's picture starts at %d,%d, not %d,%d", left, top, wantX, wantY)
+	}
+}
+
+// A bed's picture reaches down to its front cell's corner, and none of it
+// is cut off: the frame used to end at the back cell's corner, which sank
+// the bed's right side and its shadow into the floor along a straight line.
+func TestABedKeepsAllOfItsPicture(t *testing.T) {
+	shelf, err := bakes.Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The size and pivot of the bed as it is baked.
+	img := image.NewNRGBA(image.Rect(0, 0, 122, 78))
+	for i := range img.Pix {
+		img.Pix[i] = 255
+	}
+	if err := shelf.Put(furnishings["bed"].id+"_0", bake.Sprite{Image: img, Pivot: image.Pt(46, 54)}); err != nil {
+		t.Fatal(err)
+	}
+	cv := newArt(shelf).(*realArt).Tile("bed")
+	n := 0
+	for y := range cv.Height {
+		for x := range cv.Width {
+			if cv.At(x, y).A() > 0 {
+				n++
+			}
+		}
+	}
+	if n != 122*78 {
+		t.Errorf("%d of the picture's %d pixels are left", n, 122*78)
 	}
 }

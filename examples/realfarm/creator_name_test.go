@@ -15,7 +15,7 @@ func focusName(t *testing.T, c *creator) {
 	t.Helper()
 	c.pick(0)
 	c.row = 0
-	if c.at().label != "Nome" {
+	if c.at().label != "Name" {
 		t.Fatalf("the first row is %q, not the name", c.at().label)
 	}
 	c.handle(cin{Select: true})

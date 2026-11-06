@@ -29,7 +29,7 @@ func (f *farm) perches(c vector.Vector3, radius float64) []flock.Perch {
 			switch id := f.thingAt(col, row); {
 			case isTree(id):
 				out = append(out, flock.Perch{At: f.center(at), Height: treeTop})
-			case id == tileID["fence"]:
+			case isFence(id):
 				out = append(out, flock.Perch{At: f.center(at), Height: fenceTop})
 			}
 		}

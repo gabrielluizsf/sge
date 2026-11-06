@@ -76,7 +76,7 @@ func TestRealCreatorScreens(t *testing.T) {
 	c.handle(cin{Select: true})
 	c.handle(cin{Typed: "Ana"})
 	frame("body")
-	c.pick(indexOfCategory(t, c, "Cabelo"))
+	c.pick(indexOfCategory(t, c, "Hair"))
 	c.refresh()
 	frame("head")
 	// colours: time one from the keypress to the picture
@@ -89,12 +89,12 @@ func TestRealCreatorScreens(t *testing.T) {
 	c.advance(1.0 / 60)
 	c.paint(cv)
 	t.Logf("hair colour applied and drawn: %v", time.Since(t4))
-	c.pick(indexOfCategory(t, c, "Pele"))
+	c.pick(indexOfCategory(t, c, "Skin"))
 	c.row = 3
 	c.handle(cin{Dx: 4})
 	waitFor(t, "skin", func() bool { return !live.Busy() })
 	c.advance(1.0 / 60)
-	c.pick(indexOfCategory(t, c, "Roupa"))
+	c.pick(indexOfCategory(t, c, "Clothes"))
 	c.row = 0
 	t5 := time.Now()
 	c.handle(cin{Dx: 1})

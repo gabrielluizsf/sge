@@ -37,6 +37,8 @@ func (a *realArt) iconOf(name string) *canvas.Canvas {
 		return a.hudPicture(drawing{name, heartSVG(true), iconPx, iconPx})
 	case "icon_heart_empty":
 		return a.hudPicture(drawing{name, heartSVG(false), iconPx, iconPx})
+	case "icon_food":
+		return a.hudPicture(drawing{name, foodSVG, iconPx, iconPx})
 	case "icon_bubble":
 		return a.hudPicture(drawing{name, markerSVG, iconPx, iconPx})
 	}

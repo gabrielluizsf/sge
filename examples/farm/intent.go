@@ -16,6 +16,8 @@ type intent struct {
 	aim  *[2]int
 	use  bool
 	run  bool // whether they mean to run, holding Shift
+	// strike says they swing at whoever is in front of them.
+	strike bool
 }
 
 // Controller decides a person's intent each frame, dt seconds after the

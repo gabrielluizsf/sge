@@ -14,26 +14,28 @@ type crop struct {
 	sellPrice  int
 	seedIcon   string
 	cropIcon   string
+	// nutrition is how much food eating one restores.
+	nutrition float64
 }
 
 // crops are what the farm grows, in the order the shop lists them. A
 // crop is planted at stage 0 and ripe at stage ripe.
 var crops = priced([]crop{
-	{name: "carrot", label: "cenoura", daysToRipe: 4},
-	{name: "lettuce", label: "alface", daysToRipe: 3},
-	{name: "potato", label: "batata", daysToRipe: 6},
-	{name: "tomato", label: "tomate", daysToRipe: 7, regrowDays: 3},
-	{name: "beans", label: "feijão", daysToRipe: 6, regrowDays: 3},
-	{name: "corn", label: "milho", daysToRipe: 9},
-	{name: "wheat", label: "trigo", daysToRipe: 5},
-	{name: "pumpkin", label: "abóbora", daysToRipe: 12},
-	{name: "cassava", label: "mandioca", daysToRipe: 14},
-	{name: "strawberry", label: "morango", daysToRipe: 8, regrowDays: 4},
-	{name: "watermelon", label: "melancia", daysToRipe: 11},
-	{name: "pepper", label: "pimenta", daysToRipe: 7, regrowDays: 3},
-	{name: "sugarcane", label: "cana-de-açúcar", daysToRipe: 13},
-	{name: "sunflower", label: "girassol", daysToRipe: 8},
-	{name: "coffee", label: "café", daysToRipe: 18, regrowDays: 5},
+	{name: "carrot", label: "carrot", daysToRipe: 4},
+	{name: "lettuce", label: "lettuce", daysToRipe: 3},
+	{name: "potato", label: "potato", daysToRipe: 6},
+	{name: "tomato", label: "tomato", daysToRipe: 7, regrowDays: 3},
+	{name: "beans", label: "beans", daysToRipe: 6, regrowDays: 3},
+	{name: "corn", label: "corn", daysToRipe: 9},
+	{name: "wheat", label: "wheat", daysToRipe: 5},
+	{name: "pumpkin", label: "pumpkin", daysToRipe: 12},
+	{name: "cassava", label: "cassava", daysToRipe: 14},
+	{name: "strawberry", label: "strawberry", daysToRipe: 8, regrowDays: 4},
+	{name: "watermelon", label: "watermelon", daysToRipe: 11},
+	{name: "pepper", label: "pepper", daysToRipe: 7, regrowDays: 3},
+	{name: "sugarcane", label: "sugarcane", daysToRipe: 13},
+	{name: "sunflower", label: "sunflower", daysToRipe: 8},
+	{name: "coffee", label: "coffee", daysToRipe: 18, regrowDays: 5},
 })
 
 const ripe = 3
@@ -51,6 +53,7 @@ func priced(cs []crop) []crop {
 		c.sellPrice = per*c.daysToRipe + c.daysToRipe*c.daysToRipe/8
 		c.seedPrice = max(3, c.sellPrice/3)
 		c.seedIcon, c.cropIcon = c.name+"Seeds", c.name
+		c.nutrition = 6 + 1.5*float64(c.daysToRipe)
 	}
 	return cs
 }

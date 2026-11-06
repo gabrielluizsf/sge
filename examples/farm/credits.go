@@ -23,7 +23,7 @@ var snigletLicense string
 // letters.
 func (a *svgArt) Credits() []Credit {
 	return []Credit{{
-		Name: "Fonte Sniglet", Author: "Haley Fiege, Brenda Gallo e Pablo Impallari",
+		Name: "Sniglet font", Author: "Haley Fiege, Brenda Gallo and Pablo Impallari",
 		URL: "https://www.fontsquirrel.com/fonts/sniglet", License: func() string { return snigletLicense },
 	}}
 }

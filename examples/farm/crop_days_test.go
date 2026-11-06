@@ -172,7 +172,7 @@ func TestTheCanEmptiesAndRefillsAtWater(t *testing.T) {
 	}
 	p.watered = false
 	f.notices = nil
-	if water(f, p) || p.watered || len(f.notices) == 0 || f.notices[0].text != "O regador está vazio — encha na água" {
+	if water(f, p) || p.watered || len(f.notices) == 0 || f.notices[0].Text != "The watering can is empty — fill it at the water" {
 		t.Fatalf("watered with an empty can: notices %v", f.notices)
 	}
 	dc, dr := dryCell(f)

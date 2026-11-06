@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/save"
+import (
+	"github.com/gabrielluizsf/sge/examples/i18n"
+	"github.com/gabrielluizsf/sge/save"
+)
 
 // saveVersion is the version of the save file's format; saveName its file.
 const (
@@ -9,20 +12,20 @@ const (
 )
 
 // HasSave reports whether the game titled title has a saved game, for a
-// main menu to offer "Iniciar" (continue) or not. It does not check the
+// main menu to offer "Start" (continue) or not. It does not check the
 // save is good: Load does.
 func HasSave(title string) bool {
 	st, err := save.Open(title, saveVersion)
 	return err == nil && st.Has(saveName)
 }
 
-// EnableSave gives the pause menu a "Salvar" button, which saves the game
+// EnableSave gives the pause menu a "Save" button, which saves the game
 // as the one titled title, and says so on screen.
 func (s *Session) EnableSave(title string) {
 	s.f.ui.save = func() {
-		text := "Jogo salvo"
+		text := i18n.T("Game saved")
 		if err := s.Save(title); err != nil {
-			text = "Não foi possível salvar"
+			text = i18n.T("Could not save")
 		}
 		s.f.notify(text)
 		s.f.sound("ui_open", nil)

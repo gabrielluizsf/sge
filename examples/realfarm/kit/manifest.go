@@ -30,7 +30,11 @@ type Asset struct {
 	// Whole is whether a model's roots are the parts of one thing, a
 	// barrel's staves, hoops and lid, baked together, rather than
 	// variants laid side by side, each baked alone.
-	Whole bool         `json:"whole,omitempty"`
+	Whole bool `json:"whole,omitempty"`
+	// Scale is how many times its real size a model is drawn, when not
+	// that: a pebble made a rock one can mine, a stretch of coast one. It
+	// is baked at this size, so it loses nothing to being stretched.
+	Scale float64      `json:"scale,omitempty"`
 	Files []fetch.File `json:"files"`
 }
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gabrielluizsf/sge/bond"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
 // errTaken is asking out one who lives as a couple already, or asking
@@ -13,10 +14,10 @@ var errTaken = errors.New("farm: one of them is taken")
 // chat is talking with v, fonder a little, once a day.
 func (f *farm) chat(v *villager) error {
 	if err := v.bond.Chat(f.clock.Day); err != nil {
-		f.speak(v, "Já conversamos hoje!")
+		f.speak(v, i18n.T("We already talked today!"))
 		return err
 	}
-	f.speak(v, "Que bom conversar com você!")
+	f.speak(v, i18n.T("It's good to talk to you!"))
 	f.sound("ui_tick", nil)
 	return nil
 }
@@ -50,7 +51,7 @@ func (f *farm) askOut(v *villager) error {
 	if v.partner == nil && !f.courting(v) {
 		err = v.bond.AskOut(f.moment(v))
 	}
-	f.answer(v, err, "Sim! Vamos namorar!")
+	f.answer(v, err, i18n.T("Yes! Let's date!"))
 	return err
 }
 
@@ -58,7 +59,7 @@ func (f *farm) askOut(v *villager) error {
 // bond.WeddingAfter days on. It is why not, if not.
 func (f *farm) propose(v *villager) error {
 	err := v.bond.Propose(f.moment(v))
-	f.answer(v, err, "Sim! O casamento é no dia "+itoa(v.bond.WeddingDay()+1)+"!")
+	f.answer(v, err, i18n.T("Yes! The wedding is on day %d!", v.bond.WeddingDay()+1))
 	return err
 }
 
@@ -66,15 +67,15 @@ func (f *farm) propose(v *villager) error {
 func refusal(err error) string {
 	switch err {
 	case bond.ErrYoung:
-		return "Não... somos novos demais para isso."
+		return i18n.T("No... we're too young for that.")
 	case bond.ErrKin:
-		return "Não! Somos da mesma família!"
+		return i18n.T("No! We're family!")
 	case bond.ErrNotYet:
-		return "Ainda não... vamos nos conhecer melhor."
+		return i18n.T("Not yet... let's get to know each other better.")
 	case bond.ErrAlready:
-		return "Mas já estamos juntos!"
+		return i18n.T("But we're already together!")
 	}
-	return "Desculpe, não posso."
+	return i18n.T("Sorry, I can't.")
 }
 
 // answer is v's answer, yes when err is nil, the reason they give when

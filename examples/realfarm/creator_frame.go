@@ -5,7 +5,7 @@ package main
 // what it wears, which it shows whole.
 func framesHead(name string) bool {
 	switch name {
-	case "Pele", "Rosto", "Cabelo", "Olhos":
+	case "Skin", "Face", "Hair", "Eyes":
 		return true
 	}
 	return false

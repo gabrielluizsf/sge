@@ -52,6 +52,9 @@ func TestEveryRowChangesTheCharacter(t *testing.T) {
 			if r.kind == buttonRow || r.kind == textRow {
 				continue
 			}
+			if r.label == "Language" {
+				continue // the game's, not the character's
+			}
 			c.st = stateOf(human.Random(human.Spec{Sex: human.Woman, Age: 30, Seed: 5}))
 			c.st.main = human.Options(human.Top, human.Woman, 30, 0)[0] // a top, so the bottom row is shown
 			c.st.fit()
@@ -80,7 +83,7 @@ func TestEveryCategoryHasRowsToShow(t *testing.T) {
 			t.Errorf("%s shows no row", c.cats[cat].name)
 		}
 	}
-	want := []string{"Corpo", "Pele", "Rosto", "Cabelo", "Olhos", "Roupa", "Aleatório", "Começar"}
+	want := []string{"Body", "Skin", "Face", "Hair", "Eyes", "Clothes", "Random", "Begin"}
 	for i, w := range want {
 		if c.cats[i].name != w {
 			t.Errorf("category %d is %s", i, c.cats[i].name)
@@ -139,7 +142,7 @@ func TestAleatorioMakesANewCoherentPerson(t *testing.T) {
 	c, _ := newTestCreator(t)
 	seen := map[string]bool{c.st.character().Tag(): true}
 	c.pick(6)
-	if c.at().label != "Aleatório" {
+	if c.at().label != "Random" {
 		t.Fatalf("chose %s", c.at().label)
 	}
 	for range 25 {
@@ -158,7 +161,7 @@ func TestComecarCallsDoneOnceWithTheLook(t *testing.T) {
 	c.change(1)
 	want := c.st.character()
 	c.handle(cin{Dy: -1}) // wraps to the last row: Começar
-	if c.at().label != "Começar" {
+	if c.at().label != "Begin" {
 		t.Fatalf("on %s", c.at().label)
 	}
 	c.handle(cin{Select: true})
@@ -172,7 +175,7 @@ func TestTheKeysPickRowsAndChangeValues(t *testing.T) {
 	c, _ := newTestCreator(t)
 	c.pick(0)
 	c.handle(cin{Dy: 1}) // past the name
-	if c.at().label != "Sexo" {
+	if c.at().label != "Sex" {
 		t.Fatalf("starts on %s", c.at().label)
 	}
 	sex := c.st.sex
@@ -182,7 +185,7 @@ func TestTheKeysPickRowsAndChangeValues(t *testing.T) {
 	}
 	c.handle(cin{Dy: 1})
 	c.handle(cin{Dy: 1})
-	if c.at().label != "Músculos" {
+	if c.at().label != "Muscle" {
 		t.Errorf("down twice is %s", c.at().label)
 	}
 	m := c.st.muscle

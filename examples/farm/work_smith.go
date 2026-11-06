@@ -1,8 +1,7 @@
 package farm
 
 import (
-	"fmt"
-
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/pathfind"
 	"github.com/gabrielluizsf/sge/town"
 )
@@ -33,7 +32,7 @@ func (m *mind) smithWork(f *farm) *job {
 			k.bag.Take(wood, n)
 			v.fuel += float64(n)
 			at := f.center(pathfind.Cell(t.Forge))
-			f.float(at, fmt.Sprint("+", n, " lenha"), 'y')
+			f.float(at, i18n.T("+%d wood", n), 'y')
 		}}
 	}
 	if lj := f.lumberjackWith(t, 2); lj != nil && k.money >= 2*woodPrice {
@@ -67,6 +66,6 @@ func (f *farm) buyWood(s, lj *villager) {
 	s.kit.bag.Add(wood, n)
 	s.kit.money -= n * woodPrice
 	lj.kit.money += n * woodPrice
-	f.float(lj.pos, fmt.Sprint(n, " madeira $", n*woodPrice), 'y')
+	f.float(lj.pos, i18n.T("%d wood $%d", n, n*woodPrice), 'y')
 	f.sound("coin", &lj.pos)
 }

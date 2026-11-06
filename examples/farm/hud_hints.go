@@ -1,9 +1,14 @@
 package farm
 
-import "github.com/gabrielluizsf/antui/canvas"
+import (
+	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/backpack"
+	"github.com/gabrielluizsf/sge/examples/i18n"
+)
 
-// hints tells the keys: what E does where the player stands, over their
-// head, and to walk and use things at the top right.
+// hints tells what E does where the player stands, over their head, and
+// how to leave a room, over the hotbar. The other keys are in the pause
+// menu's Commands.
 func (h *hud) hints(cv *canvas.Canvas) {
 	if words, _, ok := h.f.interaction(h.farmer); ok && words != "" {
 		t := h.text(words, 'y')
@@ -11,10 +16,20 @@ func (h *hud) hints(cv *canvas.Canvas) {
 		at := h.farmer.Game().ToScreen(h.farmer.Transform.Position)
 		cv.Blit(int(at.X)-t.Width/2, int(at.Y)-tile-t.Height-scale*6, t)
 	}
-	keys := "Setas: andar   1-6: item   I: mochila   Esc: menu   Espaço/clique: usar   E: interagir"
 	if h.f.room != nil {
-		keys = "Saia pelo tapete da porta"
+		t := h.text(i18n.T("Leave by the door mat"), 'w')
+		x, y := h.wayOutAt(cv, t)
+		cv.Blit(x, y, t)
 	}
-	t := h.text(keys, 'w')
-	cv.Blit(cv.Width-t.Width-8, 8, t)
+}
+
+// wayOutAbove is how far above the hotbar's slots' middle, in pixels of
+// art, the way out of a room is written: over the slots' numbers.
+const wayOutAbove = 24
+
+// wayOutAt is where t, the way out of a room, goes: in the middle over the
+// hotbar, where the toasts at the top of the screen cannot cover it.
+func (h *hud) wayOutAt(cv *canvas.Canvas, t *canvas.Canvas) (x, y int) {
+	bar := h.f.pack.Where(backpack.Spot{Area: backpack.Bar})
+	return (cv.Width - t.Width) / 2, bar.Y - wayOutAbove*scale - t.Height
 }

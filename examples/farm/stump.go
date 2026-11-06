@@ -1,5 +1,7 @@
 package farm
 
+import "github.com/gabrielluizsf/sge/tilemap"
+
 // stump is a tree felled, growing back: its cell, the tile of the tree it
 // was, and the seconds left.
 type stump struct {
@@ -8,8 +10,29 @@ type stump struct {
 	left     float64
 }
 
-// regrowIn is how long a felled tree takes to grow back.
-const regrowIn = 90
+// regrowIn and rockRegrowIn are how long a felled tree and a mined rock
+// take to grow back.
+const (
+	regrowIn     = 90
+	rockRegrowIn = 360
+)
+
+// regrowTime is how long what stood as tile id takes to grow back.
+func regrowTime(id int) float64 {
+	if isRock(id) {
+		return rockRegrowIn
+	}
+	return regrowIn
+}
+
+// leftBy is the tile that stays where tile id was felled or mined: a
+// tree's stump, nothing where a rock was.
+func leftBy(id int) int {
+	if isRock(id) {
+		return tilemap.Empty
+	}
+	return tileID["stump"]
+}
 
 // regrow grows the stumps back into trees when their time is up, unless
 // someone stands on the cell, who would be caught in the trunk: then a
@@ -21,7 +44,7 @@ func (f *farm) regrow(dt float64) {
 			kept = append(kept, s)
 			continue
 		}
-		if f.thingAt(s.col, s.row) == tileID["stump"] {
+		if f.thingAt(s.col, s.row) == leftBy(s.tree) {
 			f.setThing(s.col, s.row, s.tree)
 		}
 	}

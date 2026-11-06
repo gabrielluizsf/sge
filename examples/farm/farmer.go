@@ -19,6 +19,7 @@ type farmer struct {
 	facing vector.Vector3 // the way they face, in the world
 	aim    *[2]int        // the cell the mouse picks, if any
 	acting float64        // seconds left of the use being shown
+	useNow bool           // whether E asked to use what is in hand
 	swims  bool           // whether they are in deep water, swimming
 	runs   bool           // whether they are running, on land
 	wet    bool           // whether they are in water, wading or swimming
@@ -57,6 +58,8 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		return
 	}
 	switch {
+	case p.f.seat != nil && o == p.f.player:
+		o.Animator.Play(p.pose(o) + "_sit")
 	case p.swims:
 		o.Animator.Play(p.pose(o) + "_swim")
 	case moves:
@@ -65,6 +68,10 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		o.Animator.Play(p.pose(o))
 	}
 	p.footsteps(o)
+	if in.strike && !p.swims && p.f.room == nil {
+		p.swing(o)
+		return
+	}
 	if in.use && !p.swims {
 		col, row := p.useCell(o)
 		if did := p.f.useAs(p.kit, col, row); did != actNone {
@@ -79,8 +86,8 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 // where they are, and reports whether they were told to.
 func (p *farmer) move(o *game.Object, in intent, dt float64) bool {
 	l := in.dir.Length()
-	if l == 0 {
-		return false
+	if l == 0 || p.f.seat != nil && o == p.f.player {
+		return false // a seated player is not moved, or pushed
 	}
 	p.facing = in.dir.Scale(1 / l)
 	p.runs = running(in, p.wet, p.swims)

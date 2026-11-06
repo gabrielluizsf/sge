@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/life"
+import (
+	"github.com/gabrielluizsf/sge/examples/i18n"
+	"github.com/gabrielluizsf/sge/life"
+)
 
 // labelOf is who v is to the player, on screen: their spouse, their
 // child, or of their family; otherwise a child or a youth of the town,
@@ -8,15 +11,15 @@ import "github.com/gabrielluizsf/sge/life"
 func (f *farm) labelOf(v *villager) string {
 	switch {
 	case v == f.self.spouse:
-		return pick(v, "esposa", "marido")
+		return i18n.TF(v.woman, "wife")
 	case f.childOf(v):
-		return pick(v, "filha", "filho")
+		return i18n.TF(v.woman, "daughter")
 	case v.ours:
-		return "família"
+		return i18n.T("family")
 	case v.stage() < life.Teen:
-		return pick(v, "menina", "menino")
+		return i18n.TF(v.woman, "girl")
 	case v.stage() < life.Adult:
-		return "jovem"
+		return i18n.T("youth")
 	}
 	return roleLabel(v)
 }

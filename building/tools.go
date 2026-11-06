@@ -4,8 +4,9 @@ import "image/color"
 
 // Items are the things a player carries, as small models to bake into
 // icons: laid on the ground, long along X, to be seen from a corner. The
-// hoe, the watering can, the logs, a coin and an axe with each head.
-var Items = []Building{Hoe, Can, Logs, Coin, AxeStone, AxeIron, AxeGold, AxeDiamond}
+// hoe, the watering can, the logs, a coin, an axe with each head and
+// the pickaxe.
+var Items = []Building{Hoe, Can, Logs, Coin, AxeStone, AxeIron, AxeGold, AxeDiamond, Pickaxe}
 
 // Hoe is a long wooden handle with an iron blade across its end.
 var Hoe = Building{Name: "hoe", Width: 1, Depth: 0.3, build: func(b *builder) {
@@ -64,3 +65,18 @@ func axeOf(name string, head paint) Building {
 		}, head))
 	}}
 }
+
+// Pickaxe is a pickaxe: a wooden handle and, across its end, an iron head
+// of two points curving away from an eye, one to each side. Held two-handed
+// it is swung as the axe is, the points facing the rock.
+var Pickaxe = Building{Name: "pickaxe", Width: 0.9, Depth: 0.7, build: func(b *builder) {
+	iron := paint{of: Iron}
+	b.lay(beam{a: vec{-0.5, 0.03, 0}, b: vec{0.36, 0.03, 0}, w: 0.045, h: 0.045, paint: paint{of: Timber}})
+	b.block(box{lo: vec{0.2, 0.005, -0.05}, hi: vec{0.33, 0.07, 0.05}, paint: iron})
+	for _, side := range []float64{1, -1} {
+		b.convex(hexa([8]vec{
+			{0.2, 0.015, 0.05 * side}, {0.33, 0.015, 0.05 * side}, {0.3, 0.015, 0.3 * side}, {0.27, 0.015, 0.3 * side},
+			{0.2, 0.06, 0.05 * side}, {0.33, 0.06, 0.05 * side}, {0.3, 0.06, 0.3 * side}, {0.27, 0.06, 0.3 * side},
+		}, iron))
+	}
+}}

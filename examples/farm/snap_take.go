@@ -10,6 +10,9 @@ func takeSnapshot(f *farm) snapshot {
 		Errand: takeOrder(f.errand), ErrandDone: f.errandDone,
 		Towns: takeTowns(f), People: takePeople(f),
 	}
+	s.Level, s.XP = f.prog.Level, f.prog.XP
+	s.Vitals = &vitalsState{Health: f.vit.Health, Food: f.vit.Food}
+	s.Home, s.Yard = takeHouse(f), takeYard(f)
 	s.Plots, s.Stumps, s.Hits = takePlots(f), takeStumps(f), takeHits(f)
 	return s
 }

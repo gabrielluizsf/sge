@@ -59,5 +59,5 @@ func (f *farm) solids() []tilemap.Solid {
 	if f.room != nil {
 		return []tilemap.Solid{f.room.things}
 	}
-	return []tilemap.Solid{f.water, f.things, f.wild}
+	return []tilemap.Solid{f.water, f.things, f.wild, chestWalls{f}}
 }

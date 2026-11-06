@@ -58,17 +58,27 @@ func (a *realArt) treeTile(name string) *canvas.Canvas {
 // the tree's foot, on the diamond's middle, the frame as large as the
 // picture needs: the tile set places a larger picture by its own bottom
 // middle.
-func (b *baked) standing() *canvas.Canvas { return b.standingOff(0, 0) }
+func (b *baked) standing() *canvas.Canvas { return b.standingOff(0, 0, 0) }
+
+// standingAll is b standing as standing has it, moved up as far as it takes
+// for all of it to fit: a tile's frame ends at its cell's bottom corner, and
+// a thing wider than its cell would lose what lies below that.
+func (b *baked) standingAll() *canvas.Canvas {
+	below := b.cv.Height - b.at.PivotY
+	return b.standingOff(0, min(0, farm.TileW/4-below), 0)
+}
 
 // standingOff is b standing as standing has it, its pivot dx across and
-// dy down from the diamond's middle.
-func (b *baked) standingOff(dx, dy int) *canvas.Canvas {
+// dy down from the diamond's middle, in a frame that ends drop pixels
+// below the cell's bottom corner, so that a piece reaching over the cells
+// in front keeps what is lower than its own cell.
+func (b *baked) standingOff(dx, dy, drop int) *canvas.Canvas {
 	w := max(farm.TileW, 2*max(b.at.PivotX-dx, b.cv.Width-b.at.PivotX+dx))
-	h := max(farm.TileH, b.at.PivotY-dy+farm.TileW/4)
+	h := max(farm.TileH, b.at.PivotY-dy+farm.TileW/4+drop)
 	cv, err := canvas.NewCanvas(w, h)
 	if err != nil {
 		panic(err)
 	}
-	b.put(cv, [2]int{w/2 + dx, h - farm.TileW/4 + dy})
+	b.put(cv, [2]int{w/2 + dx, h - farm.TileW/4 - drop + dy})
 	return cv
 }

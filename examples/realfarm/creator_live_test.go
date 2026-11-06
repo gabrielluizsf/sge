@@ -92,7 +92,7 @@ func TestFaceCategoriesFrameTheHead(t *testing.T) {
 		c.refresh()
 		want := 0.0
 		switch cat.name {
-		case "Pele", "Rosto", "Cabelo", "Olhos":
+		case "Skin", "Face", "Hair", "Eyes":
 			want = 1
 		}
 		if c.view.goal != want {
@@ -116,25 +116,25 @@ func TestColourRowsDoNotRemakeTheMesh(t *testing.T) {
 	c := liveCreator(t, f)
 	waitFor(t, "first person", func() bool { return !c.live.Busy() })
 	c.advance(1.0 / 60)
-	hair := indexOfCategory(t, c, "Cabelo")
+	hair := indexOfCategory(t, c, "Hair")
 	c.pick(hair)
 	c.row = 1 // the colour
 	for range 6 {
 		c.handle(cin{Dx: 1})
 	}
-	skin := indexOfCategory(t, c, "Pele")
+	skin := indexOfCategory(t, c, "Skin")
 	c.pick(skin)
 	c.row = 3 // the tone
 	c.handle(cin{Dx: 1})
 	c.handle(cin{Dx: 1})
-	eyes := indexOfCategory(t, c, "Olhos")
+	eyes := indexOfCategory(t, c, "Eyes")
 	c.pick(eyes)
 	c.handle(cin{Dx: 1})
 	waitFor(t, "recoloured", func() bool { return !c.live.Busy() })
 	if f.makes() != 1 {
 		t.Fatalf("the mesh was made %d times for colours", f.makes())
 	}
-	c.pick(indexOfCategory(t, c, "Cabelo"))
+	c.pick(indexOfCategory(t, c, "Hair"))
 	c.row = 0 // the style
 	c.handle(cin{Dx: 1})
 	waitFor(t, "remade", func() bool { return f.makes() == 2 && !c.live.Busy() })

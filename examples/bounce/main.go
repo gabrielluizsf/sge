@@ -15,9 +15,11 @@ import (
 
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
 func main() {
+	i18n.Load()
 	win, err := antui.Open("sge bounce", 480, 320)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -39,9 +41,13 @@ func main() {
 		if y < r || y > float64(win.Height()-r) {
 			vy = -vy
 		}
+		if win.KeyPressed(antui.KeyL) {
+			_ = i18n.Change(1) // it changes for this run even if it cannot be kept
+		}
 		win.Clear(canvas.RGB(24, 26, 33))
 		win.Canvas().FillCircle(canvas.Circle{X: int(x), Y: int(y), R: r}, canvas.RGB(240, 180, 40))
-		win.Canvas().Text(canvas.Point{X: 10, Y: 10}, fmt.Sprintf("frame %d", frames), canvas.RGB(220, 220, 220))
+		win.Canvas().Text(canvas.Point{X: 10, Y: 10}, i18n.T("frame %d", frames), canvas.RGB(220, 220, 220))
+		win.Canvas().Text(canvas.Point{X: 10, Y: 26}, i18n.T("Language: %s (L)", i18n.Name()), canvas.RGB(180, 180, 180))
 		frames++
 		if limit > 0 && frames >= limit {
 			if path := os.Getenv("BOUNCE_PNG"); path != "" {

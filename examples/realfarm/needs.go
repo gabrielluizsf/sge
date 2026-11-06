@@ -8,7 +8,7 @@ import "github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 // lists them, the furniture of the houses' insides.
 var (
 	grounds   = []string{"sparse_grass", "farm_soil", "grass_path_2", "coast_sand_01"}
-	models    = []string{"dandelion_01", "rock_07"}
+	models    = []string{"dandelion_01", "rock_07", "boulder_01"}
 	buildings = []string{"stall", "anvil", "forge", "stump", "stove", "well", "fence_straight"}
 )
 

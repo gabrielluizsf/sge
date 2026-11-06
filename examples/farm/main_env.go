@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
 // Main plays the farm drawn by a as a command does, in a window titled
 // title, 1280 by 720 pixels. FARM_DEMO=n in the environment plays n
 // frames by itself instead, without a window, at a fixed step, and prints
 // how the farm did, so a run in Go and one on Deno can be compared;
-// FARM_OPEN=inventory, pause, credits, licence or talk opens that screen for the
+// FARM_OPEN=inventory, fight, pause, credits, licence or talk opens that screen for the
 // last frames; FARM_SHOT=file.png also saves the last frame, of a view
 // FARM_VIEW=widthxheight in size, and FARM_AT=col,row stands the player
 // on a cell first, to look at a place. Without FARM_DEMO the main menu comes first. Main exits on an error.
@@ -18,6 +20,7 @@ func Main(a Art, title string) {
 	frames, _ := strconv.Atoi(os.Getenv("FARM_DEMO"))
 	w, h := 1280, 720
 	if frames <= 0 {
+		i18n.Load()
 		play(a, title, w, h)
 		return
 	}

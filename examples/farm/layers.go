@@ -24,7 +24,9 @@ type layers struct {
 const (
 	zGround = iota
 	zWater
+	zStains
 	zThings
+	zAir
 	zNight
 	zHUD
 )

@@ -17,6 +17,7 @@ func restore(f *farm, s *snapshot) error {
 	}
 	applyWorld(f, s, l)
 	applyPeople(f, s, l)
+	applyHouse(f, s, l)
 	applyPlayer(f, s)
 	return nil
 }
@@ -32,9 +33,12 @@ func applyWorld(f *farm, s *snapshot, l *loaded) {
 	}
 	f.stumps = l.stumps
 	for _, st := range f.stumps {
-		f.setThing(st.col, st.row, tileID["stump"])
+		f.setThing(st.col, st.row, leftBy(st.tree))
 	}
 	f.errand, f.errandDone = orderOf(s.Errand), s.ErrandDone
+	f.prog = progressOf(s)
+	f.vit = vitalsOf(s)
+	f.shown = f.xpValue()
 	f.settled = map[*town.Town]bool{}
 	for _, t := range l.towns {
 		f.settled[t] = true
@@ -70,6 +74,6 @@ func applyPlayer(f *farm, s *snapshot) {
 	}
 	f.talk, f.shop.open, f.question = nil, false, nil
 	pos := f.player.Transform.Position
-	f.player.Transform.Position = vector.Vector3{X: s.At.X, Y: s.At.Y, Z: pos.Z}
+	f.player.Transform.Position = f.freed(vector.Vector3{X: s.At.X, Y: s.At.Y, Z: pos.Z})
 	f.redressPlayer(f.self.who(f.clock.Day))
 }

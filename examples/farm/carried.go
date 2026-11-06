@@ -1,17 +1,18 @@
 package farm
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gabrielluizsf/sge/backpack"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
 // The items that are not crops, seeds or wood: the tools in hand.
 const (
-	itemCan = "can"
-	itemHoe = "hoe"
-	itemAxe = "axe"
+	itemCan  = "can"
+	itemHoe  = "hoe"
+	itemAxe  = "axe"
+	itemPick = "pickaxe"
 )
 
 // seedsSuffix ends the name of an item of seeds.
@@ -29,6 +30,9 @@ func (c carried) Items() []backpack.Item {
 	if f.axe != noAxe {
 		items = append(items, c.tool(itemAxe))
 	}
+	if f.bag.Count(itemPick) > 0 {
+		items = append(items, c.tool(itemPick))
+	}
 	for i := range crops {
 		if f.bag.Count(seedsOf(i)) > 0 {
 			items = append(items, c.seeds(i))
@@ -42,16 +46,28 @@ func (c carried) Items() []backpack.Item {
 	if f.bag.Count(wood) > 0 {
 		items = append(items, c.wood())
 	}
+	if f.bag.Count(stone) > 0 {
+		items = append(items, c.stone())
+	}
+	for _, name := range furnishings {
+		if f.bag.Count(name) > 0 {
+			items = append(items, c.furniture(name))
+		}
+	}
 	return items
 }
 
 // Find is the item id, whether the player has it or not.
 func (c carried) Find(id string) (backpack.Item, bool) {
 	switch {
-	case id == itemCan || id == itemHoe || id == itemAxe:
+	case id == itemCan || id == itemHoe || id == itemAxe || id == itemPick:
 		return c.tool(id), true
 	case id == wood:
 		return c.wood(), true
+	case id == stone:
+		return c.stone(), true
+	case isFurnishing(id):
+		return c.furniture(id), true
 	case strings.HasSuffix(id, seedsSuffix):
 		i, ok := cropIndex(strings.TrimSuffix(id, seedsSuffix))
 		return c.seeds(i), ok
@@ -83,33 +99,36 @@ func (c carried) tool(id string) backpack.Item {
 	f := c.f
 	switch id {
 	case itemCan:
-		return backpack.Item{ID: id, Name: "Regador", Icon: "icon_can", Count: f.inCan(), Hand: true,
-			Info: []string{"Rega a terra para as plantas crescerem", fmt.Sprint("Água: ", f.inCan(), "/", canCapacity), "Encha na água"}}
+		return backpack.Item{ID: id, Name: i18n.T("Watering can"), Icon: "icon_can", Count: f.inCan(), Hand: true,
+			Info: []string{i18n.T("Waters the soil for plants to grow"), i18n.T("Water: %d/%d", f.inCan(), canCapacity), i18n.T("Fill at the water")}}
 	case itemHoe:
-		return backpack.Item{ID: id, Name: "Enxada", Icon: "icon_hoe", Count: -1, Hand: true,
-			Info: []string{"Limpa a planta seca do canteiro"}}
+		return backpack.Item{ID: id, Name: i18n.T("Hoe"), Icon: "icon_hoe", Count: -1, Hand: true,
+			Info: []string{i18n.T("Clears the withered plant from the plot")}}
+	case itemPick:
+		return backpack.Item{ID: id, Name: i18n.T("Pickaxe"), Icon: "icon_pickaxe", Count: -1, Hand: true,
+			Info: []string{i18n.T("Breaks rocks into stone"), i18n.T("%d hits per rock", rockHits)}}
 	}
 	a := axes[max(f.axe, 0)]
-	return backpack.Item{ID: id, Name: "Machado de " + a.label, Icon: "icon_axe_" + a.name, Count: -1, Hand: true,
-		Info: []string{"Corta árvores", fmt.Sprint(a.hits, " golpes por árvore, até ", a.most, " de madeira")}}
+	return backpack.Item{ID: id, Name: i18n.T("%s axe", i18n.T(a.label)), Icon: "icon_axe_" + a.name, Count: -1, Hand: true,
+		Info: []string{i18n.T("Chops trees"), i18n.T("%d hits per tree, up to %d wood", a.hits, a.most)}}
 }
 
 // seeds is the packet of crop i's seeds.
 func (c carried) seeds(i int) backpack.Item {
 	cr := crops[i]
-	return backpack.Item{ID: seedsOf(i), Name: "Sementes de " + cr.label, Icon: "icon_" + cr.seedIcon, Count: c.f.bag.Count(seedsOf(i)), Hand: true,
-		Info: []string{fmt.Sprint("Planta no canteiro; amadurece em ", cr.daysToRipe, " dias"), fmt.Sprint("Compra por $", cr.seedPrice)}}
+	return backpack.Item{ID: seedsOf(i), Name: i18n.T("%s seeds", i18n.T(cr.label)), Icon: "icon_" + cr.seedIcon, Count: c.f.bag.Count(seedsOf(i)), Hand: true,
+		Info: []string{i18n.T("Plant in the plot; ripens in %d days", cr.daysToRipe), i18n.T("Buy for $%d", cr.seedPrice)}}
 }
 
 // harvest is crop i, picked.
 func (c carried) harvest(i int) backpack.Item {
 	cr := crops[i]
-	return backpack.Item{ID: cropOf(i), Name: cr.label, Icon: "icon_" + cr.cropIcon, Count: c.f.bag.Count(cropOf(i)),
-		Info: []string{fmt.Sprint("Vende por $", cr.sellPrice), "Presente para quem gosta"}}
+	return backpack.Item{ID: cropOf(i), Name: i18n.T(cr.label), Icon: "icon_" + cr.cropIcon, Count: c.f.bag.Count(cropOf(i)), Hand: true,
+		Info: []string{i18n.T("Sells for $%d", cr.sellPrice), i18n.T("Eat: +%d food", int(cr.nutrition)), i18n.T("Gift for those who like it")}}
 }
 
 // wood is the wood from the trees.
 func (c carried) wood() backpack.Item {
-	return backpack.Item{ID: wood, Name: "Madeira", Icon: "icon_" + wood, Count: c.f.bag.Count(wood),
-		Info: []string{fmt.Sprint("Vende por $", woodPrice), "Presente para o ferreiro e os lenhadores"}}
+	return backpack.Item{ID: wood, Name: i18n.T("Wood"), Icon: "icon_" + wood, Count: c.f.bag.Count(wood),
+		Info: []string{i18n.T("Sells for $%d", woodPrice), i18n.T("Gift for the smith and the lumberjacks")}}
 }

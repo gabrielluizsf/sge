@@ -2,6 +2,7 @@ package farm
 
 import (
 	"github.com/gabrielluizsf/sge/dialogue"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/face"
 )
 
@@ -36,30 +37,32 @@ const (
 // family, only chat and gifts.
 func (f *farm) lines(v *villager) []line {
 	if v.ours {
-		return append(f.bondLines(v), bye)
+		return append(f.bondLines(v), byeLine())
 	}
 	var ls []line
 	if !v.smith() && len(v.order.Want) > 0 {
-		ls = append(ls, line{text: "Entregar pedido", do: func(f *farm) { f.deliver(v) }})
+		ls = append(ls, line{text: i18n.T("Deliver order"), do: func(f *farm) { f.deliver(v) }})
 	}
 	switch v.role {
 	case roleLumberjack:
 		ls = append(ls,
-			line{text: "Comprar madeira $" + itoa(lumberSells), do: func(f *farm) { f.tradeWood(deal{v.kit, f.kit, lumberSells, v}) }},
-			line{text: "Vender madeira $" + itoa(lumberBuys), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, lumberBuys, v}) }})
+			line{text: i18n.T("Buy wood $%d", lumberSells), do: func(f *farm) { f.tradeWood(deal{v.kit, f.kit, lumberSells, v}) }},
+			line{text: i18n.T("Sell wood $%d", lumberBuys), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, lumberBuys, v}) }})
 	case roleSmith:
 		if !f.errandDone {
-			ls = append(ls, line{text: "Entregar encomenda", do: func(f *farm) { f.doErrand(v) }})
+			ls = append(ls, line{text: i18n.T("Deliver errand"), do: func(f *farm) { f.doErrand(v) }})
 			break
 		}
 		for i := 1; i < len(axes); i++ {
-			ls = append(ls, line{text: "Machado de " + axes[i].label + " $" + itoa(axes[i].price), do: func(f *farm) { f.buyAxe(i, v) }})
+			ls = append(ls, line{text: i18n.T("%s axe $%d", i18n.T(axes[i].label), axes[i].price), do: func(f *farm) { f.buyAxe(i, v) }})
 		}
-		ls = append(ls, line{text: "Vender lenha $" + itoa(woodPrice), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, woodPrice, v}) }})
+		ls = append(ls, line{text: i18n.T("Sell firewood $%d", woodPrice), do: func(f *farm) { f.tradeWood(deal{f.kit, v.kit, woodPrice, v}) }})
 	}
 	ls = append(ls, f.bondLines(v)...)
-	return append(ls, bye)
+	return append(ls, byeLine())
 }
 
-// bye ends the conversation.
-var bye = line{text: "Tchau", do: func(f *farm) { f.talk = nil; f.sound("ui_close", nil) }}
+// byeLine ends the conversation.
+func byeLine() line {
+	return line{text: i18n.T("Bye"), do: func(f *farm) { f.talk = nil; f.sound("ui_close", nil) }}
+}

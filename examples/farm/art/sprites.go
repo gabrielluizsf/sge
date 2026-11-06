@@ -13,10 +13,11 @@ import (
 // diamond, the farmer FarmerW by FarmerH and the icons Size square.
 func Sprites() map[string]string {
 	s := map[string]string{
-		"path":     pathTile(),
-		"soil_dry": soilTile(soilLight, soilBase, soilShade, false),
-		"soil_wet": soilTile(wetLight, wetBase, wetShade, true),
-		"fence":    fenceTile(),
+		"path":       pathTile(),
+		"soil_dry":   soilTile(soilLight, soilBase, soilShade, false),
+		"soil_wet":   soilTile(wetLight, wetBase, wetShade, true),
+		"fence":      fenceTile(),
+		"fence_down": fenceDownTile(),
 		// What stands where nothing shows: the stall's cells, solid.
 		"block":  newDoc(IsoW, IsoH).String(),
 		"stall":  Stall(),
@@ -32,6 +33,9 @@ func Sprites() map[string]string {
 		s[fmt.Sprint("grass", i)] = grassTile(lean)
 		s[fmt.Sprint("flowers", i)] = flowersTile(lean)
 		s[fmt.Sprint("tree", i)] = treeTile(lean * 0.8)
+	}
+	for v := range RockVariants {
+		s[fmt.Sprint("rock", v)] = rockTile(v)
 	}
 	for _, mask := range terrain.Masks() {
 		for f := range 4 {

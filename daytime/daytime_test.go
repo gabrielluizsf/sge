@@ -40,10 +40,11 @@ func TestTheLightFollowsTheSun(t *testing.T) {
 	}
 }
 
-// By day the shade paints nothing; by night it darkens the screen.
+// By day the shade changes nothing; by night it turns the screen moonlit
+// blue and dark.
 func TestTheShadeDarkensTheNight(t *testing.T) {
 	c := &Clock{Hour: 12}
-	s := Shade{Clock: c, Night: canvas.RGBA(canvas.RGBAParams{R: 10, G: 20, B: 60, A: 150}), Glow: canvas.RGBA(canvas.RGBAParams{R: 255, G: 120, B: 40, A: 80})}
+	s := Shade{Clock: c}
 	cv, _ := canvas.NewCanvas(4, 4)
 	cv.Clear(canvas.RGB(200, 200, 200))
 	s.Paint(nil, cv)
@@ -52,12 +53,79 @@ func TestTheShadeDarkensTheNight(t *testing.T) {
 	}
 	c.Hour = 1
 	s.Paint(&game.Object{}, cv)
-	if p := cv.At(1, 1); p.R() >= 200 || p.B() <= p.R() {
+	if p := cv.At(1, 1); p.R() >= 100 || p.B() <= p.R() {
 		t.Errorf("night is %v", p)
 	}
-	c.Hour = 19
-	if a := s.Tint().A(); a == 0 || a >= 150+40 {
-		t.Errorf("dusk's alpha is %d", a)
+}
+
+// One wakes at six: the light is bright and warm, a sunrise, not a dull
+// veil, which is how the morning looked when the screen was covered in a
+// mix of night and glow.
+func TestTheMorningIsBrightAndWarm(t *testing.T) {
+	a := (&Clock{Hour: 6}).Ambient()
+	if a[0] < 0.85 || a[1] < 0.7 || a[2] < 0.6 {
+		t.Errorf("six in the morning is dim: %v", a)
+	}
+	if a[0] <= a[2] {
+		t.Errorf("six in the morning is not warm: %v", a)
+	}
+	if n := (&Clock{Hour: 8}).Ambient(); n != (Ambient{1, 1, 1}) {
+		t.Errorf("eight is not full day: %v", n)
+	}
+}
+
+// The evening goes through gold, then rose, into blue night, and no hour
+// jumps: the light changes a little at a time all round the clock.
+func TestTheLightChangesSmoothlyRoundTheClock(t *testing.T) {
+	gold := (&Clock{Hour: 18}).Ambient()
+	if gold[0] < 0.9 || gold[0]-gold[2] < 0.2 {
+		t.Errorf("six in the evening is not golden: %v", gold)
+	}
+	night := (&Clock{Hour: 23}).Ambient()
+	if night[2] <= night[0] {
+		t.Errorf("the night is not blue: %v", night)
+	}
+	last := (&Clock{Hour: 0}).Ambient()
+	const step = 0.1
+	for h := step; h <= 24; h += step {
+		a := (&Clock{Hour: h}).Ambient()
+		for k := range a {
+			if d := a[k] - last[k]; d > 0.1 || d < -0.1 {
+				t.Fatalf("the light jumps at %.1f: %v to %v", h, last, a)
+			}
+		}
+		last = a
+	}
+}
+
+// The shade multiplies: what is twice as bright stays twice as bright, so
+// the picture keeps its contrast, and black stays black, unlike a colour
+// laid over it. Alpha is left alone.
+func TestTheShadeKeepsTheContrast(t *testing.T) {
+	cv, _ := canvas.NewCanvas(3, 1)
+	cv.Put(0, 0, canvas.RGB(100, 100, 100))
+	cv.Put(1, 0, canvas.RGB(200, 200, 200))
+	cv.Put(2, 0, canvas.RGB(0, 0, 0))
+	Shade{Clock: &Clock{Hour: 6}}.Paint(nil, cv)
+	lo, hi := cv.At(0, 0), cv.At(1, 0)
+	if d := int(hi.R()) - 2*int(lo.R()); d < -2 || d > 2 {
+		t.Errorf("%d is not twice %d", hi.R(), lo.R())
+	}
+	if cv.At(2, 0) != canvas.RGB(0, 0, 0) {
+		t.Errorf("black became %v", cv.At(2, 0))
+	}
+	if lo.A() != 255 {
+		t.Errorf("alpha %d", lo.A())
+	}
+}
+
+// A whole screen is shaded in a small part of a frame.
+func BenchmarkShade(b *testing.B) {
+	cv, _ := canvas.NewCanvas(1280, 720)
+	s := Shade{Clock: &Clock{Hour: 6}}
+	for b.Loop() {
+		cv.Clear(canvas.RGB(120, 160, 90))
+		s.Paint(nil, cv)
 	}
 }
 

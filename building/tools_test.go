@@ -108,3 +108,25 @@ func TestPouredStreamIsAThinMetre(t *testing.T) {
 		t.Errorf("the stream's colour is %v", m.Materials[0].BaseColor)
 	}
 }
+
+// The pickaxe is an item, life size: a handle of about 85 cm with a head
+// of about 60 cm across, the same both sides of its handle.
+func TestPickaxeIsAnItemAndLifeSize(t *testing.T) {
+	found := false
+	for _, k := range Items {
+		found = found || k.Name == "pickaxe"
+	}
+	if !found {
+		t.Fatal("the pickaxe is not among the items")
+	}
+	lo, hi := extent(Pickaxe)
+	if l := hi[0] - lo[0]; l < 0.8 || l > 0.95 {
+		t.Errorf("the pickaxe is %.2f m long", l)
+	}
+	if w := hi[2] - lo[2]; w < 0.5 || w > 0.7 {
+		t.Errorf("the pickaxe is %.2f m across", w)
+	}
+	if lo[2]+hi[2] > 0.01 || lo[2]+hi[2] < -0.01 {
+		t.Errorf("the pickaxe is lopsided: %.2f to %.2f", lo[2], hi[2])
+	}
+}

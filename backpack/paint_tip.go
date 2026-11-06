@@ -28,7 +28,7 @@ func (d painter) tooltip() {
 	if p.held != "" {
 		return
 	}
-	it, ok := p.Source.Find(p.itemAt(p.cursor))
+	it, ok := p.tipItem()
 	if !ok {
 		return
 	}
@@ -55,4 +55,22 @@ func (d painter) tooltip() {
 		d.cv.Blit(x+6*s, at, t)
 		at += t.Height + 2*s
 	}
+}
+
+// tipItem is what the tooltip tells of: the item under the cursor, or, on
+// the Craft tab, the recipe on its row.
+func (p *Pack) tipItem() (Item, bool) {
+	switch {
+	case p.Crafting():
+		rs := p.recipes()
+		if p.craft.cursor >= len(rs) {
+			return Item{}, false
+		}
+		r := rs[p.craft.cursor]
+		return Item{Name: r.Name, Info: r.Info}, true
+	case p.cursor.Area == Chest:
+		it := p.storeAt(p.cursor.Index)
+		return it, it.ID != ""
+	}
+	return p.Source.Find(p.itemAt(p.cursor))
 }

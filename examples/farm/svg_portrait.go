@@ -17,24 +17,23 @@ func whoKey(who Who) string {
 // a portrait shows: the head and shoulders.
 const bustShare = 0.46
 
-// bustZoom is how many times a portrait is enlarged: pixel art, by whole
-// pixels.
+// bustZoom is how many times larger than in the world a portrait is drawn.
 const bustZoom = 5
 
-// Portrait is who's head and shoulders, from their standing picture,
-// enlarged.
+// Portrait is who's head and shoulders, from their standing picture drawn
+// at the portrait's size.
 func (a *svgArt) Portrait(who Who) *canvas.Canvas {
 	key := "portrait" + whoKey(who)
 	if cv, ok := a.hud[key]; ok {
 		return cv
 	}
-	cv := Bust(a.Person(who).Clip(AnimStand, "down").Frames[0].Make())
+	cv := Bust(a.body(who).large("down", bustZoom))
 	a.hud[key] = cv
 	return cv
 }
 
 // Bust is the top of the figure in body, its head and shoulders, cut to
-// the figure's edges and enlarged by whole pixels.
+// the figure's edges.
 func Bust(body *canvas.Canvas) *canvas.Canvas {
 	x0, y0, x1, y1 := body.Width, body.Height, 0, 0
 	for y := range body.Height {
@@ -48,13 +47,13 @@ func Bust(body *canvas.Canvas) *canvas.Canvas {
 		return body
 	}
 	h := max(1, int(float64(y1-y0)*bustShare))
-	out, err := canvas.NewCanvas((x1-x0)*bustZoom, h*bustZoom)
+	out, err := canvas.NewCanvas(x1-x0, h)
 	if err != nil {
 		panic(err)
 	}
 	for y := range out.Height {
 		for x := range out.Width {
-			out.Put(x, y, body.At(x0+x/bustZoom, y0+y/bustZoom))
+			out.Put(x, y, body.At(x0+x, y0+y))
 		}
 	}
 	return out

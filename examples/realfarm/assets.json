@@ -1437,6 +1437,7 @@
     },
     {
       "id": "painted_wooden_chair_02",
+      "scale": 0.72,
       "name": "Painted Wooden Chair 02",
       "biome": "interior",
       "source": "https://polyhaven.com/a/painted_wooden_chair_02",
@@ -1924,6 +1925,7 @@
     },
     {
       "id": "rock_07",
+      "scale": 2.5,
       "name": "Rock 07",
       "biome": "campo",
       "source": "https://polyhaven.com/a/rock_07",

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48" width="32" height="48">
+<defs>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfcac2"/><stop offset="1" stop-color="#77716a"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfcac2"/><stop offset="1" stop-color="#77716a"/></linearGradient>
+<linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfcac2"/><stop offset="1" stop-color="#77716a"/></linearGradient>
+</defs>
+<ellipse cx="16" cy="40" rx="9" ry="3.6" fill="#1f3a22" opacity="0.35"/>
+<path d="M6.80 41.00 q-0.48 -4.80 2.40 -5.76 q3.20 -2.08 6.08 0.32 q1.76 2.24 1.12 5.44 q-5.60 1.76 -7.20 -1.76 Z" fill="url(#g1)" stroke="#3a2a2e" stroke-width="0.6" stroke-linejoin="round"/>
+<path d="M12.00 37.00 q0.96 1.44 -0.32 2.88" stroke="#3a2a2e" stroke-width="0.4" fill="none" stroke-linecap="round"/>
+<ellipse cx="10.16" cy="36.68" rx="1.28" ry="0.64" fill="#ffffff" opacity="0.55"/>
+<path d="M14.10 40.60 q-0.57 -5.70 2.85 -6.84 q3.80 -2.47 7.22 0.38 q2.09 2.66 1.33 6.46 q-6.65 2.09 -8.55 -2.09 Z" fill="url(#g2)" stroke="#3a2a2e" stroke-width="0.6" stroke-linejoin="round"/>
+<path d="M20.28 35.85 q1.14 1.71 -0.38 3.42" stroke="#3a2a2e" stroke-width="0.4" fill="none" stroke-linecap="round"/>
+<ellipse cx="18.09" cy="35.47" rx="1.52" ry="0.76" fill="#ffffff" opacity="0.55"/>
+<path d="M11.40 39.20 q-0.42 -4.20 2.10 -5.04 q2.80 -1.82 5.32 0.28 q1.54 1.96 0.98 4.76 q-4.90 1.54 -6.30 -1.54 Z" fill="url(#g3)" stroke="#3a2a2e" stroke-width="0.6" stroke-linejoin="round"/>
+<path d="M15.95 35.70 q0.84 1.26 -0.28 2.52" stroke="#3a2a2e" stroke-width="0.4" fill="none" stroke-linecap="round"/>
+<ellipse cx="14.34" cy="35.42" rx="1.12" ry="0.56" fill="#ffffff" opacity="0.55"/>
+</svg>

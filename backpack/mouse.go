@@ -7,6 +7,12 @@ package backpack
 // next click. Moving over a slot puts the cursor there.
 func (p *Pack) mouse(in Input) Event {
 	p.at = in.Mouse
+	if ev := p.tabMouse(in); ev != Nothing {
+		return ev
+	}
+	if p.Crafting() {
+		return p.craftMouse(in)
+	}
 	spot, over := p.spotAt(in.Mouse)
 	switch {
 	case in.Press && p.held != "" && !p.dragging:

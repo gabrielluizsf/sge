@@ -15,4 +15,6 @@ const (
 	actChop
 	actForge
 	actSow
+	actEat
+	actMine
 )

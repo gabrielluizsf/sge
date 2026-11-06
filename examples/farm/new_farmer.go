@@ -58,6 +58,8 @@ func addMoves(an *animation.Animator, body Body, dir string) {
 	an.Add(dir+"_hoe", clip(AnimHoe, false))
 	an.Add(dir+"_water", clip(AnimWater, false))
 	an.Add(dir+"_pick", clip(AnimPick, false))
+	an.Add(dir+"_mine", clip(AnimMine, false))
+	an.Add(dir+"_sit", clip(AnimSit, true))
 	an.Add(dir+"_swim", clip(AnimSwim, true))
 	an.Add(dir+"_dive", clip(AnimDive, false))
 	an.Add(dir+"_rise", clip(AnimRise, false))

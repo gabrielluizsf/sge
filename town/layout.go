@@ -27,5 +27,17 @@ type Layout struct {
 	Margin int
 	Fixed  map[Cell]Cell
 	Skip   func(rx, ry int) bool
-	towns  map[int]*Town // by region key; nil where there is none
+	// Roads are roads laid by hand, besides those between the towns; Keep
+	// are the areas, the farm, the roads between towns keep off.
+	Roads, Keep []Rect
+	towns       map[int]*Town // by region key; nil where there is none
+	// roads are the rectangles of the roads near a region, by its key; last
+	// is the answer for the region asked about last.
+	roads          map[int][]Rect
+	last           []Rect
+	lastRx, lastRy int
+	lastOK         bool
+	// biggest is the largest footprint, once lotKnown.
+	biggest  Cell
+	lotKnown bool
 }

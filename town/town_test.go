@@ -146,3 +146,50 @@ func TestTheKeeperWakesTownsNearTheCamera(t *testing.T) {
 		t.Errorf("woke %d times", woken)
 	}
 }
+
+// With PerFrame set, towns in range wake that many a frame and the rest
+// the frames after, none left asleep.
+func TestTheKeeperWakesPerFrameTowns(t *testing.T) {
+	g := game.New()
+	woken := 0
+	k := &Keeper{Layout: layout(), Range: 1000, Cell: 10, PerFrame: 1, Wake: func(*Town) []*game.Object {
+		woken++
+		return nil
+	}}
+	o := game.NewObject("keeper")
+	o.AddScript(k)
+	g.Add(o)
+	all := len(k.Layout.Near(0, 0, 1000))
+	if all < 2 {
+		t.Skipf("only %d towns in range", all)
+	}
+	g.Step(1.0 / 60)
+	if woken != 1 {
+		t.Fatalf("woke %d towns in one frame", woken)
+	}
+	for range all {
+		g.Step(1.0 / 60)
+	}
+	if woken != all {
+		t.Fatalf("woke %d of %d towns", woken, all)
+	}
+}
+
+// The keeper tells Sleep of a town as it lets its objects go.
+func TestTheKeeperTellsATownSleeps(t *testing.T) {
+	g := game.New()
+	slept := 0
+	k := &Keeper{Layout: layout(), Range: 20, Cell: 10, Sleep: func(*Town) { slept++ },
+		Wake: func(*Town) []*game.Object { return []*game.Object{game.NewObject("villager")} }}
+	o := game.NewObject("keeper")
+	o.AddScript(k)
+	g.Add(o)
+	g.Camera = vector.Vector3{X: 450, Y: 40}
+	g.Step(1.0 / 60)
+	g.Step(1.0 / 60)
+	g.Camera.X = 0
+	g.Step(1.0 / 60)
+	if slept != 1 {
+		t.Fatalf("Sleep called %d times", slept)
+	}
+}

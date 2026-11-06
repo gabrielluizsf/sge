@@ -1,13 +1,16 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/bond"
+import (
+	"github.com/gabrielluizsf/sge/bond"
+	"github.com/gabrielluizsf/sge/examples/i18n"
+)
 
 // playerAges ages the player to day: drawn anew as their time of life
 // changes, and, their span run out, dead of old age, their heir taking
 // over or their line ending.
 func (f *farm) playerAges(day int) {
 	if calendar.Gone(f.self.life, day) {
-		f.passOn(day)
+		f.passOn(day, true)
 		return
 	}
 	if who := f.self.who(day); who.Stage != f.drawn {
@@ -18,7 +21,7 @@ func (f *farm) playerAges(day int) {
 // passOn is the player dying of old age on day: their eldest living child,
 // or the eldest heir of their children, takes over, at home, with the
 // money, the bag and the farm; with no one to, the line ends.
-func (f *farm) passOn(day int) {
+func (f *farm) passOn(day int, oldAge bool) {
 	old := f.self
 	f.family.Die(old.id)
 	id, ok := f.family.Heir(old.id)
@@ -33,7 +36,11 @@ func (f *farm) passOn(day int) {
 	f.forgetBonds()
 	f.goHome()
 	f.redressPlayer(f.self.who(day))
-	f.notify(old.name + " morreu de velhice. " + h.name + " assume a fazenda.")
+	if oldAge {
+		f.notify(i18n.T("%s died of old age. %s takes over the farm.", old.name, h.name))
+		return
+	}
+	f.notify(i18n.T("%s died. %s takes over the farm.", old.name, h.name))
 }
 
 // personByID is the villager of id, or nil.

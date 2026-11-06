@@ -8,11 +8,21 @@ import (
 // knownItem reports whether item is one a bag or an order may hold: wood,
 // a crop, or a packet of seeds.
 func knownItem(item string) bool {
-	if item == wood {
+	if item == wood || item == stone || item == itemPick || isFurnishing(item) {
 		return true
 	}
 	for c := range crops {
 		if item == cropOf(c) || item == seedsOf(c) {
+			return true
+		}
+	}
+	return false
+}
+
+// hasStack reports whether l has a stack of item.
+func hasStack(l []stackState, item string) bool {
+	for _, s := range l {
+		if s.Item == item {
 			return true
 		}
 	}
@@ -43,7 +53,7 @@ func checkKit(what string, k kitState) error {
 	return firstError(
 		inRange(what+" money", k.Money, 0, maxMoney),
 		checkStacks(what+" bag", k.Bag),
-		inRange(what+" slot", k.Slot, slotSeeds, slotHoe),
+		inRange(what+" slot", k.Slot, slotSeeds, slotPick),
 		inRange(what+" seed", k.Seed, 0, len(crops)-1),
 		inRange(what+" axe", k.Axe, noAxe, len(axes)-1),
 		inRange(what+" sold", k.Sold, 0, maxMoney),
@@ -65,7 +75,8 @@ func checkHotbar(s *snapshot) error {
 	seen := map[string]bool{}
 	for _, id := range h {
 		_, seeds := seedsCrop(id)
-		ok := id == "" || seeds || id == itemCan || id == itemHoe || id == itemAxe && s.Player.Axe != noAxe
+		_, crop := cropIndex(id)
+		ok := id == "" || seeds || crop || isFurnishing(id) || id == itemCan || id == itemHoe || id == itemAxe && s.Player.Axe != noAxe || id == itemPick && hasStack(s.Player.Bag, itemPick)
 		if !ok || strings.TrimSpace(id) != id || seen[id] && id != "" {
 			return fmt.Errorf("save: bad hotbar item %q", id)
 		}

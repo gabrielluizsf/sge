@@ -1,6 +1,7 @@
 package farm
 
 import (
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/menu"
 )
@@ -37,7 +38,7 @@ func (m *mainMenu) titleKeys(in menu.Input) {
 	case menu.Moved:
 		m.f.sound("ui_tick", nil)
 	case menu.Chosen:
-		switch m.main.Lines[m.main.Choice].Text {
+		switch m.main.Lines[m.main.Choice].Key {
 		case lineStart:
 			m.finish(Pick{Start: StartContinue})
 		case lineNew:
@@ -45,6 +46,9 @@ func (m *mainMenu) titleKeys(in menu.Input) {
 		case lineCredits:
 			m.open = crediting
 			m.f.sound("ui_open", nil)
+		case lineLanguage:
+			m.f.changeLanguage()
+			m.refresh()
 		case lineQuit:
 			m.finish(Pick{})
 		}
@@ -84,7 +88,7 @@ func (m *mainMenu) confirmKeys(in menu.Input) {
 		m.open = titling
 		m.f.sound("ui_close", nil)
 	case menu.Chosen:
-		if m.confirm.Lines[m.confirm.Choice].Text == lineBegin {
+		if m.confirm.Lines[m.confirm.Choice].Key == lineBegin {
 			m.begin()
 			return
 		}
@@ -104,11 +108,11 @@ func (m *mainMenu) creditsKeys(in menu.Input) {
 		m.f.sound("ui_tick", nil)
 	case menu.Chosen:
 		c := m.list[m.credits.Choice]
-		text := "Sem texto de licença."
+		text := i18n.T("No license text.")
 		if c.License != nil {
 			text = c.License()
 		}
-		m.reader.Open("Licença - "+c.Name, text)
+		m.reader.Open(i18n.T("License - %s", c.Name), text)
 		m.open = licensing
 		m.f.sound("ui_open", nil)
 	}

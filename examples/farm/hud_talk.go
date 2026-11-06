@@ -1,9 +1,8 @@
 package farm
 
 import (
-	"fmt"
-
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/inventory"
 )
 
@@ -31,7 +30,7 @@ func (h *hud) talk(cv *canvas.Canvas) {
 func wants(f *farm, l inventory.List) []string {
 	var out []string
 	for _, s := range l {
-		out = append(out, fmt.Sprintf("   %d %s  (você tem %d)", s.N, itemLabels[s.Item], f.bag.Count(s.Item)))
+		out = append(out, i18n.T("   %d %s  (you have %d)", s.N, i18n.T(itemLabels[s.Item]), f.bag.Count(s.Item)))
 	}
 	return out
 }

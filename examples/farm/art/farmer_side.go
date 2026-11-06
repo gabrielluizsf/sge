@@ -53,10 +53,10 @@ func side(l Look, p pose) string {
 	}
 	switch p.axe {
 	case windUp:
-		axeAt(d, hand, -60)
+		p.toolAt(d, hand, -60)
 	case strike:
 		swoosh(d, [3]pt{{8, 8}, {20, 6}, {21.6, 30}})
-		axeAt(d, hand, 125)
+		p.toolAt(d, hand, 125)
 	}
 	endGroup(d)
 	// The head in profile: the back of the hair, the face to the right.

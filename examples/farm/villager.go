@@ -49,6 +49,11 @@ type villager struct {
 	// ours is whether they live in the player's house, as the player's
 	// spouse or child, out of their town's life.
 	ours bool
+	// wounds is the harm done to them, dead at npcHealth; angry how many
+	// seconds more they go after the player who struck them; swing the
+	// seconds until their next blow; hands drives their object.
+	wounds, angry, swing float64
+	hands                *farmer
 }
 
 // stage is v's time of life, as last drawn.

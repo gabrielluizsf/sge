@@ -65,7 +65,7 @@ func TestTheInventoryListsWhatIsCarriedAndTakesKeys(t *testing.T) {
 			t.Errorf("%q has no tooltip", it.ID)
 		}
 	}
-	if len(items) != 2+3 || !strings.Contains(strings.Join(names, ","), "Sementes de feijão") {
+	if len(items) != 2+3 || !strings.Contains(strings.Join(names, ","), "beans seeds") {
 		t.Fatalf("items %v", names)
 	}
 	f.pack.Show()

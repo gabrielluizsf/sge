@@ -16,10 +16,23 @@ type Pack struct {
 	Cols, Rows int
 	// Title and Hint are the words on the screen.
 	Title, Hint string
+	// Tabs are the names of the screen's tabs, when it has more than one:
+	// the grid of what is carried, then the list of what Crafts can make.
+	Tabs []string
+	// Tab is the tab shown, an index of Tabs.
+	Tab int
+	// Crafts makes what the Craft tab lists.
+	Crafts Crafter
+	// SideTitle is the store's title.
+	SideTitle string
+	// Side, when set, is a store shown beside the pack's grid, a chest.
+	Side Store
 	// Scale is how many pixels a pixel of the game's art takes.
 	Scale int
 
 	cursor   Spot
+	craft    craftState
+	made     string // the recipe made last
 	held     string // the ID of the item taken up
 	from     Spot   // where it was taken from
 	dragging bool   // whether the mouse holds it
@@ -50,6 +63,8 @@ func (p *Pack) itemAt(s Spot) string {
 		if s.Index >= 0 && s.Index < len(p.Hotbar) {
 			return p.Hotbar[s.Index]
 		}
+	case Chest:
+		return p.storeAt(s.Index).ID
 	}
 	return ""
 }
@@ -64,6 +79,7 @@ func (p *Pack) cells() int {
 // Show opens the screen with the cursor at the first slot.
 func (p *Pack) Show() Event {
 	p.Open, p.cursor = true, Spot{Area: Grid}
+	p.craft = craftState{}
 	p.let()
 	return Opened
 }

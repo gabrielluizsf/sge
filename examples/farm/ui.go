@@ -4,6 +4,7 @@ import (
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/sge/backpack"
 	"github.com/gabrielluizsf/sge/dialogue"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/menu"
 )
@@ -17,13 +18,17 @@ const (
 	pausing
 	crediting
 	licensing
+	commanding
 )
 
-// The pause menu's lines.
+// The pause menu's lines, by the key that names them whatever the
+// language.
 const (
-	lineContinue = "Continuar"
-	lineCredits  = "Créditos"
-	lineQuit     = "Sair"
+	lineContinue = "Continue"
+	lineCommands = "Commands"
+	lineCredits  = "Credits"
+	lineQuit     = "Quit"
+	lineSave     = "Save"
 )
 
 // ui is the farm's menus: the inventory, the pause menu, the credits and
@@ -49,22 +54,39 @@ type ui struct {
 // newUI is the farm's menus.
 func newUI(f *farm) *ui {
 	u := &ui{f: f, list: creditsOf(f.art)}
-	u.pause = menu.List{Title: "Pausa", Scale: scale, MinW: 130}
-	u.credits = menu.List{Title: "Créditos", Scale: scale, MinW: 260}
+	u.pause = menu.List{Scale: scale, MinW: 130}
+	u.credits = menu.List{Scale: scale, MinW: 260}
 	u.reader.Scale = scale
-	for _, c := range u.list {
-		u.credits.Lines = append(u.credits.Lines, menu.Line{Text: c.Name + " - " + c.Author, Sub: c.URL, Button: "[Visualizar licença]"})
-	}
+	u.refresh()
 	return u
+}
+
+// refresh rewrites the menus in the language chosen, keeping the line
+// chosen.
+func (u *ui) refresh() {
+	u.pause.Title = i18n.T("Pause")
+	u.pause.Lines = u.menuLines()
+	u.credits.Title = i18n.T(lineCredits)
+	u.credits.Lines = u.credits.Lines[:0]
+	for _, c := range u.list {
+		u.credits.Lines = append(u.credits.Lines, menu.Line{Text: i18n.T(c.Name) + " - " + i18n.T(c.Author), Sub: c.URL, Button: i18n.T("[View license]")})
+	}
+	u.f.pack.Title = i18n.T("Backpack")
+	u.f.pack.Tabs = craftTabs()
+	u.f.syncPackHint()
 }
 
 // menuLines are the pause menu's lines.
 func (u *ui) menuLines() []menu.Line {
-	ls := []menu.Line{{Text: lineContinue}}
+	ls := []menu.Line{{Key: lineContinue, Text: i18n.T(lineContinue)}, {Key: lineCommands, Text: i18n.T(lineCommands)}}
 	if u.save != nil {
-		ls = append(ls, menu.Line{Text: "Salvar"})
+		ls = append(ls, menu.Line{Key: lineSave, Text: i18n.T(lineSave)})
 	}
-	return append(ls, menu.Line{Text: lineCredits}, menu.Line{Text: lineQuit})
+	return append(ls,
+		menu.Line{Key: lineCredits, Text: i18n.T(lineCredits)},
+		menu.Line{Key: lineLanguage, Text: i18n.T(lineLanguage) + ": " + i18n.Name()},
+		menu.Line{Key: lineQuit, Text: i18n.T(lineQuit)},
+	)
 }
 
 // Update runs the open menu, or opens one on its key, and holds the
@@ -100,6 +122,8 @@ func (u *ui) keys(win *antui.Window, g *game.Game) {
 			u.open = crediting
 			f.sound("ui_close", nil)
 		}
+	case u.open == commanding:
+		u.commandsInput(menuInput(win))
 	case u.open == crediting:
 		u.creditsKeys(win)
 	case u.open == pausing:
@@ -114,6 +138,7 @@ func (u *ui) keys(win *antui.Window, g *game.Game) {
 	case win.KeyPressed(antui.KeyI) || win.KeyPressed(antui.KeyTab):
 		f.sound("ui_open", nil)
 		f.pack.Show()
+		f.syncPackHint()
 	}
 }
 
@@ -127,11 +152,11 @@ func (u *ui) creditsKeys(win *antui.Window) {
 		f.sound("ui_close", nil)
 	case menu.Chosen:
 		c := u.list[u.credits.Choice]
-		text := "Sem texto de licença."
+		text := i18n.T("No license text.")
 		if c.License != nil {
 			text = c.License()
 		}
-		u.reader.Open("Licença - "+c.Name, text)
+		u.reader.Open(i18n.T("License - %s", c.Name), text)
 		u.open = licensing
 		f.sound("ui_open", nil)
 	case menu.Moved:
@@ -149,15 +174,20 @@ func (u *ui) pauseKeys(win *antui.Window, g *game.Game) {
 	case menu.Moved:
 		f.sound("ui_tick", nil)
 	case menu.Chosen:
-		switch u.pause.Lines[u.pause.Choice].Text {
+		switch u.pause.Lines[u.pause.Choice].Key {
 		case lineContinue:
 			u.open = playing
 			f.sound("ui_close", nil)
+		case lineCommands:
+			u.showCommands()
 		case lineCredits:
 			u.open = crediting
 			f.sound("ui_open", nil)
-		case "Salvar":
+		case lineSave:
 			u.save()
+		case lineLanguage:
+			f.changeLanguage()
+			u.refresh()
 		case lineQuit:
 			g.Quit()
 		}
@@ -170,12 +200,14 @@ func (u *ui) packKeys(win *antui.Window) {
 	f := u.f
 	if win.KeyPressed(antui.KeyI) || win.KeyPressed(antui.KeyTab) {
 		f.sound(packSound[f.pack.Hide()], nil)
+		f.pack.Side = nil
 		return
 	}
 	ev := f.pack.Handle(packInput(win))
 	f.keepHand()
-	if name := packSound[ev]; name != "" {
-		f.sound(name, nil)
+	f.afterPack(ev)
+	if !f.pack.Open {
+		f.pack.Side = nil
 	}
 }
 
@@ -183,4 +215,5 @@ func (u *ui) packKeys(win *antui.Window) {
 var packSound = map[backpack.Event]string{
 	backpack.Opened: "ui_open", backpack.Closed: "ui_close", backpack.Moved: "ui_tick", backpack.Picked: "ui_tick",
 	backpack.Bound: "ui_open", backpack.Unbound: "ui_close", backpack.Dropped: "ui_close", backpack.Refused: "deny",
+	backpack.Crafted: "ui_open", backpack.Stored: "ui_tick", backpack.Tabbed: "ui_tick",
 }

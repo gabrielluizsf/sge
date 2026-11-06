@@ -29,7 +29,7 @@ func TestTheCanFillsAtTheShoreAndTheWell(t *testing.T) {
 	if f.kit.used != 0 {
 		t.Fatalf("standing in the shallows, the can was not filled: %d used", f.kit.used)
 	}
-	if !floated(f, "Regador cheio") {
+	if !floated(f, "Watering can full") {
 		t.Error("filling the can says nothing")
 	}
 	if col, row := f.hands.useCell(o); !f.marks(col, row) {

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/human"
 )
 
@@ -32,7 +33,7 @@ func colourRow(label string, list []human.Colour, field func(*charState) *human.
 	return row{label: label, kind: choiceRow,
 		text: func(s *charState) string {
 			if !field(s).Set {
-				return "Original"
+				return i18n.T("Original")
 			}
 			return fmt.Sprintf("%d / %d", nearest(list, *field(s))+1, len(list))
 		},
@@ -45,69 +46,71 @@ func colourRow(label string, list []human.Colour, field func(*charState) *human.
 func categories() []category {
 	hasMain := func(s *charState) bool { return human.Colourable(s.main) }
 	return []category{
-		{"Corpo", []row{
-			{label: "Nome", kind: textRow, text: func(s *charState) string { return s.name },
+		{"Body", []row{
+			{label: "Name", kind: textRow, text: func(s *charState) string { return s.name },
 				press: func(c *creator) { c.typing = true }},
-			{label: "Sexo", kind: choiceRow, text: func(s *charState) string { return sexName(s.sex) },
+			{label: "Sex", kind: choiceRow, text: func(s *charState) string { return sexName(s.sex) },
 				step: func(s *charState, _ int) {
 					s.sex = human.Woman + human.Man - s.sex
 					s.fit()
 				}},
-			slide("Idade", youngest, oldest, func(s *charState) *float64 { return &s.years }, (*charState).fit),
-			slide("Músculos", 0, 1, func(s *charState) *float64 { return &s.muscle }, nil),
-			slide("Peso", 0, 1, func(s *charState) *float64 { return &s.weight }, nil),
-			slide("Altura", 0, 1, func(s *charState) *float64 { return &s.height }, nil),
+			slide("Age", youngest, oldest, func(s *charState) *float64 { return &s.years }, (*charState).fit),
+			slide("Muscle", 0, 1, func(s *charState) *float64 { return &s.muscle }, nil),
+			slide("Weight", 0, 1, func(s *charState) *float64 { return &s.weight }, nil),
+			slide("Height", 0, 1, func(s *charState) *float64 { return &s.height }, nil),
+			{label: "Language", kind: choiceRow, text: func(*charState) string { return i18n.Name() },
+				step: func(_ *charState, d int) { _ = i18n.Change(d) }},
 		}},
-		{"Pele", []row{
-			slide("Ancestral africana", 0, 1, func(s *charState) *float64 { return &s.anc.African }, ancestryChanged),
-			slide("Ancestral asiática", 0, 1, func(s *charState) *float64 { return &s.anc.Asian }, ancestryChanged),
-			slide("Ancestral europeia", 0, 1, func(s *charState) *float64 { return &s.anc.European }, ancestryChanged),
-			slide("Tom de pele", 0.02, 1, func(s *charState) *float64 { return &s.tone }, nil),
+		{"Skin", []row{
+			slide("African ancestry", 0, 1, func(s *charState) *float64 { return &s.anc.African }, ancestryChanged),
+			slide("Asian ancestry", 0, 1, func(s *charState) *float64 { return &s.anc.Asian }, ancestryChanged),
+			slide("European ancestry", 0, 1, func(s *charState) *float64 { return &s.anc.European }, ancestryChanged),
+			slide("Skin tone", 0.02, 1, func(s *charState) *float64 { return &s.tone }, nil),
 		}},
-		{"Rosto", []row{
-			partRow("Sobrancelhas", func(*charState) []string { return human.Eyebrows() }, func(s *charState) *string { return &s.brows }),
+		{"Face", []row{
+			partRow("Eyebrows", func(*charState) []string { return human.Eyebrows() }, func(s *charState) *string { return &s.brows }),
 			func() row {
-				r := partRow("Cílios", func(s *charState) []string { return human.Eyelashes(s.sex) }, func(s *charState) *string { return &s.lashes })
+				r := partRow("Eyelashes", func(s *charState) []string { return human.Eyelashes(s.sex) }, func(s *charState) *string { return &s.lashes })
 				r.show = func(s *charState) bool { return len(human.Eyelashes(s.sex)) > 1 }
 				return r
 			}(),
 		}},
-		{"Cabelo", []row{
-			partRow("Estilo", func(s *charState) []string { return s.options(human.Hair) }, func(s *charState) *string { return &s.hair }),
-			colourRow("Cor", human.HairColours(), func(s *charState) *human.Colour { return &s.hairColour }, false),
+		{"Hair", []row{
+			partRow("Style", func(s *charState) []string { return s.options(human.Hair) }, func(s *charState) *string { return &s.hair }),
+			colourRow("Color", human.HairColours(), func(s *charState) *human.Colour { return &s.hairColour }, false),
 		}},
-		{"Olhos", []row{
-			{label: "Cor", kind: choiceRow, text: func(s *charState) string { return eyeName(s.eyes) },
+		{"Eyes", []row{
+			{label: "Color", kind: choiceRow, text: func(s *charState) string { return eyeName(s.eyes) },
 				step: func(s *charState, d int) { s.eyes = cycle(human.EyeMaterials(), s.eyes, d) }},
 		}},
-		{"Roupa", []row{
-			partRow("Peça", (*charState).mains, func(s *charState) *string { return &s.main }),
+		{"Clothes", []row{
+			partRow("Piece", (*charState).mains, func(s *charState) *string { return &s.main }),
 			func() row {
-				r := partRow("Parte de baixo", func(s *charState) []string { return s.options(human.Bottom) }, func(s *charState) *string { return &s.bottom })
+				r := partRow("Bottom", func(s *charState) []string { return s.options(human.Bottom) }, func(s *charState) *string { return &s.bottom })
 				r.show = (*charState).wantsBottom
 				return r
 			}(),
-			partRow("Sapatos", func(s *charState) []string { return s.options(human.Shoes) }, func(s *charState) *string { return &s.shoes }),
-			{label: "Chapéu", kind: choiceRow,
+			partRow("Shoes", func(s *charState) []string { return s.options(human.Shoes) }, func(s *charState) *string { return &s.shoes }),
+			{label: "Hat", kind: choiceRow,
 				text: func(s *charState) string {
 					if s.hat == "" {
-						return "Nenhum"
+						return i18n.T("None")
 					}
 					return ordinal(s.options(human.Hat), s.hat)
 				},
 				step: func(s *charState, d int) { s.hat = cycleHat(s.options(human.Hat), s.hat, d) }},
 			func() row {
-				r := colourRow("Cor da peça", human.ClothColours(), func(s *charState) *human.Colour { return &s.mainTint }, true)
+				r := colourRow("Item color", human.ClothColours(), func(s *charState) *human.Colour { return &s.mainTint }, true)
 				r.show = hasMain
 				return r
 			}(),
 			func() row {
-				r := colourRow("Cor de baixo", human.ClothColours(), func(s *charState) *human.Colour { return &s.bottomTint }, true)
+				r := colourRow("Bottom color", human.ClothColours(), func(s *charState) *human.Colour { return &s.bottomTint }, true)
 				r.show = func(s *charState) bool { return s.wantsBottom() }
 				return r
 			}(),
 		}},
-		{"Aleatório", []row{{label: "Aleatório", kind: buttonRow, press: (*creator).randomise}}},
-		{"Começar", []row{{label: "Começar", kind: buttonRow, press: (*creator).finish}}},
+		{"Random", []row{{label: "Random", kind: buttonRow, press: (*creator).randomise}}},
+		{"Begin", []row{{label: "Begin", kind: buttonRow, press: (*creator).finish}}},
 	}
 }

@@ -10,12 +10,12 @@ const (
 func seedsOf(c int) string { return crops[c].name + "_seeds" }
 func cropOf(c int) string  { return crops[c].name }
 
-// itemLabels are the items' names on screen.
+// itemLabels are the items' names on screen, as English keys.
 var itemLabels = labelled()
 
 // labelled is the wood's name and every crop's, by item.
 func labelled() map[string]string {
-	m := map[string]string{wood: "madeira"}
+	m := map[string]string{wood: "Wood"}
 	for _, c := range crops {
 		m[c.name] = c.label
 	}

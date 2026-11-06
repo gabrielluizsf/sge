@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/daytime"
+import (
+	"github.com/gabrielluizsf/sge/daytime"
+	"github.com/gabrielluizsf/sge/examples/i18n"
+)
 
 // A villager's trade, which decides what they do by day.
 const (
@@ -26,19 +29,17 @@ var schedules = map[string]daytime.Schedule{
 	roleWanderer:   {{From: 8, To: 20, Do: doStroll}, {From: 20, To: 8, Do: doSleep}},
 }
 
-// roleLabels are the trades' names on screen, a woman's and a man's.
+// roleLabels are the trades' names on screen, as English keys, a woman's
+// and a man's.
 var roleLabels = map[string][2]string{
-	roleFarmer:     {"fazendeira", "fazendeiro"},
-	roleLumberjack: {"lenhadora", "lenhador"},
-	roleSmith:      {"ferreira", "ferreiro"},
-	roleWanderer:   {"moradora", "morador"},
+	roleFarmer:     {"farmer", "farmer"},
+	roleLumberjack: {"lumberjack", "lumberjack"},
+	roleSmith:      {"smith", "smith"},
+	roleWanderer:   {"wanderer", "wanderer"},
 }
 
 // roleLabel is v's trade on screen, as a woman's or a man's.
 func roleLabel(v *villager) string {
 	l := roleLabels[v.role]
-	if v.woman {
-		return l[0]
-	}
-	return l[1]
+	return i18n.TF(v.woman, l[0])
 }

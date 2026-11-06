@@ -35,6 +35,9 @@ type Town struct {
 	Reach, Depth int
 	// Seed is the town's own, for what is up to the game: its people.
 	Seed uint32
+	// road is the road to the town it leads to, once linked.
+	road   []Rect
+	linked bool
 }
 
 // House is a house of a town: its Width by Depth cells from Col, Row, its

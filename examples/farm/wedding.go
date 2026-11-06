@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/bond"
+import (
+	"github.com/gabrielluizsf/sge/bond"
+	"github.com/gabrielluizsf/sge/examples/i18n"
+)
 
 // weddings marries the player to the villager they are engaged to, on
 // their wedding day.
@@ -22,6 +25,7 @@ func (f *farm) marry(v *villager) {
 		v.obj.Destroy()
 		v.obj = nil
 	}
-	f.notify("Você se casou com " + v.name + "! Agora vivem juntos.")
+	f.earn(xpMarry)
+	f.notify(i18n.T("You married %s! Now you live together.", v.name))
 	f.sound("sell", nil)
 }

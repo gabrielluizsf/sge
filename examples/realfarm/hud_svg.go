@@ -48,3 +48,12 @@ const cursorSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32" w
 func (a *realArt) Cursor() *canvas.Canvas {
 	return a.hudPicture(drawing{"cursor", cursorSVG, farm.TileW, farm.Cell})
 }
+
+// foodSVG is the food bar's apple: lit crimson-gold, edged dark, like the
+// heart beside it.
+const foodSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+<defs><radialGradient id="a" cx="0.36" cy="0.32" r="0.8"><stop offset="0" stop-color="#f0a860"/><stop offset="0.5" stop-color="#b8402a"/><stop offset="1" stop-color="#6e1d16"/></radialGradient></defs>
+<path d="M8 4.8 C5.2 3 2.4 5.2 3 8.6 C3.6 11.6 5.6 13.8 8 13 C10.4 13.8 12.4 11.6 13 8.6 C13.6 5.2 10.8 3 8 4.8 Z" fill="url(#a)" stroke="#3a0e0a" stroke-width="0.9" stroke-linejoin="round"/>
+<path d="M8 4.8 Q8 3 9 2" fill="none" stroke="#3a2a14" stroke-width="0.9" stroke-linecap="round"/>
+<path d="M9.2 3.6 Q11 2 12.6 3.2 Q11.2 4.6 9.2 3.6 Z" fill="#5a7a2c" stroke="#2a3a14" stroke-width="0.5"/>
+</svg>`

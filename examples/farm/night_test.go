@@ -94,17 +94,12 @@ func TestSleepIsOfferedBesideTheBed(t *testing.T) {
 	o := g.Find("farmer")
 	f.enter(houseDoor{at: homeDoor, faceOut: "down", seed: seed, own: true})
 	g.Step(frame)
-	if words, _, _ := f.interaction(o); words == "E: dormir" {
+	if words, _, _ := f.interaction(o); words == "E: sleep" {
 		t.Fatal("offered sleep on the doormat")
 	}
-	for r := range roomRows {
-		for c := range roomCols {
-			if id := f.room.things.At(c, r); id == tileID["bed"] || id == tileID["bed_blue"] {
-				o.Transform.Position = f.ground.CellCenter(c, r+1)
-			}
-		}
-	}
-	if words, _, ok := f.interaction(o); !ok || words != "E: dormir" {
+	bed := f.home[0]
+	o.Transform.Position = f.ground.CellCenter(bed.col, bed.row+1)
+	if words, _, ok := f.interaction(o); !ok || words != "E: sleep" {
 		t.Errorf("beside the bed: %q", words)
 	}
 }

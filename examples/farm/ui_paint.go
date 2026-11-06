@@ -8,6 +8,9 @@ func (u *ui) paint(cv *canvas.Canvas) {
 	switch u.open {
 	case pausing:
 		u.pause.Paint(cv, u.f.art)
+	case commanding:
+		u.pause.Paint(cv, u.f.art)
+		u.reader.Paint(cv, u.f.art)
 	case crediting:
 		u.credits.Paint(cv, u.f.art)
 	case licensing:

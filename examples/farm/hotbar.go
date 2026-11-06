@@ -1,6 +1,9 @@
 package farm
 
-import "github.com/gabrielluizsf/sge/backpack"
+import (
+	"github.com/gabrielluizsf/sge/backpack"
+	"github.com/gabrielluizsf/sge/examples/i18n"
+)
 
 // hotbarSlots is how many things the player may have at hand, each on a
 // number key; inventoryCols how many items a row of the inventory has.
@@ -14,9 +17,10 @@ const (
 func newPack(f *farm) *backpack.Pack {
 	p := backpack.New(carried{f}, hotbarSlots, inventoryCols)
 	p.Scale = scale
-	p.Title = "Mochila"
-	p.Hint = "Enter: pegar   1-6: atalho   Arrastar: mouse   I/Tab/Esc: fechar"
+	p.Title = i18n.T("Backpack")
+	p.Hint = i18n.T("Enter: pick up   1-6: shortcut   Drag: mouse   I/Tab/Esc: close")
 	p.Hotbar = defaultHotbar()
+	p.Rows, p.Tabs, p.Crafts = 4, craftTabs(), craftBook{f}
 	return p
 }
 
@@ -44,8 +48,14 @@ func (f *farm) hold(pos int) bool {
 		f.slot = slotHoe
 	case id == itemAxe:
 		f.slot = slotAxe
+	case id == itemPick && f.bag.Count(itemPick) > 0:
+		f.slot = slotPick
 	default:
-		return false
+		c, crop := cropIndex(id)
+		if !crop {
+			return false
+		}
+		f.slot, f.seed = slotFood, c
 	}
 	f.pack.Active = pos
 	return true

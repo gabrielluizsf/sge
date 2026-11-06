@@ -69,6 +69,9 @@ func (f *farm) setCrop(col, row, id int) {
 // open reports whether one may walk across cell col, row without
 // swimming: nothing solid stands there and it is dry.
 func (f *farm) open(col, row int) bool {
+	if f.chestAt(col, row) != nil {
+		return false
+	}
 	if f.tiles.IsSolid(f.thingAt(col, row)) {
 		return false
 	}

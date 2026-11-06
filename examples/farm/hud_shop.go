@@ -1,9 +1,8 @@
 package farm
 
 import (
-	"fmt"
-
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
 // shop is the stall's menu, in a panel in the middle: the seeds for sale
@@ -11,11 +10,11 @@ import (
 func (h *hud) shop(cv *canvas.Canvas) {
 	choice := h.f.shop.choice
 	first := min(max(0, choice-shopRows/2), len(crops)-shopRows)
-	lines := []string{"Loja"}
+	lines := []string{i18n.T("Shop")}
 	for _, c := range crops[first : first+shopRows] {
-		lines = append(lines, fmt.Sprintf("Semente de %s $%d (%d dias)", c.label, c.seedPrice, c.daysToRipe))
+		lines = append(lines, i18n.T("%s seeds $%d (%d days)", i18n.T(c.label), c.seedPrice, c.daysToRipe))
 	}
-	lines = append(lines, fmt.Sprint("Vender colheita e madeira $", worth(h.f.kit)), "Espaço: escolher   E: sair")
+	lines = append(lines, i18n.T("Sell harvest and wood $%d", worth(h.f.kit)), i18n.T("Space: choose   E: exit"))
 	chosen := 1 + choice - first
 	if choice == sellChoice {
 		chosen = 1 + shopRows

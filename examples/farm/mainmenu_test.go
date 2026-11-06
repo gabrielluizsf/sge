@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/menu"
 )
@@ -48,11 +49,11 @@ func linesOf(m *mainMenu) []string {
 
 func TestIniciarIsOfferedOnlyWithASave(t *testing.T) {
 	_, m := titleOf(t, SVGArt(), false)
-	if got := linesOf(m); len(got) != 3 || got[0] != lineNew {
+	if got := linesOf(m); len(got) != 4 || got[0] != lineNew {
 		t.Errorf("without a save: %v", got)
 	}
 	_, m = titleOf(t, SVGArt(), true)
-	if got := linesOf(m); len(got) != 4 || got[0] != lineStart {
+	if got := linesOf(m); len(got) != 5 || got[0] != lineStart {
 		t.Errorf("with a save: %v", got)
 	}
 }
@@ -165,5 +166,33 @@ func TestIniciarNeverShowsTheArtsStep(t *testing.T) {
 	choose(t, m, &m.main, lineStart)
 	if c.done != nil || !m.done || m.pick.Start != StartContinue || m.pick.Choice != nil {
 		t.Errorf("Iniciar went through the step: %+v", m.pick)
+	}
+}
+
+// Changing the language in the menu is kept on the computer: the next time
+// the game starts it speaks the same language, and its lines change with
+// it, meaning the same.
+func TestTheLanguageChosenInTheMenuIsKept(t *testing.T) {
+	_, m := titleOf(t, SVGArt(), false)
+	t.Cleanup(func() { i18n.Set(i18n.English) })
+	for i, l := range m.main.Lines {
+		if l.Key == lineLanguage {
+			m.main.Choice = i
+		}
+	}
+	m.titleKeys(menu.Input{Select: true})
+	if i18n.Get() != i18n.Portuguese {
+		t.Fatalf("language %v", i18n.Get())
+	}
+	if got := linesOf(m)[0]; got != "Novo jogo" {
+		t.Errorf("the menu did not change: %q", got)
+	}
+	if m.main.Lines[0].Key != lineNew {
+		t.Errorf("the line lost its meaning: %q", m.main.Lines[0].Key)
+	}
+	i18n.Set(i18n.English) // the game starts again
+	i18n.Load()
+	if i18n.Get() != i18n.Portuguese {
+		t.Errorf("the choice was not kept: %v", i18n.Get())
 	}
 }

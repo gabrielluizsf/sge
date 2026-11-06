@@ -38,8 +38,11 @@ type houseDoor struct {
 
 // newRoom lays out the inside of the house at door, its furniture placed
 // as its seed falls, each as large as a draws it.
-func newRoom(d houseDoor, a Art) *room {
+func newRoom(d houseDoor, a Art, pieces []piece) *room {
 	g, t := roomLayout(d.seed, spanOf(a))
+	if d.own {
+		t = bareRoom(t)
+	}
 	walls := d.kind % art.WallKinds
 	r := &room{door: d.at, faceOut: d.faceOut, own: d.own, kind: d.kind}
 	legend := map[rune]int{'.': tileID["floor"], 'm': tileID["mat"], 'r': tileID[fmt.Sprint("rug", d.seed%4)]}
@@ -52,6 +55,9 @@ func newRoom(d houseDoor, a Art) *room {
 		things[rune(ch)] = tileID[name]
 	}
 	r.things = parseRoom("room things", t, things)
+	if d.own {
+		r.layPieces(a, pieces)
+	}
 	r.ground.Z, r.things.Z = zGround, zThings
 	r.things.Sorted = true
 	return r

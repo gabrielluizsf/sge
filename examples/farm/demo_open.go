@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
-// Open opens a screen on s, to look at it: "inventory" with a bag of a
+// Open opens a screen on s, to look at it: "craft", "arrange" or "chest" (see openHouse), "fight" with a villager who strikes back, "inventory" with a bag of a
 // little of everything, "pause", "credits", "licence" (the first credit's)
 // or "talk" with the smith of the east town, the player taken to them; and plays d more of the
 // game, so that what is said is typed out. It is an error to ask for any
@@ -30,8 +31,12 @@ func (s *Session) Open(what string, d Demo) (*canvas.Canvas, error) {
 		f.ui.open = crediting
 		if what == "licence" && len(f.ui.list) > 0 {
 			c := f.ui.list[0]
-			f.ui.reader.Open("Licença - "+c.Name, c.License())
+			f.ui.reader.Open(i18n.T("License - %s", c.Name), c.License())
 			f.ui.open = licensing
+		}
+	case "fight":
+		if err := s.openFight(d); err != nil {
+			return nil, err
 		}
 	case "talk":
 		t := f.towns.Of(1, 0)
@@ -48,7 +53,9 @@ func (s *Session) Open(what string, d Demo) (*canvas.Canvas, error) {
 		f.player.Transform.Position = v.pos
 		f.openTalk(v)
 	default:
-		return nil, fmt.Errorf("farm: no screen called %q", what)
+		if !s.openHouse(what) {
+			return nil, fmt.Errorf("farm: no screen called %q", what)
+		}
 	}
 	return s.Play(d)
 }

@@ -1,24 +1,24 @@
 package farm
 
-import "fmt"
+import "github.com/gabrielluizsf/sge/examples/i18n"
 
-// cropNote is the short line in Portuguese that tells how p's crop is
-// doing: how long until its next stage, or that it is ripe or withered,
-// and whether it is watered today.
+// cropNote is the short line that tells how p's crop is doing: how long
+// until its next stage, or that it is ripe or withered, and whether it is
+// watered today.
 func cropNote(p *plot) string {
 	c := crops[p.crop]
-	name := upperFirst(c.label) + ownerLabel(p)
+	name := upperFirst(i18n.T(c.label)) + ownerLabel(p)
 	switch {
 	case p.dead:
-		return name + " - murcho"
+		return i18n.T("%s - withered", name)
 	case p.stage >= ripe:
-		return name + " - pronto para colher"
+		return i18n.T("%s - ready to harvest", name)
 	}
-	verb := "cresce"
+	verb := "grows"
 	if p.stage == 0 {
-		verb = "brota"
+		verb = "sprouts"
 	}
-	return fmt.Sprint(name, " - ", verb, " em ", daysLabel(daysToNextStage(c, p)), " - ", wateredLabel(p))
+	return i18n.T("%s - %s in %s - %s", name, i18n.T(verb), daysLabel(daysToNextStage(c, p)), wateredLabel(p))
 }
 
 // daysToNextStage is how many more days of watering p's crop needs to
@@ -34,17 +34,17 @@ func daysToNextStage(c crop, p *plot) int {
 // daysLabel is n days in words.
 func daysLabel(n int) string {
 	if n == 1 {
-		return "1 dia"
+		return i18n.T("1 day")
 	}
-	return fmt.Sprint(n, " dias")
+	return i18n.T("%d days", n)
 }
 
 // wateredLabel says whether p has been watered today.
 func wateredLabel(p *plot) string {
 	if p.watered {
-		return "regado"
+		return i18n.T("watered")
 	}
-	return "precisa de água"
+	return i18n.T("needs water")
 }
 
 // upperFirst is s with its first letter capitalised, for the plain

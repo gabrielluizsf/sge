@@ -3,6 +3,7 @@ package farm
 import (
 	"github.com/gabrielluizsf/antui/canvas"
 	"github.com/gabrielluizsf/sge/bond"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
 // A heart is fondness of perHeart, up to hearts of them for bond.Most;
@@ -17,10 +18,10 @@ const (
 )
 
 // bondLabels are how far a bond has come, as the talk panel says it.
-var bondLabels = []string{"Desconhecidos", "Conhecidos", "Amigos", "Namorando", "Noivos", "Casados"}
+var bondLabels = []string{"Strangers", "Acquaintances", "Friends", "Dating", "Engaged", "Married"}
 
 // heartsLabel is how far the player's bond with v has come, in words.
-func heartsLabel(v *villager) string { return bondLabels[v.bond.Stage()] }
+func heartsLabel(v *villager) string { return i18n.T(bondLabels[v.bond.Stage()]) }
 
 // hearts draws how fond v is of the player, a full heart for each
 // perHeart of fondness and empty ones to make up ten, on the row of the

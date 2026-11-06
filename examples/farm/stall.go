@@ -19,6 +19,11 @@ var (
 // stallBy is the stall o stands in front of, the farm's or a town's.
 func (f *farm) stallBy(o *game.Object) (town.Cell, bool) {
 	col, row := f.cellOf(feet(o))
+	return f.stallAt(col, row)
+}
+
+// stallAt is the stall whose counter's front is cell col, row.
+func (f *farm) stallAt(col, row int) (town.Cell, bool) {
 	stalls := []town.Cell{farmStall}
 	for _, t := range f.towns.Near(col, row, f.towns.Reach()+4) {
 		stalls = append(stalls, t.Stall)

@@ -5,21 +5,22 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/human"
 )
 
-// eyeNames are the eye colours in Portuguese, by the file's name.
+// eyeNames are the eye colours as English keys, by the file's name.
 var eyeNames = map[string]string{
-	"brown": "Castanhos", "brownlight": "Castanho-claros", "bluegreen": "Azul-esverdeados",
-	"blue": "Azuis", "deepblue": "Azul-escuros", "lightblue": "Azul-claros",
-	"green": "Verdes", "grey": "Cinzentos", "ice": "Gelo",
+	"brown": "Brown", "brownlight": "Light brown", "bluegreen": "Blue-green",
+	"blue": "Blue", "deepblue": "Dark blue", "lightblue": "Light blue",
+	"green": "Green", "grey": "Grey", "ice": "Ice",
 }
 
-// eyeName is the Portuguese name of the eyes in material file item.
+// eyeName is the name of the eyes in material file item.
 func eyeName(item string) string {
 	n := strings.TrimSuffix(strings.TrimPrefix(item, "eyes/materials/"), ".mhmat")
 	if s, ok := eyeNames[n]; ok {
-		return s
+		return i18n.T(s)
 	}
 	return n
 }
@@ -32,10 +33,10 @@ func ordinal(list []string, item string) string {
 	return "-"
 }
 
-// sexName is the sex in Portuguese.
+// sexName is the sex.
 func sexName(s human.Sex) string {
 	if s == human.Man {
-		return "Homem"
+		return i18n.T("Man")
 	}
-	return "Mulher"
+	return i18n.T("Woman")
 }

@@ -30,6 +30,8 @@ func (b svgBody) Clip(anim, dir string) Clip {
 		return b.clip(1, dir+"Act")
 	case AnimChop:
 		return b.clip(2/actFor, dir+"Chop", dir+"Chop1")
+	case AnimMine:
+		return b.clip(2/MineSeconds, dir+"Mine", dir+"Mine1")
 	case AnimHoe, AnimWater, AnimPick:
 		return b.clip(1, dir+"Act")
 	case AnimForge:
@@ -56,12 +58,24 @@ func (b svgBody) clip(fps float64, names ...string) Clip {
 // sprite is the frame name, standing on the person's feet, drawn at half
 // the size of its art, smaller for the young, when it is first shown.
 func (b svgBody) sprite(name string) *sprite.Sprite {
+	w, h := b.drawn()
+	return &sprite.Sprite{PivotX: 0.5, PivotY: 1, Make: func() *canvas.Canvas {
+		return picture(b.frame(name), w, h)
+	}}
+}
+
+// drawn is how many pixels of art wide and tall the person is drawn.
+func (b svgBody) drawn() (w, h int) {
 	s := b.size
 	if s <= 0 {
 		s = 1
 	}
-	w, h := int(art.FarmerW/2*s+0.5), int(art.FarmerH/2*s+0.5)
-	return &sprite.Sprite{PivotX: 0.5, PivotY: 1, Make: func() *canvas.Canvas {
-		return picture(b.frame(name), w, h)
-	}}
+	return int(art.FarmerW/2*s + 0.5), int(art.FarmerH/2*s + 0.5)
+}
+
+// large is the frame name drawn from its art zoom times larger than in the
+// world: sharp, as enlarging a small picture is not.
+func (b svgBody) large(name string, zoom int) *canvas.Canvas {
+	w, h := b.drawn()
+	return picture(b.frame(name), w*zoom, h*zoom)
 }

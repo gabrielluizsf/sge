@@ -2,6 +2,7 @@ package farm
 
 import (
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/town"
 )
 
@@ -12,18 +13,22 @@ import (
 func (f *farm) wake(t *town.Town) []*game.Object {
 	f.settle(t)
 	var objs []*game.Object
+	var later []*sprite.Sprite // the frames to make once all have their first
 	for _, v := range f.people {
 		if v.town != t || v.ours {
 			continue
 		}
 		o, p := f.personOf(v)
-		p.ctl = v.mind
+		p.ctl, v.hands = v.mind, p
 		o.Transform.Position = v.pos
 		o.Hidden = v.inside
 		o.AddScript(game.ScriptFunc(func(o *game.Object, _ float64) { v.pos = o.Transform.Position }))
 		v.obj = o
+		f.warm.Add(bodyFirst(v.body))
+		later = append(later, bodyFrames(v.body)...)
 		objs = append(objs, o)
 	}
+	f.warm.Add(later...)
 	return objs
 }
 

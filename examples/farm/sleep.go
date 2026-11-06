@@ -1,6 +1,6 @@
 package farm
 
-import "fmt"
+import "github.com/gabrielluizsf/sge/examples/i18n"
 
 // The night's hours: bed may be gone to from bedtime, and one still up at
 // faintAt, a minute past midnight, faints where they stand, and all their
@@ -16,12 +16,13 @@ const (
 // in the morning.
 func (f *farm) sleep() bool {
 	if !f.clock.Between(bedtime, wakeAt) {
-		f.float(f.player.Transform.Position, "Ainda é cedo", 'r')
+		f.float(f.player.Transform.Position, i18n.T("Too early"), 'r')
 		f.sound("deny", nil)
 		return false
 	}
+	f.rest()
 	f.nextMorning()
-	f.notify(fmt.Sprint("Dia ", f.clock.Day+1, ": bom dia!"))
+	f.notify(i18n.T("Day %d: good morning!", f.clock.Day+1))
 	return true
 }
 
@@ -47,7 +48,7 @@ func (f *farm) curfew() {
 	f.nextMorning()
 	f.fainted = f.clock.Day
 	f.goHome()
-	f.notify(fmt.Sprint("Você desmaiou! Perdeu $", lost))
+	f.notify(i18n.T("You fainted! You lost $%d", lost))
 	f.sound("deny", nil)
 }
 

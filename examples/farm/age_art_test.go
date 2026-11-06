@@ -45,7 +45,7 @@ func TestTheHUDShowsAgesAndHearts(t *testing.T) {
 		t.Fatal(err)
 	}
 	g.Draw(cv)
-	if heartsLabel(v) != "Conhecidos" || v.bond.Stage() != bond.Acquainted {
+	if heartsLabel(v) != "Acquaintances" || v.bond.Stage() != bond.Acquainted {
 		t.Errorf("label %q", heartsLabel(v))
 	}
 	if got := f.labelOf(v); got != roleLabel(v) {

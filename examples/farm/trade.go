@@ -1,8 +1,7 @@
 package farm
 
 import (
-	"fmt"
-
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
@@ -11,13 +10,13 @@ import (
 func (f *farm) buy(k *kit, c int, at vector.Vector3) bool {
 	price := crops[c].seedPrice
 	if k.money < price {
-		f.float(at, "Sem dinheiro", 'r')
+		f.float(at, i18n.T("Not enough money"), 'r')
 		f.sound("deny", nil)
 		return false
 	}
 	k.money -= price
 	k.bag.Add(seedsOf(c), 1)
-	f.float(at, fmt.Sprint("-$", price), 'r')
+	f.float(at, i18n.T("-$%d", price), 'r')
 	f.sound("coin", &at)
 	return true
 }
@@ -26,7 +25,7 @@ func (f *farm) buy(k *kit, c int, at vector.Vector3) bool {
 func (f *farm) sell(k *kit, at vector.Vector3) bool {
 	earned := worth(k)
 	if earned == 0 {
-		f.float(at, "Nada a vender", 'r')
+		f.float(at, i18n.T("Nothing to sell"), 'r')
 		f.sound("deny", nil)
 		return false
 	}
@@ -38,7 +37,8 @@ func (f *farm) sell(k *kit, at vector.Vector3) bool {
 	k.sold += k.bag.Count(wood)
 	k.bag.Take(wood, k.bag.Count(wood))
 	k.money += earned
-	f.float(at, fmt.Sprint("+$", earned), 'y')
+	f.earnBy(k, xpSale(earned))
+	f.float(at, i18n.T("+$%d", earned), 'y')
 	f.sound("sell", &at)
 	return true
 }

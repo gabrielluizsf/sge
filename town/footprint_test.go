@@ -86,3 +86,22 @@ func TestMarginWidensTheLead(t *testing.T) {
 		t.Fatalf("first east house starts %d, want %d", got, l.lead()-1)
 	}
 }
+
+// The footprints are not asked for again for every cell a town is looked
+// for at: that was most of the time a frame in the wild took.
+func TestFootprintIsNotAskedForEveryCell(t *testing.T) {
+	l := bigLayout()
+	asked := 0
+	inner := l.Footprint
+	l.Footprint = func(kind int) Cell { asked++; return inner(kind) }
+	for c := range 200 {
+		l.At(c, c/2) // plans the towns
+	}
+	asked = 0
+	for c := range 200 {
+		l.At(c, c/2)
+	}
+	if asked != 0 {
+		t.Fatalf("Footprint asked %d times for towns planned already", asked)
+	}
+}

@@ -11,7 +11,9 @@ type pose struct {
 	stride float64
 	swing  float64
 	can    bool
-	axe    int // 0 no axe, windUp raised, strike swung down
+	axe    int  // 0 no axe, windUp raised, strike swung down
+	pick   bool // the tool swung is a pickaxe, not an axe
+	back   bool // seen from behind
 }
 
 // The swing of an axe: raised behind the head, then brought down.
@@ -23,6 +25,7 @@ const (
 // front is a person of look l facing the viewer, or with back true facing
 // away.
 func front(l Look, p pose, back bool) string {
+	p.back = back
 	d := newDoc(FarmerW, FarmerH)
 	d.add(`<ellipse cx="12" cy="39.2" rx="6" ry="1.3" fill="%s" opacity="0.3"/>`, shadowInk)
 	if !back {
@@ -41,7 +44,7 @@ func front(l Look, p pose, back bool) string {
 			hand = pt{x + []float64{-3, 3}[i], 24.6}
 		}
 		if p.axe != 0 && holds {
-			hand = swingHand(p.axe, back)
+			hand = swingHand(p)
 		}
 		elbow := pt{x + []float64{-0.5, 0.5}[i], 22.6}
 		limb{pt{x, 19}, elbow, 2.8, l.Shirt[1]}.draw(d)
@@ -51,7 +54,7 @@ func front(l Look, p pose, back bool) string {
 			canAt(d, hand, map[bool]float64{true: 1, false: -1}[i == 1])
 		}
 		if p.axe != 0 && holds {
-			swingAxe(d, p.axe, hand, back)
+			swingAxe(d, p, hand)
 		}
 	}
 	// The shirt, and the overalls or trousers over it.
@@ -126,7 +129,8 @@ func overalls(d *doc, l Look, denim string, back bool) {
 
 // swingHand is where the hand holding the axe is at the swing's moment,
 // seen from the front, or from the back.
-func swingHand(at int, back bool) pt {
+func swingHand(p pose) pt {
+	at, back := p.axe, p.back
 	switch {
 	case back && at == windUp:
 		return pt{4.6, 13}
@@ -140,15 +144,16 @@ func swingHand(at int, back bool) pt {
 
 // swingAxe is the axe in hand at the swing's moment, seen from the front,
 // or the back, where the swing down goes away from the viewer, hidden.
-func swingAxe(d *doc, at int, hand pt, back bool) {
+func swingAxe(d *doc, p pose, hand pt) {
+	at, back := p.axe, p.back
 	switch {
 	case back && at == windUp:
-		axeAt(d, hand, 35)
+		p.toolAt(d, hand, 35)
 	case at == windUp:
-		axeAt(d, hand, -35)
+		p.toolAt(d, hand, -35)
 	case !back:
 		swoosh(d, [3]pt{{21, 9}, {23, 22}, {16.4, 34}})
-		axeAt(d, hand, 165)
+		p.toolAt(d, hand, 165)
 	}
 }
 
@@ -180,4 +185,25 @@ func canAt(d *doc, hand pt, dir float64) {
 	for i := range 3 {
 		d.add(`<circle cx="%.2f" cy="%.2f" r="0.4" fill="%s"/>`, x+dir*(5.2+float64(i)*0.4), hand.y-2+float64(i)*1.6, waterLight)
 	}
+}
+
+// toolAt is what the pose swings, an axe or a pickaxe, held at hand and
+// turned deg degrees from pointing up.
+func (p pose) toolAt(d *doc, hand pt, deg float64) {
+	if p.pick {
+		pickaxeAt(d, hand, deg)
+		return
+	}
+	axeAt(d, hand, deg)
+}
+
+// pickaxeAt is the pickaxe held at hand, turned deg degrees from pointing
+// up: a wooden handle with an iron head across its end, two points
+// curving down from it.
+func pickaxeAt(d *doc, hand pt, deg float64) {
+	d.add(`<g transform="translate(%.2f %.2f) rotate(%g)">`, hand.x, hand.y, deg)
+	limb{pt{0, 1.6}, pt{0, -7.4}, 1.1, woodBase}.draw(d)
+	d.add(`<path d="M-4.2 -6.2 Q-2 -9.4 0 -8.8 Q2 -9.4 4.2 -6.2 Q2.2 -8 0 -7.6 Q-2.2 -8 -4.2 -6.2 Z" fill="%s" stroke="%s" stroke-width="0.5" stroke-linejoin="round"/>`, d.down(metal, metalShade), line)
+	d.add(`<path d="M1 -8.6 Q2.6 -8.4 3.4 -7.2" stroke="%s" stroke-width="0.4" fill="none"/>`, white)
+	d.add(`</g>`)
 }

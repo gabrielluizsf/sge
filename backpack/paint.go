@@ -37,12 +37,34 @@ func (d painter) screen() {
 	p, s := d.p, d.p.Scale
 	r := p.rects.panel
 	d.cv.Blit(r.X, r.Y, d.art.Panel(r.W/s, r.H/s, false))
-	title := d.art.Text(p.Title, 'k')
-	d.cv.Blit(r.X+padding*s, r.Y+(titleH*s-title.Height)/2+s, title)
+	if len(p.Tabs) > 1 && p.Side == nil {
+		d.tabs()
+	} else {
+		title := d.art.Text(p.Title, 'k')
+		d.cv.Blit(r.X+padding*s, r.Y+(titleH*s-title.Height)/2+s, title)
+	}
 	hint := d.art.Text(p.Hint, 'k')
 	d.cv.Blit(r.X+(r.W-hint.Width)/2, r.Y+r.H-(hintH*s+hint.Height)/2-s, hint)
 	for i := range p.rects.grid {
 		d.slot(Spot{Grid, i})
+	}
+	if p.Crafting() {
+		d.recipeRows()
+	}
+	if p.Side != nil {
+		d.sidePanel()
+	}
+}
+
+// sidePanel draws the store's panel, its title and its slots.
+func (d painter) sidePanel() {
+	p, s := d.p, d.p.Scale
+	r := p.rects.side
+	d.cv.Blit(r.X, r.Y, d.art.Panel(r.W/s, r.H/s, false))
+	title := d.art.Text(p.SideTitle, 'k')
+	d.cv.Blit(r.X+padding*s, r.Y+(titleH*s-title.Height)/2+s, title)
+	for i := range p.rects.chest {
+		d.slot(Spot{Chest, i})
 	}
 }
 
@@ -59,7 +81,11 @@ func (d painter) slot(sp Spot) {
 		d.cv.Blit(r.X+(r.W-k.Width)/2, r.Y-k.Height, k)
 	}
 	id := p.itemAt(sp)
-	if id == "" || p.held == id && p.dragging {
+	if id == "" || p.held == id && p.dragging && p.from == sp {
+		return
+	}
+	if sp.Area == Chest {
+		d.item(p.storeAt(sp.Index), r)
 		return
 	}
 	if it, ok := p.Source.Find(id); ok {

@@ -24,19 +24,19 @@ func newTowns(a Art) *town.Layout {
 	if cols, _ := a.Footprint("house0"); cols > 2 { // houses with room between and around the plaza
 		l.Gap, l.Lead, l.Margin = 3, 7, 3
 	}
+	l.Roads = farmRoads(l.Reach())
 	return l
 }
 
 // pathRow is the row of the farm's path, east to west.
 const pathRow = 4
 
-// highway is the road joining the farm's path to the two towns beside it,
-// whose streets run reach cells each way: it reports whether cell col,
-// row is on it, within margin rows of it.
-func highway(reach int) func(col, row, margin int) bool {
-	east, west := 58-reach, -22+reach
-	return func(col, row, margin int) bool {
-		return abs(row-pathRow) <= margin && (col >= 30 && col < east || col > west && col < 0)
+// farmRoads are the roads joining the farm's path to the two towns beside
+// it, whose streets run reach cells each way.
+func farmRoads(reach int) []town.Rect {
+	return []town.Rect{
+		{C0: 30, R0: pathRow, C1: 58 - reach, R1: pathRow},
+		{C0: -22 + reach, R0: pathRow, C1: -1, R1: pathRow},
 	}
 }
 

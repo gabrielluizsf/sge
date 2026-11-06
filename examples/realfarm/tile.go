@@ -27,6 +27,9 @@ func (a *realArt) tile(name string) *canvas.Canvas {
 	if cv := a.treeTile(name); cv != nil {
 		return cv
 	}
+	if cv := a.rockTile(name); cv != nil {
+		return cv
+	}
 	base, k := splitNumber(name)
 	switch base {
 	case "grass":
@@ -52,6 +55,12 @@ func (a *realArt) tile(name string) *canvas.Canvas {
 		return a.buildingTile(name)
 	case "fence":
 		return a.buildingTile("fence_straight")
+	case "fence_down": // the same fence baked a quarter turn on
+		b, ok := a.bake("building_fence_straight_1")
+		if !ok {
+			return nil
+		}
+		return b.standing()
 	}
 	return a.insideTile(name)
 }

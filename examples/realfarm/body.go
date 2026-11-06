@@ -33,11 +33,13 @@ var motions = map[string][]string{
 	farm.AnimChop:  {"chop", "hoe", "stand"},
 	farm.AnimForge: {"forge", "chop", "hoe", "stand"},
 	farm.AnimHoe:   {"hoe", "chop", "stand"},
+	farm.AnimMine:  {"mine", "chop", "hoe", "stand"},
 	farm.AnimWater: {"water", "hoe", "stand"},
 	farm.AnimPick:  {"pick", "hoe", "stand"},
 	farm.AnimSwim:  {"swim", "tread", "walk", "stand"},
 	farm.AnimDive:  {"dive", "swim", "stand"},
 	farm.AnimRise:  {"rise", "stand"},
+	farm.AnimSit:   {"sit", "stand"},
 }
 
 // turnOf is the facing the baker baked that looks the way dir says on
@@ -86,11 +88,13 @@ func fpsOf(anim, motion string) float64 {
 		return bakes.Frames / farm.WaterSeconds
 	case farm.AnimPick:
 		return bakes.Frames / farm.PickSeconds
+	case farm.AnimMine:
+		return bakes.Frames / farm.MineSeconds
 	}
 	if anim == farm.AnimAct || anim == farm.AnimChop {
 		return bakes.Frames / farm.ActSeconds
 	}
-	for _, m := range human.Motions {
+	for _, m := range slices.Concat(human.Motions, human.Sitting, human.Mining) {
 		if m.Name == motion {
 			return bakes.Frames / m.Length
 		}

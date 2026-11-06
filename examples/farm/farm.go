@@ -7,21 +7,28 @@ import (
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/life"
 	"github.com/gabrielluizsf/sge/lineage"
+	"github.com/gabrielluizsf/sge/particle"
+	"github.com/gabrielluizsf/sge/progress"
 	"github.com/gabrielluizsf/sge/random"
 	"github.com/gabrielluizsf/sge/request"
 	"github.com/gabrielluizsf/sge/scene"
 	"github.com/gabrielluizsf/sge/terrain"
 	"github.com/gabrielluizsf/sge/tilemap"
+	"github.com/gabrielluizsf/sge/toast"
 	"github.com/gabrielluizsf/sge/town"
+	"github.com/gabrielluizsf/sge/vitals"
+	"github.com/gabrielluizsf/sge/warm"
 )
 
 // The hands: a slot of the hotbar holds seeds, of the crop chosen, the watering
-// can, the axe or the hoe.
+// can, the axe, the pickaxe or the hoe.
 const (
 	slotSeeds = iota
 	slotCan
 	slotAxe
 	slotHoe
+	slotFood // a crop, eaten when used
+	slotPick // the pickaxe, breaking rock
 )
 
 // farm is the game's state: the player's kit, the plots of soil on the
@@ -39,10 +46,22 @@ type farm struct {
 	wild   *terrain.World
 	towns  *town.Layout
 	keeper *town.Keeper
+	// warm draws the pictures of what is about to come into view, a few
+	// a frame, ahead of the frame that shows them.
+	warm   *warm.Queue
 	plots  []*plot
 	shop   *shop
 	talk   *talk
 	floats []*floater
+	// vit is the player's health and food; flash how long is left of the
+	// red edge of the screen after a blow; blood the specks of blood and
+	// bloodObj and stainObj the objects that show them, in the air and on
+	// the ground.
+	vit      vitals.Vitals
+	flash    float64
+	blood    *particle.System
+	bloodObj *game.Object
+	stainObj *game.Object
 	// cues are the sounds due in a moment, as a blow lands.
 	cues []cue
 	// people are the villagers of every town woken so far, asleep or not.
@@ -63,10 +82,25 @@ type farm struct {
 	fainted int
 	// stage switches between the world outside and the room the player is
 	// in, with whoever lives there.
-	stage     *scene.Stage
-	room      *room
+	stage *scene.Stage
+	room  *room
+	// home is the furniture of the player's house.
+	home []piece
+	// yard are the chests out of doors.
+	yard []*yardChest
+	// edit is the arranging of furniture, if on; seat the chair the player sits on.
+	edit      *editor
+	seat      *seat
+	icons     map[string]*canvas.Canvas
+	tints     map[string]*canvas.Canvas
 	residents []resident
-	notices   []*notice
+	notices   []*toast.Toast
+	// prog is the family's level and XP, kept by whoever plays; shown the
+	// level it has reached as the bar draws it, and glow how long is left
+	// of the glow after a level up.
+	prog  progress.Progress
+	shown float64
+	glow  float64
 	// speaker plays what happens on the farm; nil plays nothing.
 	speaker speaker
 	// self is who the player is now; family the tree of everyone's
@@ -88,7 +122,8 @@ type farm struct {
 func newFarm(l layers, w world) *farm {
 	f := &farm{layers: l, kit: &kit{money: 20, axe: noAxe, exact: true}, art: w.art, tiles: w.tiles, wild: w.wild, towns: w.towns, shop: &shop{},
 		settled: map[*town.Town]bool{}, hits: map[int]int{}, luck: random.New(seed),
-		clock: &daytime.Clock{Hour: startHour, Speed: 24.0 / dayLength}, fainted: -1}
+		clock: &daytime.Clock{Hour: startHour, Speed: 24.0 / dayLength}, fainted: -1, prog: progress.New(), vit: vitals.Full()}
+	f.home = defaultHouse()
 	f.pack = newPack(f)
 	f.hold(0)
 	f.errand = errandBook.Draw(f.luck)

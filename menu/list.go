@@ -1,9 +1,11 @@
 package menu
 
 // Line is a line of a List: its text, a smaller line under it, and the
-// label of a button at its end, each possibly empty.
+// label of a button at its end, each possibly empty. Key, when set, names
+// the line for the game, so its text may change, as a language does,
+// without the line losing its meaning.
 type Line struct {
-	Text, Sub, Button string
+	Key, Text, Sub, Button string
 }
 
 // List is a titled panel of lines, one chosen, that scrolls to keep it in

@@ -26,8 +26,14 @@ func PersonFrames(l Look) map[string]string {
 		"upChop1":    front(l, pose{axe: strike}, true),
 		"rightChop":  side(l, pose{axe: windUp}),
 		"rightChop1": side(l, pose{axe: strike}),
+		"downMine":   front(l, pose{axe: windUp, pick: true}, false),
+		"downMine1":  front(l, pose{axe: strike, pick: true}, false),
+		"upMine":     front(l, pose{axe: windUp, pick: true}, true),
+		"upMine1":    front(l, pose{axe: strike, pick: true}, true),
+		"rightMine":  side(l, pose{axe: windUp, pick: true}),
+		"rightMine1": side(l, pose{axe: strike, pick: true}),
 	}
-	for _, s := range []string{"", "1", "2", "Act", "Chop", "Chop1"} {
+	for _, s := range []string{"", "1", "2", "Act", "Chop", "Chop1", "Mine", "Mine1"} {
 		f["left"+s] = mirrored(f["right"+s], FarmerW)
 	}
 	swimFrames(f)

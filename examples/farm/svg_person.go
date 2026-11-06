@@ -9,7 +9,10 @@ import (
 // makes them: the founding farmer grown up as the assets draw them, an
 // heir in the farmer's hat and overalls with their own skin and hair, or
 // a villager dressed as who they are says; grey-haired once old.
-func (a *svgArt) Person(who Who) Body {
+func (a *svgArt) Person(who Who) Body { return a.body(who) }
+
+// body is how who is drawn from SVG.
+func (a *svgArt) body(who Who) svgBody {
 	size := sizes[who.Stage]
 	if who.Player && who.Genes == ([5]int{}) && !who.Woman && who.Stage < life.Elder {
 		return svgBody{frame: func(n string) string { return spriteSVG("farmer_" + n) }, size: size}
@@ -18,8 +21,15 @@ func (a *svgArt) Person(who Who) Body {
 	if who.Player {
 		l = heirLook(who)
 	}
-	frames := art.PersonFrames(l)
-	return svgBody{frame: func(n string) string { return frames[n] }, size: size}
+	// Their frames' drawings are made when the first is wanted, which the
+	// warm queue does a person at a time, not all the town's as it wakes.
+	var frames map[string]string
+	return svgBody{frame: func(n string) string {
+		if frames == nil {
+			frames = art.PersonFrames(l)
+		}
+		return frames[n]
+	}, size: size}
 }
 
 // sizes are how tall each time of life is drawn, as a part of a grown

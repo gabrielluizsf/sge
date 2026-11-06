@@ -31,18 +31,34 @@ func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
 	case f.shop.open:
 		f.shopKeys(win)
 		return intent{}
+	case f.edit != nil:
+		f.editKeys(win)
+		return intent{}
+	case f.seat != nil:
+		f.seatKeys(win)
+		return intent{}
 	}
 	if _, row := f.cellOf(feet(o)); f.room != nil && row >= roomRows-1 {
 		f.leave()
 		return intent{}
 	}
+	if win.KeyPressed(antui.KeyB) && f.startEdit("") {
+		return intent{}
+	}
 	if win.KeyPressed(antui.KeyE) {
 		if _, do, ok := f.interaction(o); ok {
 			do()
+			if f.hands.useNow {
+				f.hands.useNow = false
+				return intent{use: true, aim: mouseCell(f, o)}
+			}
 			return intent{}
 		}
 	}
 	for i, k := range numberKeys {
+		if win.KeyPressed(k) && isFurnishing(f.pack.Hotbar[i]) && f.startEdit(f.pack.Hotbar[i]) {
+			return intent{}
+		}
 		if win.KeyPressed(k) && f.hold(i) {
 			f.sound("ui_tick", nil)
 		}
@@ -52,7 +68,8 @@ func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
 		dir = pr.Unproject(dir) // the screen's way, on the ground
 	}
 	run := win.KeyDown(antui.KeyLeftShift) || win.KeyDown(antui.KeyRightShift)
-	return intent{dir: dir, aim: mouseCell(f, o), use: win.KeyPressed(antui.KeySpace) || win.MousePressed(antui.MouseLeft), run: run}
+	return intent{dir: dir, aim: mouseCell(f, o), use: win.KeyPressed(antui.KeySpace) || win.MousePressed(antui.MouseLeft), run: run,
+		strike: win.KeyPressed(antui.KeyF)}
 }
 
 // mouseCell is the cell under the mouse, if its middle is within the

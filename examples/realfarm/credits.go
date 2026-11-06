@@ -21,9 +21,9 @@ var serifLicense string
 func (a *realArt) Credits() []farm.Credit {
 	cc0 := func() string { return cc0License }
 	list := []farm.Credit{
-		{Name: "Fonte Source Serif 4", Author: "Frank Grießhammer, Adobe", URL: "https://github.com/adobe-fonts/source-serif",
+		{Name: "Source Serif 4 font", Author: "Frank Grießhammer, Adobe", URL: "https://github.com/adobe-fonts/source-serif",
 			License: func() string { return serifLicense }},
-		{Name: "MakeHuman (corpos, roupas e cabelos)", Author: "The MakeHuman Community", URL: humansSource(), License: cc0},
+		{Name: "MakeHuman (bodies, clothes and hair)", Author: "The MakeHuman Community", URL: humansSource(), License: cc0},
 	}
 	return append(list, polyHaven(cc0)...)
 }

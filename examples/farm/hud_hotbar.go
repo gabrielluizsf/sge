@@ -10,5 +10,5 @@ func (h *hud) hotbar(cv *canvas.Canvas) {
 	if h.f.talk != nil {
 		return
 	}
-	h.f.pack.Paint(cv, h.f.art)
+	h.f.pack.Paint(cv, h.f.packArt())
 }

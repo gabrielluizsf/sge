@@ -14,7 +14,7 @@ func (b *Baker) modelTasks() []Task {
 	var out []Task
 	for _, a := range b.Manifest.Assets {
 		if a.Kind == "model" {
-			out = append(out, Task{Name: "model " + a.ID, Kind: "model", ID: a.ID, Core: true, Run: func() error { return b.model(a) }})
+			out = append(out, Task{Name: modelTaskName(a), Kind: "model", ID: a.ID, Core: true, Run: func() error { return b.model(a) }})
 		}
 	}
 	return out
@@ -27,11 +27,29 @@ func (b *Baker) model(a kit.Asset) error {
 		return fmt.Errorf("%s: %w", a.ID, err)
 	}
 	for _, sh := range shots(model, a.Whole) {
-		if err := b.Shelf.Put(a.ID+sh.suffix, bake.Render(model, sh.Shot, Options())); err != nil {
+		if err := b.Shelf.Put(a.ID+sh.suffix, bake.Render(model, sh.Shot, modelOptions(a))); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// modelTaskName is the task of baking asset a. A model drawn at a scale of
+// its own says so, so that changing the scale bakes it again.
+func modelTaskName(a kit.Asset) string {
+	if a.Scale > 0 {
+		return fmt.Sprintf("model %s x%g", a.ID, a.Scale)
+	}
+	return "model " + a.ID
+}
+
+// modelOptions is how asset a is rendered: as any, at its own scale.
+func modelOptions(a kit.Asset) bake.Options {
+	o := Options()
+	if a.Scale > 0 {
+		o.Unit *= a.Scale
+	}
+	return o
 }
 
 // shot is a picture to bake of a model, and the suffix of its name.

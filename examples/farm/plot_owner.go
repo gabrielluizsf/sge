@@ -1,5 +1,7 @@
 package farm
 
+import "github.com/gabrielluizsf/sge/examples/i18n"
+
 // villagerOf is the villager whose kit k is, nil for none.
 func (f *farm) villagerOf(k *kit) *villager {
 	for _, v := range f.people {
@@ -30,7 +32,7 @@ func (f *farm) refuse(k *kit, p *plot) {
 	if k != f.kit || p.owner == nil {
 		return
 	}
-	f.notify("Esta plantação é de " + p.owner.name)
+	f.notify(i18n.T("This plot belongs to %s", p.owner.name))
 	f.sound("deny", nil)
 }
 
@@ -50,10 +52,10 @@ func (f *farm) release(v *villager) {
 	}
 }
 
-// ownerLabel is " de <name>" for a crop that is a villager's, else nothing.
+// ownerLabel is " of <name>" for a crop that is a villager's, else nothing.
 func ownerLabel(p *plot) string {
 	if p.owner == nil {
 		return ""
 	}
-	return " de " + p.owner.name
+	return i18n.T(" of %s", p.owner.name)
 }

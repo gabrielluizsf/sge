@@ -5,11 +5,18 @@ import "fmt"
 // fenceTile is a run of fence along a cell's row, seen from the corner:
 // two rails from side to side, so a row of them joins up, and a post in
 // the middle, wood lit from the top left.
-func fenceTile() string {
+func fenceTile() string { return fenceRun(0, Size/2, Size, Size/2) }
+
+// fenceDownTile is the same fence turned a quarter, along a cell's column.
+func fenceDownTile() string { return fenceRun(Size/2, 0, Size/2, Size) }
+
+// fenceRun is a piece of fence whose rails run from x0, y0 to x1, y1 on the
+// cell's ground, its post in the middle.
+func fenceRun(x0, y0, x1, y1 float64) string {
 	d := newDoc(IsoW, IsoH)
 	for _, h := range []float64{3.5, 8} {
-		ax, ay := iso(0, Size/2, h)
-		bx, by := iso(Size, Size/2, h)
+		ax, ay := iso(x0, y0, h)
+		bx, by := iso(x1, y1, h)
 		d.add(`<path d="M%g %g L%g %g" stroke="%s" stroke-width="2.2" stroke-linecap="round"/>`, ax, ay, bx, by, line)
 		d.add(`<path d="M%g %g L%g %g" stroke="%s" stroke-width="1.2" stroke-linecap="round"/>`, ax, ay, bx, by, woodBase)
 		d.add(`<path d="M%g %g L%g %g" stroke="%s" stroke-width="0.4" stroke-linecap="round"/>`, ax, ay-0.35, bx, by-0.35, woodLight)

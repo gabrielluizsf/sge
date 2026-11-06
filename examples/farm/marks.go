@@ -8,6 +8,8 @@ func (f *farm) marks(col, row int) bool {
 		return true
 	case f.slot == slotAxe:
 		return isTree(f.thingAt(col, row))
+	case f.slot == slotPick:
+		return isRock(f.thingAt(col, row))
 	case f.slot == slotCan:
 		return f.isWater(col, row)
 	}

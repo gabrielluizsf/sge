@@ -24,6 +24,8 @@ func check(f *farm, s *snapshot) (*loaded, error) {
 	c := &checker{f: f, s: s}
 	steps := []func() error{
 		func() error { return checkClock(s) },
+		func() error { return checkProgress(s) },
+		func() error { return checkVitals(s) },
 		func() error { return checkKit("player", s.Player) },
 		func() error { return checkHotbar(s) },
 		func() error { return checkPoint("player", s.At) },
@@ -31,7 +33,7 @@ func check(f *farm, s *snapshot) (*loaded, error) {
 		func() error { return checkSelf(s) },
 		c.checkPlots, c.checkStumps, c.checkHits,
 		func() error { return checkOrder("errand", s.Errand) },
-		c.checkPlace,
+		c.checkPlace, c.checkHouse,
 	}
 	for _, step := range steps {
 		if err := step(); err != nil {
@@ -69,7 +71,9 @@ func (c *checker) checkFamily() error {
 // checkPlace is nil if the player stands where one may.
 func (c *checker) checkPlace() error {
 	col, row := c.f.cellOf(vec(c.s.At))
-	if c.f.tiles.IsSolid(c.f.thingAt(col, row)) {
+	// A fence may have been built since where the player was saved: the
+	// player is moved out of it when loaded.
+	if thing := c.f.thingAt(col, row); !isFence(thing) && c.f.tiles.IsSolid(thing) {
 		return fmt.Errorf("save: the player is inside something solid")
 	}
 	return nil

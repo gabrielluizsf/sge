@@ -1,11 +1,13 @@
 package farm
 
+import "github.com/gabrielluizsf/sge/examples/i18n"
+
 // endLine is the player old dying with no heir: the line ends, and the
 // player is asked only to start again.
 func (f *farm) endLine(old *self) {
 	f.talk, f.shop.open = nil, false
-	f.question = &question{ask: []string{"Fim da linhagem", old.name + " morreu sem deixar herdeiros."},
-		answers: []line{{text: "Recomeçar", do: func(f *farm) { f.restart() }}}}
+	f.question = &question{ask: []string{i18n.T("End of the lineage"), i18n.T("%s died without leaving heirs.", old.name)},
+		answers: []line{{text: i18n.T("Restart"), do: func(f *farm) { f.restart() }}}}
 	f.sound("deny", nil)
 }
 
@@ -37,5 +39,5 @@ func (f *farm) restart() {
 	}
 	f.goHome()
 	f.redressPlayer(f.self.who(f.clock.Day))
-	f.notify("Uma nova família chega à fazenda.")
+	f.notify(i18n.T("A new family arrives at the farm."))
 }

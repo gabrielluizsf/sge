@@ -38,6 +38,8 @@ func packInput(win *antui.Window) backpack.Input {
 		Dx: horizontal(win), Dy: vertical(win),
 		Select: win.KeyPressed(antui.KeyEnter) || win.KeyPressed(antui.KeySpace),
 		Cancel: win.KeyPressed(antui.KeyEscape),
+		Quick:  win.KeyDown(antui.KeyLeftShift) || win.KeyDown(antui.KeyRightShift),
+		Tab:    step(win, antui.KeyQ, antui.KeyE),
 		Mouse:  backpack.Point{X: win.MouseX(), Y: win.MouseY()},
 		Press:  win.MousePressed(antui.MouseLeft), Release: win.MouseReleased(antui.MouseLeft),
 	}

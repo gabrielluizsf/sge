@@ -94,7 +94,7 @@ func TestThePlayerCannotTendAVillagersPlot(t *testing.T) {
 		if f.useAs(f.kit, p.col, p.row) != actNone || *p != before {
 			t.Errorf("slot %d changed an owned plot: %+v", c.slot, p)
 		}
-		if len(f.notices) == 0 || f.notices[0].text != "Esta plantação é de Ana" {
+		if len(f.notices) == 0 || f.notices[0].Text != "This plot belongs to Ana" {
 			t.Errorf("slot %d: no notice", c.slot)
 		}
 	}
@@ -108,11 +108,11 @@ func TestTheNoteNamesTheOwner(t *testing.T) {
 	_, f := newGame(idle{})
 	p := f.plots[2]
 	p.crop = cornCrop
-	if strings.HasPrefix(cropNote(p), "Milho de") {
+	if strings.HasPrefix(cropNote(p), "Corn of") {
 		t.Errorf("the player's crop: %q", cropNote(p))
 	}
 	p.owner = newHand(f, "Ana")
-	if n := cropNote(p); !strings.HasPrefix(n, "Milho de Ana - brota em ") {
+	if n := cropNote(p); !strings.HasPrefix(n, "Corn of Ana - sprouts in ") {
 		t.Errorf("note %q", n)
 	}
 }

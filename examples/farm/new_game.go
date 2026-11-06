@@ -7,6 +7,7 @@ import (
 	"github.com/gabrielluizsf/sge/iso"
 	"github.com/gabrielluizsf/sge/scene"
 	"github.com/gabrielluizsf/sge/town"
+	"github.com/gabrielluizsf/sge/warm"
 )
 
 // build is the farm laid out, drawn by a, with the farmer on the path in
@@ -21,6 +22,8 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	g.Projection = iso.New(tile, isoW, tile)
 	// The farm and the land around it cover every pixel.
 	g.Covered = true
+	// Villagers far off the screen are not drawn yet: their pictures wait.
+	g.LazyReach = 512
 	tiles := newTiles(a)
 	roomTiles = tiles
 	where := siteFor(a)
@@ -31,6 +34,8 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	w := game.NewObject("world")
 	w.AddScript(f.clock)
 	w.AddScript(f)
+	f.warm = &warm.Queue{PerFrame: 1}
+	w.AddScript(f.warm)
 	g.Add(w)
 	f.ui = newUI(f)
 	menus := game.NewObject("menus")
@@ -49,24 +54,26 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 	g.Add(f.newStall(farmStall))
 	g.Add(f.newHouse(0, town.Cell{Col: where.home.col, Row: where.home.row}, true))
 	wild.Props = f.props
+	wild.Warm = f.warm
 	// The wild makes its chunks, and the towns wake, where the camera has
 	// just been pointed, so they come after the farmer, whom it follows.
 	g.Add(wild.Object)
-	f.keeper = &town.Keeper{Layout: towns, Range: 34, Cell: tile, Wake: f.wake}
+	f.keeper = &town.Keeper{Layout: towns, Range: 34, Cell: tile, Wake: f.wake, Sleep: f.dropBodies, Ahead: 25, PerFrame: 1}
 	k := game.NewObject("keeper")
 	k.AddScript(f.keeper)
 	g.Add(k)
 	night := game.NewObject("night")
 	night.Z, night.Screen = zNight, true
-	night.AddScript(daytime.Shade{Clock: f.clock,
-		Night: canvas.RGBA(canvas.RGBAParams{R: 14, G: 18, B: 52, A: 165}),
-		Glow:  canvas.RGBA(canvas.RGBAParams{R: 255, G: 128, B: 60, A: 70})})
+	night.AddScript(daytime.Shade{Clock: f.clock})
 	g.Add(night)
+	blood, stains := f.newBlood()
+	g.Add(blood)
+	g.Add(stains)
 	h := game.NewObject("hud")
 	h.Z, h.Screen = zHUD, true
 	h.AddScript(&hud{f: f, farmer: o, p: p})
 	g.Add(h)
-	kept := map[*game.Object]bool{w: true, menus: true, o: true, night: true, h: true}
+	kept := map[*game.Object]bool{w: true, menus: true, o: true, night: true, h: true, blood: true, stains: true}
 	f.stage = &scene.Stage{Game: g, Current: outside, Keep: func(o *game.Object) bool { return kept[o] || o.Name == "ambience" || o.Name == "bird" }}
 	return g, f
 }

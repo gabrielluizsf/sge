@@ -16,6 +16,12 @@ type snapshot struct {
 	Ids     int     `json:"ids"`
 	Luck    uint32  `json:"luck"`
 	Fate    uint32  `json:"fate"`
+	// Level and XP are the family's; an old save has neither, and is level 1.
+	Level int `json:"level"`
+	XP    int `json:"xp"`
+	// Vitals are the player's health and food; an old save has none, and
+	// its player is at their best.
+	Vitals *vitalsState `json:"vitals"`
 
 	Player kitState   `json:"player"`
 	Hotbar []string   `json:"hotbar"`
@@ -29,6 +35,11 @@ type snapshot struct {
 	Hits       []hitState   `json:"hits"`
 	Errand     orderState   `json:"errand"`
 	ErrandDone bool         `json:"errandDone"`
+
+	// Home is the furniture of the player's house and Yard the chests out of
+	// doors; an old save has neither, and its house has only the bed.
+	Home []pieceState `json:"home"`
+	Yard []pieceState `json:"yard"`
 
 	Towns  []cellState     `json:"towns"`
 	People []villagerState `json:"people"`
@@ -165,4 +176,10 @@ type bondState struct {
 	Gifted    int `json:"gifted"`
 	Talked    int `json:"talked"`
 	Wedding   int `json:"wedding"`
+}
+
+// vitalsState is the player's health and food, each from 0 to 100.
+type vitalsState struct {
+	Health float64 `json:"health"`
+	Food   float64 `json:"food"`
 }

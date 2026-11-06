@@ -27,7 +27,7 @@ func TestTheChildQuestionOnlyWhenMarried(t *testing.T) {
 	f.clock.Hour = 21
 	f.goToBed()
 	q := f.question
-	if q == nil || len(q.ask) != 1 || q.ask[0] != "Devemos ter um filho?" || len(q.answers) != 2 || q.answers[0].text != "Sim" || q.answers[1].text != "Não" {
+	if q == nil || len(q.ask) != 1 || q.ask[0] != "Should we have a child?" || len(q.answers) != 2 || q.answers[0].text != "Yes" || q.answers[1].text != "No" {
 		t.Fatalf("asked %+v", q)
 	}
 	q.choice = 1 // no
@@ -100,7 +100,7 @@ func TestTheHeirTakesOver(t *testing.T) {
 	if spouse.bond.MayHaveChild() || f.self.spouse != nil || !f.family.Kin(f.self.id, old) {
 		t.Error("the heir took on their parent's marriage")
 	}
-	if len(f.notices) == 0 || f.notices[len(f.notices)-1].text != "Joaquim morreu de velhice. "+first.name+" assume a fazenda." {
+	if len(f.notices) == 0 || f.notices[len(f.notices)-1].Text != "Joaquim died of old age. "+first.name+" takes over the farm." {
 		t.Errorf("notices %v", f.notices)
 	}
 }
@@ -115,7 +115,7 @@ func TestTheLineEndsWithoutAnHeir(t *testing.T) {
 	old := f.self.id
 	f.passDays(1)
 	q := f.question
-	if q == nil || q.ask[0] != "Fim da linhagem" || len(q.answers) != 1 {
+	if q == nil || q.ask[0] != "End of the lineage" || len(q.answers) != 1 {
 		t.Fatalf("asked %+v", q)
 	}
 	f.answerQuestion()

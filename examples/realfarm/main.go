@@ -14,6 +14,7 @@ import (
 
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/sge/examples/farm"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 )
 
@@ -39,6 +40,7 @@ func main() {
 		farm.Main(art, gameTitle)
 		return
 	}
+	i18n.Load()
 	// One window for the whole game: the loading screen, the menu, the
 	// character's making and the play follow one another in it.
 	win, err := antui.Open(gameTitle, 1280, 720)

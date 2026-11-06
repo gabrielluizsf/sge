@@ -20,6 +20,8 @@ type mind struct {
 	// since last.
 	stuck float64
 	last  vector.Vector3
+	// chase is the seconds until they find the way to the player again.
+	chase float64
 	// spring is the water a farmer fills their can at, found once looked
 	// for.
 	shore         spring
@@ -55,6 +57,13 @@ func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 			return intent{}
 		}
 		v.inside, o.Hidden = false, false
+	}
+	if v.angry > 0 && f.inSight(o.Transform.Position) {
+		return m.fight(f, o, dt)
+	}
+	if !f.inSight(o.Transform.Position) {
+		v.angry = 0
+		return intent{} // out of sight they wait; their garden is tended unseen
 	}
 	if f.talk != nil && f.talk.v == v {
 		return intent{face: faceTo(feet(o), f.player)} // listening, not walking off

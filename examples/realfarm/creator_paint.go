@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gabrielluizsf/antui/canvas"
 	"github.com/gabrielluizsf/sge/examples/farm"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/human"
 )
 
@@ -62,7 +63,7 @@ func (c *creator) centred(cv *canvas.Canvas, s string, ink rune, r rect) {
 // paintList draws the categories.
 func (c *creator) paintList(cv *canvas.Canvas, r rect) {
 	c.panel(cv, r, false)
-	c.centred(cv, "Criar personagem", 'y', rect{r.X, r.Y, r.W, headH})
+	c.centred(cv, i18n.T("Create character"), 'y', rect{r.X, r.Y, r.W, headH})
 	for i, cat := range c.cats {
 		line := rect{r.X + 12, r.Y + headH + i*catH, r.W - 24, catH - 4}
 		chosen := i == c.cat
@@ -74,7 +75,7 @@ func (c *creator) paintList(cv *canvas.Canvas, r rect) {
 		if chosen {
 			ink = 'y'
 		}
-		c.centred(cv, cat.name, ink, line)
+		c.centred(cv, i18n.T(cat.name), ink, line)
 	}
 }
 
@@ -82,7 +83,7 @@ func (c *creator) paintList(cv *canvas.Canvas, r rect) {
 func (c *creator) paintRows(cv *canvas.Canvas, r rect) {
 	c.panel(cv, r, false)
 	cat := c.cats[c.cat]
-	c.centred(cv, cat.name, 'y', rect{r.X, r.Y, r.W, headH})
+	c.centred(cv, i18n.T(cat.name), 'y', rect{r.X, r.Y, r.W, headH})
 	y := r.Y + headH
 	for _, i := range c.shown(c.cat) {
 		line := rect{r.X + 12, y, r.W - 24, rowH - 4}
@@ -94,7 +95,7 @@ func (c *creator) paintRows(cv *canvas.Canvas, r rect) {
 		c.hits = append(c.hits, hit{at: line, kind: hitRow, cat: c.cat, row: i})
 		switch row.kind {
 		case buttonRow:
-			c.centred(cv, row.label, 'y', line)
+			c.centred(cv, i18n.T(row.label), 'y', line)
 		case choiceRow:
 			c.paintChoice(cv, row, line)
 		case sliderRow:
@@ -111,7 +112,7 @@ func controlX(line rect) int { return line.X + line.W*4/10 }
 
 // paintChoice draws a choice row: the label, and « value » .
 func (c *creator) paintChoice(cv *canvas.Canvas, row *row, line rect) {
-	c.text(cv, row.label, 'k', [2]int{line.X + 16, line.Y + line.H/2})
+	c.text(cv, i18n.T(row.label), 'k', [2]int{line.X + 16, line.Y + line.H/2})
 	x0 := controlX(line)
 	w := line.X + line.W - 8 - x0
 	less := rect{x0, line.Y, arrowW, line.H}
@@ -146,7 +147,7 @@ func fillColour(cv *canvas.Canvas, r rect, col human.Colour) {
 
 // paintSlider draws a slider row: the label above its track and knob.
 func (c *creator) paintSlider(cv *canvas.Canvas, row *row, line rect) {
-	c.text(cv, row.label, 'k', [2]int{line.X + 16, line.Y + line.H/2})
+	c.text(cv, i18n.T(row.label), 'k', [2]int{line.X + 16, line.Y + line.H/2})
 	x0 := controlX(line)
 	track := rect{x0 + 8, line.Y + (line.H-trackH)/2, line.X + line.W - 16 - x0 - 8, trackH}
 	f := min(max(row.slider.frac(c.st), 0), 1)
@@ -167,12 +168,12 @@ func (c *creator) paintStage(cv *canvas.Canvas, r rect) {
 	if img := c.stageImage(inner); img != nil {
 		cv.Blit(inner.X, inner.Y, img)
 	} else {
-		c.centred(cv, "Preparando o personagem...", 'k', r)
+		c.centred(cv, i18n.T("Preparing the character..."), 'k', r)
 	}
 	if c.live != nil && c.live.Busy() && c.stage.Ready() {
-		c.centred(cv, "Atualizando...", 'k', rect{r.X, r.Y + r.H - 56, r.W, 40})
+		c.centred(cv, i18n.T("Updating..."), 'k', rect{r.X, r.Y + r.H - 56, r.W, 40})
 	}
-	c.centred(cv, "Arraste para girar", 'k', rect{r.X, r.Y + stageInset + 4, r.W, 32})
+	c.centred(cv, i18n.T("Drag to rotate"), 'k', rect{r.X, r.Y + stageInset + 4, r.W, 32})
 }
 
 // stageInset is the margin between the stage's panel and the picture.

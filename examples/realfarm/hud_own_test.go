@@ -34,7 +34,7 @@ func same(a, b *canvas.Canvas) bool {
 // have been baked or not.
 func TestNoHUDPictureIsTheStylizedArts(t *testing.T) {
 	real, style := testArt(t), farm.SVGArt()
-	names := []string{"icon_coin", "icon_bubble", "icon_can", "icon_hoe", "icon_heart", "icon_heart_empty", "icon_wood",
+	names := []string{"icon_coin", "icon_bubble", "icon_can", "icon_hoe", "icon_heart", "icon_heart_empty", "icon_food", "icon_wood",
 		"icon_axe_stone", "icon_axe_iron", "icon_axe_gold", "icon_axe_diamond"}
 	for _, c := range flora.Crops {
 		if c.Name == "withered" {

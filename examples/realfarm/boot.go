@@ -5,6 +5,7 @@ import (
 
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/loader"
@@ -66,5 +67,5 @@ func boot(win *antui.Window, b *bakes.Baker, tasks []bakes.Task) error {
 // done and which one is baking, in the HUD's own serif, never the
 // stylized farm's face.
 func bootLabel(done, asked int, current string) *canvas.Canvas {
-	return serifText(fmt.Sprintf("Preparando o mundo %d/%d - %s", done, asked, current), 'w')
+	return serifText(i18n.T("Preparing the world %d/%d - %s", done, asked, current), 'w')
 }

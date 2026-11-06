@@ -10,9 +10,12 @@ func Icons() map[string]string {
 		"can":         canIcon(),
 		"hoe":         hoeIcon(),
 		"wood":        woodIcon(),
+		"stone":       stoneIcon(),
+		"pickaxe":     pickaxeIcon(),
 		"bubble":      bubbleIcon(),
 		"heart":       heartIcon(true),
 		"heart_empty": heartIcon(false),
+		"food":        foodIcon(),
 	}
 	for name, c := range cropIcons {
 		m[name+"Seeds"] = packetIcon(c[0], c[1])

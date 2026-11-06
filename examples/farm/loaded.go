@@ -14,4 +14,6 @@ type loaded struct {
 	people []*villager
 	stumps []*stump
 	hits   map[int]int
+	home   []piece
+	yard   []piece
 }

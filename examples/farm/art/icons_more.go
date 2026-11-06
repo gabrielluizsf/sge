@@ -12,6 +12,16 @@ func woodIcon() string {
 	return d.String()
 }
 
+// stoneIcon is two grey stones, one on the other.
+func stoneIcon() string {
+	d := newDoc(Size, Size)
+	rock := d.down("#b3aea6", "#77716a")
+	d.add(`<path d="M2.4 12.6 q-0.6 -3.6 2.4 -5 q3.4 -1.4 6 0.6 q2.2 2 1 4.4 z" fill="%s" stroke="%s" stroke-width="0.6" stroke-linejoin="round"/>`, rock, line)
+	d.add(`<path d="M7.6 8.2 q0.4 -3 3.2 -3.6 q3 -0.4 3.6 2.6 q0.6 2.4 -0.4 3.6 l-5.4 0 z" fill="%s" stroke="%s" stroke-width="0.6" stroke-linejoin="round"/>`, d.down("#cfcac2", "#8d877f"), line)
+	d.add(`<ellipse cx="5.2" cy="9.2" rx="1.2" ry="0.7" fill="%s" opacity="0.6"/>`, white)
+	return d.String()
+}
+
 // Axes are the heads of the axes, light and shade, from the worst to the
 // best: stone, iron, gold and diamond.
 var Axes = map[string][2]string{
@@ -52,5 +62,16 @@ func anvilTile() string {
 	d.box([4]float64{3, 5.5, 13, 10.5}, [2]float64{8, 11}, [3]string{slateLight, slateBase, slateShade})
 	d.add(`<path d="M%s L%s L%s Z" fill="%s" stroke="%s" stroke-width="0.5" stroke-linejoin="round"/>`, d.at(13, 6.5, 11), d.at(13, 9.5, 11), d.at(16, 8, 10.4), slateLight, line)
 	d.add(`<path d="M%s L%s" stroke="%s" stroke-width="0.6" stroke-linecap="round"/>`, d.at(4, 6.5, 11), d.at(12, 6.5, 11), white)
+	return d.String()
+}
+
+// foodIcon is a red apple with a leaf, for the food bar.
+func foodIcon() string {
+	d := newDoc(Size, Size)
+	skin := d.down("#ff8a6a", "#c93a2c")
+	d.add(`<path d="M8 4.6 C5 2.6 1.8 5 2.6 8.6 C3.2 11.6 5.4 14 8 13.2 C10.6 14 12.8 11.6 13.4 8.6 C14.2 5 11 2.6 8 4.6 Z" fill="%s" stroke="%s" stroke-width="0.7" stroke-linejoin="round"/>`, skin, line)
+	d.add(`<path d="M8 4.6 Q8 2.8 9.2 1.8" fill="none" stroke="%s" stroke-width="0.8" stroke-linecap="round"/>`, line)
+	d.add(`<path d="M9.4 3.4 Q11.6 1.6 13 3 Q11.4 4.6 9.4 3.4 Z" fill="%s" stroke="%s" stroke-width="0.5"/>`, leafBase, line)
+	d.add(`<ellipse cx="5" cy="7" rx="1.1" ry="1.6" fill="%s" opacity="0.7"/>`, white)
 	return d.String()
 }

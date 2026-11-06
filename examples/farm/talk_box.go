@@ -1,9 +1,8 @@
 package farm
 
 import (
-	"fmt"
-
 	"github.com/gabrielluizsf/sge/dialogue"
+	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
 // typing is how many letters a second the people speak.
@@ -25,7 +24,7 @@ func (f *farm) talkBox() *dialogue.Box {
 		t.box = &dialogue.Box{Scale: scale, Speed: typing}
 		t.box.Say(f.greeting(t.v))
 	}
-	t.box.Speaker = t.v.name + " - " + f.labelOf(t.v) + ", " + itoa(t.v.who.Years) + " anos"
+	t.box.Speaker = i18n.T("%s - %s, %d years old", t.v.name, f.labelOf(t.v), t.v.who.Years)
 	return t.box
 }
 
@@ -44,22 +43,22 @@ func (f *farm) greeting(v *villager) string {
 	var say []string
 	switch {
 	case v.ours:
-		say = append(say, "Que bom ter você em casa!")
+		say = append(say, i18n.T("It's good to have you home!"))
 	case v.smith() && !f.errandDone:
-		say = append(say, "Preciso disto para a forja:")
+		say = append(say, i18n.T("I need this for the forge:"))
 		say = append(say, wants(f, f.errand.Want)...)
-		say = append(say, "Em troca: machado de pedra")
+		say = append(say, i18n.T("In exchange: stone axe"))
 	case v.smith():
-		say = append(say, "Machados melhores cortam mais rápido.")
+		say = append(say, i18n.T("Better axes cut faster."))
 	case len(v.order.Want) > 0:
-		say = append(say, "Você pode me trazer:")
+		say = append(say, i18n.T("You can bring me:"))
 		say = append(say, wants(f, v.order.Want)...)
-		say = append(say, fmt.Sprint("Pago $", v.order.Reward))
+		say = append(say, i18n.T("I pay $%d", v.order.Reward))
 	default:
-		say = append(say, "Oi! Hoje não preciso de nada.")
+		say = append(say, i18n.T("Hi! I don't need anything today."))
 	}
 	if v.role == roleLumberjack {
-		say = append(say, fmt.Sprint("Tenho ", v.kit.bag.Count(wood), " de madeira"))
+		say = append(say, i18n.T("I have %d wood", v.kit.bag.Count(wood)))
 	}
 	text := ""
 	for i, s := range say {
