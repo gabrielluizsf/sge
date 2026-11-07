@@ -9,10 +9,11 @@ import (
 // and selling the harvest, the chosen line on a gold bar.
 func (h *hud) shop(cv *canvas.Canvas) {
 	choice := h.f.shop.choice
-	if h.f.shop.animals {
-		lines := []string{i18n.T("Stable")}
-		for _, o := range stableOffers {
-			lines = append(lines, i18n.T("%s $%d", i18n.T(o.label), o.price))
+	if kind := h.f.shop.kind; kind != "" {
+		title, shed := h.f.shedLines(kind)
+		lines := []string{title}
+		for _, l := range shed {
+			lines = append(lines, l.text)
 		}
 		h.menu(cv, menuOf{lines: append(lines, i18n.T("Space: choose   E: exit")), chosen: 1 + choice})
 		return

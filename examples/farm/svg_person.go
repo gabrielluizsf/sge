@@ -46,6 +46,9 @@ func svgLook(who Who) art.Look {
 	if who.Role == roleSmith {
 		l.Overalls, l.Pants = true, art.Trousers[2]
 	}
+	if who.Role == roleBaker { // all in white, the apron over it
+		l.Shirt, l.Overalls, l.Pants = art.Whites, true, art.Whites
+	}
 	if who.Stage == life.Elder {
 		l.Hair = grey
 	}

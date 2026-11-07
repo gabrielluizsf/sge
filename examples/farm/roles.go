@@ -12,6 +12,8 @@ const (
 	roleSmith      = "smith"
 	roleWanderer   = "wanderer"
 	roleDealer     = "dealer"
+	roleBaker      = "baker"
+	roleButcher    = "butcher"
 )
 
 // What a schedule says to do.
@@ -33,6 +35,8 @@ var schedules = map[string]daytime.Schedule{
 	roleSmith:      {{From: 7, To: 19, Do: doWork}, {From: 19, To: bedBy, Do: doStroll}, {From: bedBy, To: 7, Do: doSleep}},
 	roleWanderer:   {{From: 8, To: bedBy, Do: doWork}, {From: bedBy, To: 8, Do: doSleep}},
 	roleDealer:     {{From: 7, To: 18, Do: doWork}, {From: 18, To: bedBy, Do: doStroll}, {From: bedBy, To: 7, Do: doSleep}},
+	roleBaker:      {{From: 6, To: 16, Do: doWork}, {From: 16, To: bedBy, Do: doStroll}, {From: bedBy, To: 6, Do: doSleep}},
+	roleButcher:    {{From: 7, To: 17, Do: doWork}, {From: 17, To: bedBy, Do: doStroll}, {From: bedBy, To: 7, Do: doSleep}},
 }
 
 // roleLabels are the trades' names on screen, as English keys, a woman's
@@ -43,6 +47,8 @@ var roleLabels = map[string][2]string{
 	roleSmith:      {"smith", "smith"},
 	roleWanderer:   {"wanderer", "wanderer"},
 	roleDealer:     {"livestock dealer", "livestock dealer"},
+	roleBaker:      {"baker", "baker"},
+	roleButcher:    {"butcher", "butcher"},
 }
 
 // roleLabel is v's trade on screen, as a woman's or a man's.

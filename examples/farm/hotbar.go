@@ -51,11 +51,18 @@ func (f *farm) hold(pos int) bool {
 	case id == itemPick && f.bag.Count(itemPick) > 0:
 		f.slot = slotPick
 	default:
+		if g, isGood := goodOf(id); isGood {
+			if g.nutrition <= 0 {
+				return false
+			}
+			f.slot, f.food = slotFood, id
+			break
+		}
 		c, crop := cropIndex(id)
 		if !crop {
 			return false
 		}
-		f.slot, f.seed = slotFood, c
+		f.slot, f.seed, f.food = slotFood, c, ""
 	}
 	f.pack.Active = pos
 	return true

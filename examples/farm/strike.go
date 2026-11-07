@@ -32,7 +32,9 @@ func (p *farmer) swing(o *game.Object) {
 	if o == p.f.player {
 		if v := p.f.ahead(at, p.facing); v != nil {
 			p.f.wound(v, p.kit.blow(), at)
+			return
 		}
+		p.f.strikeAnimal(at, p.facing, p.kit.blow())
 		return
 	}
 	if m, ok := p.ctl.(*mind); ok && m.v.angry <= 0 {

@@ -7,8 +7,9 @@ import "github.com/gabrielluizsf/antui"
 func (f *farm) shopKeys(win *antui.Window) {
 	s := f.shop
 	lines := sellChoice + 1
-	if s.animals {
-		lines = len(stableOffers)
+	if s.kind != "" {
+		_, l := f.shedLines(s.kind)
+		lines = len(l)
 	}
 	switch {
 	case win.KeyPressed(antui.KeyEscape) || win.KeyPressed(antui.KeyE):

@@ -17,4 +17,6 @@ type kit struct {
 	// exact says the seeds in hand are the only ones sown, never others
 	// when they run out: the player chose them.
 	exact bool
+	// food is the good in hand with the food slot, none for a crop.
+	food string
 }

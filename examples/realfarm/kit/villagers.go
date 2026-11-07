@@ -55,6 +55,21 @@ var Villagers = []Villager{
 		human.Look{Eyes: eyes("brown"), Wear: append(face(7, 1), hair("short04"), clothes("male_casualsuit03"), clothes("shoes03"), clothes("fedora01"))}},
 	{"iara", "walker", human.Body{Gender: 0, Age: age(22), African: 0.35, Asian: 0.3, European: 0.35, Muscle: 0.5, Weight: 0.45, Height: 0.55, Proportions: 0.6},
 		human.Look{Eyes: eyes("green"), Wear: append(face(8, 4), hair("long01"), clothes("female_casualsuit02"), clothes("shoes01"))}},
+	{"paulo", "baker", human.Body{Gender: 1, Age: age(44), European: 0.6, African: 0.4, Muscle: 0.5, Weight: 0.65, Height: 0.5, Proportions: 0.5},
+		bakersWhites(append(face(1, 1), hair("short03"), clothes("male_worksuit01"), clothes("shoes02")))},
+	{"rosa", "baker", human.Body{Gender: 0, Age: age(38), European: 0.5, Asian: 0.5, Muscle: 0.45, Weight: 0.55, Height: 0.45, Proportions: 0.6},
+		bakersWhites(append(face(2, 2), hair("ponytail01"), clothes("female_casualsuit02"), clothes("shoes01")))},
 	{"player", "player", human.Body{Gender: 1, Age: age(26), African: 0.3, European: 0.5, Asian: 0.2, Muscle: 0.6, Weight: 0.5, Height: 0.55, Proportions: 0.55},
 		human.Look{Eyes: eyes("blue"), Wear: append(face(9, 1), hair("short02"), clothes("male_casualsuit02"), clothes("shoes04"))}},
+}
+
+// bakersWhites is wear all in the white of a baker's clothes: the CC0 packs
+// have no apron or cook's hat, so a work suit in white stands for them. The
+// eyes, brows, lashes and hair, the first four of wear, keep their colours.
+func bakersWhites(wear []string) human.Look {
+	colours := make([]human.Colour, len(wear))
+	for i := 4; i < len(wear); i++ {
+		colours[i] = human.RGB(0.95, 0.94, 0.9)
+	}
+	return human.Look{Eyes: eyes("brown"), Wear: wear, ClothesColours: colours}
 }

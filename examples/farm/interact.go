@@ -13,8 +13,11 @@ const talkReach = 1.5 * tile
 // their head, and doing it. ok is false where it does nothing.
 func (f *farm) interaction(o *game.Object) (words string, do func(), ok bool) {
 	if f.room == nil {
-		if t := f.stableBy(o); t != nil {
-			return i18n.T("E: buy animals"), func() { f.openStable(t) }, true
+		if t, name := f.shedBy(o); t != nil {
+			return i18n.T(shedWords[name]), func() { f.openShed(t, name) }, true
+		}
+		if words, do, ok := f.forgeNear(o); ok {
+			return words, do, true
 		}
 	}
 	if v := f.nearPerson(o); v != nil {
@@ -38,7 +41,7 @@ func (f *farm) interaction(o *game.Object) (words string, do func(), ok bool) {
 	}
 	if s, ok := f.stallBy(o); ok {
 		return i18n.T("E: shop"), func() {
-			f.shop.open, f.shop.animals, f.shop.choice, f.shop.at = true, false, 0, s
+			f.shop.open, f.shop.kind, f.shop.choice, f.shop.at = true, "", 0, s
 			f.sound("ui_open", nil)
 		}, true
 	}

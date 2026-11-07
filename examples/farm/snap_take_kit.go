@@ -7,7 +7,7 @@ import (
 
 // takeKit is k as plain data.
 func takeKit(k *kit) kitState {
-	return kitState{Money: k.money, Bag: takeStacks(k.bag.Content()), Slot: k.slot, Seed: k.seed, Axe: k.axe, Sold: k.sold, Used: k.used, Exact: k.exact}
+	return kitState{Money: k.money, Bag: takeStacks(k.bag.Content()), Slot: k.slot, Seed: k.seed, Axe: k.axe, Sold: k.sold, Used: k.used, Exact: k.exact, Food: k.food}
 }
 
 // takeStacks are l as plain data, never nil.

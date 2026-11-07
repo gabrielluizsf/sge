@@ -19,6 +19,14 @@ func knownItem(item string) bool {
 	return false
 }
 
+// checkFood is nil if food is a good that is eaten, or none.
+func checkFood(what, food string) error {
+	if g, ok := goodOf(food); food != "" && (!ok || g.nutrition <= 0) {
+		return fmt.Errorf("save: %s holds %q to eat", what, food)
+	}
+	return nil
+}
+
 // hasStack reports whether l has a stack of item.
 func hasStack(l []stackState, item string) bool {
 	for _, s := range l {
@@ -58,6 +66,7 @@ func checkKit(what string, k kitState) error {
 		inRange(what+" axe", k.Axe, noAxe, len(axes)-1),
 		inRange(what+" sold", k.Sold, 0, maxMoney),
 		inRange(what+" used", k.Used, 0, maxCount),
+		checkFood(what, k.Food),
 	)
 }
 

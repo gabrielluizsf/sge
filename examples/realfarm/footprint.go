@@ -18,6 +18,10 @@ func modelOf(name string) building.Building {
 		return building.Well
 	case "stable":
 		return building.Stable
+	case "bakery":
+		return building.Bakery
+	case "butcher":
+		return building.Butcher
 	}
 	var kind int
 	fmt.Sscanf(name, "house%d", &kind)

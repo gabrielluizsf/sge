@@ -23,8 +23,10 @@ func (f *farm) props(cx, cy int) []*game.Object {
 		if in(t.Stall) {
 			objs = append(objs, f.newStall(t.Stall))
 		}
-		if r := stableRect(f.art, t); in(town.Cell{Col: r.col, Row: r.row}) {
-			objs = append(objs, f.newShed("stable", r))
+		for i, name := range sheds {
+			if r := shedRect(f.art, t, i); r.cols > 0 && in(town.Cell{Col: r.col, Row: r.row}) {
+				objs = append(objs, f.newShed(name, r))
+			}
 		}
 		if r := wellRect(f.art, t); r.cols > 0 && in(t.Well) {
 			objs = append(objs, f.newWell(r))

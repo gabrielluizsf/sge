@@ -9,6 +9,7 @@ var folk = map[bool]map[string][]string{
 	false: {
 		"farmer":     {"joao", "rui"},
 		"smith":      {"beto"},
+		"baker":      {"paulo"},
 		"lumberjack": {"rui"},
 		"wanderer":   {"kenji", "joao", "rui", "beto"},
 		"player":     {"player", "joao"},
@@ -16,6 +17,7 @@ var folk = map[bool]map[string][]string{
 	true: {
 		"farmer":     {"ana", "iara"},
 		"smith":      {"mei", "iara"},
+		"baker":      {"rosa"},
 		"lumberjack": {"iara", "ana"},
 		"wanderer":   {"mei", "lucia", "iara", "ana"},
 		"player":     {"iara", "ana"},

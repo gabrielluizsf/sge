@@ -124,7 +124,7 @@ func buildingAt(w world, col, row int) int {
 		return tileID["forge"]
 	case stallRect(w.art, t.Stall).has(col, row) || wellRect(w.art, t).has(col, row) || t.House(col, row) != nil:
 		return tileID["block"]
-	case stableRect(w.art, t).has(col, row):
+	case onShed(w.art, t, col, row):
 		return tileID["block"]
 	}
 	return fenceAt(townPen(t), col, row)

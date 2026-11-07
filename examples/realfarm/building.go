@@ -30,7 +30,7 @@ func (a *realArt) Building(name string) *sprite.Sprite {
 // "stall", or "house" and a kind, with "_back" after it when the door
 // faces away.
 func buildingOf(name string) (string, int) {
-	if name == "stall" || name == "well" || name == "stable" {
+	if name == "stall" || name == "well" || name == "stable" || name == "bakery" || name == "butcher" {
 		return name, frontHeading
 	}
 	var kind int

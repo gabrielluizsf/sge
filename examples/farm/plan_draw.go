@@ -19,6 +19,8 @@ var weights = map[string][choreCount]int{
 	roleSmith:      {1, 3, 1, 6, 2, 0},
 	roleWanderer:   {3, 3, 3, 0, 4, 0},
 	roleDealer:     {0, 0, 0, 0, 2, 0, 8},
+	roleBaker:      {0, 0, 0, 0, 2, 0, 8},
+	roleButcher:    {0, 0, 0, 0, 2, 0, 8},
 }
 
 // visitChance is how often each trade spends a day's stretch in the next

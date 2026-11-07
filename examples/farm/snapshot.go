@@ -109,6 +109,8 @@ type kitState struct {
 	Sold  int          `json:"sold"`
 	Used  int          `json:"used"`
 	Exact bool         `json:"exact"`
+	// Food is the good in hand with the food slot, none for a crop.
+	Food string `json:"food,omitempty"`
 }
 
 // orderState is what someone asks for and pays.

@@ -29,6 +29,8 @@ type creature struct {
 	milked int
 	held   bool
 	pen    *pen
+	// hurt is the harm the player's blows have done it.
+	hurt float64
 }
 
 // pen is a fenced field of animals of a kind, on the farm or, with town

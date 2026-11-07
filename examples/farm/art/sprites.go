@@ -19,12 +19,14 @@ func Sprites() map[string]string {
 		"fence":      fenceTile(),
 		"fence_down": fenceDownTile(),
 		// What stands where nothing shows: the stall's cells, solid.
-		"block":  newDoc(IsoW, IsoH).String(),
-		"stall":  Stall(),
-		"stable": Stable(),
-		"cursor": Cursor(),
-		"stump":  stumpTile(),
-		"anvil":  anvilTile(),
+		"block":   newDoc(IsoW, IsoH).String(),
+		"stall":   Stall(),
+		"stable":  Stable(),
+		"bakery":  Bakery(),
+		"butcher": Butcher(),
+		"cursor":  Cursor(),
+		"stump":   stumpTile(),
+		"anvil":   anvilTile(),
 	}
 	for k := range Houses {
 		s[fmt.Sprint("house", k)] = House(k, true)

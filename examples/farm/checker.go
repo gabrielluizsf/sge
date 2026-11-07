@@ -82,6 +82,7 @@ func (c *checker) checkPlace() error {
 // kitOf is the kit k stands for.
 func kitOf(k kitState) *kit {
 	out := &kit{money: k.Money, slot: k.Slot, seed: k.Seed, axe: k.Axe, sold: k.Sold, used: k.Used, exact: k.Exact}
+	out.food = k.Food
 	out.bag = bagOf(k.Bag)
 	return out
 }

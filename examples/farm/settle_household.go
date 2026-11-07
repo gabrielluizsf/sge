@@ -47,19 +47,26 @@ func (s *settler) person(st post) *villager {
 
 // household makes the family of house h whose head has the trade role:
 // the head is a man or a woman as the seed falls, their partner a
-// farmer unless the trade is the farmer's or the wanderer's, and their
+// farmer unless the trade is the farmer's or the wanderer's or mateRole says
+// another, and their
 // child a wanderer, a son or a daughter.
-func (s *settler) household(h *town.House, role string) household {
+func (s *settler) household(h *town.House, role, mateRole string) household {
 	headWoman := s.src.Float() < 0.5
 	other := roleFarmer
 	if role == roleFarmer || role == roleWanderer {
 		other = role
+	}
+	if mateRole != "" {
+		other = mateRole
 	}
 	head := s.person(post{home: h, role: role, woman: headWoman})
 	mate := s.person(post{home: h, role: other, woman: !headWoman})
 	kid := s.person(post{home: h, role: roleWanderer, woman: s.src.Float() < 0.5})
 	if role == roleDealer {
 		head.who.Role = roleFarmer // a dealer dresses for the land
+	}
+	if mateRole == roleButcher {
+		mate.who.Role = roleFarmer
 	}
 	hh := household{man: head, woman: mate, child: kid}
 	if headWoman {

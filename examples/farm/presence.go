@@ -49,7 +49,7 @@ func (f *farm) siteOf(v *villager, c chore, key uint32) *job {
 		}
 	case choreTend:
 		if v.town != nil {
-			return dealerPost(f, v.town, key)
+			return shopPost(f, v, key)
 		}
 	case choreTrade:
 		if s := v.place(); s != nil {

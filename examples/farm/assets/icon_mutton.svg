@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+<defs>
+</defs>
+<path d="M3 7 Q3.4 3 8 3.4 Q13 4 13 8.4 Q13 13 8.4 12.6 Q3 12.4 3 7 Z" fill="#f4e8dc" stroke="#3a2a2e" stroke-width="0.8" stroke-linejoin="round"/>
+<path d="M4.4 7.2 Q4.8 4.6 8 4.8 Q11.6 5.2 11.6 8.4 Q11.6 11.4 8.4 11.2 Q4.6 11 4.4 7.2 Z" fill="#c4605a"/>
+<circle cx="8" cy="8" r="1.5" fill="#ffffff" stroke="#3a2a2e" stroke-width="0.5"/>
+</svg>

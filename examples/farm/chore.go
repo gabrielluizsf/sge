@@ -49,7 +49,7 @@ func (m *mind) tradeWork(f *farm) *job {
 		return m.smithWork(f)
 	case roleWanderer:
 		return m.oddJobs(f)
-	case roleDealer:
+	case roleDealer, roleBaker, roleButcher:
 		return m.tendJob(f)
 	}
 	return nil

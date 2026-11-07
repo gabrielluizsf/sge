@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/gabrielluizsf/sge/pathfind"
+	"github.com/gabrielluizsf/sge/town"
 )
 
 // Every town's stable and pen are built, solid, and reached from its plaza
@@ -75,7 +76,7 @@ func TestBuyingAnAnimal(t *testing.T) {
 	tn := f.towns.Of(1, 0)
 	r := stableRect(f.art, tn)
 	f.player.Transform.Position = f.center(pathfind.Cell{Col: r.col, Row: r.row + r.rows})
-	if f.stableBy(f.player) != tn {
+	if !atShed(f, tn, "stable") {
 		t.Fatal("not at the stable")
 	}
 	words, do, ok := f.interaction(f.player)
@@ -83,7 +84,7 @@ func TestBuyingAnAnimal(t *testing.T) {
 		t.Fatal("nothing offered")
 	}
 	do()
-	if !f.shop.open || !f.shop.animals {
+	if !f.shop.open || f.shop.kind != "stable" {
 		t.Fatal("no menu")
 	}
 	f.kit.money = 10
@@ -231,4 +232,10 @@ func TestAnOldSaveLoads(t *testing.T) {
 	if len(g.herd.crits) != 1 {
 		t.Error("the first cow is gone")
 	}
+}
+
+// atShed reports whether the player stands before the shed name of t.
+func atShed(f *farm, t *town.Town, name string) bool {
+	at, got := f.shedBy(f.player)
+	return at == t && got == name
 }

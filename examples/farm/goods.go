@@ -5,24 +5,33 @@ import (
 	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
-// What the animals give.
+// What the animals give, and the ovens and the butchers make.
 const (
-	milk = "milk"
-	wool = "wool"
+	milk   = "milk"
+	wool   = "wool"
+	bread  = "bread"
+	beef   = "beef"
+	mutton = "mutton"
 )
 
-// good is something got from the animals, to sell or to make things of:
-// its item, its name and what it is for on screen, as English keys, and
-// what it sells for.
+// good is something got from the animals or made of what was grown, to sell
+// or to make things of: its item, its name and what it is for on screen, as
+// English keys, what it sells for and buys for, and how much it feeds, none
+// when it is not eaten.
 type good struct {
 	item, label, use string
-	price            int
+	price, cost      int
+	nutrition        float64
 }
 
-// goods are all that the animals give.
+// goods are all of them. Bread feeds and sells for more than the wheat it
+// is baked from, and meat more still.
 var goods = []good{
 	{item: milk, label: "Milk bottle", use: "From your cow, once a day", price: 18},
 	{item: wool, label: "Wool", use: "Beds are made of it", price: 12},
+	{item: bread, label: "Bread", use: "Baked from wheat at a forge", price: 28, cost: 36, nutrition: 40},
+	{item: beef, label: "Beef", use: "From the butcher, or your own cow", price: 34, cost: 45, nutrition: 55},
+	{item: mutton, label: "Mutton", use: "From the butcher, or your own sheep", price: 26, cost: 35, nutrition: 45},
 }
 
 // goodOf is the good item is, and whether it is one.
@@ -53,8 +62,12 @@ func sellGoods(k *kit) {
 	}
 }
 
-// good is the good g as the inventory shows it.
+// good is the good g as the inventory shows it: what is eaten can be taken
+// in hand.
 func (c carried) good(g good) backpack.Item {
-	return backpack.Item{ID: g.item, Name: i18n.T(g.label), Icon: "icon_" + g.item, Count: c.f.bag.Count(g.item),
-		Info: []string{i18n.T(g.use), i18n.T("Sells for $%d", g.price)}}
+	info := []string{i18n.T(g.use), i18n.T("Sells for $%d", g.price)}
+	if g.nutrition > 0 {
+		info = append(info, i18n.T("Eat: +%d food", int(g.nutrition)))
+	}
+	return backpack.Item{ID: g.item, Name: i18n.T(g.label), Icon: "icon_" + g.item, Count: c.f.bag.Count(g.item), Hand: g.nutrition > 0, Info: info}
 }

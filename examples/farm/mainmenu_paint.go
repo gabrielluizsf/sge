@@ -14,6 +14,11 @@ func (m *mainMenu) Paint(_ *game.Object, cv *canvas.Canvas) {
 	if m.open == creating {
 		return
 	}
+	if c, ok := m.f.hands.ctl.(*cinema); ok {
+		if a := c.fade(); a > 0 {
+			cv.FillRect(canvas.Area{Width: cv.Width, Height: cv.Height}, canvas.RGBA(canvas.RGBAParams{A: uint8(255 * a)}))
+		}
+	}
 	cv.FillRect(canvas.Area{Width: cv.Width, Height: cv.Height}, dim)
 	switch m.open {
 	case titling:

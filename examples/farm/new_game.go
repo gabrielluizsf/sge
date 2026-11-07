@@ -52,6 +52,9 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 		f.herd = hd
 		w.AddScript(hd)
 	}
+	if c, ok := ctl.(*cinema); ok {
+		w.AddScript(c)
+	}
 	_, playing := ctl.(keyboard)
 	if wv := newWolves(f, playing); wv != nil {
 		f.wolves = wv

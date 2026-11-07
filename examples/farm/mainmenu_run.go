@@ -19,11 +19,11 @@ func (s *Session) attract(title string) *mainMenu {
 }
 
 // Menu shows the main menu of the game titled title in the open window
-// win, over the farm drawn by a playing by itself, until the player
+// win, over a film of the farm drawn by a, until the player
 // chooses; closing the window or "Sair" is StartQuit. The window stays
 // open for the game chosen.
 func Menu(win *antui.Window, a Art, title string) Pick {
-	s := New(a, Bot(10))
+	s := New(a, Cinema())
 	m := s.attract(title)
 	if !s.Show(win) {
 		return Pick{Start: StartQuit}

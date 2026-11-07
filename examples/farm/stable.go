@@ -17,6 +17,7 @@ type offer struct {
 var stableOffers = []offer{
 	{kind: "sheep", label: "Sheep", price: 120},
 	{kind: "horse", label: "Horse", price: 420},
+	{kind: "cow", label: "Cow", price: 300},
 }
 
 // penRoom is how many of a kind one pen holds.
