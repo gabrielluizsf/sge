@@ -23,7 +23,7 @@ func (f *farm) answerQuestion() {
 // nothing else: whether to have a child. Either way the night passes.
 func childQuestion() *question {
 	return &question{ask: []string{i18n.T("Should we have a child?")}, answers: []line{
-		{text: i18n.T("Yes"), do: func(f *farm) { f.conceive(); f.sleep() }},
-		{text: i18n.T("No"), do: func(f *farm) { f.sleep() }},
+		{text: i18n.T("Yes"), do: func(f *farm) { f.conceive(); f.sleepAndSave() }},
+		{text: i18n.T("No"), do: func(f *farm) { f.sleepAndSave() }},
 	}}
 }

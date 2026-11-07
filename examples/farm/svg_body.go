@@ -36,6 +36,12 @@ func (b svgBody) Clip(anim, dir string) Clip {
 		return b.clip(5/EatSeconds, dir+"Eat1", dir+"Eat", dir+"Eat", dir+"Eat1", dir+"Eat")
 	case AnimDrink:
 		return b.clip(4/DrinkSeconds, dir+"Drink", dir+"Drink1", dir+"Drink1", dir+"Drink")
+	case AnimMount:
+		return b.rising(dir, false)
+	case AnimRide:
+		return b.raised(4, dir, dir+"1", dir, dir+"2")
+	case AnimDismount:
+		return b.rising(dir, true)
 	case AnimWell:
 		return b.clip(6/WellSeconds, dir+"Well", dir+"Well1", dir+"Well", dir+"Well1", dir+"Well2", dir+"Well2")
 	case AnimDip:
@@ -70,6 +76,42 @@ func (b svgBody) clip(fps float64, names ...string) Clip {
 	}
 	return Clip{Frames: frames, FPS: fps}
 }
+
+// raised is a clip of the frames names, fps a second, drawn up on a horse's
+// back, in a look that draws the horse and rider apart: their legs fall down
+// its flank.
+func (b svgBody) raised(fps float64, names ...string) Clip {
+	c := b.clip(fps, names...)
+	for _, s := range c.Frames {
+		b.lift(s, 1)
+	}
+	return c
+}
+
+// rising is a clip of getting up on a horse's back, a step at a time, facing
+// dir, or down from it.
+func (b svgBody) rising(dir string, down bool) Clip {
+	names := []string{dir, dir + "1", dir + "2", dir}
+	c := b.clip(float64(len(names))/MountSeconds, names...)
+	for i, s := range c.Frames {
+		u := float64(i) / float64(len(names)-1)
+		if down {
+			u = 1 - u
+		}
+		b.lift(s, u)
+	}
+	return c
+}
+
+// lift raises the frame s from the ground, by u of the way up a horse.
+func (b svgBody) lift(s *sprite.Sprite, u float64) {
+	_, h := b.drawn()
+	s.PivotY = 1 + u*rideLift/float64(h)
+}
+
+// rideLift is how far above the ground, in pixels, a rider's feet are drawn:
+// their hips at the height of the back of the horse the look draws.
+const rideLift = 8 * scale
 
 // sprite is the frame name, standing on the person's feet, drawn at half
 // the size of its art, smaller for the young, when it is first shown.

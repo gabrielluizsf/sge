@@ -103,7 +103,9 @@ type farm struct {
 	herd    *herd
 	milking *milking
 	// wolves are those that come at night.
-	wolves    *wolfPack
+	wolves *wolfPack
+	// ride is the player on a horse, getting on or down.
+	ride      *riding
 	icons     map[string]*canvas.Canvas
 	tints     map[string]*canvas.Canvas
 	residents []resident

@@ -58,6 +58,8 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		return
 	}
 	switch {
+	case p.f.riding(o):
+		o.Animator.Play(p.pose(o) + "_ride")
 	case p.f.seat != nil && o == p.f.player:
 		o.Animator.Play(p.pose(o) + "_sit")
 	case p.swims:
@@ -92,6 +94,9 @@ func (p *farmer) move(o *game.Object, in intent, dt float64) bool {
 	p.facing = in.dir.Scale(1 / l)
 	p.runs = running(in, p.wet, p.swims)
 	step := speedOf(in.run, p.wet, p.swims) * dt
+	if p.f.riding(o) {
+		return p.ride(o, in, dt)
+	}
 	if in.upTo > 0 {
 		step = min(step, in.upTo)
 	}

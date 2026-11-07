@@ -2,6 +2,7 @@ package farm
 
 import (
 	"github.com/gabrielluizsf/sge/examples/i18n"
+	"github.com/gabrielluizsf/sge/pathfind"
 	"github.com/gabrielluizsf/sge/tilemap"
 	"github.com/gabrielluizsf/sge/vector"
 )
@@ -86,7 +87,7 @@ func (f *farm) freePenSpot() (rect, bool) {
 					continue
 				}
 				r := rect{d.Col + dc, d.Row + dr, penCols, penRows}
-				if f.penFits(r, nil) {
+				if f.penFits(r, nil) && f.reachable(r) {
 					return r, true
 				}
 			}
@@ -116,6 +117,10 @@ func (f *farm) penFits(r rect, moving *pen) bool {
 				return false
 			}
 		}
+	}
+	gate := r.col + r.cols/2
+	if !f.open(gate, r.row+r.rows) {
+		return false // the gate must not open on a fence or the water
 	}
 	return f.towns.At(r.col, r.row) == nil || !f.towns.Grounds(r.col+r.cols/2, r.row+r.rows/2, 3)
 }
@@ -154,4 +159,11 @@ func (f *farm) movePen(p *pen, r rect) {
 			c.walking = false
 		}
 	}
+}
+
+// reachable reports whether one can walk from the player's door to pen r's gate.
+func (f *farm) reachable(r rect) bool {
+	front := pathfind.Cell{Col: r.col + r.cols/2, Row: r.row + r.rows}
+	door := pathfind.Cell{Col: homeDoor.Col, Row: homeDoor.Row}
+	return door == front || len(f.grid().Path(door, front)) > 0
 }

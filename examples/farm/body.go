@@ -38,12 +38,16 @@ const (
 	AnimMine  = "mine"
 	AnimEat   = "eat"
 	AnimDrink = "drink"
-	AnimWell  = "well"
-	AnimDip   = "dip"
-	AnimSwim  = "swim"
-	AnimDive  = "dive"
-	AnimRise  = "rise"
-	AnimSit   = "sit"
+	// Riding: getting on, sitting on the horse, and getting down.
+	AnimMount    = "mount"
+	AnimRide     = "ride"
+	AnimDismount = "dismount"
+	AnimWell     = "well"
+	AnimDip      = "dip"
+	AnimSwim     = "swim"
+	AnimDive     = "dive"
+	AnimRise     = "rise"
+	AnimSit      = "sit"
 	// Milking: sitting down to it, milking in a loop, and getting up.
 	AnimMilkDown = "milkdown"
 	AnimMilk     = "milk"
@@ -70,6 +74,8 @@ const (
 	MineSeconds  = 0.6
 	EatSeconds   = 2.2
 	DrinkSeconds = 2.6
+	// MountSeconds is how long getting on a horse takes, and getting down.
+	MountSeconds = 1.2
 	WellSeconds  = 2.6
 	DipSeconds   = 2.4
 	// MilkDownSeconds is how long sitting down to milk takes, and getting

@@ -35,6 +35,7 @@ func (v Villager) Motions() []human.Motion {
 		out = append(out, human.Drawing...)  // and fills the can at a well or a river
 		out = append(out, human.Milking...)  // and milks the cow
 		out = append(out, human.Drinking...) // and drinks the milk
+		out = append(out, human.Riding...)   // and rides their horse
 	}
 	return out
 }

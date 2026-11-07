@@ -32,6 +32,7 @@ func (f *farm) rest() {
 // fall is the player dying of a blow or of hunger: their heir takes over,
 // healthy and fed, or the line ends.
 func (f *farm) fall() {
+	f.throwOff()
 	f.passOn(f.clock.Day, false)
 	f.vit = vitals.Full()
 	f.flash = 0

@@ -2,9 +2,9 @@ package main
 
 import (
 	"os"
-	"strings"
 
 	"github.com/gabrielluizsf/sge/animal"
+	"github.com/gabrielluizsf/sge/gltf"
 )
 
 // horseCoats are the two horses honved444's model holds, side by side, a
@@ -18,9 +18,8 @@ var horseCoats = []struct {
 // by -only stride: 2.96 model metres a second, a unit being 0.7 of a cell.
 const horseSpeed = 2.07
 
-// buildHorse reads the model once for each horse and keeps one: without
-// the harness, which is black lines drawn across it, and without the nine
-// rigid pieces the model places a hundred times too far.
+// buildHorse reads the model once for each horse and keeps one, with its
+// tack: the harness's straps, near black in the model, are dyed as leather.
 func buildHorse(root *os.Root) ([]coat, error) {
 	var out []coat
 	for _, h := range horseCoats {
@@ -28,10 +27,8 @@ func buildHorse(root *os.Root) ([]coat, error) {
 		if err != nil {
 			return nil, err
 		}
-		animal.DropRigid(m)
-		animal.Filter(m, func(material string, c animal.Vec) bool {
-			return !strings.HasPrefix(material, "Default_OBJ") && c[0]*h.side > 0
-		})
+		animal.Filter(m, func(_ string, c animal.Vec) bool { return c[0]*h.side > 0 })
+		dyeTack(m)
 		r, err := animal.NewRig(m)
 		if err != nil {
 			return nil, err
@@ -43,4 +40,16 @@ func buildHorse(root *os.Root) ([]coat, error) {
 		}})
 	}
 	return out, nil
+}
+
+// leather is the colour of the tack, in linear light.
+var leather = [4]float64{0.13, 0.065, 0.03, 1}
+
+// dyeTack gives the harness's straps the colour of leather.
+func dyeTack(m *gltf.Model) {
+	for i := range m.Materials {
+		if m.Materials[i].Name == "Default_OBJ.001" {
+			m.Materials[i].BaseColor = leather
+		}
+	}
 }

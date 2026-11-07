@@ -89,6 +89,7 @@ type frame struct {
 	name string
 	shot bake.Shot
 	wet  bool
+	ride bool
 }
 
 // framesOf are every frame of l.
@@ -100,6 +101,7 @@ func framesOf(l look) []frame {
 			name: fmt.Sprintf("%s_d%d_f%d", prefix, l.facing, k),
 			shot: bake.Shot{Animation: l.mo.Name, Time: timeOf(l.mo, k), Yaw: float64(l.facing) * 360 / Facings},
 			wet:  slices.Contains(wetMotions, l.mo.Name),
+			ride: l.mo.Name == human.Ride.Name,
 		})
 	}
 	return out
@@ -120,6 +122,9 @@ func timeOf(m human.Motion, k int) float64 {
 
 // shoot bakes frame f of m, in the water if f is wet.
 func shoot(m *gltf.Model, f frame) bake.Sprite {
+	if f.ride {
+		return rider(m, f.shot)
+	}
 	o := Options()
 	if f.wet {
 		o.Water = water
@@ -156,6 +161,8 @@ func versionOf(mo human.Motion) string {
 		return fmt.Sprintf("v%dz%d", human.MotionsVersion, human.SleepVersion)
 	case human.Sit.Name:
 		return fmt.Sprintf("v%ds%d", human.MotionsVersion, human.SitVersion)
+	case human.Ride.Name, human.Mount.Name:
+		return fmt.Sprintf("v%dx%d", human.MotionsVersion, human.RideVersion)
 	case human.Drink.Name:
 		return fmt.Sprintf("v%dq%d", human.MotionsVersion, human.DrinkVersion)
 	case human.Milk.Name, human.MilkDown.Name:

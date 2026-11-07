@@ -36,7 +36,7 @@ func (f *farm) bakeBread() bool {
 // forgeNear is the interaction of a forge with wheat in the bag: bake it.
 func (f *farm) forgeNear(o *game.Object) (words string, do func(), ok bool) {
 	c, _ := cropIndex("wheat")
-	if f.forgeBy(o) == nil || f.bag.Count(cropOf(c)) == 0 {
+	if f.ride != nil || f.forgeBy(o) == nil || f.bag.Count(cropOf(c)) == 0 {
 		return "", nil, false
 	}
 	return i18n.T("E: bake bread"), func() {

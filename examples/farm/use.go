@@ -22,6 +22,9 @@ func (f *farm) useAs(k *kit, col, row int) action {
 		if c := f.sheepBy(f.player); c != nil && f.shear(c) {
 			return actPick
 		}
+		if c := f.horseBy(f.player); c != nil && f.getOn(c) {
+			return actNone // getting on shows itself
+		}
 	}
 	if k.slot == slotAxe && f.thingAt(col, row) == tileID["anvil"] {
 		f.soundIn(cue{name: "clang", at: f.ground.CellCenter(col, row), in: forgeImpact * ForgeSeconds})

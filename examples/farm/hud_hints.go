@@ -14,7 +14,11 @@ func (h *hud) hints(cv *canvas.Canvas) {
 		t := h.text(words, 'y')
 		// Over the farmer's head: their position is where they stand.
 		at := h.farmer.Game().ToScreen(h.farmer.Transform.Position)
-		cv.Blit(int(at.X)-t.Width/2, int(at.Y)-tile-t.Height-scale*6, t)
+		above := tile + scale*6
+		if h.f.ride != nil {
+			above = rideHint // over a rider's head, not across them
+		}
+		cv.Blit(int(at.X)-t.Width/2, int(at.Y)-above-t.Height, t)
 	}
 	if h.f.room != nil {
 		t := h.text(i18n.T("Leave by the door mat"), 'w')
@@ -22,6 +26,10 @@ func (h *hud) hints(cv *canvas.Canvas) {
 		cv.Blit(x, y, t)
 	}
 }
+
+// rideHint is how far above where a rider's horse stands what they may do is
+// written: over the head of one up on its back.
+const rideHint = 3 * tile
 
 // wayOutAbove is how far above the hotbar's slots' middle, in pixels of
 // art, the way out of a room is written: over the slots' numbers.

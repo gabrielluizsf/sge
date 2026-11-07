@@ -38,6 +38,10 @@ func (keyboard) control(f *farm, o *game.Object, _ float64) intent {
 		f.seatKeys(win)
 		return intent{}
 	}
+	if f.riding(o) && (win.KeyPressed(antui.KeyE) || win.KeyPressed(antui.KeySpace)) {
+		f.getDown()
+		return intent{}
+	}
 	if _, row := f.cellOf(feet(o)); f.room != nil && row >= roomRows-1 {
 		f.leave()
 		return intent{}

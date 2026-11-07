@@ -18,5 +18,5 @@ Changes made to the models (CC-BY requires saying so):
   from the nearest bones, and walk, graze (sheep) and bite and fall (wolf)
   motions written on it.
 - Horse: the model holds two horses side by side; they were separated into
-  two coats. The harness pieces, nine mesh nodes placed far from the body,
-  and the harness meshes were removed. The model's own walk is used.
+  two coats. The harness's straps, near black in the model, were dyed the
+  colour of leather. The model's own walk is used.

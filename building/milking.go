@@ -36,3 +36,10 @@ var HandBottle = Building{Name: "hand_bottle", Width: 0.08, Depth: 0.08, build: 
 	b.turn(column{a: vec{0, 0.13, 0}, b: vec{0, 0.175, 0}, ra: 0.036, rb: 0.016, sides: 12, paint: glass})
 	b.turn(column{a: vec{0, 0.175, 0}, b: vec{0, 0.2, 0}, ra: 0.016, rb: 0.017, sides: 8, paint: paint{of: Flat, tint: color.NRGBA{210, 205, 190, 255}}})
 }}
+
+// Barrel is a horse's body as a person's legs go round it: a plain cylinder
+// along Z, baked with a rider to hide the far leg and then taken away again,
+// the rider alone left, to be drawn over the horse. It is never seen.
+var Barrel = Building{Name: "barrel", Width: 0.62, Depth: 1.6, build: func(b *builder) {
+	b.turn(column{a: vec{0, 0, -0.8}, b: vec{0, 0, 0.8}, ra: 0.31, rb: 0.31, sides: 20, paint: paint{of: Flat, tint: color.NRGBA{255, 0, 255, 255}}})
+}}

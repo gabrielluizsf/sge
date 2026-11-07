@@ -38,6 +38,9 @@ var motions = map[string][]string{
 	farm.AnimPick:  {"pick", "hoe", "stand"},
 	farm.AnimEat:   {"eat", "stand"},
 	farm.AnimDrink: {"drink", "eat", "stand"},
+	// Ridden sitting, whichever is baked yet.
+	farm.AnimRide:  {"ride", "sit", "stand"},
+	farm.AnimMount: {"mount", "stand"},
 	farm.AnimWell:  {"well", "water", "stand"},
 	farm.AnimDip:   {"dip", "water", "stand"},
 	farm.AnimSwim:  {"swim", "tread", "walk", "stand"},
@@ -60,6 +63,11 @@ func turnOf(dir string) int {
 func (b *realBody) Clip(anim, dir string) farm.Clip {
 	if mo := sleepMotion(anim); anim == farm.AnimSleep || mo.Name != human.Sleep.Name {
 		return b.asleep(mo)
+	}
+	if anim == farm.AnimDismount { // getting down is getting on, backward
+		c := b.Clip(farm.AnimMount, dir)
+		slices.Reverse(c.Frames)
+		return c
 	}
 	if anim == farm.AnimMilkUp { // getting up is sitting down, backward
 		c := b.Clip(farm.AnimMilkDown, dir)
@@ -109,6 +117,8 @@ func fpsOf(anim, motion string) float64 {
 		return bakes.Frames / farm.EatSeconds
 	case farm.AnimDrink:
 		return bakes.Frames / farm.DrinkSeconds
+	case farm.AnimMount:
+		return bakes.Frames / farm.MountSeconds
 	case farm.AnimWell:
 		return bakes.Frames / farm.WellSeconds
 	case farm.AnimDip:
@@ -119,7 +129,7 @@ func fpsOf(anim, motion string) float64 {
 	if anim == farm.AnimAct || anim == farm.AnimChop {
 		return bakes.Frames / farm.ActSeconds
 	}
-	for _, m := range slices.Concat(human.Motions, human.Sitting, human.Mining, human.Eating, human.Drawing, human.Milking) {
+	for _, m := range slices.Concat(human.Motions, human.Sitting, human.Mining, human.Eating, human.Drawing, human.Milking, human.Riding) {
 		if m.Name == motion {
 			return bakes.Frames / m.Length
 		}

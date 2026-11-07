@@ -11,7 +11,7 @@ func (f *farm) goToBed() {
 		f.sound("ui_open", nil)
 		return
 	}
-	f.sleep()
+	f.sleepAndSave()
 }
 
 // mayHaveChild reports whether the player may decide on a child: married

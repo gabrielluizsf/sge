@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/pathfind"
 	"github.com/gabrielluizsf/sge/random"
 	"github.com/gabrielluizsf/sge/town"
 	"github.com/gabrielluizsf/sge/vector"
@@ -31,6 +32,12 @@ type creature struct {
 	pen    *pen
 	// hurt is the harm the player's blows have done it.
 	hurt float64
+	// homing says it is walking back to its pen by route, its rider got down.
+	homing bool
+	route  *pathfind.Route
+	// mounted says it has a rider, going at rideSpeed; walkSpeed is its own.
+	mounted              bool
+	rideSpeed, walkSpeed float64
 }
 
 // pen is a fenced field of animals of a kind, on the farm or, with town
@@ -88,11 +95,15 @@ func (h *herd) spot(p *pen) vector.Vector3 {
 // doors, and dresses each as it is.
 func (h *herd) Update(o *game.Object, dt float64) {
 	h.f.milkTick(dt)
+	h.f.rideTick(dt)
 	for _, c := range h.crits {
 		near := h.f.room == nil && feet(h.f.player).Sub(c.pos).Length() < herdReach*tile
 		if !near {
 			if c.obj != nil {
 				c.obj.Hidden = true
+			}
+			if c.homing {
+				h.backInPen(c)
 			}
 			continue
 		}
@@ -112,6 +123,10 @@ func (h *herd) Update(o *game.Object, dt float64) {
 func (h *herd) live(c *creature, dt float64) {
 	c.time += dt
 	if c.held {
+		return
+	}
+	if c.homing {
+		h.goHome(c, dt)
 		return
 	}
 	if !c.walking {
@@ -149,11 +164,15 @@ func (h *herd) dress(c *creature) {
 	switch {
 	case c.walking:
 		_, fps := h.art.Pace(c.kind)
-		look.Motion, look.Frame = "walk", int(c.time*fps)
+		look.Motion, look.Frame = "walk", int(c.time*fps*c.pace())
 	case c.grazes:
 		look.Motion = "graze"
 	}
 	c.obj.Transform.Position = c.pos
+	if c.held {
+		c.obj.Transform.Position.Y -= heldBehind // whoever is at it is drawn over it
+		c.obj.Transform.Position.X -= heldBehind
+	}
 	if s := h.art.Animal(look); s != nil && s.Image != nil {
 		c.obj.Sprite = s
 	} else {
