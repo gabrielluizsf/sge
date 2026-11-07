@@ -1,7 +1,7 @@
 // collect, written in TypeScript against sge's transpiled packages: the
 // same game as examples/collect, scripts and all, in the other language.
 //
-//   deno run --allow-ffi --allow-env --allow-read examples/ts/collect.ts
+//   deno run  --allow-run  --allow-ffi --allow-env --allow-read examples/collect/collect.ts
 import { antui, canvas, collider, game, sprite, vector } from "../../deno/mod.ts";
 
 const width = 480, height = 320;
