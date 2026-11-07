@@ -29,6 +29,7 @@ func check(f *farm, s *snapshot) (*loaded, error) {
 		func() error { return checkKit("player", s.Player) },
 		func() error { return checkHotbar(s) },
 		func() error { return checkPoint("player", s.At) },
+		func() error { return checkRoom(s) },
 		c.checkFamily, c.checkTowns, c.checkAway, c.checkPeople,
 		func() error { return checkSelf(s) },
 		c.checkPlots, c.checkStumps, c.checkHits,

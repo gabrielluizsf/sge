@@ -23,10 +23,13 @@ type snapshot struct {
 	// its player is at their best.
 	Vitals *vitalsState `json:"vitals"`
 
-	Player kitState   `json:"player"`
-	Hotbar []string   `json:"hotbar"`
-	Active int        `json:"active"`
-	At     point      `json:"at"`
+	Player kitState `json:"player"`
+	Hotbar []string `json:"hotbar"`
+	Active int      `json:"active"`
+	At     point    `json:"at"`
+	// Room is the house the player is inside, if any, At being its doorstep;
+	// an old save has none, and opens on that doorstep.
+	Room   *roomPlace `json:"room,omitempty"`
 	Self   selfState  `json:"self"`
 	Family []kinState `json:"family"`
 

@@ -11,10 +11,16 @@ import (
 // outside is the scene of the world outside the houses.
 const outside = "outside"
 
-// enter takes the player into the house at door: the world outside waits
-// as it is, and the room is laid out with whoever of the house is in,
-// the player's family in their own, the player on the mat facing in.
+// enter takes the player into the house at door, by its mat.
 func (f *farm) enter(d houseDoor) {
+	f.goInside(d)
+	f.sound("ui_open", nil)
+}
+
+// goInside puts the player in the house at door: the world outside waits as
+// it is, and the room is laid out with whoever of the house is in, the
+// player's family in their own, the player on the mat facing in.
+func (f *farm) goInside(d houseDoor) {
 	r := newRoom(d, f.art, f.home)
 	name := fmt.Sprint("house ", d.at.Col, ",", d.at.Row)
 	f.stage.Switch(name, func(g *game.Game) {
@@ -36,7 +42,6 @@ func (f *farm) enter(d houseDoor) {
 	f.room = r
 	f.player.Transform.Position = f.ground.CellCenter(matCol, roomRows-2)
 	f.face("up")
-	f.sound("ui_open", nil)
 }
 
 // leave takes the player out of the room, to stand before its door

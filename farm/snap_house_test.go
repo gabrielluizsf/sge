@@ -2,6 +2,7 @@ package farm
 
 import (
 	"encoding/json"
+	"math"
 	"reflect"
 	"testing"
 )
@@ -137,4 +138,105 @@ func wallOf(home []pieceState) []pieceState {
 		out = append(out, pieceState{Name: "chair", Col: c, Row: 3, Held: []slotState{}})
 	}
 	return out
+}
+
+// roundTripped is a new game loaded from f's save, through its file's form.
+func roundTripped(t *testing.T, f *farm) *farm {
+	t.Helper()
+	b, err := json.Marshal(takeSnapshot(f))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var c snapshot
+	if err := json.Unmarshal(b, &c); err != nil {
+		t.Fatal(err)
+	}
+	_, loaded := build(longBed{SVGArt()}, idle{})
+	if err := restore(loaded, &c); err != nil {
+		t.Fatal(err)
+	}
+	return loaded
+}
+
+// Saved inside the house, the game opens inside it, on the same spot; out of
+// the door later, one is on its doorstep.
+func TestSavedIndoorsOpensIndoors(t *testing.T) {
+	_, f := inHouse(t)
+	spot := f.ground.CellCenter(4, 3)
+	f.player.Transform.Position.X, f.player.Transform.Position.Y = spot.X, spot.Y
+	g := roundTripped(t, f)
+	if g.room == nil {
+		t.Fatal("opened outside the house")
+	}
+	if g.room.door != f.room.door || !g.room.own {
+		t.Errorf("in the house at %v, own %v", g.room.door, g.room.own)
+	}
+	if at := g.player.Transform.Position; at.X != spot.X || at.Y != spot.Y {
+		t.Errorf("at %v, saved at %v", at, spot)
+	}
+	if g.stage.Current == outside {
+		t.Error("the scene is still the world outside")
+	}
+	g.leave()
+	if want := g.ground.CellCenter(homeDoor.Col, homeDoor.Row); feet(g.player).Sub(want).Length() > 0.01 {
+		t.Errorf("out of the door at %v, not its step %v", feet(g.player), want)
+	}
+}
+
+// Saved out of doors, the game opens out of doors, with no room.
+func TestSavedOutdoorsOpensOutdoors(t *testing.T) {
+	_, f := inHouse(t)
+	f.leave()
+	if g := roundTripped(t, f); g.room != nil {
+		t.Error("opened in a room")
+	}
+}
+
+// A save from before rooms were kept has none, and opens on the doorstep.
+func TestAnOldSaveHasNoRoom(t *testing.T) {
+	_, f := inHouse(t)
+	s := takeSnapshot(f)
+	s.Room = nil
+	_, g := build(longBed{SVGArt()}, idle{})
+	if err := restore(g, &s); err != nil {
+		t.Fatal(err)
+	}
+	if g.room != nil {
+		t.Error("opened in a room")
+	}
+}
+
+// A room in a file naming no house opens outside; one out of range or on a spot
+// off the floor is refused or brought back onto it.
+func TestAFilesRoomIsChecked(t *testing.T) {
+	_, f := inHouse(t)
+	s := takeSnapshot(f)
+	s.Room.Door = cellState{Col: 2, Row: 2}
+	_, g := build(longBed{SVGArt()}, idle{})
+	if err := restore(g, &s); err != nil {
+		t.Fatal(err)
+	}
+	if g.room != nil {
+		t.Error("opened in a house with no door")
+	}
+	s = takeSnapshot(f)
+	s.Room.Door.Col = 1 << 40
+	if _, g := build(longBed{SVGArt()}, idle{}); restore(g, &s) == nil {
+		t.Error("a door out of range was taken")
+	}
+	s = takeSnapshot(f)
+	s.Room.At.X = math.Inf(1)
+	if _, g := build(longBed{SVGArt()}, idle{}); restore(g, &s) == nil {
+		t.Error("a spot not a number was taken")
+	}
+	s = takeSnapshot(f)
+	s.Room.At = point{X: 1e6, Y: -1e6}
+	_, g = build(longBed{SVGArt()}, idle{})
+	if err := restore(g, &s); err != nil {
+		t.Fatal(err)
+	}
+	col, row := g.cellOf(feet(g.player))
+	if col < 0 || col >= roomCols || row < 0 || row >= roomRows {
+		t.Errorf("off the floor, at cell %d, %d", col, row)
+	}
 }

@@ -20,6 +20,7 @@ func restore(f *farm, s *snapshot) error {
 	applyHouse(f, s, l)
 	applyHerd(f, l)
 	applyPlayer(f, s)
+	applyRoom(f, s)
 	return nil
 }
 
