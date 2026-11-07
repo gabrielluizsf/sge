@@ -34,8 +34,18 @@ out vec2 vUV;
 
 void main() {
 #ifdef SKINNED
-	mat4 m = objects[int(joints.x)] * weights.x + objects[int(joints.y)] * weights.y +
-		objects[int(joints.z)] * weights.z + objects[int(joints.w)] * weights.w;
+	// A joint of no weight adds nothing: the costly fetch of its matrix is
+	// left out, the sum the same.
+	mat4 m = objects[int(joints.x)] * weights.x;
+	if (weights.y > 0.0) {
+		m += objects[int(joints.y)] * weights.y;
+		if (weights.z > 0.0) {
+			m += objects[int(joints.z)] * weights.z;
+			if (weights.w > 0.0) {
+				m += objects[int(joints.w)] * weights.w;
+			}
+		}
+	}
 #else
 	mat4 m = objects[gl_InstanceID];
 #endif

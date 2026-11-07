@@ -78,7 +78,7 @@ func (g *geometry) add(m *Model, at primAt) error {
 	base := uint32(len(*dst) / stride)
 	*dst = appendVertices(*dst, pr)
 	first := len(g.indices)
-	for _, i := range p.Indices[:len(p.Indices)/3*3] {
+	for _, i := range inCacheOrder(p.Indices[:len(p.Indices)/3*3], nv) {
 		g.indices = append(g.indices, base+i)
 	}
 	mat := 0
