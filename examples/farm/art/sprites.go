@@ -21,6 +21,7 @@ func Sprites() map[string]string {
 		// What stands where nothing shows: the stall's cells, solid.
 		"block":  newDoc(IsoW, IsoH).String(),
 		"stall":  Stall(),
+		"stable": Stable(),
 		"cursor": Cursor(),
 		"stump":  stumpTile(),
 		"anvil":  anvilTile(),

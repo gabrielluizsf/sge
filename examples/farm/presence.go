@@ -47,6 +47,10 @@ func (f *farm) siteOf(v *villager, c chore, key uint32) *job {
 		if t := v.town; v.smith() && t != nil {
 			return &job{to: pathfind.Cell{Col: t.Anvil.Col, Row: t.Anvil.Row + 1}, face: "up", slot: slotAxe, uses: forgeStrokes, rest: 1}
 		}
+	case choreTend:
+		if v.town != nil {
+			return dealerPost(f, v.town, key)
+		}
 	case choreTrade:
 		if s := v.place(); s != nil {
 			return &job{to: pathfind.Cell{Col: s.Stall.Col, Row: s.Stall.Row + 1}, face: "up", slot: -1, rest: 1.5}

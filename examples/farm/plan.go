@@ -12,6 +12,7 @@ const (
 	choreForge
 	choreTrade
 	choreVisit
+	choreTend
 	choreCount
 )
 

@@ -52,6 +52,9 @@ func (b *Baker) bodyOf(v kit.Villager, g kit.Grown) (*stageBody, error) {
 			err = b.seatOnChair(m, g.Motions)
 		}
 		if err == nil {
+			err = b.milkOnStool(m, g.Motions)
+		}
+		if err == nil {
 			err = b.layInBed(m, g.Motions)
 		}
 	}

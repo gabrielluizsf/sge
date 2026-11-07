@@ -59,6 +59,9 @@ func (b *Baker) peopleTasks() []Task {
 				}
 				core := g.Stage == life.Adult && (v.ID == "player" || mo.Name == human.Stand.Name || mo.Name == human.Walk.Name)
 				for d := range Facings {
+					if !facesIn(mo, d) {
+						continue
+					}
 					l := look{v, g, mo, d}
 					name := fmt.Sprintf("person %s %s %s %s %d%s", versionOf(mo), v.ID, g.Stage, mo.Name, d, kit.PlayerTag(v))
 					out = append(out, Task{Name: name, Kind: "person", ID: v.ID, Core: core, Run: func() error { return b.person(l) }})
@@ -153,6 +156,8 @@ func versionOf(mo human.Motion) string {
 		return fmt.Sprintf("v%dz%d", human.MotionsVersion, human.SleepVersion)
 	case human.Sit.Name:
 		return fmt.Sprintf("v%ds%d", human.MotionsVersion, human.SitVersion)
+	case human.Milk.Name, human.MilkDown.Name:
+		return fmt.Sprintf("v%dk%d", human.MotionsVersion, human.MilkVersion)
 	}
 	return fmt.Sprintf("v%d", human.MotionsVersion)
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gabrielluizsf/sge/examples/farm"
 	"github.com/gabrielluizsf/sge/examples/realfarm/animals"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit"
 	"github.com/gabrielluizsf/sge/sprite"
 )
 
@@ -66,6 +67,17 @@ func (a *realArt) Animal(look farm.AnimalLook) *sprite.Sprite {
 	s.PivotX, s.PivotY = float64(at.PivotX)/float64(at.W), float64(at.PivotY)/float64(at.H)
 	theAnimals.sprites[name] = s
 	return s
+}
+
+// Milker is by the hind legs of the cow as she is baked, a cell being a
+// metre, so the hands of the one sitting there, measured on their pictures
+// and hers, come to her teats under her belly, she in profile.
+func (a *realArt) Milker() (back, near float64) { return 1.75 * kit.Cell, 0.1 * kit.Cell }
+
+// Frames is how many pictures of the motion were baked, at the least one.
+func (a *realArt) Frames(kind, motion string) int {
+	loadAnimals()
+	return max(theAnimals.infos[kind].Motions[motion].Frames, 1)
 }
 
 // Pace is the speed the animal was baked to walk at, and the frames a

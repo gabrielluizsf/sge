@@ -14,6 +14,9 @@ import (
 func (f *farm) wake(t *town.Town) []*game.Object {
 	f.settle(t)
 	f.catchUp(t)
+	if f.herd != nil {
+		f.herd.stock(t)
+	}
 	var objs []*game.Object
 	var later []*sprite.Sprite // the frames to make once all have their first
 	for _, v := range f.people {

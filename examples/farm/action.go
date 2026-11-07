@@ -19,4 +19,5 @@ const (
 	actMine
 	actFillWell
 	actFillRiver
+	actMilk
 )

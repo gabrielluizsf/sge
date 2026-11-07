@@ -33,6 +33,10 @@ type Town struct {
 	// way, and Depth how many cells the houses and their yards reach from
 	// the street's middle on each side, as the houses' sizes make them.
 	Reach, Depth int
+	// Back is the ground behind the houses north of the street, kept clear
+	// for what the game builds there, its row in front of it free to walk
+	// along; empty when the layout keeps none.
+	Back Rect
 	// Seed is the town's own, for what is up to the game: its people.
 	Seed uint32
 	// road is the road to the town it leads to, once linked.

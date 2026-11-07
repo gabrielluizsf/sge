@@ -41,6 +41,12 @@ type snapshot struct {
 	Home []pieceState `json:"home"`
 	Yard []pieceState `json:"yard"`
 
+	// Herd is the farm's animals; an old save has none, and its pen has
+	// the first cow.
+	Herd []creatureState `json:"herd,omitempty"`
+	// Pens are the farm's, each animal saying which by its index.
+	Pens []penState `json:"pens,omitempty"`
+
 	Towns []cellState `json:"towns"`
 	// Away is when each town that was asleep was last seen, to settle what
 	// its people did meanwhile; an old save has none, and its towns
@@ -55,6 +61,23 @@ type awayState struct {
 	Col int     `json:"col"`
 	Row int     `json:"row"`
 	At  float64 `json:"at"`
+}
+
+// creatureState is an animal of the farm: its kind and coat, where it is,
+// and one more than the day it last gave milk, 0 for never.
+type creatureState struct {
+	Kind   string `json:"kind"`
+	Coat   int    `json:"coat"`
+	At     point  `json:"at"`
+	Milked int    `json:"milked"`
+	Pen    int    `json:"pen"`
+}
+
+// penState is a pen of the farm: the kind it keeps and its corner cell.
+type penState struct {
+	Kind string `json:"kind"`
+	Col  int    `json:"col"`
+	Row  int    `json:"row"`
 }
 
 // point is a place in the world.

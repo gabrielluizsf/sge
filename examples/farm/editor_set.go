@@ -48,6 +48,10 @@ func (f *farm) clampCursor() {
 		return
 	}
 	pc, pr := f.cellOf(feet(f.player))
+	if e.pen != nil {
+		e.col, e.row = max(pc-penReach, min(pc+penReach, e.col)), max(pr-penReach, min(pr+penReach, e.row))
+		return
+	}
 	e.col, e.row = max(pc-editReach, min(pc+editReach, e.col)), max(pr-editReach, min(pr+editReach, e.row))
 }
 

@@ -43,6 +43,9 @@ var motions = map[string][]string{
 	farm.AnimDive:  {"dive", "swim", "stand"},
 	farm.AnimRise:  {"rise", "stand"},
 	farm.AnimSit:   {"sit", "stand"},
+	// Milked sitting, whichever is baked yet.
+	farm.AnimMilkDown: {"milkdown", "sit", "stand"},
+	farm.AnimMilk:     {"milk", "sit", "stand"},
 }
 
 // turnOf is the facing the baker baked that looks the way dir says on
@@ -56,6 +59,11 @@ func turnOf(dir string) int {
 func (b *realBody) Clip(anim, dir string) farm.Clip {
 	if mo := sleepMotion(anim); anim == farm.AnimSleep || mo.Name != human.Sleep.Name {
 		return b.asleep(mo)
+	}
+	if anim == farm.AnimMilkUp { // getting up is sitting down, backward
+		c := b.Clip(farm.AnimMilkDown, dir)
+		slices.Reverse(c.Frames)
+		return c
 	}
 	d := turnOf(dir)
 	for _, m := range motions[anim] {
@@ -102,11 +110,13 @@ func fpsOf(anim, motion string) float64 {
 		return bakes.Frames / farm.WellSeconds
 	case farm.AnimDip:
 		return bakes.Frames / farm.DipSeconds
+	case farm.AnimMilkDown:
+		return bakes.Frames / farm.MilkDownSeconds
 	}
 	if anim == farm.AnimAct || anim == farm.AnimChop {
 		return bakes.Frames / farm.ActSeconds
 	}
-	for _, m := range slices.Concat(human.Motions, human.Sitting, human.Mining, human.Eating, human.Drawing) {
+	for _, m := range slices.Concat(human.Motions, human.Sitting, human.Mining, human.Eating, human.Drawing, human.Milking) {
 		if m.Name == motion {
 			return bakes.Frames / m.Length
 		}

@@ -14,7 +14,7 @@ const townRegion = 40
 // stand on the footprints a gives them, with room between for the people
 // walking there to be seen.
 func newTowns(a Art) *town.Layout {
-	l := &town.Layout{Seed: seed + 7, Region: townRegion, Chance: 0.45, Kinds: a.Houses(), Gap: 1,
+	l := &town.Layout{Seed: seed + 7, Region: townRegion, Chance: 0.45, Kinds: a.Houses(), Gap: 1, Back: town.Cell{Col: backCols, Row: backRows},
 		Footprint: func(kind int) town.Cell {
 			cols, rows := a.Footprint(spriteName("house", kind, true))
 			return town.Cell{Col: cols, Row: rows}

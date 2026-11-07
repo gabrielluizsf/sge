@@ -12,6 +12,11 @@ const talkReach = 1.5 * tile
 // interaction is what E does where the player o stands: its words over
 // their head, and doing it. ok is false where it does nothing.
 func (f *farm) interaction(o *game.Object) (words string, do func(), ok bool) {
+	if f.room == nil {
+		if t := f.stableBy(o); t != nil {
+			return i18n.T("E: buy animals"), func() { f.openStable(t) }, true
+		}
+	}
 	if v := f.nearPerson(o); v != nil {
 		return i18n.T("E: talk to %s", v.name), func() { f.openTalk(v) }, true
 	}
@@ -21,12 +26,21 @@ func (f *farm) interaction(o *game.Object) (words string, do func(), ok bool) {
 	if y := f.chestBy(o); y != nil {
 		return i18n.T("E: open chest"), func() { f.openChest(&y.p) }, true
 	}
+	if words, do, ok := f.cowNear(o); ok {
+		return words, do, true
+	}
+	if words, do, ok := f.sheepNear(o); ok {
+		return words, do, true
+	}
 	col, row := f.cellOf(feet(o))
 	if d, ok := f.doorAt(col, row); ok {
 		return i18n.T("E: enter"), func() { f.enter(d) }, true
 	}
 	if s, ok := f.stallBy(o); ok {
-		return i18n.T("E: shop"), func() { f.shop.open, f.shop.choice, f.shop.at = true, 0, s; f.sound("ui_open", nil) }, true
+		return i18n.T("E: shop"), func() {
+			f.shop.open, f.shop.animals, f.shop.choice, f.shop.at = true, false, 0, s
+			f.sound("ui_open", nil)
+		}, true
 	}
 	if f.mineable(o) {
 		return i18n.T("E: mine"), func() { f.hands.useNow = true }, true

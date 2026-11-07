@@ -13,10 +13,14 @@ const (
 	wellPour
 	dipDown
 	dipUp
+	milkHigh
+	milkLow
 )
 
 // crouched is whether the pose is on the heels, at the water's edge.
-func (p pose) crouched() bool { return p.use == dipDown || p.use == dipUp }
+func (p pose) crouched() bool {
+	return p.use == dipDown || p.use == dipUp || p.use == milkHigh || p.use == milkLow
+}
 
 // squat starts the group that draws a crouched body: the whole drawing
 // pressed down onto the ground, which is where the feet still stand.
@@ -50,6 +54,10 @@ func (p pose) useHand(x, dir float64, holds bool) (hand pt, ok bool) {
 		return pt{in, 27.4}, true
 	case p.use == dipDown || p.use == dipUp:
 		return pt{x - dir*0.4, 29}, true // the free hand flat on the bank
+	case p.use == milkHigh && holds, p.use == milkLow && !holds:
+		return pt{in, 26}, true
+	case p.use == milkHigh, p.use == milkLow:
+		return pt{in, 28.6}, true
 	case p.use == wellReach:
 		return pt{x + dir*0.6, 15.8}, true
 	case p.use == wellPull:
@@ -74,7 +82,15 @@ func (p pose) useProp(d *doc, hand pt, dir float64) {
 		canAt(d, hand, dir)
 	case dipUp:
 		canAt(d, hand, dir)
+	case milkHigh, milkLow:
+		pail(d, pt{hand.x, 33})
 	}
+}
+
+// pail is the milk pail on the ground at at, full of white.
+func pail(d *doc, at pt) {
+	d.add(`<path d="M%.2f %.2f l5.2 0 l-0.8 5 l-3.6 0 Z" fill="%s" stroke="%s" stroke-width="0.6" stroke-linejoin="round"/>`, at.x-2.6, at.y, metal, line)
+	d.add(`<ellipse cx="%.2f" cy="%.2f" rx="2.6" ry="0.8" fill="%s" stroke="%s" stroke-width="0.4"/>`, at.x, at.y, white, line)
 }
 
 // apple is a bite of food in the hand at at: a small red apple with a
@@ -105,6 +121,10 @@ func (p pose) sideHand() (hand pt, ok bool) {
 		return pt{17.6, 31}, true
 	case dipUp:
 		return pt{16.4, 27.4}, true
+	case milkHigh:
+		return pt{18.4, 26}, true
+	case milkLow:
+		return pt{18.4, 28.6}, true
 	}
 	return pt{}, false
 }

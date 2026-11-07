@@ -96,8 +96,14 @@ type farm struct {
 	// yard are the chests out of doors.
 	yard []*yardChest
 	// edit is the arranging of furniture, if on; seat the chair the player sits on.
-	edit      *editor
-	seat      *seat
+	edit *editor
+	seat *seat
+	// herd is the farm's animals, if its art draws them; milking is the
+	// player at a cow.
+	herd    *herd
+	milking *milking
+	// wolves are those that come at night.
+	wolves    *wolfPack
 	icons     map[string]*canvas.Canvas
 	tints     map[string]*canvas.Canvas
 	residents []resident

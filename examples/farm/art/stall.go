@@ -49,6 +49,31 @@ func (d *doc) box(c [4]float64, h [2]float64, paint [3]string) {
 // Stall is the shop's stall: a wooden counter with baskets of the farm's
 // produce, under a striped awning with a scalloped edge on four poles.
 func Stall() string {
+	return stallOf(stallLook{stripe: red, hem: redShade, goods: stallGoods})
+}
+
+// stallLook is what tells a stall from another: its awning's stripe and hem
+// colours, and what it has on its counter.
+type stallLook struct {
+	stripe, hem string
+	goods       func(d *doc)
+}
+
+// stallGoods is the farm stall's baskets of produce.
+func stallGoods(d *doc) {
+	for i, c := range [][2]string{{orange, orangeShade}, {red, redShade}, {yellow, sandShade}} {
+		u := 6 + float64(i)*8
+		d.box([4]float64{u, 7, u + 5, 11}, [2]float64{10, 12}, [3]string{woodShade, woodBase, woodShade})
+		for _, o := range [][2]float64{{1.3, 1}, {3.4, 1.3}, {2.3, 2.8}} {
+			x, y := stallAt(u+o[0], 7+o[1], 13)
+			d.add(`<circle cx="%.2f" cy="%.2f" r="1.15" fill="%s" stroke="%s" stroke-width="0.3"/>`, x, y, c[0], line)
+			d.add(`<circle cx="%.2f" cy="%.2f" r="0.4" fill="%s" opacity="0.7"/>`, x-0.4, y-0.4, white)
+		}
+	}
+}
+
+// stallOf is a stall of the look l.
+func stallOf(l stallLook) string {
 	d := newDoc(StallW, StallH)
 	d.origin = pt{stallX, stallY}
 	d.add(`<ellipse cx="%g" cy="%g" rx="20" ry="7" fill="%s" opacity="0.3"/>`, StallPivot[0]*StallW, StallPivot[1]*StallH, shadowInk)
@@ -61,24 +86,16 @@ func Stall() string {
 	for i := 1.0; i < 4; i++ { // planks
 		d.add(`<path d="M%s L%s" stroke="%s" stroke-width="0.4"/>`, sp(2+i*7, 14, 0.4), sp(2+i*7, 14, 9.6), woodShade)
 	}
-	for i, c := range [][2]string{{orange, orangeShade}, {red, redShade}, {yellow, sandShade}} {
-		u := 6 + float64(i)*8
-		d.box([4]float64{u, 7, u + 5, 11}, [2]float64{10, 12}, [3]string{woodShade, woodBase, woodShade})
-		for _, o := range [][2]float64{{1.3, 1}, {3.4, 1.3}, {2.3, 2.8}} {
-			x, y := stallAt(u+o[0], 7+o[1], 13)
-			d.add(`<circle cx="%.2f" cy="%.2f" r="1.15" fill="%s" stroke="%s" stroke-width="0.3"/>`, x, y, c[0], line)
-			d.add(`<circle cx="%.2f" cy="%.2f" r="0.4" fill="%s" opacity="0.7"/>`, x-0.4, y-0.4, white)
-		}
-	}
+	l.goods(d)
 	pole(2, 13)
 	pole(28.6, 13)
 	// The awning: its top in stripes, its front hem scalloped.
-	d.box([4]float64{0, 1, 32, 16}, [2]float64{26, 27.5}, [3]string{white, redShade, redShade})
+	d.box([4]float64{0, 1, 32, 16}, [2]float64{26, 27.5}, [3]string{white, l.hem, l.hem})
 	for u := 0.0; u < 32; u += 4 {
-		d.add(`<path d="M%s L%s L%s L%s Z" fill="%s"/>`, sp(u, 1, 27.5), sp(u+2, 1, 27.5), sp(u+2, 16, 27.5), sp(u, 16, 27.5), red)
+		d.add(`<path d="M%s L%s L%s L%s Z" fill="%s"/>`, sp(u, 1, 27.5), sp(u+2, 1, 27.5), sp(u+2, 16, 27.5), sp(u, 16, 27.5), l.stripe)
 	}
 	for u := 0.0; u < 32; u += 2 {
-		c := map[bool]string{true: red, false: white}[int(u/2)%2 == 0]
+		c := map[bool]string{true: l.stripe, false: white}[int(u/2)%2 == 0]
 		d.add(`<path d="M%s Q%s %s Z" fill="%s" stroke="%s" stroke-width="0.4"/>`, sp(u, 16, 26), sp(u+1, 16, 24), sp(u+2, 16, 26), c, line)
 	}
 	return d.String()

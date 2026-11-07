@@ -14,6 +14,9 @@ func (c *checker) checkStumps() error {
 			return err
 		}
 		k := cellKey(s.Col, s.Row)
+		if c.oldWorld() && c.f.thingAt(s.Col, s.Row) != s.Tree {
+			continue // ground a town has since built on
+		}
 		if !isTree(s.Tree) && !isRock(s.Tree) || c.f.thingAt(s.Col, s.Row) != s.Tree || seen[k] {
 			return fmt.Errorf("save: no tree %d to have been felled at %d, %d", s.Tree, s.Col, s.Row)
 		}
@@ -39,6 +42,9 @@ func (c *checker) checkHits() error {
 			return err
 		}
 		k := cellKey(h.Col, h.Row)
+		if c.oldWorld() && !isTree(c.f.thingAt(h.Col, h.Row)) && !isRock(c.f.thingAt(h.Col, h.Row)) {
+			continue // ground a town has since built on
+		}
 		_, twice := c.out.hits[k]
 		if !isTree(c.f.thingAt(h.Col, h.Row)) && !isRock(c.f.thingAt(h.Col, h.Row)) || twice || felled[k] {
 			return fmt.Errorf("save: no tree or rock being cut at %d, %d", h.Col, h.Row)

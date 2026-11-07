@@ -51,6 +51,7 @@ func (f *farm) slay(v *villager) {
 // reel and flash red; with their health run out they die.
 func (f *farm) hurtPlayer(harm float64, from vector.Vector3) {
 	f.talk, f.shop.open = nil, false
+	f.stopMilking()
 	if f.edit != nil {
 		f.stopEdit()
 	}

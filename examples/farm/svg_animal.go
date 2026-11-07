@@ -20,7 +20,7 @@ func (a *svgArt) Animal(look AnimalLook) *sprite.Sprite {
 	if look.Motion == "walk" {
 		frame = 1 + (look.Frame%animalFrames+animalFrames)%animalFrames
 	}
-	src, w, h := art.Animal(look.Kind, look.Coat, frame, look.Motion == "graze", false)
+	src, w, h := art.Animal(look.Kind, look.Coat, frame, look.Motion == "graze" || look.Motion == "bite", look.Motion == "fall")
 	if left {
 		src = faceLeft(src, w)
 	}
@@ -35,6 +35,12 @@ func faceLeft(src string, w int) string {
 
 // animalPicture is the SVG src drawn w by h units at the game's scale.
 func animalPicture(src string, w, h int) *canvas.Canvas { return picture(src, w, h) }
+
+// Milker is by the hind legs of the cow as she is drawn.
+func (a *svgArt) Milker() (back, near float64) { return 14 * scale, 6 * scale }
+
+// Frames is one: the drawings have a single one of a bite or a fall.
+func (a *svgArt) Frames(string, string) int { return 1 }
 
 // Pace is a slow walk, a frame in each of a step's four.
 func (a *svgArt) Pace(kind string) (speed, fps float64) {

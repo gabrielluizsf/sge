@@ -14,6 +14,9 @@ func (a *svgArt) Building(name string) *sprite.Sprite {
 		blank, _ := canvas.NewCanvas(1, 1)
 		return &sprite.Sprite{Image: blank}
 	}
+	if art.IsShed(name) {
+		return &sprite.Sprite{Image: picture(spriteSVG(name), art.StallW/2, art.StallH/2), PivotX: art.StallPivot[0], PivotY: art.StallPivot[1]}
+	}
 	if name == "stall" {
 		return &sprite.Sprite{Image: picture(spriteSVG(name), art.StallW/2, art.StallH/2), PivotX: art.StallPivot[0], PivotY: art.StallPivot[1]}
 	}
@@ -26,6 +29,10 @@ func (a *svgArt) Houses() int { return art.Houses }
 // Footprint is one cell for the stall, none for a well, which this look
 // does not draw, and two by two for a house.
 func (a *svgArt) Footprint(name string) (cols, rows int) {
+	switch {
+	case art.IsShed(name):
+		return 1, 1
+	}
 	switch name {
 	case "stall":
 		return 1, 1

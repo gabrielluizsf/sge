@@ -15,6 +15,14 @@ func (f *farm) useAs(k *kit, col, row int) action {
 	if f.room != nil {
 		return actNone
 	}
+	if k == f.kit && f.plotAt(col, row) == nil {
+		if c := f.cowBy(f.player); c != nil && f.startMilking(c) {
+			return actMilk
+		}
+		if c := f.sheepBy(f.player); c != nil && f.shear(c) {
+			return actPick
+		}
+	}
 	if k.slot == slotAxe && f.thingAt(col, row) == tileID["anvil"] {
 		f.soundIn(cue{name: "clang", at: f.ground.CellCenter(col, row), in: forgeImpact * ForgeSeconds})
 		return actForge

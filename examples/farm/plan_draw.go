@@ -18,11 +18,12 @@ var weights = map[string][choreCount]int{
 	roleLumberjack: {6, 2, 1, 0, 2, 0},
 	roleSmith:      {1, 3, 1, 6, 2, 0},
 	roleWanderer:   {3, 3, 3, 0, 4, 0},
+	roleDealer:     {0, 0, 0, 0, 2, 0, 8},
 }
 
 // visitChance is how often each trade spends a day's stretch in the next
 // town.
-var visitChance = map[string]float64{roleFarmer: 0.3, roleLumberjack: 0.25, roleSmith: 0.15, roleWanderer: 0.5}
+var visitChance = map[string]float64{roleFarmer: 0.3, roleLumberjack: 0.25, roleSmith: 0.15, roleWanderer: 0.5, roleDealer: 0.1}
 
 // A visit lasts at least minStay hours there, and is over by backBy, so
 // they are home before bedBy.

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/random"
+	"github.com/gabrielluizsf/sge/town"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
@@ -23,16 +24,31 @@ type creature struct {
 	time    float64
 	heading int
 	obj     *game.Object
+	// milked is one more than the day she was last milked, 0 for never,
+	// and held says she stands still, being milked.
+	milked int
+	held   bool
+	pen    *pen
 }
 
-// herd is the animals of the farm's pen: each wanders inside it, walks to
-// a spot, stands, and walks again, each drawn as an object of the game.
+// pen is a fenced field of animals of a kind, on the farm or, with town
+// set, at that town's stable.
+type pen struct {
+	kind string
+	r    rect
+	town *town.Town
+}
+
+// herd is the animals of the farm's pens and the stables' seen: each wanders
+// inside its pen, walks to a spot, stands, and walks again, each drawn as an
+// object of the game.
 type herd struct {
-	f     *farm
-	art   AnimalArt
-	luck  *random.Source
-	field rect
-	crits []*creature
+	f      *farm
+	art    AnimalArt
+	luck   *random.Source
+	pens   []*pen
+	crits  []*creature
+	stable map[*town.Town]bool
 }
 
 // newHerd is the farm's herd with its first cow, or nil when the farm's
@@ -42,22 +58,25 @@ func newHerd(f *farm) *herd {
 	if !ok {
 		return nil
 	}
-	h := &herd{f: f, art: art, luck: random.New(seed + 47), field: penRect.inside()}
-	h.add("cow", 0)
+	h := &herd{f: f, art: art, luck: random.New(seed + 47), stable: map[*town.Town]bool{}}
+	first := &pen{kind: "cow", r: penRect}
+	h.pens = []*pen{first}
+	h.add("cow", 0, first)
 	return h
 }
 
-// add puts an animal of kind and coat in the pen, at a spot of it.
-func (h *herd) add(kind string, coat int) {
-	c := &creature{kind: kind, coat: coat, wait: 1 + 3*h.luck.Float(), heading: 2}
-	c.pos = h.spot()
+// add puts an animal of kind and coat in pen p, at a spot of it.
+func (h *herd) add(kind string, coat int, p *pen) *creature {
+	c := &creature{kind: kind, coat: coat, wait: 1 + 3*h.luck.Float(), heading: 2, pen: p}
+	c.pos = h.spot(p)
 	c.to = c.pos
 	h.crits = append(h.crits, c)
+	return c
 }
 
-// spot is a place in the pen's field, a half cell in from its fence.
-func (h *herd) spot() vector.Vector3 {
-	r := h.field
+// spot is a place in p's field, a half cell in from its fence.
+func (h *herd) spot(p *pen) vector.Vector3 {
+	r := p.r.inside()
 	x := (float64(r.col) + 0.5 + float64(r.cols-1)*h.luck.Float()) * tile
 	y := (float64(r.row) + 0.5 + float64(r.rows-1)*h.luck.Float()) * tile
 	return vector.Vector3{X: x, Y: y}
@@ -66,17 +85,21 @@ func (h *herd) spot() vector.Vector3 {
 // Update lets the animals live, if the farmer is near the pen and out of
 // doors, and dresses each as it is.
 func (h *herd) Update(o *game.Object, dt float64) {
-	near := h.f.room == nil && h.f.player.Transform.Position.Sub(h.f.ground.CellCenter(h.field.col+h.field.cols/2, h.field.row+h.field.rows/2)).Length() < herdReach*tile
+	h.f.milkTick(dt)
 	for _, c := range h.crits {
+		near := h.f.room == nil && feet(h.f.player).Sub(c.pos).Length() < herdReach*tile
+		if !near {
+			if c.obj != nil {
+				c.obj.Hidden = true
+			}
+			continue
+		}
 		if c.obj == nil {
 			c.obj = game.NewObject("animal")
 			c.obj.Z = zThings
 			o.Game().Add(c.obj)
 		}
-		c.obj.Hidden = !near
-		if !near {
-			continue
-		}
+		c.obj.Hidden = false
 		h.live(c, dt)
 		h.dress(c)
 	}
@@ -86,10 +109,13 @@ func (h *herd) Update(o *game.Object, dt float64) {
 // as it stands.
 func (h *herd) live(c *creature, dt float64) {
 	c.time += dt
+	if c.held {
+		return
+	}
 	if !c.walking {
 		c.wait -= dt
 		if c.wait <= 0 {
-			c.to, c.walking = h.spot(), true
+			c.to, c.walking = h.spot(c.pen), true
 		}
 		return
 	}

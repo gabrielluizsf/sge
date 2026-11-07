@@ -49,7 +49,13 @@ func build(a Art, ctl Controller) (*game.Game, *farm) {
 		w.AddScript(bs)
 	}
 	if hd := newHerd(f); hd != nil {
+		f.herd = hd
 		w.AddScript(hd)
+	}
+	_, playing := ctl.(keyboard)
+	if wv := newWolves(f, playing); wv != nil {
+		f.wolves = wv
+		w.AddScript(wv)
 	}
 	o.Transform.Position = standIn(f, where.spawn.Col, where.spawn.Row)
 	g.Add(o)

@@ -16,6 +16,10 @@ func (f *farm) editMove(dx, dy int) {
 // piece under it, or take one of the bag in hand.
 func (f *farm) editAct() {
 	e := f.edit
+	if e.pen != nil {
+		f.putPen()
+		return
+	}
 	if e.hold != nil {
 		f.putDown()
 		return
@@ -25,6 +29,9 @@ func (f *farm) editAct() {
 		e.hold, e.lifted, e.origin = &p, true, p
 		e.col, e.row = p.col, p.row
 		f.sound("ui_tick", nil)
+		return
+	}
+	if f.liftPen() {
 		return
 	}
 	if e.item == "" || f.bag.Count(e.item) == 0 {

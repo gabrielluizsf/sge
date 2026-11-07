@@ -49,6 +49,11 @@ func (c carried) Items() []backpack.Item {
 	if f.bag.Count(stone) > 0 {
 		items = append(items, c.stone())
 	}
+	for _, g := range goods {
+		if f.bag.Count(g.item) > 0 {
+			items = append(items, c.good(g))
+		}
+	}
 	for _, name := range furnishings {
 		if f.bag.Count(name) > 0 {
 			items = append(items, c.furniture(name))
@@ -71,6 +76,9 @@ func (c carried) Find(id string) (backpack.Item, bool) {
 	case strings.HasSuffix(id, seedsSuffix):
 		i, ok := cropIndex(strings.TrimSuffix(id, seedsSuffix))
 		return c.seeds(i), ok
+	}
+	if g, ok := goodOf(id); ok {
+		return c.good(g), true
 	}
 	i, ok := cropIndex(id)
 	return c.harvest(i), ok

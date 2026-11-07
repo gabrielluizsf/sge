@@ -14,7 +14,16 @@ import (
 func (h *hud) editView(cv *canvas.Canvas) {
 	f := h.f
 	e := f.edit
-	if p, ok, shown := f.ghost(); shown {
+	if e.pen != nil {
+		r, ok := f.penGhost()
+		tint := ghostRed
+		if ok {
+			tint = ghostGreen
+		}
+		h.outlineRect(cv, r, tint)
+	} else if p := f.penUnder(e.col, e.row); p != nil && e.hold == nil {
+		h.outlineRect(cv, p.r, ghostGold)
+	} else if p, ok, shown := f.ghost(); shown {
 		tint := ghostRed
 		if ok {
 			tint = ghostGreen
@@ -59,12 +68,28 @@ func (h *hud) outline(cv *canvas.Canvas, p piece, tint canvas.Color) {
 	}
 }
 
+// outlineRect draws the diamond of each cell of r, tinted.
+func (h *hud) outlineRect(cv *canvas.Canvas, r rect, tint canvas.Color) {
+	f := h.f
+	cur := f.tinted(fmt.Sprint("cursor ", tint), f.art.Cursor, tint, 1)
+	for row := r.row; row < r.row+r.rows; row++ {
+		for col := r.col; col < r.col+r.cols; col++ {
+			at := h.farmer.Game().ToScreen(f.ground.CellCenter(col, row))
+			cv.Blit(int(at.X)-isoW/2, int(at.Y)-tile/2, cur)
+		}
+	}
+}
+
 // editHints says what is being placed and the keys, under the toasts.
 func (h *hud) editHints(cv *canvas.Canvas) {
 	f := h.f
 	e := f.edit
 	status := i18n.T("Arranging: nothing chosen")
 	switch {
+	case e.pen != nil:
+		status = i18n.T("Holding: %s", i18n.T("Pen"))
+	case f.penUnder(e.col, e.row) != nil:
+		status = i18n.T("Enter: move this pen")
 	case e.hold != nil:
 		status = i18n.T("Holding: %s", i18n.T(pieceLabels[e.hold.name]))
 	case e.item != "":

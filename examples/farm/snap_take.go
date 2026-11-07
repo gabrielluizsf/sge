@@ -13,6 +13,7 @@ func takeSnapshot(f *farm) snapshot {
 	s.Level, s.XP = f.prog.Level, f.prog.XP
 	s.Vitals = &vitalsState{Health: f.vit.Health, Food: f.vit.Food}
 	s.Home, s.Yard = takeHouse(f), takeYard(f)
+	s.Herd, s.Pens = takeHerd(f)
 	s.Plots, s.Stumps, s.Hits = takePlots(f), takeStumps(f), takeHits(f)
 	return s
 }

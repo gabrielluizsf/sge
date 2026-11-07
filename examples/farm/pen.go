@@ -12,6 +12,26 @@ var penRect = rect{7, 12, 6, 5}
 // penGate is the cell of the fence left open for the player to go in by.
 var penGate = town.Cell{Col: penRect.col + penRect.cols/2, Row: penRect.row + penRect.rows - 1}
 
+// penCols and penRows are the size of a pen, fence and all.
+const (
+	penCols = 6
+	penRows = 5
+)
+
+// fenceAt is the tile of pen r's fence on cell col, row, -1 off it or at its
+// gate.
+func fenceAt(r rect, col, row int) int {
+	switch {
+	case !r.has(col, row) || col == r.col+r.cols/2 && row == r.row+r.rows-1:
+		return -1
+	case row == r.row || row == r.row+r.rows-1:
+		return tileID["fence"]
+	case col == r.col || col == r.col+r.cols-1:
+		return tileID[fenceDown]
+	}
+	return -1
+}
+
 // inside is the cells of the pen's field, within its fence.
 func (r rect) inside() rect { return rect{r.col + 1, r.row + 1, r.cols - 2, r.rows - 2} }
 

@@ -27,7 +27,7 @@ func (l *Layout) At(col, row int) *Town {
 // edge is -1 when cell c, in region r, is within a town's reach of the
 // region's low edge, 1 near its high edge and 0 elsewhere.
 func (l *Layout) edge(c, r int) int {
-	reach := max(l.Reach(), l.Depth()) + margin
+	reach := max(l.Reach(), l.Depth()+l.Back.Row+2) + margin
 	off := c - r*l.Region
 	if off < reach {
 		return -1

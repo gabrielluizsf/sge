@@ -38,6 +38,12 @@ func (b svgBody) Clip(anim, dir string) Clip {
 		return b.clip(6/WellSeconds, dir+"Well", dir+"Well1", dir+"Well", dir+"Well1", dir+"Well2", dir+"Well2")
 	case AnimDip:
 		return b.clip(5/DipSeconds, dir, dir+"Dip", dir+"Dip", dir+"Dip1", dir)
+	case AnimMilkDown:
+		return b.clip(2/MilkDownSeconds, dir, dir+"Milk")
+	case AnimMilk:
+		return b.clip(5, dir+"Milk", dir+"Milk1")
+	case AnimMilkUp:
+		return b.clip(2/MilkDownSeconds, dir+"Milk", dir)
 	case AnimSleep, AnimSleepLeft, AnimSleepRight:
 		return b.clip(0.5, "Sleep", "Sleep1")
 	case AnimHoe, AnimWater, AnimPick:

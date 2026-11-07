@@ -53,8 +53,14 @@ func PersonFrames(l Look) map[string]string {
 		"downDip1":   front(l, pose{use: dipUp}, false),
 		"upDip1":     front(l, pose{use: dipUp}, true),
 		"rightDip1":  side(l, pose{use: dipUp}),
+		"downMilk":   front(l, pose{use: milkHigh}, false),
+		"upMilk":     front(l, pose{use: milkHigh}, true),
+		"rightMilk":  side(l, pose{use: milkHigh}),
+		"downMilk1":  front(l, pose{use: milkLow}, false),
+		"upMilk1":    front(l, pose{use: milkLow}, true),
+		"rightMilk1": side(l, pose{use: milkLow}),
 	}
-	for _, s := range []string{"", "1", "2", "Act", "Chop", "Chop1", "Mine", "Mine1", "Eat", "Eat1", "Well", "Well1", "Well2", "Dip", "Dip1"} {
+	for _, s := range []string{"", "1", "2", "Act", "Chop", "Chop1", "Mine", "Mine1", "Eat", "Eat1", "Well", "Well1", "Well2", "Dip", "Dip1", "Milk", "Milk1"} {
 		f["left"+s] = mirrored(f["right"+s], FarmerW)
 	}
 	swimFrames(f)

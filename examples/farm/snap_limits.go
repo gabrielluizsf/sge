@@ -16,6 +16,7 @@ const (
 	maxPeople    = 5_000
 	maxFamily    = 20_000
 	maxTowns     = 500
+	maxHerd      = 64
 	maxStacks    = 64
 	maxText      = 48 // bytes of a name or id
 	maxGene      = 63

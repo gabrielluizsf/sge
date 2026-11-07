@@ -32,6 +32,9 @@ func (f *farm) settle(t *town.Town) {
 		default:
 			role = trades[s.src.Intn(len(trades))]
 		}
+		if i > 0 && i == min(2, len(t.Houses)-1) {
+			role = roleDealer
+		}
 		hh := s.household(h, role)
 		homes = append(homes, hh)
 		f.people = append(f.people, hh.man, hh.woman, hh.child)

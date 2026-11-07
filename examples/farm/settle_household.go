@@ -58,6 +58,9 @@ func (s *settler) household(h *town.House, role string) household {
 	head := s.person(post{home: h, role: role, woman: headWoman})
 	mate := s.person(post{home: h, role: other, woman: !headWoman})
 	kid := s.person(post{home: h, role: roleWanderer, woman: s.src.Float() < 0.5})
+	if role == roleDealer {
+		head.who.Role = roleFarmer // a dealer dresses for the land
+	}
 	hh := household{man: head, woman: mate, child: kid}
 	if headWoman {
 		hh.man, hh.woman = mate, head

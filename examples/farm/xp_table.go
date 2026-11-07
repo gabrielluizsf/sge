@@ -7,6 +7,8 @@ import "github.com/gabrielluizsf/sge/progress"
 // the errand.
 const (
 	xpSow      = 2
+	xpMilk     = 4
+	xpWolf     = 25
 	xpWater    = 2
 	xpHoe      = 1
 	xpFell     = 12

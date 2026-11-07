@@ -45,6 +45,7 @@ func (k *kit) sellOut() int {
 		k.bag.Take(cropOf(c), n)
 		k.sold += n
 	}
+	sellGoods(k)
 	k.sold += k.bag.Count(wood)
 	k.bag.Take(wood, k.bag.Count(wood))
 	k.money += earned

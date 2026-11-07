@@ -19,7 +19,7 @@ func size(name string) (w, h int) {
 		return Size, Size
 	case name == "cursor":
 		return IsoW, Size
-	case name == "stall":
+	case name == "stall" || IsShed(name):
 		return StallW, StallH
 	case name == "bed_double":
 		return DoubleBedW, DoubleBedH
@@ -108,7 +108,7 @@ func TestShoresOpenOntoTheLand(t *testing.T) {
 // Objects stand on the ground rather than carry a patch of it.
 func TestObjectsAreTransparentInTheirCorners(t *testing.T) {
 	for name, src := range Sprites() {
-		if name != "stall" && name != "fence" && name != "stump" && !strings.HasPrefix(name, "rock") && !strings.HasPrefix(name, "house") && !strings.HasPrefix(name, "tree") && !strings.HasPrefix(name, "farmer_") {
+		if name != "stall" && !IsShed(name) && name != "fence" && name != "stump" && !strings.HasPrefix(name, "rock") && !strings.HasPrefix(name, "house") && !strings.HasPrefix(name, "tree") && !strings.HasPrefix(name, "farmer_") {
 			continue
 		}
 		img := render(t, name, src)

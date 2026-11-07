@@ -15,6 +15,10 @@ type editor struct {
 	origin piece
 	// item is the piece of the bag put down next.
 	item string
+	// pen is the pen of animals being moved, and penCol and penRow where
+	// on it the cursor took it.
+	pen            *pen
+	penCol, penRow int
 }
 
 // editing reports whether the player is arranging furniture.
@@ -90,6 +94,7 @@ func (f *farm) stopEdit() {
 // back into the bag, where it never left.
 func (f *farm) dropHold() {
 	e := f.edit
+	e.pen = nil
 	if e.hold == nil {
 		return
 	}

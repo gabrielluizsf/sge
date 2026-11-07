@@ -15,6 +15,15 @@ func (f *farm) newStall(at town.Cell) *game.Object {
 	return o
 }
 
+// newShed is the shop's shed name, on the cells r.
+func (f *farm) newShed(name string, r rect) *game.Object {
+	o := game.NewObject(name)
+	o.Z = zThings
+	o.Sprite = f.art.Building(name)
+	o.Transform.Position = r.middle()
+	return o
+}
+
 // newHouse is a house of the given kind on its cells from
 // corner, its door toward the viewer when front is set.
 func (f *farm) newHouse(kind int, corner town.Cell, front bool) *game.Object {

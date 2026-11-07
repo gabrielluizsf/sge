@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/gabrielluizsf/sge/examples/farm"
+	"github.com/gabrielluizsf/sge/examples/realfarm/kit/bakes"
 )
 
 // A building's footprint covers its walls and porch, rounded up to whole
@@ -58,5 +59,12 @@ func TestBlocksAreBlankAndTreesAreRead(t *testing.T) {
 	}
 	if _, _, _, ok := parseTree("grass0"); ok {
 		t.Error("grass0 read as a tree")
+	}
+}
+
+// The facings a person is baked milking are those the farm shows them in.
+func TestMilkingIsBakedInTheFacingsShown(t *testing.T) {
+	if turnOf("right") != bakes.MilkFacingRight || turnOf("left") != bakes.MilkFacingLeft {
+		t.Errorf("right %d, left %d", turnOf("right"), turnOf("left"))
 	}
 }

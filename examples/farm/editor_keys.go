@@ -13,7 +13,7 @@ func (f *farm) editKeys(win *antui.Window) {
 		f.editMove(dx, dy)
 	}
 	switch {
-	case win.KeyPressed(antui.KeyEscape) && e.hold != nil:
+	case win.KeyPressed(antui.KeyEscape) && (e.hold != nil || e.pen != nil):
 		f.dropHold()
 		f.sound("ui_close", nil)
 	case win.KeyPressed(antui.KeyEscape) || win.KeyPressed(antui.KeyB):

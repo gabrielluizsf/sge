@@ -73,6 +73,10 @@ func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 	if v.angry > 0 && f.inSight(o.Transform.Position) {
 		return m.fight(f, o, dt)
 	}
+	if w := f.wolfNear(v, feet(o)); w != nil && f.inSight(o.Transform.Position) {
+		m.job = nil
+		return m.fightWolf(f, o, w, dt)
+	}
 	if !f.inSight(o.Transform.Position) {
 		v.angry = 0
 		m.bedUnseen(f, o)

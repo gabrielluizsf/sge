@@ -11,6 +11,7 @@ func Icons() map[string]string {
 		"hoe":         hoeIcon(),
 		"wood":        woodIcon(),
 		"stone":       stoneIcon(),
+		"milk":        milkIcon(),
 		"pickaxe":     pickaxeIcon(),
 		"bubble":      bubbleIcon(),
 		"heart":       heartIcon(true),

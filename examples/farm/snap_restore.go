@@ -18,6 +18,7 @@ func restore(f *farm, s *snapshot) error {
 	applyWorld(f, s, l)
 	applyPeople(f, s, l)
 	applyHouse(f, s, l)
+	applyHerd(f, l)
 	applyPlayer(f, s)
 	return nil
 }

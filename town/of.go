@@ -37,6 +37,10 @@ func (l *Layout) plan(r Cell) *Town {
 		center = Cell{r.Col*l.Region + mx + src.Intn(l.Region-2*mx), r.Row*l.Region + my + src.Intn(l.Region-2*my)}
 	}
 	t := &Town{Region: r, Center: center, Reach: l.Reach(), Depth: l.Depth(), Well: Cell{center.Col - 1, center.Row + plazaH + 1}, Stall: Cell{center.Col, center.Row - plazaH - 1}, Anvil: Cell{center.Col - plazaW, center.Row - plazaH - 1}, Forge: Cell{center.Col - plazaW - 1, center.Row - plazaH - 1}, Seed: terrain.Hash(l.Seed+2, r.Col, r.Row)}
+	if l.Back.Row > 0 {
+		last := center.Row - t.Depth - 2
+		t.Back = Rect{C0: center.Col - l.Back.Col/2, R0: last - l.Back.Row + 1, C1: center.Col - l.Back.Col/2 + l.Back.Col - 1, R1: last}
+	}
 	src := random.New(t.Seed)
 	for _, side := range []int{-1, 1} {
 		for _, s := range l.slots() {

@@ -32,6 +32,8 @@ func (m *mind) chore(f *farm, c chore) *job {
 		}
 	case choreTrade:
 		return m.tradeJob(f)
+	case choreTend:
+		return m.tendJob(f)
 	}
 	return nil
 }
@@ -47,6 +49,8 @@ func (m *mind) tradeWork(f *farm) *job {
 		return m.smithWork(f)
 	case roleWanderer:
 		return m.oddJobs(f)
+	case roleDealer:
+		return m.tendJob(f)
 	}
 	return nil
 }

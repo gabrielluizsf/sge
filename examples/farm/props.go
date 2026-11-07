@@ -23,6 +23,9 @@ func (f *farm) props(cx, cy int) []*game.Object {
 		if in(t.Stall) {
 			objs = append(objs, f.newStall(t.Stall))
 		}
+		if r := stableRect(f.art, t); in(town.Cell{Col: r.col, Row: r.row}) {
+			objs = append(objs, f.newShed("stable", r))
+		}
 		if r := wellRect(f.art, t); r.cols > 0 && in(t.Well) {
 			objs = append(objs, f.newWell(r))
 		}

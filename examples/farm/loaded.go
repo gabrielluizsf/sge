@@ -17,4 +17,6 @@ type loaded struct {
 	hits   map[int]int
 	home   []piece
 	yard   []piece
+	herd   []*creature
+	pens   []*pen
 }

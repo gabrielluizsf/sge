@@ -25,7 +25,11 @@ type Layout struct {
 	// props, the stall, the forge and the well, whose pictures stand
 	// taller than their cells: it widens the Lead.
 	Margin int
-	Fixed  map[Cell]Cell
+	// Back is how many cells across and deep the ground behind the houses
+	// north of the street is that a town keeps for what the game builds
+	// there; with none, it keeps none.
+	Back  Cell
+	Fixed map[Cell]Cell
 	Skip   func(rx, ry int) bool
 	// Roads are roads laid by hand, besides those between the towns; Keep
 	// are the areas, the farm, the roads between towns keep off.

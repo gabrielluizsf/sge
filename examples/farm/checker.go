@@ -33,7 +33,7 @@ func check(f *farm, s *snapshot) (*loaded, error) {
 		func() error { return checkSelf(s) },
 		c.checkPlots, c.checkStumps, c.checkHits,
 		func() error { return checkOrder("errand", s.Errand) },
-		c.checkPlace, c.checkHouse,
+		c.checkPlace, c.checkHouse, c.checkHerd,
 	}
 	for _, step := range steps {
 		if err := step(); err != nil {

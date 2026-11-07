@@ -24,7 +24,7 @@ var recipes = []recipe{
 	{"shelf", inventory.List{{Item: wood, N: 8}}},
 	{"plant", inventory.List{{Item: wood, N: 2}, {Item: stone, N: 1}}},
 	{"stove", inventory.List{{Item: wood, N: 4}, {Item: stone, N: 10}}},
-	{"bed", inventory.List{{Item: wood, N: 14}}},
+	{"bed", inventory.List{{Item: wood, N: 10}, {Item: stone, N: 2}, {Item: wool, N: 2}}},
 }
 
 // recipeOf is the recipe that makes item.

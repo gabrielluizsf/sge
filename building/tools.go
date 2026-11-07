@@ -6,7 +6,7 @@ import "image/color"
 // icons: laid on the ground, long along X, to be seen from a corner. The
 // hoe, the watering can, the logs, a coin, an axe with each head and
 // the pickaxe.
-var Items = []Building{Hoe, Can, Logs, Coin, AxeStone, AxeIron, AxeGold, AxeDiamond, Pickaxe}
+var Items = []Building{Hoe, Can, Logs, Coin, AxeStone, AxeIron, AxeGold, AxeDiamond, Pickaxe, MilkBottle}
 
 // Hoe is a long wooden handle with an iron blade across its end.
 var Hoe = Building{Name: "hoe", Width: 1, Depth: 0.3, build: func(b *builder) {

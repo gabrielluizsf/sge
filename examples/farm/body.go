@@ -43,6 +43,10 @@ const (
 	AnimDive  = "dive"
 	AnimRise  = "rise"
 	AnimSit   = "sit"
+	// Milking: sitting down to it, milking in a loop, and getting up.
+	AnimMilkDown = "milkdown"
+	AnimMilk     = "milk"
+	AnimMilkUp   = "milkup"
 )
 
 // DiveSeconds and RiseSeconds are how long going into deep water and
@@ -66,6 +70,10 @@ const (
 	EatSeconds   = 2.2
 	WellSeconds  = 2.6
 	DipSeconds   = 2.4
+	// MilkDownSeconds is how long sitting down to milk takes, and getting
+	// up after, and MilkSeconds the milking between them.
+	MilkDownSeconds = 0.8
+	MilkSeconds     = 4.2
 )
 
 // forgeImpact is how far into a stroke the hammer lands on the iron, as

@@ -23,7 +23,10 @@ func (t *Town) House(col, row int) *House {
 // out of it.
 func (t *Town) Grounds(col, row, margin int) bool {
 	dx, dy := col-t.Center.Col, row-t.Center.Row
-	return abs(dx) <= t.Reach+margin && abs(dy) <= t.Depth+margin
+	if abs(dx) <= t.Reach+margin && abs(dy) <= t.Depth+margin {
+		return true
+	}
+	return t.Back != (Rect{}) && t.Back.Dist(col, row) <= margin
 }
 
 // Grounds reports whether cell col, row is on the grounds of the town of

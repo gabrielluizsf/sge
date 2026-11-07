@@ -16,6 +16,9 @@ var itemLabels = labelled()
 // labelled is the wood's name and every crop's, by item.
 func labelled() map[string]string {
 	m := map[string]string{wood: "Wood"}
+	for _, g := range goods {
+		m[g.item] = g.label
+	}
 	for _, c := range crops {
 		m[c.name] = c.label
 	}
@@ -24,7 +27,7 @@ func labelled() map[string]string {
 
 // worth is what kit k's harvest and wood sell for.
 func worth(k *kit) int {
-	w := k.bag.Count(wood) * woodPrice
+	w := k.bag.Count(wood)*woodPrice + goodsWorth(k)
 	for c := range crops {
 		w += k.bag.Count(cropOf(c)) * crops[c].sellPrice
 	}

@@ -19,11 +19,24 @@ func (p *farmer) swing(o *game.Object) {
 	o.Animator.Play(p.pose(o) + clip)
 	at := feet(o)
 	p.f.sound("chop", &at)
+	if pk := p.f.wolves; pk != nil {
+		if w := pk.ahead(at, p.facing); w != nil {
+			if o == p.f.player {
+				p.f.killedBy(pk, w, p.kit.blow(), at)
+			} else {
+				pk.strike(w, p.kit.blow(), at)
+			}
+			return
+		}
+	}
 	if o == p.f.player {
 		if v := p.f.ahead(at, p.facing); v != nil {
 			p.f.wound(v, p.kit.blow(), at)
 		}
 		return
+	}
+	if m, ok := p.ctl.(*mind); ok && m.v.angry <= 0 {
+		return // swinging at a wolf, not at the player
 	}
 	if p.f.player.Transform.Position.Sub(at).Length() <= reachBlow {
 		p.f.hurtPlayer(npcHarm, at)

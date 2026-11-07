@@ -8,7 +8,7 @@ import (
 // knownItem reports whether item is one a bag or an order may hold: wood,
 // a crop, or a packet of seeds.
 func knownItem(item string) bool {
-	if item == wood || item == stone || item == itemPick || isFurnishing(item) {
+	if _, isGood := goodOf(item); isGood || item == wood || item == stone || item == itemPick || isFurnishing(item) {
 		return true
 	}
 	for c := range crops {
