@@ -15,8 +15,8 @@ import (
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/antui/canvas"
 	"github.com/gabrielluizsf/sge/collider"
-	"github.com/gabrielluizsf/sge/i18n"
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/i18n"
 	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/vector"
 )
