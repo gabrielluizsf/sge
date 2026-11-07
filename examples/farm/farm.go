@@ -142,7 +142,6 @@ func newFarm(l layers, w world) *farm {
 	f.errand = errandBook.Draw(f.luck)
 	f.family, f.fate = &lineage.Tree{}, random.New(seed+101)
 	f.self = f.found()
-	f.self.name = playerName(w.art)
 	f.drawn = f.self.who(f.clock.Day).Stage
 	for row := 0; row < l.ground.Rows; row++ {
 		for col := 0; col < l.ground.Cols; col++ {

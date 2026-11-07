@@ -37,6 +37,7 @@ var motions = map[string][]string{
 	farm.AnimWater: {"water", "hoe", "stand"},
 	farm.AnimPick:  {"pick", "hoe", "stand"},
 	farm.AnimEat:   {"eat", "stand"},
+	farm.AnimDrink: {"drink", "eat", "stand"},
 	farm.AnimWell:  {"well", "water", "stand"},
 	farm.AnimDip:   {"dip", "water", "stand"},
 	farm.AnimSwim:  {"swim", "tread", "walk", "stand"},
@@ -106,6 +107,8 @@ func fpsOf(anim, motion string) float64 {
 		return bakes.Frames / farm.MineSeconds
 	case farm.AnimEat:
 		return bakes.Frames / farm.EatSeconds
+	case farm.AnimDrink:
+		return bakes.Frames / farm.DrinkSeconds
 	case farm.AnimWell:
 		return bakes.Frames / farm.WellSeconds
 	case farm.AnimDip:

@@ -48,7 +48,9 @@ func (p *Pack) place(s Spot) Event {
 		return p.crossed(p.Side.Put(id))
 	case s.Area == Grid && from.Area == Chest && p.Side != nil:
 		return p.crossed(p.Side.Take(id))
-	case s.Area == Bar && from.Area == Chest, s.Area == Chest && from.Area == Bar:
+	case s.Area == Bar && from.Area == Chest:
+		return p.fromStore(id, s.Index)
+	case s.Area == Chest && from.Area == Bar:
 		return Refused
 	case s.Area == Bar:
 		return p.Bind(id, s.Index)

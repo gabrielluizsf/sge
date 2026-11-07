@@ -81,7 +81,7 @@ func (c *checker) penGround(r rect) bool {
 	for row := r.row; row < r.row+r.rows; row++ {
 		for col := r.col; col < r.col+r.cols; col++ {
 			id := f.thingAt(col, row)
-			fence := id == tileID["fence"] || id == tileID[fenceDown]
+			fence := isFence(id)
 			if id != tilemap.Empty && !fence {
 				return false
 			}

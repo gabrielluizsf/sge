@@ -85,7 +85,8 @@ func checkHotbar(s *snapshot) error {
 	for _, id := range h {
 		_, seeds := seedsCrop(id)
 		_, crop := cropIndex(id)
-		ok := id == "" || seeds || crop || isFurnishing(id) || id == itemCan || id == itemHoe || id == itemAxe && s.Player.Axe != noAxe || id == itemPick && hasStack(s.Player.Bag, itemPick)
+		g, _ := goodOf(id)
+		ok := id == "" || seeds || crop || g.nutrition > 0 || isFurnishing(id) || id == itemCan || id == itemHoe || id == itemAxe && s.Player.Axe != noAxe || id == itemPick && hasStack(s.Player.Bag, itemPick)
 		if !ok || strings.TrimSpace(id) != id || seen[id] && id != "" {
 			return fmt.Errorf("save: bad hotbar item %q", id)
 		}

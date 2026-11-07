@@ -156,6 +156,8 @@ func versionOf(mo human.Motion) string {
 		return fmt.Sprintf("v%dz%d", human.MotionsVersion, human.SleepVersion)
 	case human.Sit.Name:
 		return fmt.Sprintf("v%ds%d", human.MotionsVersion, human.SitVersion)
+	case human.Drink.Name:
+		return fmt.Sprintf("v%dq%d", human.MotionsVersion, human.DrinkVersion)
 	case human.Milk.Name, human.MilkDown.Name:
 		return fmt.Sprintf("v%dk%d", human.MotionsVersion, human.MilkVersion)
 	}

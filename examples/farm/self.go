@@ -34,11 +34,12 @@ func (f *farm) newID() string {
 	return "p" + itoa(f.ids)
 }
 
-// found is a new farmer founding a line on the farm: founderYears old
-// today, in the family tree with no parents.
+// found is a new farmer founding a line on the farm, by the name the player
+// chose, when they chose one: founderYears old today, in the family tree
+// with no parents.
 func (f *farm) found() *self {
 	day := f.clock.Day
-	s := &self{id: f.newID(), name: founderName, life: calendar.Draw(f.fate, founderYears, day)}
+	s := &self{id: f.newID(), name: playerName(f.art), life: calendar.Draw(f.fate, founderYears, day)}
 	f.family.Add(lineage.Person{ID: s.id, Born: s.life.Born})
 	return s
 }

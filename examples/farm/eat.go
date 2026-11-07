@@ -25,9 +25,12 @@ func (f *farm) eat(k *kit) action {
 		f.sound("deny", nil)
 		return actNone
 	}
-	item, feeds := cropOf(k.seed), crops[k.seed].nutrition
+	item, feeds, did := cropOf(k.seed), crops[k.seed].nutrition, actEat
 	if g, ok := goodOf(k.food); ok {
 		item, feeds = g.item, g.nutrition
+		if g.drink {
+			did = actDrink
+		}
 	}
 	if !k.bag.Take(item, 1) {
 		return actNone
@@ -35,5 +38,5 @@ func (f *farm) eat(k *kit) action {
 	f.vit.Eat(feeds)
 	f.float(at, i18n.T("+%d food", int(feeds)), 'g')
 	f.sound("harvest", nil)
-	return actEat
+	return did
 }

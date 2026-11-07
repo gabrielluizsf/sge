@@ -18,6 +18,10 @@ func Sprites() map[string]string {
 		"soil_wet":   soilTile(wetLight, wetBase, wetShade, true),
 		"fence":      fenceTile(),
 		"fence_down": fenceDownTile(),
+		"fence_nw":   fenceCornerTile(east, south),
+		"fence_ne":   fenceCornerTile(west, south),
+		"fence_sw":   fenceCornerTile(east, north),
+		"fence_se":   fenceCornerTile(west, north),
 		// What stands where nothing shows: the stall's cells, solid.
 		"block":   newDoc(IsoW, IsoH).String(),
 		"stall":   Stall(),

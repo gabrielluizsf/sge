@@ -37,6 +37,7 @@ const (
 	AnimPick  = "pick"
 	AnimMine  = "mine"
 	AnimEat   = "eat"
+	AnimDrink = "drink"
 	AnimWell  = "well"
 	AnimDip   = "dip"
 	AnimSwim  = "swim"
@@ -68,6 +69,7 @@ const (
 	PickSeconds  = 1.6
 	MineSeconds  = 0.6
 	EatSeconds   = 2.2
+	DrinkSeconds = 2.6
 	WellSeconds  = 2.6
 	DipSeconds   = 2.4
 	// MilkDownSeconds is how long sitting down to milk takes, and getting

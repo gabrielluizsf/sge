@@ -15,6 +15,8 @@ const (
 	dipUp
 	milkHigh
 	milkLow
+	drinkLow
+	drinkUp
 )
 
 // crouched is whether the pose is on the heels, at the water's edge.
@@ -44,9 +46,9 @@ func (p pose) stand(d *doc) {
 func (p pose) useHand(x, dir float64, holds bool) (hand pt, ok bool) {
 	in := x - dir*3.4
 	switch {
-	case p.use == eatLow && holds:
+	case (p.use == eatLow || p.use == drinkLow) && holds:
 		return pt{in, 22.4}, true
-	case p.use == eatUp && holds:
+	case (p.use == eatUp || p.use == drinkUp) && holds:
 		return pt{in, 14.6}, true
 	case p.use == dipDown && holds:
 		return pt{in, 31}, true
@@ -75,6 +77,8 @@ func (p pose) useProp(d *doc, hand pt, dir float64) {
 	switch p.use {
 	case eatLow, eatUp:
 		apple(d, hand)
+	case drinkLow, drinkUp:
+		milkBottle(d, hand)
 	case wellPour:
 		waterFall(d, pt{hand.x + dir*1.6, hand.y - 1.4})
 	case dipDown:
@@ -91,6 +95,12 @@ func (p pose) useProp(d *doc, hand pt, dir float64) {
 func pail(d *doc, at pt) {
 	d.add(`<path d="M%.2f %.2f l5.2 0 l-0.8 5 l-3.6 0 Z" fill="%s" stroke="%s" stroke-width="0.6" stroke-linejoin="round"/>`, at.x-2.6, at.y, metal, line)
 	d.add(`<ellipse cx="%.2f" cy="%.2f" rx="2.6" ry="0.8" fill="%s" stroke="%s" stroke-width="0.4"/>`, at.x, at.y, white, line)
+}
+
+// milkBottle is a corked bottle of milk in the hand at at.
+func milkBottle(d *doc, at pt) {
+	d.add(`<rect x="%.2f" y="%.2f" width="2.4" height="4.2" rx="0.8" fill="%s" stroke="%s" stroke-width="0.5"/>`, at.x-1.2, at.y-3.4, white, line)
+	d.add(`<rect x="%.2f" y="%.2f" width="1.2" height="1.1" fill="%s"/>`, at.x-0.6, at.y-4.4, wood3[1])
 }
 
 // apple is a bite of food in the hand at at: a small red apple with a
@@ -113,9 +123,9 @@ func waterFall(d *doc, at pt) {
 // can, the only one seen.
 func (p pose) sideHand() (hand pt, ok bool) {
 	switch p.use {
-	case eatLow:
+	case eatLow, drinkLow:
 		return pt{14.6, 22.2}, true
-	case eatUp:
+	case eatUp, drinkUp:
 		return pt{16.4, 14.4}, true
 	case dipDown:
 		return pt{17.6, 31}, true
@@ -133,7 +143,7 @@ func (p pose) sideHand() (hand pt, ok bool) {
 // from the front or the back: the arm is in front of the chest, where
 // the first drawing of it is under the shirt.
 func (p pose) foreArm(d *doc, l Look, back bool) {
-	if p.use != eatLow && p.use != eatUp {
+	if p.use != eatLow && p.use != eatUp && p.use != drinkLow && p.use != drinkUp {
 		return
 	}
 	x, dir := 17.8, 1.0
@@ -142,10 +152,10 @@ func (p pose) foreArm(d *doc, l Look, back bool) {
 	}
 	hand, _ := p.useHand(x, dir, true)
 	elbow := pt{x - dir*1.2, 24}
-	if p.use == eatUp {
+	if p.use == eatUp || p.use == drinkUp {
 		elbow = pt{x - dir*0.4, 23}
 	}
 	limb{pt{x, 19}, elbow, 2.8, l.Shirt[1]}.draw(d)
 	limb{elbow, hand, 2.2, l.Skin[0]}.draw(d)
-	apple(d, hand)
+	p.useProp(d, hand, dir)
 }

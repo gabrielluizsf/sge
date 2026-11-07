@@ -68,7 +68,7 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		o.Animator.Play(p.pose(o))
 	}
 	p.footsteps(o)
-	if in.strike && !p.swims && p.f.room == nil {
+	if (in.strike || in.use && p.fightsWolf(o)) && !p.swims && p.f.room == nil {
 		p.swing(o)
 		return
 	}

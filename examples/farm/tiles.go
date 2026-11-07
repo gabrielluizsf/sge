@@ -46,11 +46,16 @@ func TileNames() []string {
 	}
 	// Last, so the ids of the trees and rocks a save names stay as they were.
 	names = append(names, fenceDown)
-	return names
+	return append(names, fenceCorners[:]...)
 }
 
 // fenceDown is the tile of a fence turned to run down the rows.
 const fenceDown = "fence_down"
+
+// fenceCorners are the tiles of a fence's corners, by the corner of a pen
+// each is: its rails run from the post in the middle of its cell to the next
+// cells of the fence on either side.
+var fenceCorners = [4]string{"fence_nw", "fence_ne", "fence_sw", "fence_se"}
 
 // shoreName is the sprite of water f steps into its ripple, with water
 // beside it as mask says.
@@ -60,7 +65,17 @@ func shoreName(mask, f int) string { return fmt.Sprint("shore", mask, "_", f) }
 func shore(mask int) int { return tileID[shoreName(mask, 0)] }
 
 // isFence reports whether id is a fence's tile, turned either way.
-func isFence(id int) bool { return id == tileID["fence"] || id == tileID[fenceDown] }
+func isFence(id int) bool {
+	if id == tileID["fence"] || id == tileID[fenceDown] {
+		return true
+	}
+	for _, c := range fenceCorners {
+		if id == tileID[c] {
+			return true
+		}
+	}
+	return false
+}
 
 // tileID is the id of each tile in the set, by name.
 var tileID = map[string]int{}
@@ -86,6 +101,7 @@ func newTiles(a Art) *tilemap.TileSet {
 		return ids
 	}
 	tiles.SetSolid(true, id("fence", fenceDown, "block", "stump", "anvil")...)
+	tiles.SetSolid(true, id(fenceCorners[:]...)...)
 	tiles.SetSolid(true, id(interiorNames[len(interiorFloors):]...)...)
 	tiles.SetSolid(true, id(pieceTileNames()...)...)
 	// Grass, flowers and trees sway each in their own time; water ripples

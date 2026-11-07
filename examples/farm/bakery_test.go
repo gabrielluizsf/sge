@@ -202,3 +202,30 @@ func TestTheButcher(t *testing.T) {
 		t.Errorf("no beef bought: %d", f.bag.Count(beef))
 	}
 }
+
+// A bottle of milk in hand is drunk, with the drinking's own clip, and feeds.
+func TestMilkIsDrunk(t *testing.T) {
+	_, f := newGame(idle{})
+	f.bag.Add(milk, 1)
+	f.pack.Hotbar[4] = milk
+	if !f.hold(4) || f.slot != slotFood || f.food != milk {
+		t.Fatalf("slot %d food %q", f.slot, f.food)
+	}
+	f.vit.Food = 10
+	col, row := f.cellOf(feet(f.player))
+	did := f.useAs(f.kit, col, row)
+	if did != actDrink || f.vit.Food != 28 || f.bag.Count(milk) != 0 {
+		t.Errorf("did %v, food %v, milk %d", did, f.vit.Food, f.bag.Count(milk))
+	}
+	if clip, seconds := useClip(actDrink); clip != "_drink" || seconds != DrinkSeconds {
+		t.Errorf("clip %s for %v", clip, seconds)
+	}
+	if !(carried{f}).good(mustGood(milk)).Hand {
+		t.Error("milk can not be taken in hand")
+	}
+}
+
+func mustGood(item string) good {
+	g, _ := goodOf(item)
+	return g
+}

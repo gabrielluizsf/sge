@@ -36,6 +36,7 @@ var animalWords = map[string]string{
 	"Sell your %s $%d":                    "Vender seu animal (%s) $%d",
 	"You have none":                       "Você não tem nenhum",
 	"+%d %s":                              "+%d %s",
+	"Drink: +%d food":                     "Beber: +%d comida",
 	"Sheep":                               "Ovelha",
 	"Horse":                               "Cavalo",
 	"Pen":                                 "Cercado",

@@ -26,3 +26,13 @@ var MilkBottle = Building{Name: "milk", Width: 0.12, Depth: 0.12, build: func(b 
 	b.turn(column{a: vec{0, 0.27, 0}, b: vec{0, 0.31, 0}, ra: 0.024, rb: 0.024, sides: 10, paint: white})
 	b.turn(column{a: vec{0, 0.31, 0}, b: vec{0, 0.335, 0}, ra: 0.027, rb: 0.024, sides: 10, paint: paint{of: Timber}})
 }}
+
+// HandBottle is the bottle of milk as it is held to drink from: a size for the
+// hand, its neck narrowing to the lips, unstopped. Only the person drinking
+// shows it.
+var HandBottle = Building{Name: "hand_bottle", Width: 0.08, Depth: 0.08, build: func(b *builder) {
+	glass := paint{of: Flat, tint: color.NRGBA{244, 240, 228, 255}}
+	b.turn(column{a: vec{0, 0, 0}, b: vec{0, 0.13, 0}, ra: 0.036, rb: 0.036, sides: 12, paint: glass})
+	b.turn(column{a: vec{0, 0.13, 0}, b: vec{0, 0.175, 0}, ra: 0.036, rb: 0.016, sides: 12, paint: glass})
+	b.turn(column{a: vec{0, 0.175, 0}, b: vec{0, 0.2, 0}, ra: 0.016, rb: 0.017, sides: 8, paint: paint{of: Flat, tint: color.NRGBA{210, 205, 190, 255}}})
+}}

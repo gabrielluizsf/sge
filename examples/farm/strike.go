@@ -11,6 +11,11 @@ import (
 // villager's blow lands on the player, the player's on the villager in
 // front of them.
 func (p *farmer) swing(o *game.Object) {
+	if o == p.f.player && p.f.wolves != nil {
+		if w := p.f.wolves.nearest(feet(o), wolfBlow); w != nil {
+			p.facing = unitOf(feet(w.obj).Sub(feet(o)), p.facing) // a blow turns them to it
+		}
+	}
 	clip := "_act"
 	if p.kit.slot == slotAxe && p.kit.axe != noAxe {
 		clip = "_chop"
@@ -20,12 +25,13 @@ func (p *farmer) swing(o *game.Object) {
 	at := feet(o)
 	p.f.sound("chop", &at)
 	if pk := p.f.wolves; pk != nil {
-		if w := pk.ahead(at, p.facing); w != nil {
-			if o == p.f.player {
+		if o == p.f.player {
+			if w := pk.nearest(at, wolfBlow); w != nil {
 				p.f.killedBy(pk, w, p.kit.blow(), at)
-			} else {
-				pk.strike(w, p.kit.blow(), at)
+				return
 			}
+		} else if w := pk.ahead(at, p.facing); w != nil {
+			pk.strike(w, p.kit.blow(), at)
 			return
 		}
 	}
@@ -62,4 +68,21 @@ func (f *farm) ahead(at, facing vector.Vector3) *villager {
 		best, far = v, l
 	}
 	return best
+}
+
+// unitOf is d made a single unit long, or else when it has no length.
+func unitOf(d, otherwise vector.Vector3) vector.Vector3 {
+	if l := d.Length(); l > 0 {
+		return d.Scale(1 / l)
+	}
+	return otherwise
+}
+
+// fightsWolf reports whether a use of what p holds is a blow at a wolf: the
+// player with a tool that strikes in hand, a wolf within reach.
+func (p *farmer) fightsWolf(o *game.Object) bool {
+	if o != p.f.player || p.f.wolves == nil || p.kit.slot != slotAxe && p.kit.slot != slotPick {
+		return false
+	}
+	return p.f.wolves.nearest(feet(o), wolfBlow) != nil
 }

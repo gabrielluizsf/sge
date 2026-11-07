@@ -20,4 +20,5 @@ const (
 	actFillWell
 	actFillRiver
 	actMilk
+	actDrink
 )

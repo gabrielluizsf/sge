@@ -19,6 +19,8 @@ func useClip(a action) (string, float64) {
 		return "_well", WellSeconds
 	case actFillRiver:
 		return "_dip", DipSeconds
+	case actDrink:
+		return "_drink", DrinkSeconds
 	case actMilk:
 		return "_milkdown", milkTotal
 	case actHoe:

@@ -49,6 +49,9 @@ func (b *Baker) bodyOf(v kit.Villager, g kit.Grown) (*stageBody, error) {
 			err = b.holdFillingCan(m, g.Motions)
 		}
 		if err == nil {
+			err = b.holdBottle(m, g.Motions)
+		}
+		if err == nil {
 			err = b.seatOnChair(m, g.Motions)
 		}
 		if err == nil {

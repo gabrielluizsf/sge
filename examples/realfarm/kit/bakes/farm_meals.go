@@ -35,3 +35,16 @@ func (b *Baker) holdFillingCan(m *gltf.Model, motions []human.Motion) error {
 	}
 	return human.Fill(m, building.Stream.Model(palette), human.WellFall)
 }
+
+// holdBottle puts the milk bottle in the right hand of m, a person already
+// animated, if the person drinks.
+func (b *Baker) holdBottle(m *gltf.Model, motions []human.Motion) error {
+	if !hasMotion(motions, human.Drink) {
+		return nil
+	}
+	palette, err := b.Palette()
+	if err != nil {
+		return err
+	}
+	return human.Hold(m, building.HandBottle.Model(palette), human.BottleGrip)
+}

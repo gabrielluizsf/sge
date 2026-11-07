@@ -9,7 +9,7 @@ import (
 // The ground behind a town's northern houses, for its shops: wide enough
 // for the pen and all of them side by side, deep enough for the deepest.
 const (
-	backCols  = 25
+	backCols  = 27
 	backRows  = penRows
 	shedPitch = 6
 )

@@ -55,6 +55,8 @@ func (a *realArt) tile(name string) *canvas.Canvas {
 		return a.buildingTile(name)
 	case "fence":
 		return a.buildingTile("fence_straight")
+	case "fence_nw", "fence_ne", "fence_sw", "fence_se":
+		return a.fenceCorner(name)
 	case "fence_down": // the same fence baked a quarter turn on
 		b, ok := a.bake("building_fence_straight_1")
 		if !ok {

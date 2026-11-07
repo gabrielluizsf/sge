@@ -18,7 +18,7 @@ func TestAStableCanBeWalkedTo(t *testing.T) {
 		t.Fatalf("no stable at %+v", r)
 	}
 	p := townPen(tn)
-	if f.thingAt(p.col, p.row) != tileID["fence"] || f.thingAt(p.col+p.cols/2, p.row+p.rows-1) == tileID["fence"] {
+	if !isFence(f.thingAt(p.col, p.row)) || isFence(f.thingAt(p.col+p.cols/2, p.row+p.rows-1)) {
 		t.Errorf("the pen's fence: %d", f.thingAt(p.col, p.row))
 	}
 	front := pathfind.Cell{Col: r.col, Row: r.row + r.rows}
@@ -106,7 +106,7 @@ func TestBuyingAnAnimal(t *testing.T) {
 
 // penFitsItsFence reports whether p's fence is up.
 func (f *farm) penFitsItsFence(p *pen) bool {
-	return f.thingAt(p.r.col, p.r.row) == tileID["fence"]
+	return isFence(f.thingAt(p.r.col, p.r.row))
 }
 
 // A pen is moved with the arranging: its fence and its animals go with it,
@@ -138,7 +138,7 @@ func TestAPenIsMovedWithTheEditor(t *testing.T) {
 	if first.r != to || f.edit.pen != nil {
 		t.Fatalf("at %+v", first.r)
 	}
-	if f.thingAt(old.col, old.row) == tileID["fence"] || f.thingAt(to.col, to.row) != tileID["fence"] {
+	if isFence(f.thingAt(old.col, old.row)) || !isFence(f.thingAt(to.col, to.row)) {
 		t.Error("the fence did not move")
 	}
 	if want := before.X + float64(to.col-old.col)*tile; c.pos.X != want {
@@ -171,7 +171,7 @@ func TestPensAreSaved(t *testing.T) {
 	if err := restore(g, &s); err != nil {
 		t.Fatal(err)
 	}
-	if len(g.herd.crits) != 2 || g.herd.crits[1].kind != "horse" || g.herd.crits[1].pen.r != pen || g.thingAt(pen.col, pen.row) != tileID["fence"] {
+	if len(g.herd.crits) != 2 || g.herd.crits[1].kind != "horse" || g.herd.crits[1].pen.r != pen || !isFence(g.thingAt(pen.col, pen.row)) {
 		t.Errorf("%+v", g.herd.crits)
 	}
 	house := siteFor(f.art).home

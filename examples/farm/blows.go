@@ -15,6 +15,9 @@ const (
 	npcAnger  = 20.0
 	npcLeash  = 9 * tile
 	npcEvery  = 1.4
+	// wolfBlow is how far from the player a blow lands on a wolf: further
+	// than its bite, which throws them back from it.
+	wolfBlow = 1.9 * tile
 )
 
 // blow is how much harm k does with what they hold: more with an axe in

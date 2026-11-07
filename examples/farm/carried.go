@@ -107,17 +107,17 @@ func (c carried) tool(id string) backpack.Item {
 	f := c.f
 	switch id {
 	case itemCan:
-		return backpack.Item{ID: id, Name: i18n.T("Watering can"), Icon: "icon_can", Count: f.inCan(), Hand: true,
+		return backpack.Item{ID: id, Name: i18n.T("Watering can"), Icon: "icon_can", Count: f.inCan(), Hand: true, Tool: true,
 			Info: []string{i18n.T("Waters the soil for plants to grow"), i18n.T("Water: %d/%d", f.inCan(), canCapacity), i18n.T("Fill at the water")}}
 	case itemHoe:
-		return backpack.Item{ID: id, Name: i18n.T("Hoe"), Icon: "icon_hoe", Count: -1, Hand: true,
+		return backpack.Item{ID: id, Name: i18n.T("Hoe"), Icon: "icon_hoe", Count: -1, Hand: true, Tool: true,
 			Info: []string{i18n.T("Clears the withered plant from the plot")}}
 	case itemPick:
-		return backpack.Item{ID: id, Name: i18n.T("Pickaxe"), Icon: "icon_pickaxe", Count: -1, Hand: true,
+		return backpack.Item{ID: id, Name: i18n.T("Pickaxe"), Icon: "icon_pickaxe", Count: -1, Hand: true, Tool: true,
 			Info: []string{i18n.T("Breaks rocks into stone"), i18n.T("%d hits per rock", rockHits)}}
 	}
 	a := axes[max(f.axe, 0)]
-	return backpack.Item{ID: id, Name: i18n.T("%s axe", i18n.T(a.label)), Icon: "icon_axe_" + a.name, Count: -1, Hand: true,
+	return backpack.Item{ID: id, Name: i18n.T("%s axe", i18n.T(a.label)), Icon: "icon_axe_" + a.name, Count: -1, Hand: true, Tool: true,
 		Info: []string{i18n.T("Chops trees"), i18n.T("%d hits per tree, up to %d wood", a.hits, a.most)}}
 }
 

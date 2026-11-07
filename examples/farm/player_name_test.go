@@ -43,3 +43,16 @@ func TestRandomNamesFitAndFollowTheSex(t *testing.T) {
 		}
 	}
 }
+
+// Starting again after a line ends keeps the name the player chose: the new
+// farmer is not given the founder's.
+func TestRestartingKeepsThePlayersName(t *testing.T) {
+	_, f := build(namedArt{SVGArt(), "Gabriel"}, idle{})
+	if f.self.name != "Gabriel" {
+		t.Fatalf("named %s", f.self.name)
+	}
+	f.restart()
+	if f.self.name != "Gabriel" {
+		t.Errorf("after restarting, named %s", f.self.name)
+	}
+}

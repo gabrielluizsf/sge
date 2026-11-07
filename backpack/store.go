@@ -66,3 +66,25 @@ func (p *Pack) stepSide(dx, dy int) {
 	row = max(0, row+dy)
 	p.cursor.Index = min(len(p.Side.Slots())-1, row*sideCols+col)
 }
+
+// fromStore moves item id out of the store onto hotbar slot slot: it comes
+// to what is carried, and goes on the slot if it is a thing that can be held.
+// It is Refused when the slot has equipment, which is not given up for it,
+// and then it stays in the store.
+func (p *Pack) fromStore(id string, slot int) Event {
+	if p.Side == nil || slot < 0 || slot >= len(p.Hotbar) {
+		return Refused
+	}
+	if on := p.Hotbar[slot]; on != "" {
+		if it, ok := p.Source.Find(on); ok && it.Tool {
+			return Refused
+		}
+	}
+	if !p.Side.Take(id) {
+		return Refused
+	}
+	if it, ok := p.Source.Find(id); !ok || !it.Hand {
+		return Stored // into the bag: the hotbar has no place for it
+	}
+	return p.Bind(id, slot)
+}

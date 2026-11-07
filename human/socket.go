@@ -18,8 +18,8 @@ var (
 	SocketBack      = Socket{Bone: "spine02", Offset: [3]float64{0, 0.05, -0.16}, Turn: [4]float64{3: 1}}
 	SocketHipLeft   = Socket{Bone: "pelvis.L", Offset: [3]float64{0.1, 0, 0}, Turn: [4]float64{3: 1}}
 	SocketHipRight  = Socket{Bone: "pelvis.R", Offset: [3]float64{-0.1, 0, 0}, Turn: [4]float64{3: 1}}
-	SocketHandLeft  = Socket{Bone: "wrist.L", Offset: [3]float64{0, 0.09, 0}, Turn: [4]float64{3: 1}}
-	SocketHandRight = Socket{Bone: "wrist.R", Offset: [3]float64{0, 0.09, 0}, Turn: [4]float64{3: 1}}
+	SocketHandLeft  = Socket{Bone: "wrist.L", Offset: [3]float64{0, -0.09, 0.01}, Turn: [4]float64{3: 1}}
+	SocketHandRight = Socket{Bone: "wrist.R", Offset: [3]float64{0, -0.09, 0.01}, Turn: [4]float64{3: 1}}
 )
 
 // Sockets are all of them.

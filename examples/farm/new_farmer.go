@@ -60,6 +60,7 @@ func addMoves(an *animation.Animator, body Body, dir string) {
 	an.Add(dir+"_pick", clip(AnimPick, false))
 	an.Add(dir+"_mine", clip(AnimMine, false))
 	an.Add(dir+"_eat", clip(AnimEat, false))
+	an.Add(dir+"_drink", clip(AnimDrink, false))
 	an.Add(dir+"_well", clip(AnimWell, false))
 	an.Add(dir+"_dip", clip(AnimDip, false))
 	an.Add(dir+"_sit", clip(AnimSit, true))

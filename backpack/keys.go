@@ -29,13 +29,16 @@ func (p *Pack) keys(in Input) Event {
 
 // number binds the item held, or under the cursor, to slot.
 func (p *Pack) number(slot int) Event {
-	id := p.held
+	id, from := p.held, p.from
 	if id == "" {
-		id = p.itemAt(p.cursor)
+		id, from = p.itemAt(p.cursor), p.cursor
 	}
 	p.let()
 	if id == "" {
 		return Nothing
+	}
+	if from.Area == Chest {
+		return p.fromStore(id, slot)
 	}
 	return p.Bind(id, slot)
 }

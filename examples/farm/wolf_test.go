@@ -3,6 +3,7 @@ package farm
 import (
 	"testing"
 
+	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/pathfind"
 	"github.com/gabrielluizsf/sge/vector"
 )
@@ -176,5 +177,57 @@ func TestASwingAtAWolfDoesNotHurtThePlayer(t *testing.T) {
 	v.hands.swing(v.obj)
 	if f.vit.Health >= before {
 		t.Error("an angry villager's swing missed")
+	}
+}
+
+// press is a player pressing what intent says, for one frame.
+type press struct{ in *intent }
+
+func (p press) control(*farm, *game.Object, float64) intent {
+	in := *p.in
+	*p.in = intent{}
+	return in
+}
+
+// A wolf at the player's back, or pushed off by its own bite, is still hit
+// by a blow, which turns them to it; and with the axe in hand Space, or a
+// click, swings at it as F does, and does not go off at a tree.
+func TestThePlayerHitsAWolfBesideThem(t *testing.T) {
+	for name, in := range map[string]intent{"F": {strike: true}, "Space or a click": {use: true}} {
+		t.Run(name, func(t *testing.T) {
+			var next intent
+			f, step := wolfGame(t, press{&next})
+			f.wolves.on = false
+			f.axe = 0
+			f.kit.slot = slotAxe
+			f.hands.facing = vector.Vector3{X: 1}
+			w := f.wolves.add(f.player.Game(), feet(f.player).Add(vector.Vector3{X: -1.6 * tile}))
+			w.next = 100 // it does not bite, for this
+			next = in
+			step(3 * frame)
+			if w.wounds == 0 {
+				t.Fatalf("the blow missed the wolf %v away", feet(w.obj).Sub(feet(f.player)).Length()/tile)
+			}
+			if f.hands.facing.X >= 0 {
+				t.Errorf("not turned to the wolf: %v", f.hands.facing)
+			}
+		})
+	}
+}
+
+// With no wolf near, Space with the axe in hand is what it was: the blow is
+// not swung at the air, and a wolf far off is not struck.
+func TestSpaceWithNoWolfNearSwingsNothing(t *testing.T) {
+	var next intent
+	f, step := wolfGame(t, press{&next})
+	f.wolves.on = false
+	f.axe = 0
+	f.kit.slot = slotAxe
+	w := f.wolves.add(f.player.Game(), feet(f.player).Add(vector.Vector3{X: 9 * tile}))
+	w.next = 100
+	next = intent{use: true}
+	step(3 * frame)
+	if w.wounds != 0 {
+		t.Error("struck a wolf far off")
 	}
 }

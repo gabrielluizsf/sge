@@ -15,6 +15,9 @@ type Item struct {
 	Info []string
 	// Hand says it may be put on the hotbar, to be held.
 	Hand bool
+	// Tool says it is equipment: a slot of the hotbar that has it is not
+	// given up to what comes out of a store.
+	Tool bool
 }
 
 // Source is what the game carries.
