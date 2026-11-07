@@ -1798,6 +1798,21 @@
       "url": "https://files.makehumancommunity.org/asset_packs/dress01/dress01_cc0.zip",
       "path": "makehuman/packs/dress01_cc0.zip",
       "sha256": "f49ba54a3c93acd3c3307cc5a96cfc65daf8abfed9212a7e580791d821c9e93a"
+    },
+    {
+      "url": "https://files.makehumancommunity.org/asset_packs/hats01/hats01_cc0.zip",
+      "path": "makehuman/packs/hats01_cc0.zip",
+      "sha256": "97b70d7bd90e74ee87a49faeb7c4a1b2762b311902974db575851daaae05b50e"
+    },
+    {
+      "url": "https://files.makehumancommunity.org/asset_packs/suits01/suits01_cc0.zip",
+      "path": "makehuman/packs/suits01_cc0.zip",
+      "sha256": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19"
+    },
+    {
+      "url": "https://files.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip",
+      "path": "makehuman/packs/hair01_cc0.zip",
+      "sha256": "49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9"
     }
   ]
 }

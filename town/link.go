@@ -28,7 +28,7 @@ func (l *Layout) links(t *Town) []Rect {
 				continue
 			}
 			if p := l.path(t, n); p != nil && l.clear(p, t, n) {
-				t.road, best = p, d
+				t.road, t.to, best = p, n, d
 			}
 		}
 	}

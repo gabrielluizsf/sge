@@ -14,14 +14,17 @@ import (
 type furnishing struct {
 	id         string
 	cols, rows int
+	// turn is how many quarter turns on from heading 0 the baked picture is
+	// that lies the way the game lays the piece.
+	turn int
 }
 
 // furnishings are the farm's furniture, by its names for them, each a
 // CC0 model of Poly Haven's at its real size: the bed two metres long.
 var furnishings = map[string]furnishing{
-	"bed": {"vintage_day_bed", 2, 1}, "bed_blue": {"vintage_day_bed", 2, 1},
-	"table": {"wooden_table_02", 1, 1}, "chair": {"painted_wooden_chair_02", 1, 1},
-	"shelf": {"painted_wooden_shelves", 1, 1}, "plant": {"potted_plant_02", 1, 1}, "chest": {"treasure_chest", 1, 1},
+	"bed_double": {bakes.DoubleBedModel, 2, 2, bakes.DoubleBedTurn}, "bed": {id: "vintage_day_bed", cols: 2, rows: 1}, "bed_blue": {id: "vintage_day_bed", cols: 2, rows: 1},
+	"table": {id: "wooden_table_02", cols: 1, rows: 1}, "chair": {id: "painted_wooden_chair_02", cols: 1, rows: 1},
+	"shelf": {id: "painted_wooden_shelves", cols: 1, rows: 1}, "plant": {id: "potted_plant_02", cols: 1, rows: 1}, "chest": {id: "treasure_chest", cols: 1, rows: 1},
 }
 
 // Furniture is how many cells across and deep the piece name covers.
@@ -74,7 +77,8 @@ func (a *realArt) Turned(name string, heading int) *canvas.Canvas {
 // model of variants side by side is baked at two headings only, the ones
 // after those turn it the other way round.
 func (a *realArt) turned(f furnishing, heading int) *canvas.Canvas {
-	b, ok := a.first(fmt.Sprintf("%s_%d", f.id, heading), fmt.Sprintf("%s_v0_%d", f.id, heading))
+	picture := (heading + f.turn) % 4
+	b, ok := a.first(fmt.Sprintf("%s_%d", f.id, picture), fmt.Sprintf("%s_v0_%d", f.id, picture))
 	if !ok {
 		return nil
 	}
@@ -85,3 +89,6 @@ func (a *realArt) turned(f furnishing, heading int) *canvas.Canvas {
 	fwd := [2]float64{float64(cols-1) / 2, float64(rows-1) / 2}
 	return b.standingOff(int((fwd[0]-fwd[1])*farm.TileW/2), int((fwd[0]+fwd[1])*farm.TileW/4), (cols+rows-2)*farm.TileW/4)
 }
+
+// SeatBaked says the sitter is baked with the chair, by bakes.seatOnChair.
+func (a *realArt) SeatBaked() bool { return true }

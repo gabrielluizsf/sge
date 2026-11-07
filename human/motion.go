@@ -70,6 +70,7 @@ func Animate(m *gltf.Model, motions ...Motion) error {
 		for _, name := range sortedKeys(chans) {
 			an.Channels = append(an.Channels, *chans[name])
 		}
+		swayHair(m, &an, keys, mo.Once)
 		m.Animations = append(m.Animations, an)
 	}
 	return nil

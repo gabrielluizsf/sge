@@ -13,6 +13,7 @@ func (f *farm) Update(o *game.Object, dt float64) {
 	f.fade(dt)
 	f.xpTick(dt)
 	f.regrow(dt)
+	f.traffic(dt)
 	for _, v := range f.people {
 		v.ask(dt)
 	}

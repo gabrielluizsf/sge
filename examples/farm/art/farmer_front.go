@@ -14,6 +14,7 @@ type pose struct {
 	axe    int  // 0 no axe, windUp raised, strike swung down
 	pick   bool // the tool swung is a pickaxe, not an axe
 	back   bool // seen from behind
+	use    int  // what the hands do, eating or filling the can: see eatLow
 }
 
 // The swing of an axe: raised behind the head, then brought down.
@@ -28,6 +29,7 @@ func front(l Look, p pose, back bool) string {
 	p.back = back
 	d := newDoc(FarmerW, FarmerH)
 	d.add(`<ellipse cx="12" cy="39.2" rx="6" ry="1.3" fill="%s" opacity="0.3"/>`, shadowInk)
+	p.squat(d)
 	if !back {
 		headGroup(d)
 		hairBehind(d, l, false)
@@ -46,15 +48,21 @@ func front(l Look, p pose, back bool) string {
 		if p.axe != 0 && holds {
 			hand = swingHand(p)
 		}
+		if h, ok := p.useHand(x, []float64{-1, 1}[i], holds); ok {
+			hand = h
+		}
 		elbow := pt{x + []float64{-0.5, 0.5}[i], 22.6}
 		limb{pt{x, 19}, elbow, 2.8, l.Shirt[1]}.draw(d)
 		limb{elbow, hand, 2.2, l.Skin[0]}.draw(d)
 		d.add(`<path d="M%.2f %.2f l1.6 0.5" stroke="%s" stroke-width="0.9" transform="translate(-0.8 -0.3)"/>`, elbow.x, elbow.y, l.Shirt[2])
-		if p.can && hand.y < 25 {
+		if p.can && holds && hand.y < 25 {
 			canAt(d, hand, map[bool]float64{true: 1, false: -1}[i == 1])
 		}
 		if p.axe != 0 && holds {
 			swingAxe(d, p, hand)
+		}
+		if holds && p.use != 0 {
+			p.useProp(d, hand, []float64{-1, 1}[i])
 		}
 	}
 	// The shirt, and the overalls or trousers over it.
@@ -72,6 +80,7 @@ func front(l Look, p pose, back bool) string {
 	} else if !back {
 		d.add(`<path d="M10.4 17.6 L12 19.2 L13.6 17.6" stroke="%s" stroke-width="0.5" fill="%s"/>`, line, l.Skin[0])
 	}
+	p.foreArm(d, l, back)
 	endGroup(d)
 	// The head: the face, or the back of the hair, and the hat over it.
 	headGroup(d)
@@ -87,6 +96,7 @@ func front(l Look, p pose, back bool) string {
 		hat(d, 12, 7.2)
 	}
 	endGroup(d)
+	p.stand(d)
 	return d.String()
 }
 

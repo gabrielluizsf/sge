@@ -42,6 +42,18 @@ func (b *Baker) bodyOf(v kit.Villager, g kit.Grown) (*stageBody, error) {
 		if err == nil {
 			err = b.holdPickaxe(m, g.Motions)
 		}
+		if err == nil {
+			err = b.holdMorsel(m, g.Motions)
+		}
+		if err == nil {
+			err = b.holdFillingCan(m, g.Motions)
+		}
+		if err == nil {
+			err = b.seatOnChair(m, g.Motions)
+		}
+		if err == nil {
+			err = b.layInBed(m, g.Motions)
+		}
 	}
 	if err != nil {
 		return nil, err

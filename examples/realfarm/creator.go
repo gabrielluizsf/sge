@@ -4,6 +4,7 @@ import (
 	"github.com/gabrielluizsf/sge/examples/farm"
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/human"
+	"github.com/gabrielluizsf/sge/screenpick"
 )
 
 // creator is the character creation screen of a new game: a list of
@@ -16,18 +17,23 @@ type creator struct {
 	cats []category
 	st   *charState
 
-	cat, row int // the row chosen, in category cat
-	seed     uint32
-	live     *livePreview // nil with nothing to make people with
-	stage    *liveStage   // draws the person live
-	view     liveView
-	asked    string  // the tag of the character last asked of live
-	dt       float64 // the frame's seconds
-	typing   bool    // the name field has the keyboard
-	turning  bool    // the mouse holds the person
-	turnX    int
-	stageAt  rect // where the person is drawn, as last painted
-	shownErr error
+	cat, row   int // the row chosen, in category cat
+	seed       uint32
+	live       *livePreview // nil with nothing to make people with
+	stage      *liveStage   // draws the person live
+	view       liveView
+	asked      string                            // the tag of the character last asked of live
+	dt         float64                           // the frame's seconds
+	typing     bool                              // a text field has the keyboard
+	code       string                            // what the code field has typed
+	fresh      bool                              // the code shown is replaced by the first key typed
+	note       string                            // a short message under the rows
+	drop       *dropper                          // the eyedropper while it takes a colour
+	openScreen func() (screenpick.Source, error) // nil: the real screen
+	turning    bool                              // the mouse holds the person
+	turnX      int
+	stageAt    rect // where the person is drawn, as last painted
+	shownErr   error
 
 	hits []hit
 	drag *hit // the slider track the mouse holds
@@ -63,6 +69,7 @@ func (c *creator) finish() {
 		return
 	}
 	c.finished = true
+	c.stopPick()
 	if c.live != nil {
 		c.live.Close()
 	}

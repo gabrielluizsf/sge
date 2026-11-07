@@ -21,6 +21,8 @@ func size(name string) (w, h int) {
 		return IsoW, Size
 	case name == "stall":
 		return StallW, StallH
+	case name == "bed_double":
+		return DoubleBedW, DoubleBedH
 	case strings.HasPrefix(name, "house"):
 		return HouseW, HouseH
 	}

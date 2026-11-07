@@ -67,6 +67,13 @@ type farm struct {
 	// people are the villagers of every town woken so far, asleep or not.
 	people  []*villager
 	settled map[*town.Town]bool
+	// away is when, in hours since the first day began, each town that is
+	// asleep was last seen, to settle what its people did meanwhile.
+	away map[*town.Town]float64
+	// roads are the roads between the towns, worked out as asked; trafficIn
+	// is the seconds until the travellers are looked at again.
+	roads     map[*town.Town]*road
+	trafficIn float64
 	// hits are the strokes each tree being cut has taken, by cellKey.
 	hits   map[int]int
 	stumps []*stump
@@ -121,7 +128,7 @@ type farm struct {
 // the ground layer, in a world of towns.
 func newFarm(l layers, w world) *farm {
 	f := &farm{layers: l, kit: &kit{money: 20, axe: noAxe, exact: true}, art: w.art, tiles: w.tiles, wild: w.wild, towns: w.towns, shop: &shop{},
-		settled: map[*town.Town]bool{}, hits: map[int]int{}, luck: random.New(seed),
+		settled: map[*town.Town]bool{}, roads: map[*town.Town]*road{}, hits: map[int]int{}, luck: random.New(seed),
 		clock: &daytime.Clock{Hour: startHour, Speed: 24.0 / dayLength}, fainted: -1, prog: progress.New(), vit: vitals.Full()}
 	f.home = defaultHouse()
 	f.pack = newPack(f)

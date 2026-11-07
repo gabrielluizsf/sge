@@ -18,6 +18,7 @@ func Clips() map[string][]*sound.Clip {
 		"ui_close":   one(knocks(1320, 880)),
 		"coin":       one(bells(0.06, 1568, 2093)),
 		"sell":       one(bells(0.07, 1047, 1319, 1568, 2093)),
+		"level_up":   one(bells(0.07, 1047, 1319, 1568, 2093)),
 		"deny":       one(deny()),
 		"plant":      one(plant()),
 		"pour":       one(pour()),

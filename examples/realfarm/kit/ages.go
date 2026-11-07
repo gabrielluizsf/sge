@@ -1,6 +1,8 @@
 package kit
 
 import (
+	"slices"
+
 	"github.com/gabrielluizsf/sge/human"
 	"github.com/gabrielluizsf/sge/life"
 )
@@ -26,8 +28,8 @@ func (v Villager) Stages() []Grown {
 	}
 	return []Grown{
 		{life.Baby, 1, []human.Motion{human.Stand}},
-		{life.Child, 8, young},
-		{life.Teen, 15, young},
+		{life.Child, 8, v.childMotions()},
+		{life.Teen, 15, v.childMotions()},
 		{life.Adult, min(own, life.ElderFrom-1), v.Motions()},
 		{life.Elder, 74, v.Motions()},
 	}
@@ -41,4 +43,14 @@ func (v Villager) At(years float64) human.Body {
 	b := v.Body
 	b.Age = age(years)
 	return b
+}
+
+// childMotions are a child's and a teen's motions: the young's, and sleeping in their
+// own bed, the one a household gives its child, unless they are the
+// player, who has a bed of their own.
+func (v Villager) childMotions() []human.Motion {
+	if v.ID == "player" {
+		return young
+	}
+	return append(slices.Clone(young), human.Sleeping...)
 }

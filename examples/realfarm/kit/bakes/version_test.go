@@ -9,7 +9,7 @@ import (
 // Only the chop is baked again when it changes: every other motion keeps
 // its name, and so what the shelf already holds of it.
 func TestChopHasItsOwnVersion(t *testing.T) {
-	if versionOf(human.Stand) != "v3" || versionOf(human.Walk) != "v3" {
+	if versionOf(human.Stand) != "v4" || versionOf(human.Walk) != "v4" {
 		t.Errorf("the other motions' versions changed: %s, %s", versionOf(human.Stand), versionOf(human.Walk))
 	}
 	if versionOf(human.Chop) == versionOf(human.Stand) {
@@ -28,7 +28,7 @@ func TestForgeHasItsOwnVersion(t *testing.T) {
 // The hoe and the pour each have their own, apart from every other.
 func TestHoeAndPourHaveTheirOwnVersions(t *testing.T) {
 	seen := map[string]string{}
-	for _, mo := range []human.Motion{human.Stand, human.Chop, human.Forge, human.Hoe, human.Water, human.Pick, human.Mine, human.Run} {
+	for _, mo := range []human.Motion{human.Stand, human.Chop, human.Forge, human.Hoe, human.Water, human.Pick, human.Mine, human.Eat, human.Well, human.Dip, human.Run} {
 		v := versionOf(mo)
 		if other, ok := seen[v]; ok {
 			t.Errorf("%s and %s are both %s", mo.Name, other, v)

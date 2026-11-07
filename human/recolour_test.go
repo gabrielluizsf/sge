@@ -9,7 +9,7 @@ import (
 // always did: these fingerprints were taken before they existed.
 func TestUnchangedLooksMakeTheSameMaterialsAndImages(t *testing.T) {
 	k := realKit(t)
-	want := map[string]string{"man": "6c72856e63507715", "old woman": "eb2338777ed4a53f"}
+	want := map[string]string{"man": "6c72856e63507715", "old woman": "84f21797c96326bb"}
 	for _, c := range baselines {
 		m, err := k.Make(c.body, c.look)
 		if err != nil {

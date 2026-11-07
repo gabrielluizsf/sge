@@ -7,75 +7,51 @@ import (
 	"github.com/gabrielluizsf/sge/town"
 )
 
-// populate gives town t's people, just settled, their lives: each an age
-// their trade allows, drawn by the town's seed; puts them in the family
-// tree, the grown-ups first; and pairs some of the grown-ups as couples,
-// the young of the town their first couple's children.
-func (f *farm) populate(t *town.Town, folk []*villager) {
+// populate gives town t's people, just settled, their lives: each household's
+// couple grown, the woman young enough to have borne the child, and the
+// child young; puts them in the family tree, the grown-ups first, the
+// child with the couple as parents.
+func (f *farm) populate(t *town.Town, homes []household) {
 	luck := random.New(t.Seed + 13)
 	day := f.clock.Day
-	for i, v := range folk {
-		v.id = "t" + itoa(int(t.Seed)) + "-" + itoa(i)
-		v.life = calendar.Draw(luck, drawYears(luck, v.role), day)
-		f.age(v, day)
-	}
-	pairUp(folk, luck)
-	var parents [2]string
-	for _, v := range folk {
-		if v.stage() >= life.Adult {
-			f.family.Add(lineage.Person{ID: v.id, Born: v.life.Born})
-			if v.partner != nil && parents[0] == "" && v.woman {
-				parents = [2]string{v.id, v.partner.id}
-			}
+	for i, h := range homes {
+		for j, v := range []*villager{h.man, h.woman, h.child} {
+			v.id = "t" + itoa(int(t.Seed)) + "-" + itoa(3*i+j)
+			v.life = calendar.Draw(luck, working(v, drawYears(luck, j)), day)
+			f.age(v, day)
 		}
+		h.man.partner, h.woman.partner = h.woman, h.man
 	}
-	for _, v := range folk {
-		if v.stage() < life.Adult {
-			f.family.Add(lineage.Person{ID: v.id, Parents: parents, Born: v.life.Born})
-		}
+	for _, h := range homes {
+		f.family.Add(lineage.Person{ID: h.man.id, Born: h.man.life.Born})
+		f.family.Add(lineage.Person{ID: h.woman.id, Born: h.woman.life.Born})
+	}
+	for _, h := range homes {
+		f.family.Add(lineage.Person{ID: h.child.id, Parents: [2]string{h.woman.id, h.man.id}, Born: h.child.life.Born})
 	}
 }
 
-// drawYears is how old someone of role is when their town is first
-// settled: the smith and lumberjacks of working age, farmers grown, some
-// old, and the wanderers of any age, children and elders among them.
-func drawYears(luck *random.Source, role string) float64 {
+// drawYears is how old member j of a household (0 the man, 1 the woman, 2
+// the child) is when their town is first settled: the couple grown, the
+// child of any age from a toddler to twenty, so some are grown and free to
+// court the player, the child at the least sixteen years younger than the
+// woman.
+func drawYears(luck *random.Source, j int) float64 {
 	u := luck.Float()
-	switch role {
-	case roleSmith:
-		return 25 + 30*u
-	case roleLumberjack:
-		return 20 + 35*u
-	case roleFarmer:
-		return 18 + 60*u
+	switch j {
+	case 0:
+		return 38 + 30*u
+	case 1:
+		return 36 + 24*u
 	}
-	switch w := luck.Float(); {
-	case w < 0.3:
-		return life.ChildFrom + 2 + 8*u
-	case w < 0.4:
-		return life.TeenFrom + 6*u
-	case w < 0.75:
-		return life.AdultFrom + 40*u
-	}
-	return life.ElderFrom + 25*u
+	return life.ChildFrom + 1 + (20-life.ChildFrom-1)*u
 }
 
-// pairUp makes couples of the grown-up men and women of folk, about half
-// of those who could be, as luck falls.
-func pairUp(folk []*villager, luck *random.Source) {
-	var men []*villager
-	for _, v := range folk {
-		if !v.woman && v.stage() >= life.Adult {
-			men = append(men, v)
-		}
+// working is years for v, less than an elder's when they are the smith, who
+// works the anvil.
+func working(v *villager, years float64) float64 {
+	if v.smith() {
+		return min(years, life.ElderFrom-2)
 	}
-	for _, w := range folk {
-		if !w.woman || w.stage() < life.Adult || len(men) == 0 {
-			continue
-		}
-		if luck.Float() < 0.5 {
-			w.partner, men[0].partner = men[0], w
-			men = men[1:]
-		}
-	}
+	return years
 }

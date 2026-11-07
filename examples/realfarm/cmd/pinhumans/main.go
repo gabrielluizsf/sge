@@ -25,7 +25,7 @@ import (
 )
 
 // packs are the asset packs the villagers wear.
-var packs = []string{"makehuman_system_assets", "shirts01", "pants01", "shoes01", "skirts01", "dress01"}
+var packs = []string{"makehuman_system_assets", "shirts01", "pants01", "shoes01", "skirts01", "dress01", "hats01", "suits01", "hair01"}
 
 // data are the data files a kit reads: the base mesh, skeleton and
 // weights, the face's pose units, and the macro targets.

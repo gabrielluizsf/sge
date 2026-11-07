@@ -24,7 +24,7 @@ type mixerSpeaker struct {
 // heard most often.
 var gain = map[string]float64{
 	"step_grass": 0.35, "step_soil": 0.4, "step_path": 0.35, "stroke": 0.45, "splash": 0.6, "chirp": 0.22,
-	"ui_tick": 0.25, "ui_open": 0.3, "ui_close": 0.3, "coin": 0.3, "sell": 0.35, "deny": 0.3,
+	"ui_tick": 0.25, "ui_open": 0.3, "ui_close": 0.3, "coin": 0.3, "sell": 0.35, "level_up": 0.35, "deny": 0.3,
 	"plant": 0.4, "pour": 0.35, "harvest": 0.35, "chop": 0.4, "fell": 0.5, "clang": 0.25,
 }
 
@@ -39,7 +39,7 @@ func (s *mixerSpeaker) play(name string, at *vector.Vector3) {
 	}
 	i := s.turn[name] % len(versions)
 	s.turn[name]++
-	v := sound.Voice{Gain: gain[name] * (0.9 + 0.2*s.chance()), Pitch: 0.94 + 0.12*s.chance()}
+	v := sound.Voice{Gain: gain[name] * (0.9 + 0.2*s.chance()), Pitch: 0.94 + 0.12*s.chance(), Alone: name}
 	if at != nil {
 		v.Pan = s.pan(*at)
 		if v.Gain *= s.near(*at); v.Gain < 0.01 {

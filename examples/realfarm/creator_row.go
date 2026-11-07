@@ -19,11 +19,12 @@ type row struct {
 	kind  rowKind
 	show  func(*charState) bool // nil: always shown
 
-	text   func(*charState) string       // the value, for a choice
-	swatch func(*charState) human.Colour // a colour beside the value, if set
-	step   func(s *charState, d int)     // a choice stepped d (+1 or -1)
-	slider *slider                       // a slider's range and place
-	press  func(c *creator)              // a button pressed
+	text   func(*charState) string        // the value, for a choice
+	swatch func(*charState) human.Colour  // a colour beside the value, if set
+	step   func(s *charState, d int)      // a choice stepped d (+1 or -1)
+	slider *slider                        // a slider's range and place
+	press  func(c *creator)               // a button pressed
+	field  func(*charState) *human.Colour // a code row's colour
 }
 
 // slider is a value from lo to hi that the row's field holds.

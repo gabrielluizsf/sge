@@ -1,6 +1,7 @@
 package kit
 
 import (
+	"github.com/gabrielluizsf/sge/human"
 	"github.com/gabrielluizsf/sge/save"
 	"github.com/gabrielluizsf/sge/textfield"
 )
@@ -33,6 +34,7 @@ func LoadCharacter(s *save.Store) (c Character, ok bool) {
 	if !textfield.Valid(c.Name, MaxName) {
 		c.Name = "" // a bad name is the default one, not a reason to lose the look
 	}
+	c.Look = human.Mended(c.Look)
 	if c.Check() != nil {
 		return Character{}, false
 	}

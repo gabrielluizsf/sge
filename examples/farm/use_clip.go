@@ -13,6 +13,12 @@ func useClip(a action) (string, float64) {
 		return "_chop", actFor
 	case actMine:
 		return "_mine", MineSeconds
+	case actEat:
+		return "_eat", EatSeconds
+	case actFillWell:
+		return "_well", WellSeconds
+	case actFillRiver:
+		return "_dip", DipSeconds
 	case actHoe:
 		return "_hoe", HoeSeconds
 	case actWater:

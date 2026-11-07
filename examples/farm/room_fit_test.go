@@ -9,13 +9,16 @@ import (
 
 // A bed two cells long is laid on two free cells, drawn from the back
 // one, the other a block, in every room; one cell each without a span.
-// Behind each of its cells is the bed or a wall: no one can stand there,
+// Behind each of its cells is a bed, another piece or a wall: no one can stand there,
 // so whoever stands beside it is in front and drawn over it, never under
 // it, as the player once walked under a bed's back half.
 func TestFurnitureCoversTheCellsItSpans(t *testing.T) {
 	long := func(p byte) (int, int) {
-		if p == 'b' || p == 'B' {
+		switch p {
+		case 'b', 'B':
 			return 2, 1
+		case 'D':
+			return 2, 2
 		}
 		return 1, 1
 	}
@@ -25,6 +28,10 @@ func TestFurnitureCoversTheCellsItSpans(t *testing.T) {
 		beds := 0
 		for r, row := range rows {
 			for c := range row {
+				if row[c] == 'D' {
+					beds++
+					continue
+				}
 				if row[c] != 'b' && row[c] != 'B' {
 					continue
 				}
@@ -34,14 +41,14 @@ func TestFurnitureCoversTheCellsItSpans(t *testing.T) {
 				}
 				for _, cell := range [][2]int{{c, r}, {c + 1, r}} {
 					for _, back := range [][2]int{{cell[0] - 1, cell[1]}, {cell[0], cell[1] - 1}} {
-						if back[0] > 0 && back[1] > 0 && back != [2]int{c, r} {
+						if back[0] > 0 && back[1] > 0 && rows[back[1]][back[0]] == ' ' {
 							t.Fatalf("seed %d: someone could stand at %v behind the bed at %d,%d:\n%s", seed, back, c, r, things)
 						}
 					}
 				}
 			}
 		}
-		if beds != 1 {
+		if beds != 2 { // the couple's double one and the child's
 			t.Fatalf("seed %d: %d beds:\n%s", seed, beds, things)
 		}
 	}

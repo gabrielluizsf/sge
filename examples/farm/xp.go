@@ -18,7 +18,7 @@ func (f *farm) earn(n int) {
 	for range f.prog.Add(n) {
 		f.money += xpLevelCut * f.prog.Level
 		f.notify(i18n.T("Level %d!", f.prog.Level))
-		f.sound("sell", nil)
+		f.sound("level_up", nil)
 		f.glow = glowFor
 	}
 }

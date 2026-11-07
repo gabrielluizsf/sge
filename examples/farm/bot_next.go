@@ -10,7 +10,7 @@ import (
 // empty, sell a harvest, sow seeds it has, and buy seeds when it has none;
 // or nothing, while the crops grow.
 func (b *bot) next(f *farm) *task {
-	plots := f.plots[:min(b.tends, len(f.plots))]
+	plots := ownPlots(f.plots[:min(b.tends, len(f.plots))])
 	tend := func(p *plot, slot int) *task {
 		return &task{to: standIn(f, p.col, p.row-1), face: "down", do: func(f *farm, o *game.Object) bool {
 			f.slot = slot
@@ -69,6 +69,18 @@ func (b *bot) next(f *farm) *task {
 		})
 	}
 	return nil
+}
+
+// ownPlots are those of plots no villager has sown: the bot, as the player,
+// may not tend or take what is another's, and would stand at it for ever.
+func ownPlots(plots []*plot) []*plot {
+	var out []*plot
+	for _, p := range plots {
+		if p.owner == nil {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 // atStall is a task at the stall's counter, doing deal there.

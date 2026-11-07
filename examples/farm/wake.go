@@ -4,6 +4,7 @@ import (
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/town"
+	"github.com/gabrielluizsf/sge/vector"
 )
 
 // wake is a town's people's objects, as the keeper wakes it: settled the
@@ -12,24 +13,31 @@ import (
 // player now.
 func (f *farm) wake(t *town.Town) []*game.Object {
 	f.settle(t)
+	f.catchUp(t)
 	var objs []*game.Object
 	var later []*sprite.Sprite // the frames to make once all have their first
 	for _, v := range f.people {
-		if v.town != t || v.ours {
+		if !f.isIn(v, t) {
 			continue
 		}
-		o, p := f.personOf(v)
-		p.ctl, v.hands = v.mind, p
-		o.Transform.Position = v.pos
-		o.Hidden = v.inside
-		o.AddScript(game.ScriptFunc(func(o *game.Object, _ float64) { v.pos = o.Transform.Position }))
-		v.obj = o
-		f.warm.Add(bodyFirst(v.body))
-		later = append(later, bodyFrames(v.body)...)
+		o := f.spawn(v, f.restAt(v, t))
 		objs = append(objs, o)
+		later = append(later, bodyFrames(v.body)...)
 	}
 	f.warm.Add(later...)
 	return objs
+}
+
+// spawn is villager v's object, standing at pos and driven by their mind.
+func (f *farm) spawn(v *villager, pos vector.Vector3) *game.Object {
+	o, p := f.personOf(v)
+	p.ctl, v.hands = v.mind, p
+	o.Transform.Position, v.pos = pos, pos
+	o.Hidden = v.inside
+	o.AddScript(game.ScriptFunc(func(o *game.Object, _ float64) { v.pos = o.Transform.Position }))
+	v.obj = o
+	f.warm.Add(bodyFirst(v.body))
+	return o
 }
 
 // personOf is an object of villager v standing still, as they are seen

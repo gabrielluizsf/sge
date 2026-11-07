@@ -20,6 +20,8 @@ type dresser struct {
 	look   Look
 	// retints are the materials whose colours Person.Recolour changes.
 	retints []retint
+	// fitted are the proxies' meshes and places on the body, once worn.
+	fitted []fitted
 }
 
 // part is a mesh of the person in MakeHuman's units, before it is stood
@@ -56,6 +58,9 @@ func (d *dresser) dress(b Body, l Look) error {
 		return err
 	}
 	d.body(hide, skin)
+	if err := d.fitAll(proxies); err != nil {
+		return err
+	}
 	for i, p := range proxies {
 		if err := d.wear(i, p); err != nil {
 			return fmt.Errorf("%s: %w", l.Wear[i], err)
@@ -116,25 +121,13 @@ func (d *dresser) body(hide map[int32]bool, mat int) {
 	d.parts = append(d.parts, split(surface{faces, m.uv, d.pos, func(v int32) []influence { return d.kit.infl[v] }, mat}))
 }
 
-// wear fits the proxy the look wears at i to the body, in its own
-// material or, for eyes, the look's, recoloured as the look asks.
+// wear dresses the person in the proxy the look wears at i, fitted to
+// the body, in its own material or, for eyes, the look's, recoloured as
+// the look asks.
 func (d *dresser) wear(i int, p *proxy) error {
 	name, eyes := d.look.Wear[i], d.look.Eyes
-	objName, err := beside(name, p.obj)
-	if err != nil {
-		return err
-	}
-	data, err := d.kit.lim.read(d.kit.fsys, objName)
-	if err != nil {
-		return err
-	}
-	m, err := parseOBJ(data)
-	if err != nil {
-		return err
-	}
-	if len(m.pos) != len(p.refs) {
-		return fmt.Errorf("human: %d vertices placed for a mesh of %d", len(p.refs), len(m.pos))
-	}
+	m, at := d.fitted[i].mesh, d.fitted[i].at
+	var err error
 	matName := eyes
 	if eyes == "" || !strings.HasPrefix(name, "eyes/") {
 		if matName, err = beside(name, p.material); err != nil {
@@ -155,7 +148,6 @@ func (d *dresser) wear(i int, p *proxy) error {
 	if insideMouth(name) {
 		shadeMouth(&d.model.Materials[mat])
 	}
-	at := p.fit(d.pos)
 	infl := func(v int32) []influence { r := p.refs[v]; return mixed(d.kit.infl, r.v, r.w) }
 	d.parts = append(d.parts, split(surface{m.faces, m.uv, at, infl, mat}))
 	return nil

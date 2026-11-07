@@ -10,6 +10,7 @@ import (
 type loaded struct {
 	tree   *lineage.Tree
 	towns  []*town.Town
+	away   map[*town.Town]float64
 	plots  []*plot
 	people []*villager
 	stumps []*stump

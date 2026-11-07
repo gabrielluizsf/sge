@@ -6,6 +6,5 @@ var bottoms = []garment{
 	forWomen(cloth("toigo_harem_pants"), 14, 90),
 	forWomen(cloth("toigo_long_full_skirt"), 5, 90),
 	forWomen(cloth("toigo_tiered_skirt"), 5, 90),
-	forWomen(cloth("toigo_skirt_with_lace_ruffle"), 5, 90),
 	forWomen(cloth("toigo_tiered_mini_skirt"), 16, 45),
 }

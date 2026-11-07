@@ -10,7 +10,7 @@ import (
 // house, so the towns never fill up.
 const (
 	childChance = 1.0 / daysPerYear
-	crowd       = 2
+	crowd       = 3
 )
 
 // townBirths has the towns' couples decide on children on day, and their

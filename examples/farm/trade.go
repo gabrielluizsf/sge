@@ -29,6 +29,17 @@ func (f *farm) sell(k *kit, at vector.Vector3) bool {
 		f.sound("deny", nil)
 		return false
 	}
+	k.sellOut()
+	f.earnBy(k, xpSale(earned))
+	f.float(at, i18n.T("+$%d", earned), 'y')
+	f.sound("sell", &at)
+	return true
+}
+
+// sellOut empties k's bag of the harvest and wood, for what it is worth,
+// which goes to k's money; it gives that.
+func (k *kit) sellOut() int {
+	earned := worth(k)
 	for c := range crops {
 		n := k.bag.Count(cropOf(c))
 		k.bag.Take(cropOf(c), n)
@@ -37,8 +48,5 @@ func (f *farm) sell(k *kit, at vector.Vector3) bool {
 	k.sold += k.bag.Count(wood)
 	k.bag.Take(wood, k.bag.Count(wood))
 	k.money += earned
-	f.earnBy(k, xpSale(earned))
-	f.float(at, i18n.T("+$%d", earned), 'y')
-	f.sound("sell", &at)
-	return true
+	return earned
 }

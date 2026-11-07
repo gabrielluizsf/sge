@@ -53,6 +53,10 @@ func (b *Baker) peopleTasks() []Task {
 	for _, v := range kit.Villagers {
 		for _, g := range v.Stages() {
 			for _, mo := range g.Motions {
+				if isSleep(mo) {
+					out = append(out, b.sleepTask(v, g, mo)) // one way, a few frames
+					continue
+				}
 				core := g.Stage == life.Adult && (v.ID == "player" || mo.Name == human.Stand.Name || mo.Name == human.Walk.Name)
 				for d := range Facings {
 					l := look{v, g, mo, d}
@@ -137,8 +141,16 @@ func versionOf(mo human.Motion) string {
 		return fmt.Sprintf("v%dp%d", human.MotionsVersion, human.PickVersion)
 	case human.Mine.Name:
 		return fmt.Sprintf("v%dm%d", human.MotionsVersion, human.MineVersion)
+	case human.Eat.Name:
+		return fmt.Sprintf("v%de%d", human.MotionsVersion, human.EatVersion)
+	case human.Well.Name:
+		return fmt.Sprintf("v%dl%d", human.MotionsVersion, human.WellVersion)
+	case human.Dip.Name:
+		return fmt.Sprintf("v%dd%d", human.MotionsVersion, human.DipVersion)
 	case human.Run.Name:
 		return fmt.Sprintf("v%dr%d", human.MotionsVersion, human.RunVersion)
+	case human.Sleep.Name, human.SleepLeft.Name, human.SleepRight.Name:
+		return fmt.Sprintf("v%dz%d", human.MotionsVersion, human.SleepVersion)
 	case human.Sit.Name:
 		return fmt.Sprintf("v%ds%d", human.MotionsVersion, human.SitVersion)
 	}

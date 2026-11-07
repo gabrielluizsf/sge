@@ -14,4 +14,11 @@ var suits = []garment{
 	forWomen(cloth("female_casualsuit02"), 6, 90),
 	forWomen(cloth("female_sportsuit01"), 12, 60),
 	forWomen(cloth("female_elegantsuit01"), 14, 90),
+	forBoth(cloth("toigo_suit_with_dinner_jacket"), 16, 90),
+	forBoth(cloth("toigo_suit_with_jacket_and_bowtie"), 16, 90),
+	forMen(cloth("toigo_male_double-breasted_suit"), 16, 90),
+	forMen(cloth("toigo_male_suit_tie_and_jacket"), 16, 90),
+	forMen(cloth("toigo_male_suit_3"), 16, 90),
+	forWomen(cloth("toigo_female_suit"), 16, 90),
+	forWomen(cloth("toigo_female_double-breasted_suit"), 16, 90),
 }

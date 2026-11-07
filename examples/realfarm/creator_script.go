@@ -24,15 +24,16 @@ func inputOf(win *antui.Window, typing bool) cin {
 		return cin{
 			Dy:     step(win, antui.KeyUp, antui.KeyDown),
 			Select: win.KeyPressed(antui.KeyEnter),
-			Typed:  win.TextInput(), Back: win.KeyPressed(antui.KeyBackspace),
+			Typed:  win.TextInput(), Back: win.KeyPressed(antui.KeyBackspace), Cancel: win.KeyPressed(antui.KeyEscape),
 			X: win.MouseX(), Y: win.MouseY(),
 			Press: win.MousePressed(antui.MouseLeft), Held: win.MouseDown(antui.MouseLeft),
 		}
 	}
 	return cin{
-		Dy:     step(win, antui.KeyUp, antui.KeyDown) + step(win, antui.KeyW, antui.KeyS),
-		Dx:     step(win, antui.KeyLeft, antui.KeyRight) + step(win, antui.KeyA, antui.KeyD),
-		Turn:   step(win, antui.KeyQ, antui.KeyE),
+		Dy:   step(win, antui.KeyUp, antui.KeyDown) + step(win, antui.KeyW, antui.KeyS),
+		Dx:   step(win, antui.KeyLeft, antui.KeyRight) + step(win, antui.KeyA, antui.KeyD),
+		Turn: step(win, antui.KeyQ, antui.KeyE),
+		Pick: win.KeyPressed(antui.KeyP), Cancel: win.KeyPressed(antui.KeyEscape),
 		Select: win.KeyPressed(antui.KeyEnter) || win.KeyPressed(antui.KeySpace),
 		X:      win.MouseX(), Y: win.MouseY(),
 		Press: win.MousePressed(antui.MouseLeft), Held: win.MouseDown(antui.MouseLeft),

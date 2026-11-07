@@ -24,7 +24,7 @@ func (f *farm) useAs(k *kit, col, row int) action {
 	}
 	if k.slot == slotCan && f.isWater(col, row) {
 		if f.refill(k, col, row) {
-			return actFill
+			return f.fillAction(col, row)
 		}
 		return actNone
 	}

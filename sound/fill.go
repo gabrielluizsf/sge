@@ -4,8 +4,9 @@ import "math"
 
 // Fill mixes the next frames of the stream into block, interleaved left
 // and right, overwriting it: what plays, and silence where nothing does.
-// Every sample is kept from -1 to 1, and one that is not a number is
-// silence, so no sound can make the speaker click.
+// Every sample is kept from -1 to 1, easing into the limit rather than
+// cut at it so sounds together do not crackle, and one that is not a number
+// is silence, so no sound can make the speaker click.
 func (m *Mixer) Fill(block []float32) {
 	clear(block)
 	m.mu.Lock()
@@ -26,10 +27,8 @@ func (m *Mixer) Fill(block []float32) {
 		switch {
 		case s != s:
 			block[i] = 0
-		case s > 1:
-			block[i] = 1
-		case s < -1:
-			block[i] = -1
+		default:
+			block[i] = limit(s)
 		}
 	}
 }
@@ -39,14 +38,18 @@ func (m *Mixer) Fill(block []float32) {
 func (p *playing) mix(block []float32, rate float64) bool {
 	s := p.clip.Samples
 	step := p.step * float64(p.clip.Rate) / rate
+	fade := float32(1 / (cutFade * rate))
 	for i := 0; i+1 < len(block); i += 2 {
-		if p.pos >= float64(len(s)-1) {
+		if p.pos >= float64(len(s)-1) || p.out >= 1 {
 			return false
 		}
-		v := sampleAt(s, p.pos)
+		v := sampleAt(s, p.pos) * (1 - p.out)
 		block[i] += v * p.left
 		block[i+1] += v * p.right
 		p.pos += step
+		if p.fading {
+			p.out += fade
+		}
 	}
 	return true
 }

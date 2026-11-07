@@ -125,7 +125,7 @@ func newTiles(a Art) *tilemap.TileSet {
 var (
 	interiorFloors = []string{"floor", "mat", "rug0", "rug1", "rug2", "rug3"}
 	interiorNames  = append(append(append([]string{}, interiorFloors...),
-		"forge", "bed", "bed_blue", "table", "chair", "shelf", "stove", "plant", "chest"), wallNames()...)
+		"forge", "bed", "bed_blue", "bed_double", "table", "chair", "shelf", "stove", "plant", "chest"), wallNames()...)
 )
 
 // wallNames are the back walls of each kind of house's inside: along a

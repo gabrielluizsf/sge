@@ -7,6 +7,7 @@ func side(l Look, p pose) string {
 	stride, swing := p.stride, p.swing
 	d := newDoc(FarmerW, FarmerH)
 	d.add(`<ellipse cx="12" cy="39.2" rx="5" ry="1.3" fill="%s" opacity="0.3"/>`, shadowInk)
+	p.squat(d)
 	headGroup(d)
 	hairBehind(d, l, true)
 	endGroup(d)
@@ -45,11 +46,17 @@ func side(l Look, p pose) string {
 	case strike:
 		hand = pt{17.6, 24}
 	}
+	if h, ok := p.sideHand(); ok {
+		hand = h
+	}
 	elbow := pt{12 + swing, 22.8}
 	limb{pt{11.8, 19}, elbow, 2.8, l.Shirt[1]}.draw(d)
 	limb{elbow, hand, 2.2, l.Skin[0]}.draw(d)
 	if p.can {
 		canAt(d, hand, 1)
+	}
+	if p.use != 0 {
+		p.useProp(d, hand, 1)
 	}
 	switch p.axe {
 	case windUp:
@@ -73,5 +80,6 @@ func side(l Look, p pose) string {
 		hat(d, 12.6, 7.2)
 	}
 	endGroup(d)
+	p.stand(d)
 	return d.String()
 }

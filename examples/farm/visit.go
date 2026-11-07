@@ -22,10 +22,15 @@ func (f *farm) enter(d houseDoor) {
 		g.Add(r.things.Object)
 		g.Covered, g.Background = false, roomDark
 		f.residents = nil
-		for i, v := range f.people {
-			if livesIn(v, d) {
-				g.Add(f.resident(v, homeSpot(i)))
+		for n, v := range f.people {
+			if !livesIn(v, d) {
+				continue
 			}
+			if at, ok := f.lies(v, r); ok {
+				g.Add(f.sleeper(v, r, at))
+				continue
+			}
+			g.Add(f.resident(v, homeSpot(n)))
 		}
 	})
 	f.room = r

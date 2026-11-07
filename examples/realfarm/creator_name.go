@@ -14,6 +14,9 @@ func (c *creator) typeName(in cin) cin {
 	if !c.typing {
 		return in
 	}
+	if c.at().field != nil {
+		return c.typeCode(in)
+	}
 	if in.Back {
 		c.st.name, c.st.named = textfield.Backspace(c.st.name), true
 	}

@@ -44,5 +44,5 @@ func (m *mind) chopJob(f *farm) *job {
 			return j
 		}
 	}
-	return m.chopIn(f, area{center: pathfind.Cell(v.town.Center), cols: 15, rows: 9}, func(int, int) bool { return true })
+	return m.strike(f, f.chopQuarry(v))
 }

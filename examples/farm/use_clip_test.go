@@ -17,6 +17,9 @@ func TestUseClipByWhatTheUseDid(t *testing.T) {
 		{actWater, "_water", WaterSeconds},
 		{actPick, "_pick", PickSeconds},
 		{actFill, "_act", actFor},
+		{actEat, "_eat", EatSeconds},
+		{actFillWell, "_well", WellSeconds},
+		{actFillRiver, "_dip", DipSeconds},
 		{actSow, "_act", actFor},
 	} {
 		clip, seconds := useClip(c.did)

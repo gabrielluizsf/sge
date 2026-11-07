@@ -214,3 +214,14 @@ func TestWaterHidesWhatIsUnderIt(t *testing.T) {
 		t.Errorf("above the water %v, on land %v", c, d)
 	}
 }
+
+// A model a hundred times too big, as a stray rigid node makes, is
+// refused with an empty sprite, and quickly, not drawn in gigabytes.
+func TestAHugeModelIsRefusedNotAllocated(t *testing.T) {
+	m := box(1, 1, [3]float64{0.8, 0.8, 0.8})
+	m.Nodes[0].Scale = [3]float64{1e5, 1e5, 1e5}
+	s := Render(m, Shot{Yaw: 45}, options())
+	if s.Image == nil || s.Image.Bounds().Dx() > 1 || s.Image.Bounds().Dy() > 1 {
+		t.Fatalf("a huge model gave a %v picture", s.Image.Bounds())
+	}
+}

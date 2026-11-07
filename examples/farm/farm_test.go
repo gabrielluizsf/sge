@@ -96,3 +96,19 @@ func TestTheDemoMakesMoney(t *testing.T) {
 		t.Errorf("sold %d, money %d, bag %v", f.sold, f.money, f.bag.Content())
 	}
 }
+
+// The bot leaves a villager's plot alone, even a thirsty or withered one on
+// the land it keeps: it may not tend it, and used to stand at it for ever.
+func TestTheBotLeavesAVillagersPlotAlone(t *testing.T) {
+	_, f := newGame(&bot{tends: 2})
+	neighbour := &villager{name: "neighbour"}
+	f.plots[0].crop, f.plots[0].dead, f.plots[0].owner = 0, true, neighbour
+	f.plots[1].crop, f.plots[1].owner = 0, neighbour
+	if own := ownPlots(f.plots[:2]); len(own) != 0 {
+		t.Fatalf("%d of two villager's plots are the bot's", len(own))
+	}
+	f.plots[0].owner = nil
+	if own := ownPlots(f.plots[:2]); len(own) != 1 || own[0] != f.plots[0] {
+		t.Fatalf("own plots: %v", own)
+	}
+}

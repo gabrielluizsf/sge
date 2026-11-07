@@ -41,8 +41,20 @@ type snapshot struct {
 	Home []pieceState `json:"home"`
 	Yard []pieceState `json:"yard"`
 
-	Towns  []cellState     `json:"towns"`
+	Towns []cellState `json:"towns"`
+	// Away is when each town that was asleep was last seen, to settle what
+	// its people did meanwhile; an old save has none, and its towns
+	// have nothing to settle.
+	Away   []awayState     `json:"away,omitempty"`
 	People []villagerState `json:"people"`
+}
+
+// awayState is when the town of a region was last seen, in hours since the
+// first day began.
+type awayState struct {
+	Col int     `json:"col"`
+	Row int     `json:"row"`
+	At  float64 `json:"at"`
 }
 
 // point is a place in the world.

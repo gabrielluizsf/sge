@@ -53,7 +53,10 @@ func (m *mind) farmWork(f *farm) *job {
 			}
 		})
 	}
-	return m.fieldSow(f)
+	if j := m.fieldSow(f); j != nil {
+		return j
+	}
+	return m.oddJobs(f) // the crops grow on their own: split wood meanwhile
 }
 
 // fetchWater is a trip to the nearest water to fill the can; with none
@@ -73,6 +76,6 @@ func (m *mind) fetchWater(f *farm) *job {
 
 // atStall is a trip to the town's stall, dealing there.
 func (m *mind) atStall(deal func(f *farm, stall pathfind.Cell)) *job {
-	s := pathfind.Cell(m.v.town.Stall)
+	s := pathfind.Cell(m.v.place().Stall)
 	return &job{to: pathfind.Cell{Col: s.Col, Row: s.Row + 1}, face: "up", slot: -1, rest: 1.5, then: func(f *farm) { deal(f, s) }}
 }

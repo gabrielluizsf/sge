@@ -16,6 +16,8 @@ type room struct {
 	faceOut        string
 	own            bool
 	kind           int
+	// beds are the room's beds, the couple's two first, then the child's.
+	beds []bed
 }
 
 // The rooms' size, in cells: the back walls along the first row and
@@ -55,6 +57,7 @@ func newRoom(d houseDoor, a Art, pieces []piece) *room {
 		things[rune(ch)] = tileID[name]
 	}
 	r.things = parseRoom("room things", t, things)
+	r.beds = bedsOf(bedsIn(t, spanOf(a)))
 	if d.own {
 		r.layPieces(a, pieces)
 	}

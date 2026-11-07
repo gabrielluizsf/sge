@@ -1,6 +1,45 @@
 {
   "assets": [
     {
+      "id": "GothicBed_01",
+      "name": "Gothic Bed 01",
+      "biome": "interior",
+      "source": "https://polyhaven.com/a/GothicBed_01",
+      "authors": [
+        "Kirill Sannikov"
+      ],
+      "license": "CC0-1.0",
+      "kind": "model",
+      "model": "GothicBed_01/GothicBed_01_1k.gltf",
+      "files": [
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/GothicBed_01/GothicBed_01.bin",
+          "path": "GothicBed_01/GothicBed_01.bin",
+          "sha256": "2276e86480c49dfb63a4671a9637621f88727708cf83342156c157a1d89f747b"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/GothicBed_01/GothicBed_01_1k.gltf",
+          "path": "GothicBed_01/GothicBed_01_1k.gltf",
+          "sha256": "67df189dd3a645936827f3cc123fb9e97ca9d2201d1e4090762bf477cab82fc0"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/GothicBed_01/GothicBed_01_arm_1k.jpg",
+          "path": "GothicBed_01/textures/GothicBed_01_arm_1k.jpg",
+          "sha256": "049014a0bb54fd3da3b555d90966b63cad7e35feb5470b578524a7b1cec8506a"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/GothicBed_01/GothicBed_01_diff_1k.jpg",
+          "path": "GothicBed_01/textures/GothicBed_01_diff_1k.jpg",
+          "sha256": "f7e8611a731a87a42a35d92e59f78b848ac20475827b79cb8aa34df0dd5bcbd5"
+        },
+        {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/GothicBed_01/GothicBed_01_nor_gl_1k.jpg",
+          "path": "GothicBed_01/textures/GothicBed_01_nor_gl_1k.jpg",
+          "sha256": "27533a33617689035cf9880803ed19af45550864442734ee9898697933b7319f"
+        }
+      ]
+    },
+    {
       "id": "bark_platanus",
       "name": "Bark Platanus",
       "biome": "tree",
@@ -1437,7 +1476,6 @@
     },
     {
       "id": "painted_wooden_chair_02",
-      "scale": 0.72,
       "name": "Painted Wooden Chair 02",
       "biome": "interior",
       "source": "https://polyhaven.com/a/painted_wooden_chair_02",
@@ -1447,6 +1485,7 @@
       "license": "CC0-1.0",
       "kind": "model",
       "model": "painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+      "scale": 0.72,
       "files": [
         {
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/painted_wooden_chair_02/painted_wooden_chair_02.bin",
@@ -1925,7 +1964,6 @@
     },
     {
       "id": "rock_07",
-      "scale": 2.5,
       "name": "Rock 07",
       "biome": "campo",
       "source": "https://polyhaven.com/a/rock_07",
@@ -1935,6 +1973,7 @@
       "license": "CC0-1.0",
       "kind": "model",
       "model": "rock_07/rock_07_1k.gltf",
+      "scale": 2.5,
       "files": [
         {
           "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/rock_07/rock_07.bin",

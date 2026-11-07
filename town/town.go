@@ -37,6 +37,7 @@ type Town struct {
 	Seed uint32
 	// road is the road to the town it leads to, once linked.
 	road   []Rect
+	to     *Town
 	linked bool
 }
 

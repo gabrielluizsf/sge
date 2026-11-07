@@ -62,6 +62,7 @@ func newLayers(g *game.Game, tiles *tilemap.TileSet, site site) layers {
 		}
 	}
 	site.apply(l)
+	applyPen(l)
 	for i, m := range []*tilemap.Map{l.ground, l.water, l.crops, l.things} {
 		m.Z = []int{zGround, zWater, zThings, zThings}[i]
 		g.Add(m.Object)

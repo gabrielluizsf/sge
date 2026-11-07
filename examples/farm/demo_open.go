@@ -7,7 +7,7 @@ import (
 	"github.com/gabrielluizsf/sge/examples/i18n"
 )
 
-// Open opens a screen on s, to look at it: "craft", "arrange" or "chest" (see openHouse), "fight" with a villager who strikes back, "inventory" with a bag of a
+// Open opens a screen on s, to look at it: "craft", "arrange" or "chest" (see openHouse), "fight" with a villager who strikes back, "sleep" in the house of one of the east town, at night, "visit" in the town a villager of the next one visits, at noon, "inventory" with a bag of a
 // little of everything, "pause", "credits", "licence" (the first credit's)
 // or "talk" with the smith of the east town, the player taken to them; and plays d more of the
 // game, so that what is said is typed out. It is an error to ask for any
@@ -36,6 +36,18 @@ func (s *Session) Open(what string, d Demo) (*canvas.Canvas, error) {
 		}
 	case "fight":
 		if err := s.openFight(d); err != nil {
+			return nil, err
+		}
+	case "sleep", "sleepteen":
+		if err := s.openSleep(what == "sleepteen"); err != nil {
+			return nil, err
+		}
+	case "mine", "chop":
+		if err := s.openWork(map[string]chore{"mine": choreMine, "chop": choreChop}[what]); err != nil {
+			return nil, err
+		}
+	case "visit":
+		if err := s.openVisit(); err != nil {
 			return nil, err
 		}
 	case "talk":

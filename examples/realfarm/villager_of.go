@@ -2,11 +2,12 @@ package main
 
 import "github.com/gabrielluizsf/sge/examples/farm"
 
-// folk are the villagers that may be who, by gender and trade: the
+// folk are the villagers that may be who, by gender and trade (never the
+// player's own body, which sleeps in a bed of its own): the
 // genes pick among them, so two farmers are not always the same person.
 var folk = map[bool]map[string][]string{
 	false: {
-		"farmer":     {"joao", "player"},
+		"farmer":     {"joao", "rui"},
 		"smith":      {"beto"},
 		"lumberjack": {"rui"},
 		"wanderer":   {"kenji", "joao", "rui", "beto"},

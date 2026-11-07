@@ -20,13 +20,17 @@ const (
 	doSleep  = "sleep"
 )
 
+// bedBy is the hour the villagers are in bed by: they start home half an
+// hour before, to be in by ten.
+const bedBy = 21.5
+
 // schedules are each trade's day: farmers rise first, the smith keeps the
 // forge late, and the wanderers stroll all day; everyone sleeps at home.
 var schedules = map[string]daytime.Schedule{
-	roleFarmer:     {{From: 6, To: 18, Do: doWork}, {From: 18, To: 21, Do: doStroll}, {From: 21, To: 6, Do: doSleep}},
-	roleLumberjack: {{From: 7, To: 17, Do: doWork}, {From: 17, To: 21, Do: doStroll}, {From: 21, To: 7, Do: doSleep}},
-	roleSmith:      {{From: 7, To: 19, Do: doWork}, {From: 19, To: 21, Do: doStroll}, {From: 21, To: 7, Do: doSleep}},
-	roleWanderer:   {{From: 8, To: 20, Do: doStroll}, {From: 20, To: 8, Do: doSleep}},
+	roleFarmer:     {{From: 6, To: 18, Do: doWork}, {From: 18, To: bedBy, Do: doStroll}, {From: bedBy, To: 6, Do: doSleep}},
+	roleLumberjack: {{From: 7, To: 17, Do: doWork}, {From: 17, To: bedBy, Do: doStroll}, {From: bedBy, To: 7, Do: doSleep}},
+	roleSmith:      {{From: 7, To: 19, Do: doWork}, {From: 19, To: bedBy, Do: doStroll}, {From: bedBy, To: 7, Do: doSleep}},
+	roleWanderer:   {{From: 8, To: bedBy, Do: doWork}, {From: bedBy, To: 8, Do: doSleep}},
 }
 
 // roleLabels are the trades' names on screen, as English keys, a woman's

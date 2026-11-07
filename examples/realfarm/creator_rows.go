@@ -35,10 +35,20 @@ func colourRow(label string, list []human.Colour, field func(*charState) *human.
 			if !field(s).Set {
 				return i18n.T("Original")
 			}
-			return fmt.Sprintf("%d / %d", nearest(list, *field(s))+1, len(list))
+			if i := nearest(list, *field(s)); list[i] == *field(s) {
+				return fmt.Sprintf("%d / %d", i+1, len(list))
+			}
+			return i18n.T("Custom")
 		},
 		swatch: func(s *charState) human.Colour { return *field(s) },
 		step:   func(s *charState, d int) { *field(s) = cycleColour(list, *field(s), d, original) }}
+}
+
+// codeRow is a row where a colour's code is typed, or taken from the
+// screen with the eyedropper.
+func codeRow(label string, field func(*charState) *human.Colour) row {
+	return row{label: label, kind: textRow, field: field,
+		press: (*creator).startCode}
 }
 
 // categories are the creation screen's, in the order of its list: the
@@ -105,7 +115,17 @@ func categories() []category {
 				return r
 			}(),
 			func() row {
+				r := codeRow("Item code", func(s *charState) *human.Colour { return &s.mainTint })
+				r.show = hasMain
+				return r
+			}(),
+			func() row {
 				r := colourRow("Bottom color", human.ClothColours(), func(s *charState) *human.Colour { return &s.bottomTint }, true)
+				r.show = func(s *charState) bool { return s.wantsBottom() }
+				return r
+			}(),
+			func() row {
+				r := codeRow("Bottom code", func(s *charState) *human.Colour { return &s.bottomTint })
 				r.show = func(s *charState) bool { return s.wantsBottom() }
 				return r
 			}(),

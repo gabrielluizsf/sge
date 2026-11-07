@@ -183,7 +183,8 @@ const WallKinds = 6
 func Interior() map[string]string {
 	s := map[string]string{
 		"floor": floorTile(), "mat": matTile(),
-		"bed": bedTile([3]string{red, redShade, redShade}), "bed_blue": bedTile([3]string{denimLight, denimBase, denimShade}),
+		"bed_double": bedDoubleTile([3]string{denimLight, denimBase, denimShade}),
+		"bed":        bedTile([3]string{red, redShade, redShade}), "bed_blue": bedTile([3]string{denimLight, denimBase, denimShade}),
 		"table": tableTile(), "chair": chairTile(), "shelf": shelfTile(), "stove": stoveTile(),
 		"plant": plantTile(), "chest": chestTile(), "forge": forgeTile(),
 	}

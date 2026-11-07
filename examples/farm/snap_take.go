@@ -8,7 +8,7 @@ func takeSnapshot(f *farm) snapshot {
 		Player: takeKit(f.kit), Hotbar: append([]string(nil), f.pack.Hotbar...), Active: f.pack.Active,
 		At: takePlace(f), Self: takeSelf(f), Family: takeFamily(f),
 		Errand: takeOrder(f.errand), ErrandDone: f.errandDone,
-		Towns: takeTowns(f), People: takePeople(f),
+		Towns: takeTowns(f), Away: takeAway(f), People: takePeople(f),
 	}
 	s.Level, s.XP = f.prog.Level, f.prog.XP
 	s.Vitals = &vitalsState{Health: f.vit.Health, Food: f.vit.Food}

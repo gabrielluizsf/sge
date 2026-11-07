@@ -1,11 +1,14 @@
 package human
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 // No pose of any motion takes a joint past what a healthy adult's can do:
 // the arm of the crawl does not turn full circle, nor a knee bend back.
 func TestMotionsStayWithinHealthyJoints(t *testing.T) {
-	for _, m := range append(append(append(append(append([]Motion{}, Motions...), Crafts...), Farming...), Mining...), Sitting...) {
+	for _, m := range slices.Concat(Motions, Crafts, Farming, Mining, Sitting, Eating, Drawing, Sleeping) {
 		for k, p := range m.Poses {
 			for _, b := range p.Beyond() {
 				t.Errorf("%s, pose %d: %s", m.Name, k, b)

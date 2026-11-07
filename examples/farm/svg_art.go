@@ -24,7 +24,19 @@ func (a *svgArt) Tile(name string) *canvas.Canvas {
 	if v, ok := RockVariant(name); ok {
 		name = "rock" + itoa(v)
 	}
+	if name == "bed_double" {
+		return picture(spriteSVG(name), 2*isoW/scale, (isoH+isoW/2)/scale)
+	}
 	return picture(spriteSVG(name), isoW/scale, isoH/scale)
+}
+
+// Furniture is how many cells across and deep the double bed is: two by
+// two; any other piece covers its cell.
+func (a *svgArt) Furniture(name string) (cols, rows int) {
+	if name == "bed_double" {
+		return 2, 2
+	}
+	return 1, 1
 }
 
 // Icon is the 16 by 16 sprite name at the game's scale.

@@ -8,6 +8,14 @@ import (
 	"github.com/gabrielluizsf/sge/gltf"
 )
 
+// MaxSide is the longest side, in pixels, Render will draw, and MaxSamples
+// the most samples a picture may hold (about 40 bytes each): beyond them
+// Render returns an empty sprite instead of allocating gigabytes.
+const (
+	MaxSide    = 4096
+	MaxSamples = 16 << 20
+)
+
 // Sprite is a baked picture, and the pixel of it the model's origin, the
 // point it stands on, falls on.
 type Sprite struct {
@@ -24,7 +32,9 @@ func Render(m *gltf.Model, s Shot, o Options) Sprite {
 	tris := triangles(m, s, o.Unit)
 	sun := normalize(o.Sun)
 	f := frame{o: o, n: max(1, o.Samples), sun: sun}
-	f.bounds(tris)
+	if !f.bounds(tris) {
+		return Sprite{Image: image.NewNRGBA(image.Rect(0, 0, 1, 1))}
+	}
 	f.shadows = newShadowMap(tris, sun)
 	f.raster(tris)
 	return f.resolve()
@@ -53,8 +63,9 @@ func (f *frame) screen(p [3]float64) (float64, float64) {
 }
 
 // bounds sizes the frame to hold the triangles and their shadows on the
-// ground.
-func (f *frame) bounds(tris []triangle) {
+// ground. It is false, and allocates nothing, when the picture would pass
+// MaxSamples: a model far larger than it should be.
+func (f *frame) bounds(tris []triangle) bool {
 	minX, minY, maxX, maxY := math.Inf(1), math.Inf(1), math.Inf(-1), math.Inf(-1)
 	add := func(p [3]float64) {
 		x, y := f.screen(p)
@@ -69,14 +80,21 @@ func (f *frame) bounds(tris []triangle) {
 			}
 		}
 	}
+	if !(maxX-minX < MaxSide) || !(maxY-minY < MaxSide) {
+		return false // also catches NaN and infinite bounds
+	}
 	f.minX, f.minY = math.Floor(minX)-2, math.Floor(minY)-2
 	f.w, f.h = int(math.Ceil(maxX)-f.minX)+3, int(math.Ceil(maxY)-f.minY)+3
+	if f.n > MaxSide || f.w*f.n*f.h*f.n > MaxSamples {
+		return false
+	}
 	samples := f.w * f.n * f.h * f.n
 	f.depth = make([]float64, samples)
 	f.color = make([][4]float64, samples)
 	for i := range f.depth {
 		f.depth[i] = math.Inf(-1)
 	}
+	return true
 }
 
 func scale(v [3]float64, k float64) [3]float64 { return [3]float64{v[0] * k, v[1] * k, v[2] * k} }

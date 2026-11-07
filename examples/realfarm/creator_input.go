@@ -7,6 +7,8 @@ type cin struct {
 	Turn        int    // -1 or 1 while a key turns the person
 	Typed       string // the text typed this frame
 	Back        bool   // Backspace was pressed
+	Cancel      bool   // Escape was pressed
+	Pick        bool   // the eyedropper's key was pressed
 	Select      bool
 	X, Y        int
 	Press, Held bool
@@ -17,7 +19,15 @@ func (c *creator) handle(in cin) {
 	if c.finished {
 		return
 	}
+	if c.drop != nil {
+		c.pickStep(in)
+		c.refresh()
+		return
+	}
 	in = c.typeName(in)
+	if in.Pick && c.at().field != nil {
+		c.startPick()
+	}
 	switch {
 	case in.Dy != 0:
 		c.move(in.Dy)
@@ -68,6 +78,9 @@ func (c *creator) click(x, y int) {
 		case hitLess, hitMore:
 			c.cat, c.row = h.cat, h.row
 			c.change(map[hitKind]int{hitLess: -1, hitMore: 1}[h.kind])
+		case hitDropper:
+			c.cat, c.row = h.cat, h.row
+			c.startPick()
 		case hitTrack:
 			c.cat, c.row = h.cat, h.row
 			d := h

@@ -43,6 +43,7 @@ func applyWorld(f *farm, s *snapshot, l *loaded) {
 	for _, t := range l.towns {
 		f.settled[t] = true
 	}
+	f.away = l.away
 }
 
 // applyPeople replaces the villagers, destroying those seen on screen.

@@ -26,6 +26,9 @@ type mind struct {
 	// for.
 	shore         spring
 	looked, found bool
+	// hold is the seconds more they stand facing facing, meeting someone.
+	hold   float64
+	facing string
 }
 
 // job is a place to stand, the way to face there, what to hold (-1 keeps
@@ -37,8 +40,10 @@ type job struct {
 	slot int
 	seed int // the crop whose seeds are sown, with the seeds slot
 	uses int
-	then func(f *farm)
-	rest float64
+	// target is the thing struck, a tree or a rock, when the job strikes one.
+	target pathfind.Cell
+	then   func(f *farm)
+	rest   float64
 }
 
 // giveUp is how long a villager walks without getting anywhere before
@@ -50,6 +55,13 @@ func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 	if v.ours || v.stage() == life.Baby {
 		o.Hidden = true // a baby is kept at home
 		return intent{}
+	}
+	if w := f.whereabouts(v); w.walking() {
+		return m.travel(f, o, w)
+	}
+	if m.hold > 0 {
+		m.hold -= dt
+		return intent{face: m.facing}
 	}
 	if v.inside {
 		if v.homeFor -= dt; v.homeFor > 0 || v.now(f) == doSleep {
@@ -63,6 +75,7 @@ func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 	}
 	if !f.inSight(o.Transform.Position) {
 		v.angry = 0
+		m.bedUnseen(f, o)
 		return intent{} // out of sight they wait; their garden is tended unseen
 	}
 	if f.talk != nil && f.talk.v == v {
@@ -74,7 +87,7 @@ func (m *mind) control(f *farm, o *game.Object, dt float64) intent {
 	}
 	if m.job == nil {
 		if m.job = m.next(f); m.job == nil {
-			m.rest = 1
+			m.rest = 0.5
 			return intent{}
 		}
 	}

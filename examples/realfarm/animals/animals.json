@@ -1,0 +1,85 @@
+{
+  "cow": {
+    "coats": [
+      "dairy"
+    ],
+    "motions": {
+      "stand": {
+        "frames": 1,
+        "length": 0
+      },
+      "walk": {
+        "frames": 6,
+        "length": 1.1,
+        "speed": 0.9454545454545453
+      }
+    },
+    "unit": 2.6
+  },
+  "horse": {
+    "coats": [
+      "grey",
+      "chestnut"
+    ],
+    "motions": {
+      "stand": {
+        "frames": 1,
+        "length": 0
+      },
+      "walk": {
+        "frames": 8,
+        "length": 1.3333,
+        "speed": 2.07
+      }
+    },
+    "unit": 0.7
+  },
+  "sheep": {
+    "coats": [
+      "white"
+    ],
+    "motions": {
+      "graze": {
+        "frames": 2,
+        "length": 1
+      },
+      "stand": {
+        "frames": 1,
+        "length": 0
+      },
+      "walk": {
+        "frames": 6,
+        "length": 0.8999999999999999,
+        "speed": 0.4444444444444444
+      }
+    },
+    "unit": 0.15
+  },
+  "wolf": {
+    "coats": [
+      "grey"
+    ],
+    "motions": {
+      "bite": {
+        "frames": 4,
+        "length": 0.5999999994,
+        "once": true
+      },
+      "fall": {
+        "frames": 4,
+        "length": 0.999999999,
+        "once": true
+      },
+      "stand": {
+        "frames": 1,
+        "length": 0
+      },
+      "walk": {
+        "frames": 6,
+        "length": 0.55,
+        "speed": 1.1633454545454545
+      }
+    },
+    "unit": 0.1333
+  }
+}

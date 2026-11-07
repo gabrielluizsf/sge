@@ -12,7 +12,7 @@ type FurnitureArt interface {
 
 // pieceNames are the furniture's names by their letters in a room's
 // layout.
-var pieceNames = map[byte]string{'b': "bed", 'B': "bed_blue", 't': "table", 'c': "chair", 's': "shelf", 'o': "stove", 'p': "plant", 'h': "chest"}
+var pieceNames = map[byte]string{'b': "bed", 'B': "bed_blue", 't': "table", 'c': "chair", 's': "shelf", 'o': "stove", 'p': "plant", 'h': "chest", 'D': "bed_double"}
 
 // spanOf is how many cells each piece of furniture covers in a, by its
 // letter.

@@ -72,3 +72,60 @@ func TestTheSeatedPlayerStaysPut(t *testing.T) {
 		t.Errorf("stood at %v", f.player.Transform.Position)
 	}
 }
+
+// bakedSeatArt is an art that draws the chair with the person on it.
+type bakedSeatArt struct{ longBed }
+
+func (bakedSeatArt) SeatBaked() bool { return true }
+
+// In every one of its four rotations a chair turns the player to look the
+// way its front does, on a body of eight facings, as the realistic look's.
+func TestTheSeatedPlayerFacesTheChairsFrontInEveryRotation(t *testing.T) {
+	want := []string{"downleft", "upleft", "upright", "downright"}
+	for h, dir := range want {
+		g, f := inHouse(t)
+		f.home = append(f.home, newPiece("chair", 4, 3, h))
+		f.relay()
+		g.Step(frame)
+		f.hands.facings = 8
+		f.sitDown(len(f.home) - 1)
+		if got := f.hands.pose(f.player); got != dir {
+			t.Errorf("heading %d faces %s, want %s", h, got, dir)
+		}
+	}
+}
+
+// With a look that draws the chair with the sitter, its own tile goes while
+// they sit, in every rotation, and comes back solid when they stand.
+func TestABakedSeatTakesTheChairsTileWhileSitting(t *testing.T) {
+	for h := range headings {
+		_, f := inHouse(t)
+		f.art = bakedSeatArt{}
+		f.home = append(f.home, newPiece("chair", 4, 3, h))
+		f.relay()
+		tile := f.room.things.At(4, 3)
+		if tile < 0 {
+			t.Fatal("no chair on the floor")
+		}
+		f.sitDown(len(f.home) - 1)
+		if got := f.room.things.At(4, 3); got >= 0 {
+			t.Errorf("heading %d: tile %d stays under the sitter", h, got)
+		}
+		f.standUp()
+		if got := f.room.things.At(4, 3); got != tile {
+			t.Errorf("heading %d: tile %d after standing, want %d", h, got, tile)
+		}
+	}
+}
+
+// A look that draws no chair with the sitter keeps its tile.
+func TestAPlainSeatKeepsTheChairsTile(t *testing.T) {
+	_, f := inHouse(t)
+	f.home = append(f.home, newPiece("chair", 4, 3, 0))
+	f.relay()
+	tile := f.room.things.At(4, 3)
+	f.sitDown(len(f.home) - 1)
+	if got := f.room.things.At(4, 3); got != tile {
+		t.Errorf("tile %d, want %d", got, tile)
+	}
+}

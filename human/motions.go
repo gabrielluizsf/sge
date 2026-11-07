@@ -58,7 +58,7 @@ var Motions = []Motion{Stand, Walk, Chop, Hoe, Swim, Tread, Dive, Rise, Run}
 
 // MotionsVersion changes whenever a motion does, so what was baked of the
 // old ones is baked again.
-const MotionsVersion = 3
+const MotionsVersion = 4
 
 // ChopVersion changes whenever the chop does, or the axe in the hands
 // that swing it, so what was baked of it is baked again, and no other

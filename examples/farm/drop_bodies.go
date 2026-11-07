@@ -7,9 +7,17 @@ import "github.com/gabrielluizsf/sge/town"
 // from who they are and where they stood (v.pos), when the town comes back.
 // Those who live with the player keep theirs.
 func (f *farm) dropBodies(t *town.Town) {
+	f.leftAt(t)
 	for _, v := range f.people {
-		if v.town == t && !v.ours {
+		if v.ours {
+			continue
+		}
+		if v.town == t && v.guest == nil || v.guest == t {
+			leaves(v.obj)
 			v.body, v.obj = nil, nil
+		}
+		if v.guest == t {
+			v.guest = nil
 		}
 	}
 }

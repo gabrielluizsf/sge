@@ -40,7 +40,7 @@ func roomLayout(seed uint32, span func(piece byte) (cols, rows int)) (ground, th
 			}
 		}
 	}
-	put("bB"[src.Intn(2)], [][2]int{{1, 1}, {6, 1}})
+	bedsFor(t, span, "bB"[src.Intn(2)])
 	put('s', [][2]int{{2, 1}, {4, 1}, {5, 1}})
 	put('o', [][2]int{{1, 3}, {6, 3}, {1, 4}})
 	put('t', [][2]int{{4, 3}, {2, 3}})

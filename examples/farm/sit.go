@@ -3,6 +3,7 @@ package farm
 import (
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/sge/examples/i18n"
+	"github.com/gabrielluizsf/sge/tilemap"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
@@ -25,6 +26,9 @@ func (f *farm) sitDown(i int) {
 	f.seat = &seat{col: p.col, row: p.row, from: f.player.Transform.Position}
 	f.player.Transform.Position = f.ground.CellCenter(p.col, p.row)
 	f.face(seatFacing[p.heading%headings])
+	if seatBaked(f.art) {
+		f.room.things.Set(p.col, p.row, tilemap.Empty)
+	}
 	f.sound("ui_tick", nil)
 }
 
@@ -35,6 +39,9 @@ func (f *farm) standUp() {
 	}
 	f.player.Transform.Position = f.seat.from
 	f.seat = nil
+	if seatBaked(f.art) && f.room != nil {
+		f.relay()
+	}
 	f.sound("ui_tick", nil)
 }
 

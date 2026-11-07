@@ -17,4 +17,6 @@ const (
 	actSow
 	actEat
 	actMine
+	actFillWell
+	actFillRiver
 )

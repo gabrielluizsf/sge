@@ -1,0 +1,39 @@
+These sounds are Kenney's (https://kenney.nl), CC0 1.0: the packs Interface
+Sounds, Impact Sounds and RPG Audio, from their pages at
+https://kenney.nl/assets/<pack>:
+
+  interface-sounds.zip sha256 f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232
+  impact-sounds.zip sha256 029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8
+  rpg-audio.zip sha256 6dbeaf8544da958d8f2adcb4a4a4b76c1ade34a05f8ab9edccd327da7375f38b
+
+Each file is one Ogg of a pack as mono 16-bit little-endian PCM at 44100 Hz,
+its peak set to how loud the game wants it, under the name the game plays it
+by and its version:
+
+  ui_tick_0  interface-sounds/select_006.ogg
+  ui_open_0  interface-sounds/maximize_008.ogg
+  ui_close_0  interface-sounds/minimize_008.ogg
+  deny_0  interface-sounds/error_008.ogg
+  coin_0  rpg-audio/handleCoins2.ogg
+  sell_0  interface-sounds/confirmation_001.ogg
+  level_up_0  interface-sounds/confirmation_004.ogg
+  step_grass_0  impact-sounds/footstep_grass_000.ogg
+  step_grass_1  impact-sounds/footstep_grass_001.ogg
+  step_grass_2  impact-sounds/footstep_grass_002.ogg
+  step_grass_3  impact-sounds/footstep_grass_003.ogg
+  step_grass_4  impact-sounds/footstep_grass_004.ogg
+  step_soil_0  impact-sounds/footstep_carpet_000.ogg
+  step_soil_1  impact-sounds/footstep_carpet_001.ogg
+  step_soil_2  impact-sounds/footstep_carpet_003.ogg
+  step_path_0  rpg-audio/footstep09.ogg
+  step_path_1  rpg-audio/footstep04.ogg
+  step_path_2  rpg-audio/footstep05.ogg
+  chop_0  impact-sounds/impactPlank_medium_000.ogg
+  chop_1  impact-sounds/impactPlank_medium_001.ogg
+  chop_2  impact-sounds/impactPlank_medium_002.ogg
+  fell_0  impact-sounds/impactWood_heavy_002.ogg
+  clang_0  impact-sounds/impactMetal_medium_002.ogg
+  clang_1  impact-sounds/impactMetal_medium_001.ogg
+  clang_2  impact-sounds/impactMetal_medium_004.ogg
+  plant_0  impact-sounds/impactSoft_medium_001.ogg
+  harvest_0  rpg-audio/cloth2.ogg

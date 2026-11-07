@@ -101,10 +101,15 @@ func (c *creator) paintRows(cv *canvas.Canvas, r rect) {
 		case sliderRow:
 			c.paintSlider(cv, row, line)
 		case textRow:
-			c.paintName(cv, row, line)
+			if row.field != nil {
+				c.paintCode(cv, row, line)
+			} else {
+				c.paintName(cv, row, line)
+			}
 		}
 		y += rowH
 	}
+	c.paintNote(cv, r)
 }
 
 // controlX is where a row's control begins, the label before it.

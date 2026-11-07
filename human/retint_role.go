@@ -45,8 +45,15 @@ func tintFor(r role, l Look) (tint, bool) {
 		return tintTo(l.EyeColour, irises)
 	case roleClothes:
 		if r.place < len(l.ClothesColours) {
-			return tintTo(l.ClothesColours[r.place], nil)
+			t, ok := tintTo(l.ClothesColours[r.place], nil)
+			t.flat = clothContrast
+			return t, ok
 		}
 	}
 	return tint{}, false
 }
+
+// clothContrast is the most the light of a cloth's texture may vary about
+// its average when it is recoloured, as a share of it: a washed denim or a
+// print is eased to this, so one colour does not look painted in patches.
+const clothContrast = 0.3

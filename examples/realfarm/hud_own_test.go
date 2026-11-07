@@ -67,7 +67,7 @@ func TestNoHUDPictureIsTheStylizedArts(t *testing.T) {
 // authors, each with the text of its licence.
 func TestTheCreditsNameEveryComponent(t *testing.T) {
 	list := testArt(t).(farm.Credited).Credits()
-	var serif, human, haven int
+	var serif, human, haven, sounds, animals int
 	for _, c := range list {
 		if c.Name == "" || c.Author == "" || !strings.HasPrefix(c.URL, "https://") || c.License == nil || len(c.License()) < 200 {
 			t.Errorf("credit %+v", c)
@@ -85,12 +85,22 @@ func TestTheCreditsNameEveryComponent(t *testing.T) {
 			}
 		case strings.HasPrefix(c.Name, "Poly Haven"):
 			haven++
+		case strings.Contains(c.Name, "Kenney"):
+			sounds++
+			if !strings.Contains(c.License(), "CC0 1.0 Universal") {
+				t.Error("the sounds' licence is not CC0")
+			}
+		case strings.Contains(c.Name, "changed:"):
+			animals++
+			if !strings.Contains(c.License(), "Attribution 4.0") {
+				t.Errorf("%s's licence is not CC-BY 4.0", c.Name)
+			}
 		default:
 			t.Errorf("%s is not one of the components", c.Name)
 		}
 	}
-	if serif != 1 || human != 1 || haven < 40 {
-		t.Errorf("%d fonts, %d MakeHuman, %d Poly Haven", serif, human, haven)
+	if serif != 1 || human != 1 || haven < 40 || sounds != 1 || animals != 4 {
+		t.Errorf("%d fonts, %d MakeHuman, %d Poly Haven, %d sound packs, %d animals", serif, human, haven, sounds, animals)
 	}
 }
 

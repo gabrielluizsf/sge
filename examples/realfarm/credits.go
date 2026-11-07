@@ -12,6 +12,9 @@ import (
 //go:embed licenses/CC0-1.0.txt
 var cc0License string
 
+//go:embed licenses/CC-BY-4.0.txt
+var ccBy4License string
+
 //go:embed fonts/OFL.txt
 var serifLicense string
 
@@ -24,8 +27,9 @@ func (a *realArt) Credits() []farm.Credit {
 		{Name: "Source Serif 4 font", Author: "Frank Grießhammer, Adobe", URL: "https://github.com/adobe-fonts/source-serif",
 			License: func() string { return serifLicense }},
 		{Name: "MakeHuman (bodies, clothes and hair)", Author: "The MakeHuman Community", URL: humansSource(), License: cc0},
+		{Name: "Kenney sounds (Interface, Impact, RPG Audio)", Author: "Kenney", URL: "https://kenney.nl/assets/category:Audio", License: cc0},
 	}
-	return append(list, polyHaven(cc0)...)
+	return append(append(list, animalCredits()...), polyHaven(cc0)...)
 }
 
 // humansSource is where the people's data is from, as humans.json pins it.

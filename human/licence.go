@@ -62,5 +62,36 @@ func (k *Kit) Licences(b Body, l Look) (map[string]string, error) {
 		}
 		out[name] = lic
 	}
+	for _, name := range l.Wear {
+		if err := k.meshLicence(name, out); err != nil {
+			return nil, err
+		}
+	}
 	return out, nil
+}
+
+// meshLicence adds to out the licence of the mesh of the proxy name, if
+// the mesh says one: a pack's proxy may say CC0 over a mesh that says
+// AGPL3. A mesh that says nothing goes with its proxy.
+func (k *Kit) meshLicence(name string, out map[string]string) error {
+	data, err := k.lim.read(k.fsys, name)
+	if err != nil {
+		return err
+	}
+	p, err := parseProxy(data, len(k.base.pos))
+	if err != nil {
+		return err
+	}
+	obj, err := beside(name, p.obj)
+	if err != nil {
+		return err
+	}
+	lic, err := k.Licence(obj)
+	if err != nil {
+		return err
+	}
+	if lic != "" {
+		out[obj] = lic
+	}
+	return nil
 }

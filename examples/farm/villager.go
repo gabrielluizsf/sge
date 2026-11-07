@@ -33,6 +33,12 @@ type villager struct {
 	// at least, and all night when they have gone to bed.
 	inside  bool
 	homeFor float64
+	// plan is their day's plan, drawn for day planDay-1; guest is the town
+	// they are visiting now, nil when they are in their own. None is saved: the
+	// plan and the visit come from who they are and the day.
+	plan    dayPlan
+	planDay int
+	guest   *town.Town
 	// body is how the art draws them, asked for when they are first seen.
 	body Body
 	// fuel is how much wood a smith's forge has left to burn.

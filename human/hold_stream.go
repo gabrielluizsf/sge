@@ -24,6 +24,18 @@ type Spill struct {
 // origin, to show in the animations of s while the can is tipped. The
 // can is held first, as Hold says, and the animations made.
 func Pour(m, stream *gltf.Model, s Spill) error {
+	at := attach(m, stream)
+	for _, name := range s.During {
+		if err := flow(m, at, name, s); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// attach adds the stream, a column of a metre standing from its origin,
+// to person m as a node put away, and gives its index.
+func attach(m, stream *gltf.Model) int {
 	at := len(m.Nodes)
 	node := gltf.Node{Name: "stream", Mesh: -1, Skin: -1, Rotation: [4]float64{3: 1}, Scale: [3]float64{tiny, tiny, tiny}}
 	for _, r := range stream.Roots {
@@ -32,12 +44,7 @@ func Pour(m, stream *gltf.Model, s Spill) error {
 	m.Nodes = append(m.Nodes, node)
 	adopt(m, stream)
 	m.Nodes[m.Roots[0]].Children = append(m.Nodes[m.Roots[0]].Children, at)
-	for _, name := range s.During {
-		if err := flow(m, at, name, s); err != nil {
-			return err
-		}
-	}
-	return nil
+	return at
 }
 
 // flow gives node `at`, the stream, translation and scale channels in the

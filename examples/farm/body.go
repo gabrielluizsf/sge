@@ -36,6 +36,9 @@ const (
 	AnimWater = "water"
 	AnimPick  = "pick"
 	AnimMine  = "mine"
+	AnimEat   = "eat"
+	AnimWell  = "well"
+	AnimDip   = "dip"
 	AnimSwim  = "swim"
 	AnimDive  = "dive"
 	AnimRise  = "rise"
@@ -60,6 +63,9 @@ const (
 	WaterSeconds = 2.0
 	PickSeconds  = 1.6
 	MineSeconds  = 0.6
+	EatSeconds   = 2.2
+	WellSeconds  = 2.6
+	DipSeconds   = 2.4
 )
 
 // forgeImpact is how far into a stroke the hammer lands on the iron, as

@@ -15,6 +15,7 @@ const (
 	hitLess
 	hitMore
 	hitTrack
+	hitDropper
 )
 
 // hit is a part of the screen the mouse acts on, set when it is painted.

@@ -24,9 +24,15 @@ func (v Villager) Motions() []human.Motion {
 	if slices.Contains(farmers, v.ID) {
 		out = append(out, human.Farming...)
 	}
+	out = append(out, human.Mining...) // everyone grown swings the pickaxe at the rock
+	if v.ID != "player" {
+		out = append(out, human.Sleeping...)         // the others sleep in their beds
+		out = append(out, human.SleepingTogether...) // and a couple in a double one
+	}
 	if v.ID == "player" {
 		out = append(out, human.Sitting...) // only the player sits on a chair
-		out = append(out, human.Mining...)  // and swings a pickaxe
+		out = append(out, human.Eating...)  // and eats
+		out = append(out, human.Drawing...) // and fills the can at a well or a river
 	}
 	return out
 }

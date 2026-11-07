@@ -10,10 +10,15 @@ func (m *Mixer) Play(c *Clip, v Voice) {
 	if pitch <= 0 {
 		pitch = 1
 	}
-	p := &playing{clip: c, step: pitch}
+	p := &playing{clip: c, step: pitch, alone: v.Alone}
 	p.left, p.right = gains(v.Gain, v.Pan)
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if v.Alone != "" {
+		for _, o := range m.playing {
+			o.fading = o.fading || o.alone == v.Alone
+		}
+	}
 	if max := m.maxVoices(); len(m.playing) >= max {
 		m.playing = append(m.playing[:0], m.playing[len(m.playing)-max+1:]...)
 	}

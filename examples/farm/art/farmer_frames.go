@@ -32,11 +32,33 @@ func PersonFrames(l Look) map[string]string {
 		"upMine1":    front(l, pose{axe: strike, pick: true}, true),
 		"rightMine":  side(l, pose{axe: windUp, pick: true}),
 		"rightMine1": side(l, pose{axe: strike, pick: true}),
+		"downEat":    front(l, pose{use: eatLow}, false),
+		"upEat":      front(l, pose{use: eatLow}, true),
+		"rightEat":   side(l, pose{use: eatLow}),
+		"downEat1":   front(l, pose{use: eatUp}, false),
+		"upEat1":     front(l, pose{use: eatUp}, true),
+		"rightEat1":  side(l, pose{use: eatUp}),
+		"downWell":   front(l, pose{can: true, use: wellReach}, false),
+		"upWell":     front(l, pose{can: true, use: wellReach}, true),
+		"rightWell":  side(l, pose{can: true, use: wellReach}),
+		"downWell1":  front(l, pose{can: true, use: wellPull}, false),
+		"upWell1":    front(l, pose{can: true, use: wellPull}, true),
+		"rightWell1": side(l, pose{can: true, use: wellPull}),
+		"downWell2":  front(l, pose{can: true, use: wellPour}, false),
+		"upWell2":    front(l, pose{can: true, use: wellPour}, true),
+		"rightWell2": side(l, pose{can: true, use: wellPour}),
+		"downDip":    front(l, pose{use: dipDown}, false),
+		"upDip":      front(l, pose{use: dipDown}, true),
+		"rightDip":   side(l, pose{use: dipDown}),
+		"downDip1":   front(l, pose{use: dipUp}, false),
+		"upDip1":     front(l, pose{use: dipUp}, true),
+		"rightDip1":  side(l, pose{use: dipUp}),
 	}
-	for _, s := range []string{"", "1", "2", "Act", "Chop", "Chop1", "Mine", "Mine1"} {
+	for _, s := range []string{"", "1", "2", "Act", "Chop", "Chop1", "Mine", "Mine1", "Eat", "Eat1", "Well", "Well1", "Well2", "Dip", "Dip1"} {
 		f["left"+s] = mirrored(f["right"+s], FarmerW)
 	}
 	swimFrames(f)
+	sleepFrames(f)
 	return f
 }
 

@@ -6,55 +6,35 @@ import (
 )
 
 // settle peoples town t the first time it is woken: a plot in each
-// house's garden, a villager of some trade in each house, a woman or a
-// man of any skin, the smith in the first, working the anvil, each of an
-// age, some living as couples. Its seed decides who, so a town is the
-// same people every game.
+// house's garden, and in each house a household of a man, a woman and
+// their child, the smith's family in the first house, the smith working
+// the anvil; each of an age, the couple of one trade or the other, and
+// the child young. Its seed decides who, so a town is the same people
+// every game.
 func (f *farm) settle(t *town.Town) {
 	if f.settled[t] {
 		return
 	}
 	f.settled[t] = true
-	start := len(f.people)
-	src := random.New(t.Seed)
-	person := func(home *town.House, role string, stand town.Cell) *villager {
-		woman := src.Float() < 0.5
-		names := menNames
-		if woman {
-			names = womenNames
-		}
-		v := &villager{
-			name: names[src.Intn(len(names))], woman: woman, role: role,
-			who:  Who{Woman: woman, Role: role, Genes: [5]int{src.Intn(64), src.Intn(64), src.Intn(64), src.Intn(64), src.Intn(64)}},
-			kit:  &kit{money: 15, axe: 0, slot: slotCan},
-			town: t, home: home,
-			pos:  f.ground.CellCenter(stand.Col, stand.Row),
-			luck: random.New(uint32(src.Intn(1 << 30))),
-			wait: float64(src.Intn(orderPause)),
-		}
-		v.kit.bag.Add(seedsOf(src.Intn(len(crops))), 2)
-		v.mind = &mind{v: v}
-		return v
-	}
+	s := &settler{f: f, t: t, src: random.New(t.Seed)}
 	// The first house is the smith's, the second a lumberjack's; the rest
 	// are farmers', lumberjacks' and wanderers' as the seed falls.
-	var smithHome *town.House
 	trades := []string{roleFarmer, roleFarmer, roleWanderer, roleLumberjack}
+	var homes []household
 	for i := range t.Houses {
 		h := &t.Houses[i]
 		f.plots = append(f.plots, &plot{col: h.Garden.Col, row: h.Garden.Row, crop: -1, town: t})
+		role := roleLumberjack
 		switch i {
 		case 0:
-			smithHome = h
-			continue
+			role = roleSmith
 		case 1:
-			f.people = append(f.people, person(h, roleLumberjack, h.Door))
 		default:
-			f.people = append(f.people, person(h, trades[src.Intn(len(trades))], h.Door))
+			role = trades[s.src.Intn(len(trades))]
 		}
+		hh := s.household(h, role)
+		homes = append(homes, hh)
+		f.people = append(f.people, hh.man, hh.woman, hh.child)
 	}
-	smith := person(smithHome, roleSmith, town.Cell{Col: t.Anvil.Col, Row: t.Anvil.Row + 1})
-	smith.kit.money, smith.fuel = 40, 2
-	f.people = append(f.people, smith)
-	f.populate(t, f.people[start:])
+	f.populate(t, homes)
 }

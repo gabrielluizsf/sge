@@ -1,6 +1,7 @@
 package farm
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/gabrielluizsf/sge/life"
@@ -89,6 +90,7 @@ func TestVillagersDieOfOldAge(t *testing.T) {
 func TestCouplesInTownsHaveChildren(t *testing.T) {
 	_, f := newGame(idle{})
 	single(t, f)
+	f.people = slices.DeleteFunc(f.people, func(v *villager) bool { return v.partner == nil && v.home != nil && !v.ours }) // the children have left home
 	var mum *villager
 	for _, v := range f.people {
 		if v.woman && v.partner != nil && f.mayExpect(v, f.clock.Day) {
@@ -105,7 +107,8 @@ func TestCouplesInTownsHaveChildren(t *testing.T) {
 	if f.townSize(mum.town) < n+1 || len(f.family.Children(mum.id)) == 0 {
 		t.Fatalf("no child born: %d in town, was %d", f.townSize(mum.town), n)
 	}
-	b := f.personByID(f.family.Children(mum.id)[0])
+	kids := f.family.Children(mum.id)
+	b := f.personByID(kids[len(kids)-1])
 	if b.stage() != life.Baby || b.home != mum.home || b.town != mum.town {
 		t.Errorf("the baby: %+v", b.who)
 	}
