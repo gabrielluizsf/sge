@@ -46,6 +46,9 @@ func (p *farmer) Update(o *game.Object, dt float64) {
 		return
 	}
 	in := p.ctl.control(p.f, o, dt)
+	if p.acting > 0 {
+		return // what was pressed started a motion: nothing here replaces it
+	}
 	p.aim = in.aim
 	if d, ok := directions[in.face]; ok {
 		p.facing = vector.Vector3{X: float64(d[0]), Y: float64(d[1])}

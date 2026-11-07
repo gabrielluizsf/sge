@@ -4,6 +4,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/vector"
 )
 
@@ -336,5 +337,42 @@ func TestOneLandsFacingAwayFromTheHorse(t *testing.T) {
 	away := unitOf(spot.Sub(from), vector.Vector3{})
 	if d := away.X*f.hands.facing.X + away.Y*f.hands.facing.Y; d < 0.99 {
 		t.Errorf("facing %v, not away from the horse along %v", f.hands.facing, away)
+	}
+}
+
+// downByKey gets a rider down from where the keyboard does: while the player is
+// being controlled, in the middle of their turn.
+type downByKey struct{ asked *bool }
+
+func (d downByKey) control(f *farm, o *game.Object, _ float64) intent {
+	if *d.asked && f.riding(o) {
+		*d.asked = false
+		f.getDown()
+	}
+	return intent{}
+}
+
+// Getting down by a key plays its motion to the end, and is not turned into
+// standing by the rest of the player's turn.
+func TestGettingDownByAKeyPlaysItsMotion(t *testing.T) {
+	asked := false
+	g, f := build(SVGArt(), downByKey{&asked})
+	f.clock.Hour = 10
+	f.kit.money = 1000
+	if !f.buyAnimal(f.kit, stableOffers[1]) {
+		t.Fatal("no horse")
+	}
+	c := f.herd.crits[len(f.herd.crits)-1]
+	f.setFeet(c.pos.Add(vector.Vector3{X: tile}))
+	f.getOn(c)
+	for range int((MountSeconds + walkUp) / frame) {
+		g.Step(frame)
+	}
+	asked = true
+	for k := range int(DismountSeconds/frame) - 2 {
+		g.Step(frame)
+		if got := f.player.Animator.Current(); got != f.hands.pose(f.player)+"_dismount" {
+			t.Fatalf("frame %d of getting down plays %s", k, got)
+		}
 	}
 }
