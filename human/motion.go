@@ -64,7 +64,7 @@ func Animate(m *gltf.Model, motions ...Motion) error {
 			}
 			t := m.Nodes[root].Translation
 			lift.Times = append(lift.Times, at)
-			lift.Values = append(lift.Values, [4]float32{float32(t[0]), float32(t[1] + p.Bob), float32(t[2] + p.Forward)})
+			lift.Values = append(lift.Values, [4]float32{float32(t[0] + p.Aside), float32(t[1] + p.Bob), float32(t[2] + p.Forward)})
 		}
 		an.Channels = append(an.Channels, lift)
 		for _, name := range sortedKeys(chans) {

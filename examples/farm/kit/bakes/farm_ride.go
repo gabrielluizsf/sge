@@ -14,7 +14,8 @@ import (
 const barrelNode = "barrel"
 
 // rideOnBarrel gives m, a person already animated, the barrel that stands for
-// the horse's body while they ride, if they do: a second root of the model.
+// the horse's body while they ride, get on or get down, if they do: a further
+// root of the model for each.
 func (b *Baker) rideOnBarrel(m *gltf.Model, motions []human.Motion) error {
 	if !hasMotion(motions, human.Ride) {
 		return nil
@@ -23,10 +24,12 @@ func (b *Baker) rideOnBarrel(m *gltf.Model, motions []human.Motion) error {
 	if err != nil {
 		return err
 	}
-	if err := human.Lay(m, building.Barrel.Model(palette), human.BedPlace{At: [3]float64{0, human.BarrelHeight, 0}, Scale: 1, During: human.Ride.Name}); err != nil {
-		return err
+	for _, mo := range human.Riding {
+		if err := human.Lay(m, building.Barrel.Model(palette), human.BedPlace{At: [3]float64{0, human.BarrelHeight, 0}, Scale: 1, During: mo.Name}); err != nil {
+			return err
+		}
+		m.Nodes[m.Roots[len(m.Roots)-1]].Name = barrelNode
 	}
-	m.Nodes[m.Roots[len(m.Roots)-1]].Name = barrelNode
 	return nil
 }
 
@@ -38,13 +41,19 @@ func rider(m *gltf.Model, sh bake.Shot) bake.Sprite {
 	o := Options()
 	o.Shadow = 0
 	with := bake.Render(m, sh, o)
-	bare := *m
+	return withoutBarrel(with, bake.Render(only(m, true), sh, o))
+}
+
+// only is m with its barrels alone, or with all but them.
+func only(m *gltf.Model, barrels bool) *gltf.Model {
+	out := *m
+	out.Roots = nil
 	for _, r := range m.Roots {
-		if m.Nodes[r].Name == barrelNode {
-			bare.Roots = []int{r}
+		if (m.Nodes[r].Name == barrelNode) == barrels {
+			out.Roots = append(out.Roots, r)
 		}
 	}
-	return withoutBarrel(with, bake.Render(&bare, sh, o))
+	return &out
 }
 
 // withoutBarrel is the rider alone: what the barrel alone does not show.

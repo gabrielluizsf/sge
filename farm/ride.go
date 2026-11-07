@@ -10,24 +10,31 @@ import (
 
 // How fast a horse goes under a rider, in cells a second, walking and with
 // Shift held: more than a person on foot. How far to the side of it one
-// stands to get on, in cells; how far behind them it is drawn; how near a
-// horse one must be.
+// stands to get on, in cells, which is where the motion's picture has them;
+// how far behind them it is drawn; how fast one walks up to that spot, in
+// cells a second.
 const (
-	rideWalk   = 5.2
-	rideRun    = 7.6
-	mountAside = 0.75
-	heldBehind = 0.01
+	rideWalk    = 5.2
+	rideRun     = 7.6
+	MountAside  = 0.7
+	heldBehind  = 0.01
+	walkToMount = 3.5
+	// outFromHorse is the eighths of a turn from a horse's heading to the way
+	// one ends up facing, having jumped down off it: away from its side.
+	outFromHorse = -2
 )
 
-// riding is the player on a horse: mid getting on or down for as long as time
-// has not reached MountSeconds, from and to the way their feet go meanwhile.
+// riding is the player on a horse: walking up to it, or mid getting on or down
+// for as long as time has not reached its seconds, drawn all the while on its
+// spot, the motion's picture holding them where they are beside it.
 type riding struct {
 	c        *creature
 	time     float64
 	changing bool
+	walking  bool
 	down     bool
 	moved    bool // the rider went since the horse last looked
-	from, to vector.Vector3
+	from     vector.Vector3
 }
 
 // riding reports whether o is the player, seated on a horse and free to go.
@@ -59,20 +66,31 @@ func (f *farm) horseNear(o *game.Object) (words string, do func(), ok bool) {
 	return i18n.T("E: ride the horse"), func() { f.getOn(c) }, true
 }
 
-// besideHorse is the spot on the horse's left, as it faces, where one stands
-// to get on or comes down: the way it goes being the screen's, its heading.
+// besideHorse is the spot on the side of horse c that one gets on from: the
+// same turn from its heading in the world on every heading.
 func (f *farm) besideHorse(c *creature) vector.Vector3 {
-	at := c.pos.Add(f.onGround(leftOf(c.heading)).Scale(mountAside * tile))
-	if col, row := f.cellOf(at); f.open(col, row) {
-		return at
-	}
-	return c.pos.Add(f.onGround(leftOf(c.heading)).Scale(-mountAside * tile))
+	way := unitOf(f.onGround(headingWay(c.heading)), vector.Vector3{X: 1})
+	return c.pos.Add(vector.Vector3{X: way.Y, Y: -way.X}.Scale(MountAside * tile))
 }
 
-// leftOf is a unit way on the screen to the left of heading, an eighth of a
-// turn each, clockwise from the right.
-func leftOf(heading int) vector.Vector3 {
-	return headingWay(heading + 6)
+// roomBeside turns horse c about if its side for getting on or down is blocked
+// and the other is not, and reports whether there is room on the side it has.
+func (f *farm) roomBeside(c *creature) bool {
+	if f.openAt(f.besideHorse(c)) {
+		return true
+	}
+	c.heading = (c.heading + 4) % 8
+	if f.openAt(f.besideHorse(c)) {
+		return true
+	}
+	c.heading = (c.heading + 4) % 8
+	return false
+}
+
+// openAt reports whether a person can stand at a spot of the world.
+func (f *farm) openAt(at vector.Vector3) bool {
+	col, row := f.cellOf(at)
+	return f.open(col, row)
 }
 
 // headingWay is the way on the screen an eighth-of-a-turn heading points.
@@ -82,20 +100,26 @@ func headingWay(heading int) vector.Vector3 {
 	return vector.Vector3{X: w[0], Y: w[1]}
 }
 
-// getOn starts the player getting on horse c, which stands for it, and
-// reports whether they did.
+// getOn starts the player walking up to horse c, which stands for it, to get
+// on, and reports whether they did.
 func (f *farm) getOn(c *creature) bool {
 	if f.ride != nil || f.seat != nil {
 		return false
 	}
-	f.face8(c.heading)
+	f.roomBeside(c)
 	c.walking, c.grazes, c.held, c.homing = false, false, true, false
-	f.ride = &riding{c: c, changing: true, from: f.besideHorse(c), to: c.pos}
-	f.setFeet(f.ride.from)
-	f.hands.acting = MountSeconds
+	f.ride = &riding{c: c, changing: true, walking: true, from: f.besideHorse(c)}
+	f.hands.acting = 1
+	return true
+}
+
+// startMount is the player at the horse's side, starting up it.
+func (f *farm) startMount(r *riding) {
+	r.walking, r.time = false, 0
+	f.setFeet(r.c.pos)
+	f.face8(r.c.heading)
 	f.player.Animator.Play(f.hands.pose(f.player) + "_mount")
 	f.sound("ui_tick", nil)
-	return true
 }
 
 // face8 turns the player the way heading looks on the screen.
@@ -108,16 +132,20 @@ func (f *farm) setFeet(at vector.Vector3) {
 	f.player.Transform.Position.X, f.player.Transform.Position.Y = at.X, at.Y
 }
 
-// getDown starts the player down from the horse.
+// getDown starts the player down from the horse, if there is room beside it.
 func (f *farm) getDown() {
 	r := f.ride
 	if r == nil || r.changing {
 		return
 	}
+	if !f.roomBeside(r.c) {
+		f.sound("deny", nil)
+		return
+	}
 	r.c.walking = false
 	r.changing, r.down, r.time = true, true, 0
-	r.from, r.to = feet(f.player), f.besideHorse(r.c)
-	f.hands.acting = MountSeconds
+	f.face8(r.c.heading)
+	f.hands.acting = 1
 	f.player.Animator.Play(f.hands.pose(f.player) + "_dismount")
 	f.sound("ui_tick", nil)
 }
@@ -133,18 +161,44 @@ func (f *farm) rideTick(dt float64) {
 		r.c.walking, r.moved = r.moved, false
 		return
 	}
+	f.hands.acting = 1 // not free until it is over
+	if r.walking {
+		f.walkToHorse(r, dt)
+		return
+	}
 	r.time += dt
-	u := min(r.time/MountSeconds, 1)
-	f.setFeet(r.from.Add(r.to.Sub(r.from).Scale(u)))
-	if u < 1 {
+	if r.time < r.seconds() {
 		return
 	}
 	f.hands.acting = 0
 	r.changing = false
 	if r.down {
+		f.setFeet(f.besideHorse(r.c))
+		f.face8(r.c.heading + outFromHorse)
 		f.freeHorse(r.c)
 		f.ride = nil
 	}
+}
+
+// seconds is how long the change under way takes.
+func (r *riding) seconds() float64 {
+	if r.down {
+		return DismountSeconds
+	}
+	return MountSeconds
+}
+
+// walkToHorse takes the player toward the spot by the horse, and up it there.
+func (f *farm) walkToHorse(r *riding, dt float64) {
+	way := r.from.Sub(feet(f.player))
+	step := walkToMount * tile * dt
+	if way.Length() <= step {
+		f.startMount(r)
+		return
+	}
+	f.hands.facing = unitOf(way, f.hands.facing)
+	f.setFeet(feet(f.player).Add(f.hands.facing.Scale(step)))
+	f.player.Animator.Play(f.hands.pose(f.player) + "_walk")
 }
 
 // throwOff is the rider gone at once, dead: the horse goes home by itself.

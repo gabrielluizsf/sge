@@ -92,7 +92,11 @@ func (b svgBody) raised(fps float64, names ...string) Clip {
 // dir, or down from it.
 func (b svgBody) rising(dir string, down bool) Clip {
 	names := []string{dir, dir + "1", dir + "2", dir}
-	c := b.clip(float64(len(names))/MountSeconds, names...)
+	seconds := float64(MountSeconds)
+	if down {
+		seconds = DismountSeconds
+	}
+	c := b.clip(float64(len(names))/seconds, names...)
 	for i, s := range c.Frames {
 		u := float64(i) / float64(len(names)-1)
 		if down {

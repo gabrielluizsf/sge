@@ -90,18 +90,24 @@ type frame struct {
 	shot bake.Shot
 	wet  bool
 	ride bool
+	// climb is getting on or down a horse, by its body, with a shadow of shade
+	// of its strength.
+	climb bool
+	shade float64
 }
 
 // framesOf are every frame of l.
 func framesOf(l look) []frame {
 	var out []frame
 	prefix := PersonName(l.v.ID, l.g.Stage, l.mo.Name)
-	for k := range Frames {
+	for k := range FramesOf(l.mo.Name) {
 		out = append(out, frame{
-			name: fmt.Sprintf("%s_d%d_f%d", prefix, l.facing, k),
-			shot: bake.Shot{Animation: l.mo.Name, Time: timeOf(l.mo, k), Yaw: float64(l.facing) * 360 / Facings},
-			wet:  slices.Contains(wetMotions, l.mo.Name),
-			ride: l.mo.Name == human.Ride.Name,
+			name:  fmt.Sprintf("%s_d%d_f%d", prefix, l.facing, k),
+			shot:  bake.Shot{Animation: l.mo.Name, Time: timeOf(l.mo, k), Yaw: float64(l.facing) * 360 / Facings},
+			wet:   slices.Contains(wetMotions, l.mo.Name),
+			ride:  l.mo.Name == human.Ride.Name,
+			climb: climbing(l.mo.Name),
+			shade: climbShade(l.mo.Name, float64(k)/float64(FramesOf(l.mo.Name)-1)),
 		})
 	}
 	return out
@@ -112,10 +118,11 @@ var wetMotions = []string{human.Swim.Name, human.Tread.Name, human.Dive.Name, hu
 
 // timeOf is the moment of motion m that frame k of a bake shows: a loop's
 // frames are evenly round it; a motion run through once shows its first
-// and its last, which poses just short of the loop's wrap to the start.
+// and its last, which poses just short of the loop's wrap to the start, by
+// more than the single-precision times of its keys can round down.
 func timeOf(m human.Motion, k int) float64 {
 	if m.Once {
-		return m.Length * float64(k) / (Frames - 1) * (1 - 1e-9)
+		return m.Length * float64(k) / float64(FramesOf(m.Name)-1) * (1 - 1e-6)
 	}
 	return m.Length * float64(k) / Frames
 }
@@ -124,6 +131,9 @@ func timeOf(m human.Motion, k int) float64 {
 func shoot(m *gltf.Model, f frame) bake.Sprite {
 	if f.ride {
 		return rider(m, f.shot)
+	}
+	if f.climb {
+		return climber(m, f.shot, f.shade)
 	}
 	o := Options()
 	if f.wet {
@@ -161,7 +171,7 @@ func versionOf(mo human.Motion) string {
 		return fmt.Sprintf("v%dz%d", human.MotionsVersion, human.SleepVersion)
 	case human.Sit.Name:
 		return fmt.Sprintf("v%ds%d", human.MotionsVersion, human.SitVersion)
-	case human.Ride.Name, human.Mount.Name:
+	case human.Ride.Name, human.Mount.Name, human.Dismount.Name:
 		return fmt.Sprintf("v%dx%d", human.MotionsVersion, human.RideVersion)
 	case human.Drink.Name:
 		return fmt.Sprintf("v%dq%d", human.MotionsVersion, human.DrinkVersion)

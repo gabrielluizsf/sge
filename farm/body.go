@@ -74,10 +74,12 @@ const (
 	MineSeconds  = 0.6
 	EatSeconds   = 2.2
 	DrinkSeconds = 2.6
-	// MountSeconds is how long getting on a horse takes, and getting down.
-	MountSeconds = 1.2
-	WellSeconds  = 2.6
-	DipSeconds   = 2.4
+	// MountSeconds is how long getting on a horse takes; DismountSeconds how
+	// long getting down, sitting sideways and jumping off, done when asked for.
+	MountSeconds    = 1.8
+	DismountSeconds = 0.7
+	WellSeconds     = 2.6
+	DipSeconds      = 2.4
 	// MilkDownSeconds is how long sitting down to milk takes, and getting
 	// up after, and MilkSeconds the milking between them.
 	MilkDownSeconds = 0.8

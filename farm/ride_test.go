@@ -1,10 +1,14 @@
 package farm
 
 import (
+	"math"
 	"testing"
 
 	"github.com/gabrielluizsf/sge/vector"
 )
+
+// walkUp is more than a walk up to a horse, from the farthest one gets on at.
+const walkUp = 1.0
 
 // aHorse is a game with a horse bought, the player beside it, and how to
 // step it by seconds, driven by next.
@@ -38,10 +42,11 @@ func TestGettingOnAHorse(t *testing.T) {
 	if f.ride == nil || !f.ride.changing || f.riding(f.player) {
 		t.Fatal("not getting on")
 	}
+	step(walkUp)
 	if got := f.player.Animator.Current(); got != f.hands.pose(f.player)+"_mount" {
 		t.Errorf("playing %s", got)
 	}
-	step(MountSeconds + 0.2)
+	step(MountSeconds + walkUp)
 	if !f.riding(f.player) {
 		t.Fatal("not in the saddle")
 	}
@@ -67,7 +72,7 @@ func TestAHorseGoesWithItsRider(t *testing.T) {
 	var next intent
 	f, c, step := aHorse(t, &next)
 	f.getOn(c)
-	step(MountSeconds + 0.2)
+	step(MountSeconds + walkUp)
 	f.setFeet(f.ground.CellCenter(25, pathRow)) // the farm's open path, running west
 	step(2 * frame)
 	start := feet(f.player)
@@ -87,13 +92,13 @@ func TestAHorseGoesWithItsRider(t *testing.T) {
 	}
 }
 
-// E gets the player down, by the same motion backward, beside the horse; the
+// E gets the player down, by jumping off its side, beside the horse; the
 // horse then walks back to its pen by itself, and lives there as before.
 func TestGettingDownSendsTheHorseHome(t *testing.T) {
 	var next intent
 	f, c, step := aHorse(t, &next)
 	f.getOn(c)
-	step(MountSeconds + 0.2)
+	step(MountSeconds + walkUp)
 	col0, row0 := c.pen.r.col+c.pen.r.cols/2, c.pen.r.row+c.pen.r.rows+2
 	f.setFeet(f.ground.CellCenter(col0, row0))
 	step(2 * frame)
@@ -101,12 +106,12 @@ func TestGettingDownSendsTheHorseHome(t *testing.T) {
 	if got := f.player.Animator.Current(); got != f.hands.pose(f.player)+"_dismount" {
 		t.Errorf("playing %s", got)
 	}
-	step(MountSeconds + 0.2)
+	step(DismountSeconds + 2*frame)
 	if f.ride != nil || !c.homing || c.held {
 		t.Fatalf("ride %+v homing %v held %v", f.ride, c.homing, c.held)
 	}
-	if d := feet(f.player).Sub(c.pos).Length(); d < 0.3*tile {
-		t.Errorf("came down on the horse: %v", d)
+	if d := feet(f.player).Sub(c.pos).Length(); math.Abs(d-MountAside*tile) > 0.5*tile {
+		t.Errorf("came down %v from the horse", d)
 	}
 	step(30)
 	col, row := f.cellOf(c.pos)
@@ -133,7 +138,7 @@ func TestAHorseStopsAtTheWater(t *testing.T) {
 	var next intent
 	f, c, step := aHorse(t, &next)
 	f.getOn(c)
-	step(MountSeconds + 0.2)
+	step(MountSeconds + walkUp)
 	col, row := shoreSpot(t, f)
 	f.setFeet(f.ground.CellCenter(col, row))
 	step(frame)
@@ -166,7 +171,7 @@ func TestARiderDiesAndTheHorseGoesHome(t *testing.T) {
 	var next intent
 	f, c, step := aHorse(t, &next)
 	f.getOn(c)
-	step(MountSeconds + 0.2)
+	step(MountSeconds + walkUp)
 	f.fall()
 	if f.ride != nil || !c.homing || c.held {
 		t.Errorf("ride %+v homing %v held %v", f.ride, c.homing, c.held)
@@ -215,5 +220,121 @@ func TestAHorseWithNoWayWalksStraightHome(t *testing.T) {
 	step(30)
 	if c.homing {
 		t.Errorf("not home: at %v", c.pos)
+	}
+}
+
+// One walks up to a horse before getting on, and is drawn on its spot from then
+// on: the motion's picture has them beside it, where they walked to.
+func TestWalkingUpToAHorse(t *testing.T) {
+	var next intent
+	f, c, step := aHorse(t, &next)
+	start := feet(f.player)
+	f.getOn(c)
+	spot := f.besideHorse(c)
+	step(2 * frame)
+	if d := feet(f.player).Sub(spot).Length(); d >= start.Sub(spot).Length() || feet(f.player) == c.pos {
+		t.Errorf("not walking up: %v from the spot", d)
+	}
+	if got := f.player.Animator.Current(); got != f.hands.pose(f.player)+"_walk" {
+		t.Errorf("playing %s", got)
+	}
+	step(walkUp)
+	if d := feet(f.player).Sub(c.pos).Length(); d > 0.01 {
+		t.Errorf("drawn %v from the horse getting on", d)
+	}
+}
+
+// A horse with its side for getting on against a wall turns about.
+func TestAHorseTurnsWhenItsSideIsBlocked(t *testing.T) {
+	var next intent
+	f, c, _ := aHorse(t, &next)
+	col, row := f.cellOf(f.besideHorse(c))
+	rockCol, rockRow := rockCell(t, f)
+	f.things.Set(col, row, f.thingAt(rockCol, rockRow))
+	if !f.roomBeside(c) {
+		t.Fatal("no room on either side")
+	}
+	if !f.openAt(f.besideHorse(c)) {
+		t.Error("still blocked")
+	}
+}
+
+// The spot beside a horse is at the same distance whichever way it faces, and a
+// quarter turn from its heading in the world.
+func TestTheSpotBesideAHorse(t *testing.T) {
+	var next intent
+	f, c, _ := aHorse(t, &next)
+	for h := range 8 {
+		c.heading = h
+		side := f.besideHorse(c).Sub(c.pos)
+		if d := side.Length(); math.Abs(d-MountAside*tile) > 0.01 {
+			t.Errorf("heading %d: %v away", h, d)
+		}
+		ahead := f.onGround(headingWay(h))
+		if d := side.X*ahead.X + side.Y*ahead.Y; math.Abs(d) > 0.01 {
+			t.Errorf("heading %d: not square to the way it goes (%v)", h, d)
+		}
+	}
+}
+
+// Getting down starts the moment it is asked for, is soon over, and leaves the
+// player free at once.
+func TestGettingDownIsQuick(t *testing.T) {
+	var next intent
+	f, c, step := aHorse(t, &next)
+	f.getOn(c)
+	step(MountSeconds + walkUp)
+	f.getDown()
+	if f.ride == nil || !f.ride.changing || !f.ride.down {
+		t.Fatal("not getting down at once")
+	}
+	if got := f.player.Animator.Current(); got != f.hands.pose(f.player)+"_dismount" {
+		t.Errorf("playing %s", got)
+	}
+	step(DismountSeconds + 3*frame)
+	if f.ride != nil {
+		t.Error("still getting down")
+	}
+	if f.hands.acting > 0 {
+		t.Errorf("not free: %v seconds left", f.hands.acting)
+	}
+	if DismountSeconds > 0.7 {
+		t.Errorf("getting down takes %v seconds", DismountSeconds)
+	}
+}
+
+// Nothing is written over a rider's head, and E still gets them down.
+func TestNoWordsOverARider(t *testing.T) {
+	var next intent
+	f, c, step := aHorse(t, &next)
+	f.getOn(c)
+	step(MountSeconds + walkUp)
+	words, do, ok := f.interaction(f.player)
+	if words != "" {
+		t.Errorf("%q written over the rider", words)
+	}
+	if !ok {
+		t.Fatal("E does nothing on the horse")
+	}
+	do()
+	if f.ride == nil || !f.ride.down {
+		t.Error("E does not get them down")
+	}
+}
+
+// One jumps down with one's back to the horse: facing away from it, from the
+// spot beside it, as the motion's last picture has them.
+func TestOneLandsFacingAwayFromTheHorse(t *testing.T) {
+	var next intent
+	f, c, step := aHorse(t, &next)
+	f.getOn(c)
+	step(MountSeconds + walkUp)
+	f.getDown()
+	spot := f.besideHorse(c)
+	from := c.pos
+	step(DismountSeconds + 2*frame)
+	away := unitOf(spot.Sub(from), vector.Vector3{})
+	if d := away.X*f.hands.facing.X + away.Y*f.hands.facing.Y; d < 0.99 {
+		t.Errorf("facing %v, not away from the horse along %v", f.hands.facing, away)
 	}
 }

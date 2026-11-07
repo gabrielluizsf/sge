@@ -17,6 +17,9 @@ type Pose struct {
 	Shoulder, Raise, Elbow  [2]float64
 	Plane, Wrist            [2]float64
 	Bob, Forward            float64
+	// Turn is the whole body turned about the vertical, Aside how far it is
+	// taken along its first X: for a motion that goes round something.
+	Turn, Aside float64
 }
 
 // side is a side's suffix in MakeHuman's bone names, and which way out
@@ -51,6 +54,9 @@ func (p Pose) turns(a arms) map[string]quat {
 		"spine04": around(xAxis, p.Lean/2),
 		"spine02": around(xAxis, p.Lean/2).then(around(yAxis, p.Twist)),
 		"neck01":  around(xAxis, p.Nod),
+	}
+	if p.Turn != 0 {
+		t["root"] = t["root"].then(around(yAxis, p.Turn))
 	}
 	for s, side := range sides {
 		// A leg is plumbed, taken out and swung; the knee and the ankle

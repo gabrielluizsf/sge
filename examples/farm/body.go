@@ -39,14 +39,15 @@ var motions = map[string][]string{
 	farm.AnimEat:   {"eat", "stand"},
 	farm.AnimDrink: {"drink", "eat", "stand"},
 	// Ridden sitting, whichever is baked yet.
-	farm.AnimRide:  {"ride", "sit", "stand"},
-	farm.AnimMount: {"mount", "stand"},
-	farm.AnimWell:  {"well", "water", "stand"},
-	farm.AnimDip:   {"dip", "water", "stand"},
-	farm.AnimSwim:  {"swim", "tread", "walk", "stand"},
-	farm.AnimDive:  {"dive", "swim", "stand"},
-	farm.AnimRise:  {"rise", "stand"},
-	farm.AnimSit:   {"sit", "stand"},
+	farm.AnimRide:     {"ride", "sit", "stand"},
+	farm.AnimMount:    {"mount", "stand"},
+	farm.AnimDismount: {"dismount", "stand"},
+	farm.AnimWell:     {"well", "water", "stand"},
+	farm.AnimDip:      {"dip", "water", "stand"},
+	farm.AnimSwim:     {"swim", "tread", "walk", "stand"},
+	farm.AnimDive:     {"dive", "swim", "stand"},
+	farm.AnimRise:     {"rise", "stand"},
+	farm.AnimSit:      {"sit", "stand"},
 	// Milked sitting, whichever is baked yet.
 	farm.AnimMilkDown: {"milkdown", "sit", "stand"},
 	farm.AnimMilk:     {"milk", "sit", "stand"},
@@ -64,11 +65,6 @@ func (b *realBody) Clip(anim, dir string) farm.Clip {
 	if mo := sleepMotion(anim); anim == farm.AnimSleep || mo.Name != human.Sleep.Name {
 		return b.asleep(mo)
 	}
-	if anim == farm.AnimDismount { // getting down is getting on, backward
-		c := b.Clip(farm.AnimMount, dir)
-		slices.Reverse(c.Frames)
-		return c
-	}
 	if anim == farm.AnimMilkUp { // getting up is sitting down, backward
 		c := b.Clip(farm.AnimMilkDown, dir)
 		slices.Reverse(c.Frames)
@@ -77,18 +73,19 @@ func (b *realBody) Clip(anim, dir string) farm.Clip {
 	d := turnOf(dir)
 	for _, m := range motions[anim] {
 		prefix := bakes.PersonName(b.id, b.stage, m)
-		if !b.art.shelf.Has(fmt.Sprintf("%s_d%d_f%d", prefix, d, bakes.Frames-1)) {
+		n := bakes.FramesOf(m)
+		if !b.art.shelf.Has(fmt.Sprintf("%s_d%d_f%d", prefix, d, n-1)) {
 			continue
 		}
-		return farm.Clip{Frames: b.frames(prefix, d), FPS: fpsOf(anim, m)}
+		return farm.Clip{Frames: b.frames(prefix, d, n), FPS: fpsOf(anim, m)}
 	}
 	return farm.Clip{Frames: []*sprite.Sprite{{Image: newFrame()}}, FPS: 1}
 }
 
-// frames are the sprites of a motion facing d, each read from the shelf
+// frames are the n sprites of a motion facing d, each read from the shelf
 // when it is first drawn, standing on the villager's feet.
-func (b *realBody) frames(prefix string, d int) []*sprite.Sprite {
-	out := make([]*sprite.Sprite, bakes.Frames)
+func (b *realBody) frames(prefix string, d, n int) []*sprite.Sprite {
+	out := make([]*sprite.Sprite, n)
 	for k := range out {
 		name := fmt.Sprintf("%s_d%d_f%d", prefix, d, k)
 		at, _ := b.art.shelf.Sprite(name)
@@ -118,7 +115,9 @@ func fpsOf(anim, motion string) float64 {
 	case farm.AnimDrink:
 		return bakes.Frames / farm.DrinkSeconds
 	case farm.AnimMount:
-		return bakes.Frames / farm.MountSeconds
+		return float64(bakes.FramesOf(motion)) / farm.MountSeconds
+	case farm.AnimDismount:
+		return float64(bakes.FramesOf(motion)) / farm.DismountSeconds
 	case farm.AnimWell:
 		return bakes.Frames / farm.WellSeconds
 	case farm.AnimDip:

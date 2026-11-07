@@ -10,10 +10,11 @@ import (
 const talkReach = 1.5 * tile
 
 // interaction is what E does where the player o stands: its words over
-// their head, and doing it. ok is false where it does nothing.
+// their head, none for getting down from a horse, and doing it. ok is false
+// where it does nothing.
 func (f *farm) interaction(o *game.Object) (words string, do func(), ok bool) {
 	if f.ride != nil {
-		return i18n.T("E: get down"), f.getDown, true
+		return "", f.getDown, true
 	}
 	if f.room == nil {
 		if t, name := f.shedBy(o); t != nil {
