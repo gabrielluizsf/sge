@@ -38,13 +38,13 @@ var houseWords = map[string]string{
 	"Arranging: nothing chosen":                         "Arrumando: nada escolhido",
 	"Holding: %s":                                       "Na mão: %s",
 	"Place: %s (Q/E: change)":                           "Colocar: %s (Q/E: trocar)",
-	"Arrows: move   Enter: lift/place   R: turn   X: store   Esc/B: done": "Setas: mover   Enter: pegar/colocar   R: girar   X: guardar   Esc/B: pronto",
-	"Enter: craft   Q/E: tabs   Esc: close":                               "Enter: criar   Q/E: abas   Esc: fechar",
-	"Enter: pick up   Shift+Enter: send across   Esc: close":              "Enter: pegar   Shift+Enter: passar para o outro lado   Esc: fechar",
-	"Enter: pick up   1-6: shortcut   Q/E: tabs   I/Tab/Esc: close":       "Enter: pegar   1-6: atalho   Q/E: abas   I/Tab/Esc: fechar",
-	"E: interact (talk, shop, doors, sit, chests)":                        "E: interagir (conversar, loja, portas, sentar, baús)",
-	"B: arrange furniture (in your house; chests outside)":                "B: arrumar móveis (na sua casa; baús lá fora)",
-	"Backpack: Q/E change tab, Craft makes furniture":                     "Mochila: Q/E troca de aba, Criar faz móveis",
+	"Arrows or mouse: move   Enter or click: lift/place   R or right click: turn   X: store   Esc/B: done": "Setas ou mouse: mover   Enter ou clique: pegar/colocar   R ou botão direito: girar   X: guardar   Esc/B: pronto",
+	"Enter: craft   Q/E: tabs   Esc: close":                         "Enter: criar   Q/E: abas   Esc: fechar",
+	"Enter: pick up   Shift+Enter: send across   Esc: close":        "Enter: pegar   Shift+Enter: passar para o outro lado   Esc: fechar",
+	"Enter: pick up   1-6: shortcut   Q/E: tabs   I/Tab/Esc: close": "Enter: pegar   1-6: atalho   Q/E: abas   I/Tab/Esc: fechar",
+	"E: interact (talk, shop, doors, sit, chests)":                  "E: interagir (conversar, loja, portas, sentar, baús)",
+	"B: arrange furniture (in your house; chests outside)":          "B: arrumar móveis (na sua casa; baús lá fora)",
+	"Backpack: Q/E change tab, Craft makes furniture":               "Mochila: Q/E troca de aba, Criar faz móveis",
 }
 
 func init() {

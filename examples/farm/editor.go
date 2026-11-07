@@ -19,6 +19,9 @@ type editor struct {
 	// on it the cursor took it.
 	pen            *pen
 	penCol, penRow int
+	// mouseX and mouseY are where the pointer last was, once mouseKnown.
+	mouseX, mouseY int
+	mouseKnown     bool
 }
 
 // editing reports whether the player is arranging furniture.

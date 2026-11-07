@@ -49,7 +49,7 @@ func (a *realArt) iconOf(name string) *canvas.Canvas {
 	if err != nil {
 		return nil
 	}
-	return shrink(s.Image, iconPx, iconPx)
+	return halo(shrink(s.Image, iconPx, iconPx))
 }
 
 // drawing is an SVG src to render w by h pixels, kept as name.

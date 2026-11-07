@@ -95,7 +95,7 @@ func (h *hud) editHints(cv *canvas.Canvas) {
 	case e.item != "":
 		status = i18n.T("Place: %s (Q/E: change)", i18n.T(pieceLabels[e.item]))
 	}
-	keys := i18n.T("Arrows: move   Enter: lift/place   R: turn   X: store   Esc/B: done")
+	keys := i18n.T("Arrows or mouse: move   Enter or click: lift/place   R or right click: turn   X: store   Esc/B: done")
 	y := (navBottom + 4) * scale
 	for _, line := range []struct {
 		s   string

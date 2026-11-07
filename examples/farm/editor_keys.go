@@ -9,6 +9,10 @@ import "github.com/gabrielluizsf/antui"
 // piece held and then leaves, and so does B.
 func (f *farm) editKeys(win *antui.Window) {
 	e := f.edit
+	f.editMouse(win)
+	if f.edit == nil {
+		return
+	}
 	if dx, dy := step(win, antui.KeyLeft, antui.KeyRight)+step(win, antui.KeyA, antui.KeyD), step(win, antui.KeyUp, antui.KeyDown)+step(win, antui.KeyW, antui.KeyS); dx != 0 || dy != 0 {
 		f.editMove(dx, dy)
 	}
