@@ -1,36 +1,92 @@
-package farm
+package main
 
-import "github.com/gabrielluizsf/sge/sprite"
+import (
+	"bytes"
+	"image/png"
+	"sync"
 
-// AnimalArt is what an Art may also have to show the farm's animals: the
-// farm has none when its look cannot draw them.
-type AnimalArt interface {
-	// Animal is the sprite of an animal as look says, its pivot at its
-	// feet, or nil if the look has no such picture.
-	Animal(look AnimalLook) *sprite.Sprite
-	// Pace is how fast kind walks, in cells a second, for its feet not to
-	// slide, and how many frames of its walk the look shows a second.
-	Pace(kind string) (speed, fps float64)
-	// Milker is where one milking a cow sits, by her feet on the screen,
-	// in pixels: how far behind her middle, and how far nearer the viewer,
-	// with her head to the screen's right or left and they facing it too,
-	// for the hands to come to her teats.
-	Milker() (back, near float64)
-	// Frames is how many pictures the kind has of a motion it plays once,
-	// a wolf's "bite" or "fall".
-	Frames(kind, motion string) int
+	"github.com/gabrielluizsf/sge/examples/farm/animals"
+	"github.com/gabrielluizsf/sge/examples/farm/kit"
+	"github.com/gabrielluizsf/sge/farm"
+	"github.com/gabrielluizsf/sge/sprite"
+)
+
+// theAnimals are the baked animals' motions and places, read once, and
+// the sprites made of them, each when it is first asked for.
+var theAnimals struct {
+	once    sync.Once
+	infos   map[string]animals.Info
+	places  map[string]animals.Sprite
+	sprites map[string]*sprite.Sprite
 }
 
-// AnimalLook is how an animal is seen: its kind, "cow", "sheep", "horse"
-// or "wolf"; its coat, 0 for its first; what it does, "stand", "walk" or
-// "graze", or a wolf's "bite" and "fall" (a look without that picture shows
-// it standing); the eighth of a
-// turn it faces on the screen, 0 toward the right and on clockwise; and
-// the frame of the motion, which a look wraps round its own.
-type AnimalLook struct {
-	Kind    string
-	Coat    int
-	Motion  string
-	Heading int
-	Frame   int
+func loadAnimals() {
+	theAnimals.once.Do(func() {
+		theAnimals.infos, _ = animals.Infos()
+		theAnimals.places, _ = animals.Sprites()
+		theAnimals.sprites = map[string]*sprite.Sprite{}
+	})
+}
+
+// Animal is the baked animal as look says, in its coat, motion and
+// facing; a motion it has no frames of, grazing for the cow, is shown as
+// standing.
+func (a *realArt) Animal(look farm.AnimalLook) *sprite.Sprite {
+	loadAnimals()
+	in, ok := theAnimals.infos[look.Kind]
+	if !ok || len(in.Coats) == 0 {
+		return nil
+	}
+	coat := in.Coats[(look.Coat%len(in.Coats)+len(in.Coats))%len(in.Coats)]
+	motion, ok := in.Motions[look.Motion]
+	if !ok || motion.Frames == 0 {
+		motion = in.Motions["stand"]
+		look.Motion = "stand"
+	}
+	frame := 0
+	if motion.Frames > 0 {
+		frame = (look.Frame%motion.Frames + motion.Frames) % motion.Frames
+	}
+	name := animals.Frame(look.Kind, coat, look.Motion, (look.Heading+turnOffset)%8, frame)
+	if s, ok := theAnimals.sprites[name]; ok {
+		return s
+	}
+	at, ok := theAnimals.places[name]
+	data, err := animals.PNG(name)
+	if !ok || err != nil || at.W == 0 {
+		return nil
+	}
+	img, err := png.Decode(bytes.NewReader(data))
+	if err != nil {
+		return nil
+	}
+	s, err := sprite.FromImage(img)
+	if err != nil {
+		return nil
+	}
+	s.PivotX, s.PivotY = float64(at.PivotX)/float64(at.W), float64(at.PivotY)/float64(at.H)
+	theAnimals.sprites[name] = s
+	return s
+}
+
+// Milker is by the hind legs of the cow as she is baked, a cell being a
+// metre, so the hands of the one sitting there, measured on their pictures
+// and hers, come to her teats under her belly, she in profile.
+func (a *realArt) Milker() (back, near float64) { return 1.75 * kit.Cell, 0.1 * kit.Cell }
+
+// Frames is how many pictures of the motion were baked, at the least one.
+func (a *realArt) Frames(kind, motion string) int {
+	loadAnimals()
+	return max(theAnimals.infos[kind].Motions[motion].Frames, 1)
+}
+
+// Pace is the speed the animal was baked to walk at, and the frames a
+// second that plays its loop in its own time.
+func (a *realArt) Pace(kind string) (speed, fps float64) {
+	loadAnimals()
+	m := theAnimals.infos[kind].Motions["walk"]
+	if m.Length <= 0 {
+		return 0.5, 6
+	}
+	return m.Speed, float64(m.Frames) / m.Length
 }

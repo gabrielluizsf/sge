@@ -8,7 +8,7 @@ import (
 )
 
 func face(t *testing.T) *canvas.Face {
-	data, err := os.ReadFile("../examples/farm/fonts/Sniglet-ExtraBold.ttf")
+	data, err := os.ReadFile("../farm/fonts/Sniglet-ExtraBold.ttf")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,30 +1,40 @@
-package farm
+package main
 
 import (
+	"path/filepath"
+
 	"github.com/gabrielluizsf/antui/canvas"
-	"github.com/gabrielluizsf/sge/roundpic"
+	"github.com/gabrielluizsf/sge/examples/farm/kit/bakes"
+	"github.com/gabrielluizsf/sge/farm"
+	"github.com/gabrielluizsf/sge/sprite"
 )
 
-// The portrait's ring and the grey of a face not yet baked.
+// The room a portrait has in the conversation box's panel, in pixels.
 const (
-	ringInk  canvas.Color = 0xFF5A3A22
-	blankInk canvas.Color = 0xFFA9ADB3
+	portraitW = 52 * farm.Scale
+	portraitH = 72 * farm.Scale
 )
 
-// portrait is the player's face cut to a circle d pixels across, with its
-// ring. It is made when the art's picture or the size changes, not every
-// frame; a face not yet baked shows a neutral circle that is replaced
-// when it is.
-func (h *hud) portrait(d int) *canvas.Canvas {
-	src := h.f.art.Portrait(h.f.self.who(h.f.clock.Day))
-	if h.round != nil && h.roundSrc == src && h.roundD == d {
-		return h.round
+// Portrait is who's head and shoulders, baked from the same model as the
+// person who walks the farm, at their time of life or the nearest baked;
+// nil while none is.
+func (a *realArt) Portrait(who farm.Who) *canvas.Canvas {
+	id := villagerOf(who)
+	for _, stage := range stageOrder[who.Stage] {
+		name := bakes.PortraitName(id, stage)
+		if cv, ok := a.hud["p"+name]; ok {
+			return cv
+		}
+		if !a.shelf.Has(name) {
+			continue
+		}
+		s, err := sprite.Load(filepath.Join(a.shelf.Dir, name+".png"))
+		if err != nil {
+			continue
+		}
+		cv := shrink(s.Image, portraitW, portraitH)
+		a.hud["p"+name] = cv
+		return cv
 	}
-	if src == nil {
-		h.round = roundpic.Neutral(d, blankInk, ringInk)
-	} else {
-		h.round = roundpic.Crop(src, d, ringInk)
-	}
-	h.roundSrc, h.roundD = src, d
-	return h.round
+	return nil
 }

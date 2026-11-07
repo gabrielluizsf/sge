@@ -15,7 +15,7 @@ import (
 
 	"github.com/gabrielluizsf/antui"
 	"github.com/gabrielluizsf/antui/canvas"
-	"github.com/gabrielluizsf/sge/examples/i18n"
+	"github.com/gabrielluizsf/sge/i18n"
 )
 
 func main() {

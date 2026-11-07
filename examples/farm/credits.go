@@ -1,37 +1,60 @@
-package farm
+package main
 
-import _ "embed"
+import (
+	_ "embed"
+	"encoding/json"
+	"strings"
 
-// Credit is a third-party component the game uses: what it is, who made
-// it, where it is from, and the text of the licence it is used under,
-// which is read when the player asks to see it.
-type Credit struct {
-	Name, Author, URL string
-	// License is the licence's text; nil when there is none to show.
-	License func() string
-}
+	"github.com/gabrielluizsf/sge/examples/farm/kit"
+	"github.com/gabrielluizsf/sge/farm"
+)
 
-// Credited is an Art that says what it is made of, for the credits.
-type Credited interface {
-	Credits() []Credit
-}
+//go:embed licenses/CC0-1.0.txt
+var cc0License string
+
+//go:embed licenses/CC-BY-4.0.txt
+var ccBy4License string
 
 //go:embed fonts/OFL.txt
-var snigletLicense string
+var serifLicense string
 
-// Credits are the stylized art's third-party components: the font of its
-// letters.
-func (a *svgArt) Credits() []Credit {
-	return []Credit{{
-		Name: "Sniglet font", Author: "Haley Fiege, Brenda Gallo and Pablo Impallari",
-		URL: "https://www.fontsquirrel.com/fonts/sniglet", License: func() string { return snigletLicense },
-	}}
+// Credits are everything third-party the realistic farm is made of: its
+// font, MakeHuman's people, and Poly Haven's models and materials, each
+// under a licence that lets it ship with the repository.
+func (a *realArt) Credits() []farm.Credit {
+	cc0 := func() string { return cc0License }
+	list := []farm.Credit{
+		{Name: "Source Serif 4 font", Author: "Frank Grießhammer, Adobe", URL: "https://github.com/adobe-fonts/source-serif",
+			License: func() string { return serifLicense }},
+		{Name: "MakeHuman (bodies, clothes and hair)", Author: "The MakeHuman Community", URL: humansSource(), License: cc0},
+		{Name: "Kenney sounds (Interface, Impact, RPG Audio)", Author: "Kenney", URL: "https://kenney.nl/assets/category:Audio", License: cc0},
+	}
+	return append(append(list, animalCredits()...), polyHaven(cc0)...)
 }
 
-// creditsOf are the credits of the art a, none if it says none.
-func creditsOf(a Art) []Credit {
-	if c, ok := a.(Credited); ok {
-		return c.Credits()
+// humansSource is where the people's data is from, as humans.json pins it.
+func humansSource() string {
+	var h struct{ Source string }
+	if err := json.Unmarshal(humansJSON, &h); err != nil || h.Source == "" {
+		return "https://www.makehumancommunity.org"
 	}
-	return nil
+	return h.Source
+}
+
+// polyHaven are the credits of each asset of the manifest, with whoever
+// made it, if the manifest says.
+func polyHaven(cc0 func() string) []farm.Credit {
+	var m kit.Manifest
+	if err := json.Unmarshal(assetsJSON, &m); err != nil {
+		return nil
+	}
+	var out []farm.Credit
+	for _, as := range m.Assets {
+		author := "Poly Haven"
+		if len(as.Authors) > 0 {
+			author = strings.Join(as.Authors, ", ") + " (Poly Haven)"
+		}
+		out = append(out, farm.Credit{Name: "Poly Haven - " + as.Name, Author: author, URL: as.Source, License: cc0})
+	}
+	return out
 }

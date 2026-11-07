@@ -1,45 +1,58 @@
-package farm
+package main
 
 import (
-	"github.com/gabrielluizsf/sge/town"
-	"github.com/gabrielluizsf/sge/vector"
+	"fmt"
+	"math"
+
+	"github.com/gabrielluizsf/sge/building"
+	"github.com/gabrielluizsf/sge/examples/farm/kit"
 )
 
-// rect is the cells a building stands on: cols by rows of them from col,
-// row. They are solid, so nobody walks into the building or over it.
-type rect struct{ col, row, cols, rows int }
-
-// has reports whether cell c, r is one of the rect's.
-func (r rect) has(c, row int) bool {
-	return c >= r.col && c < r.col+r.cols && row >= r.row && row < r.row+r.rows
+// modelOf is the building the sprite name stands for: the stall, or a
+// house by its kind.
+func modelOf(name string) building.Building {
+	switch name {
+	case "stall":
+		return building.Stall
+	case "well":
+		return building.Well
+	case "stable":
+		return building.Stable
+	case "bakery":
+		return building.Bakery
+	case "butcher":
+		return building.Butcher
+	}
+	var kind int
+	fmt.Sscanf(name, "house%d", &kind)
+	return building.Houses[kind%len(building.Houses)]
 }
 
-// middle is the world point in the middle of the rect: where a building's
-// picture stands.
-func (r rect) middle() vector.Vector3 {
-	return vector.Vector3{X: (float64(r.col) + float64(r.cols)/2) * tile, Y: (float64(r.row) + float64(r.rows)/2) * tile}
+// Footprint is the cells the baked building name stands on: the metres its
+// model covers, porch and steps with it, rounded up, a cell being a
+// metre. Its walls are at the back of them, a porch in front.
+func (a *realArt) Footprint(name string) (cols, rows int) {
+	b := modelOf(name)
+	return int(math.Ceil(b.Width)), int(math.Ceil(b.Depth + b.Front))
 }
 
-// houseRect is the cells of a town's house.
-func houseRect(h town.House) rect { return rect{h.Col, h.Row, h.Width, h.Depth} }
-
-// stallRect is the cells of the stall at the cell at, a's footprint for it:
-// across the middle of the cell, its counter's row the last of them, where
-// one stands to buy.
-func stallRect(a Art, at town.Cell) rect {
-	cols, rows := a.Footprint("stall")
-	return rect{at.Col - cols/2, at.Row - rows + 1, cols, rows}
+// pivotShift is how many pixels, across and down, a model's picture is
+// moved so that the middle of its walls, where the baker puts its pivot,
+// stands where it does in its footprint: a porch's cells in front of the
+// walls put their middle, in the world, nearer the viewer than the
+// footprint's, or farther when the model is turned to face away.
+func (a *realArt) pivotShift(name string, heading int) (dx, dy float64) {
+	_, rows := a.Footprint(name)
+	s := (float64(rows) - modelOf(name).Depth) / 2
+	if heading == backHeading {
+		s = -s
+	}
+	return -kit.Cell * s, kit.Cell / 2 * s
 }
 
-// near reports whether cell c, row is one of the rect's or beside it: no
-// water laps at a house.
-func (r rect) near(c, row int) bool {
-	return c >= r.col-1 && c <= r.col+r.cols && row >= r.row-1 && row <= r.row+r.rows
-}
+// treeReach is how far beyond a cell's picture a tree grown reaches: a
+// crown twenty metres across and as tall, in pixels, with its shadow.
+const treeReach = 480
 
-// wellRect is the cells of a town's well, a's footprint for it, none when
-// the look has no well.
-func wellRect(a Art, t *town.Town) rect {
-	cols, rows := a.Footprint("well")
-	return rect{t.Well.Col, t.Well.Row, cols, rows}
-}
+// Reach is treeReach: the trees are baked at their real size.
+func (a *realArt) Reach() int { return treeReach }

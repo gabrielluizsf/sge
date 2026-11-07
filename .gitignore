@@ -135,4 +135,4 @@ dist
 *.test
 /realfarm
 
-/examples/realfarm/realfarm
+/examples/farm/farm

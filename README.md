@@ -5,9 +5,8 @@ that runs in two languages: as a Go module, and — transpiled to TypeScript by
 the `gots` transpiler in this repository — as a Deno package on JSR.
 
 The same engine, and the same game, behave the same in both: the
-[`collect`](examples/collect) and [`farm`](examples/farm) examples play frame
-for frame identically in Go and on Deno, and the engine's Go tests pass on
-Deno too.
+[`collect`](examples/collect) example plays frame for frame identically in Go
+and on Deno, and the engine's Go tests pass on Deno too.
 
 ## Packages
 
@@ -38,6 +37,7 @@ Deno too.
 | `fetch` | a build's assets downloaded over HTTPS from trusted hosts, each checked against its pinned SHA-256 |
 | `flora` | crops grown in code, sprout to ripe, as glTF models: leaves painted and bent, stems, fruit |
 | `building` | houses and props built in code as glTF models: farmhouses, cottages and town houses of several styles, walls, roofs, doors, windows and chimneys, a market stall, a smithy and anvil, a well, fences; clad in tiling PBR textures at their real size |
+| `farm` | a farming life sim, logic and rules, drawn by whatever `farm.Art` a game gives it |
 | `human` | realistic people from MakeHuman's CC0 assets: shaped by sex, age, ancestry and build, skinned, dressed, and moving: standing, walking, chopping, hoeing, swimming |
 | `life` | years in a game's calendar: ages, stages from baby to elder, lives drawn at random, ending in old age |
 | `bond` | how people come to love each other: gifts and talk a day at a time, asking out, proposing, a wedding; grown-ups only, never kin |
@@ -162,16 +162,13 @@ farm over, and with no heir the line ends and the farm starts again. F9
 passes a year at once. Arrows walk the way
 they point on the screen; space, or a click on a cell within reach, which the
 mouse outlines, uses what the farmer holds; E talks, goes in, sleeps or
-shops. Every
-picture in it is SVG, drawn from a fixed palette by
-[`cmd/farmart`](examples/farm/cmd/farmart), HUD included, the ground laid on
-the diamonds and what stands on it drawn upright; `go generate` in
-`examples/farm` writes the sprites and a preview of them. The game is a
-package, `farm`, and asks a `farm.Art` for every picture it shows, the
-tiles, icons, buildings and each person's clips in every way they face,
-so another look can play the same game: `farm.New(art, farm.Keyboard())`
-starts one, and [`examples/farm/cmd/farm`](examples/farm/cmd/farm) plays
-it in `farm.SVGArt()`.
+shops. It is drawn from real things: its
+ground, trees, crops, houses, animals and people are baked from CC0 and CC-BY
+models into sprites when it first starts, and `go run ./examples/farm` plays it.
+The game's logic is an engine package, [`farm`](farm), which asks a `farm.Art`
+for every picture it shows, the tiles, icons, buildings and each person's clips
+in every way they face, so another look can play the same game:
+`farm.New(art, farm.Keyboard())` starts one.
 
 ## Sound
 
@@ -191,7 +188,7 @@ and where there are no speakers the game runs in silence. Natively antui plays
 it through PulseAudio, WASAPI, CoreAudio or AAudio; on Deno through SDL2's
 audio queue, with `--allow-ffi`; in a browser with Web Audio. The farm's
 steps, water, leaves, birds and HUD sounds are all made up in
-[`examples/farm/sfx`](examples/farm/sfx).
+[`farm/sfx`](farm/sfx).
 
 ## TypeScript (Deno)
 
@@ -236,7 +233,7 @@ A Go program runs in a browser as it runs on Deno: its window is a
 `<canvas>` on the page and its input the page's keys, mouse and wheel.
 
 ```sh
-go run ./cmd/gots -web site ./examples/farm/cmd/farm
+go run ./cmd/gots -web site ./examples/collect
 # site/app.js and site/index.html: serve the directory, open the page
 ```
 

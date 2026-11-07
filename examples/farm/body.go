@@ -1,93 +1,138 @@
-package farm
+package main
 
-import "github.com/gabrielluizsf/sge/sprite"
+import (
+	"fmt"
+	"slices"
 
-// Body is how a person looks as they move: a clip of each of their
-// animations, in each of the ways they may face on screen.
-type Body interface {
-	// Facings is how many ways the person may face on screen, 4 or 8, as
-	// Facings names them.
-	Facings() int
-	// Clip is the animation anim, one of the Anim names, facing dir.
-	Clip(anim, dir string) Clip
+	"github.com/gabrielluizsf/antui/canvas"
+	"github.com/gabrielluizsf/sge/examples/farm/kit/bakes"
+	"github.com/gabrielluizsf/sge/farm"
+	"github.com/gabrielluizsf/sge/human"
+	"github.com/gabrielluizsf/sge/life"
+	"github.com/gabrielluizsf/sge/sprite"
+)
+
+// realBody is a villager at a stage of life, drawn from their baked
+// frames, facing eight ways.
+type realBody struct {
+	art   *realArt
+	id    string
+	stage life.Stage
 }
 
-// Clip is an animation's frames, each a sprite whose pivot stands on the
-// person's feet, and how many of them are shown a second. A clip has as
-// many frames as its art has; AnimAct and AnimChop are shown once and
-// should last ActSeconds, and the others loop.
-type Clip struct {
-	Frames []*sprite.Sprite
-	FPS    float64
+func (b *realBody) Facings() int { return bakes.Facings }
+
+// motions are the motions that stand in for each animation, the first
+// that is baked winning: using what one holds is hoeing, and what is not
+// baked yet is done in the nearest that is.
+var motions = map[string][]string{
+	farm.AnimStand: {"stand"},
+	farm.AnimWalk:  {"walk", "stand"},
+	farm.AnimRun:   {"run", "walk", "stand"},
+	farm.AnimAct:   {"hoe", "chop", "stand"},
+	farm.AnimChop:  {"chop", "hoe", "stand"},
+	farm.AnimForge: {"forge", "chop", "hoe", "stand"},
+	farm.AnimHoe:   {"hoe", "chop", "stand"},
+	farm.AnimMine:  {"mine", "chop", "hoe", "stand"},
+	farm.AnimWater: {"water", "hoe", "stand"},
+	farm.AnimPick:  {"pick", "hoe", "stand"},
+	farm.AnimEat:   {"eat", "stand"},
+	farm.AnimDrink: {"drink", "eat", "stand"},
+	// Ridden sitting, whichever is baked yet.
+	farm.AnimRide:  {"ride", "sit", "stand"},
+	farm.AnimMount: {"mount", "stand"},
+	farm.AnimWell:  {"well", "water", "stand"},
+	farm.AnimDip:   {"dip", "water", "stand"},
+	farm.AnimSwim:  {"swim", "tread", "walk", "stand"},
+	farm.AnimDive:  {"dive", "swim", "stand"},
+	farm.AnimRise:  {"rise", "stand"},
+	farm.AnimSit:   {"sit", "stand"},
+	// Milked sitting, whichever is baked yet.
+	farm.AnimMilkDown: {"milkdown", "sit", "stand"},
+	farm.AnimMilk:     {"milk", "sit", "stand"},
 }
 
-// The animations a person's Body has: standing, walking, running, using what they
-// hold, chopping with the axe, forging at the anvil, hoeing, watering, picking a crop, swimming, diving into deep water from
-// standing, rising out of it to stand, and sitting on a chair. The last two are shown once,
-// and should last DiveSeconds and RiseSeconds.
-const (
-	AnimStand = "stand"
-	AnimWalk  = "walk"
-	AnimRun   = "run"
-	AnimAct   = "act"
-	AnimChop  = "chop"
-	AnimForge = "forge"
-	AnimHoe   = "hoe"
-	AnimWater = "water"
-	AnimPick  = "pick"
-	AnimMine  = "mine"
-	AnimEat   = "eat"
-	AnimDrink = "drink"
-	// Riding: getting on, sitting on the horse, and getting down.
-	AnimMount    = "mount"
-	AnimRide     = "ride"
-	AnimDismount = "dismount"
-	AnimWell     = "well"
-	AnimDip      = "dip"
-	AnimSwim     = "swim"
-	AnimDive     = "dive"
-	AnimRise     = "rise"
-	AnimSit      = "sit"
-	// Milking: sitting down to it, milking in a loop, and getting up.
-	AnimMilkDown = "milkdown"
-	AnimMilk     = "milk"
-	AnimMilkUp   = "milkup"
-)
+// turnOf is the facing the baker baked that looks the way dir says on
+// screen: the baker turns a villager 45 degrees a facing, from the one
+// that looks at the right of the screen.
+func turnOf(dir string) int {
+	return (slices.Index(farm.Facings(8), dir) + turnOffset) % bakes.Facings
+}
 
-// DiveSeconds and RiseSeconds are how long going into deep water and
-// coming up out of it take, and so how long their clips should last.
-const (
-	DiveSeconds = 0.8
-	RiseSeconds = 1.0
-)
+// Clip is anim facing dir: the frames of the motion that stands for it.
+func (b *realBody) Clip(anim, dir string) farm.Clip {
+	if mo := sleepMotion(anim); anim == farm.AnimSleep || mo.Name != human.Sleep.Name {
+		return b.asleep(mo)
+	}
+	if anim == farm.AnimDismount { // getting down is getting on, backward
+		c := b.Clip(farm.AnimMount, dir)
+		slices.Reverse(c.Frames)
+		return c
+	}
+	if anim == farm.AnimMilkUp { // getting up is sitting down, backward
+		c := b.Clip(farm.AnimMilkDown, dir)
+		slices.Reverse(c.Frames)
+		return c
+	}
+	d := turnOf(dir)
+	for _, m := range motions[anim] {
+		prefix := bakes.PersonName(b.id, b.stage, m)
+		if !b.art.shelf.Has(fmt.Sprintf("%s_d%d_f%d", prefix, d, bakes.Frames-1)) {
+			continue
+		}
+		return farm.Clip{Frames: b.frames(prefix, d), FPS: fpsOf(anim, m)}
+	}
+	return farm.Clip{Frames: []*sprite.Sprite{{Image: newFrame()}}, FPS: 1}
+}
 
-// ForgeSeconds is how long a smith's stroke at the anvil takes, and so
-// how long its clip should last: the hammer raised, struck and let rest.
-const ForgeSeconds = 1.0
+// frames are the sprites of a motion facing d, each read from the shelf
+// when it is first drawn, standing on the villager's feet.
+func (b *realBody) frames(prefix string, d int) []*sprite.Sprite {
+	out := make([]*sprite.Sprite, bakes.Frames)
+	for k := range out {
+		name := fmt.Sprintf("%s_d%d_f%d", prefix, d, k)
+		at, _ := b.art.shelf.Sprite(name)
+		out[k] = &sprite.Sprite{PivotX: float64(at.PivotX) / float64(at.W), PivotY: float64(at.PivotY) / float64(at.H),
+			Make: func() *canvas.Canvas { return b.art.picture(name) }}
+	}
+	return out
+}
 
-// HoeSeconds, WaterSeconds and PickSeconds are the same for a stroke of
-// the hoe, a pour from the can and the picking of a crop.
-const (
-	HoeSeconds   = 1.4
-	WaterSeconds = 2.0
-	PickSeconds  = 1.6
-	MineSeconds  = 0.6
-	EatSeconds   = 2.2
-	DrinkSeconds = 2.6
-	// MountSeconds is how long getting on a horse takes, and getting down.
-	MountSeconds = 1.2
-	WellSeconds  = 2.6
-	DipSeconds   = 2.4
-	// MilkDownSeconds is how long sitting down to milk takes, and getting
-	// up after, and MilkSeconds the milking between them.
-	MilkDownSeconds = 0.8
-	MilkSeconds     = 4.2
-)
-
-// forgeImpact is how far into a stroke the hammer lands on the iron, as
-// human.Forge strikes it.
-const forgeImpact = 0.7
-
-// ActSeconds is how long a use of what one holds takes, chopping
-// included, and so how long its clip should last.
-const ActSeconds = actFor
+// fpsOf is how many of a motion's frames are shown a second for anim: a
+// loop at the pace the motion was made at, a use of what one holds or a
+// stroke of the axe once in the time the farm gives it.
+func fpsOf(anim, motion string) float64 {
+	switch anim {
+	case farm.AnimForge:
+		return bakes.Frames / farm.ForgeSeconds
+	case farm.AnimHoe:
+		return bakes.Frames / farm.HoeSeconds
+	case farm.AnimWater:
+		return bakes.Frames / farm.WaterSeconds
+	case farm.AnimPick:
+		return bakes.Frames / farm.PickSeconds
+	case farm.AnimMine:
+		return bakes.Frames / farm.MineSeconds
+	case farm.AnimEat:
+		return bakes.Frames / farm.EatSeconds
+	case farm.AnimDrink:
+		return bakes.Frames / farm.DrinkSeconds
+	case farm.AnimMount:
+		return bakes.Frames / farm.MountSeconds
+	case farm.AnimWell:
+		return bakes.Frames / farm.WellSeconds
+	case farm.AnimDip:
+		return bakes.Frames / farm.DipSeconds
+	case farm.AnimMilkDown:
+		return bakes.Frames / farm.MilkDownSeconds
+	}
+	if anim == farm.AnimAct || anim == farm.AnimChop {
+		return bakes.Frames / farm.ActSeconds
+	}
+	for _, m := range slices.Concat(human.Motions, human.Sitting, human.Mining, human.Eating, human.Drawing, human.Milking, human.Riding) {
+		if m.Name == motion {
+			return bakes.Frames / m.Length
+		}
+	}
+	return 1
+}

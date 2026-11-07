@@ -1,0 +1,22 @@
+Baked sprites of animals, made by examples/farm/cmd/animalart from 3D models
+by others, all licensed CC-BY 4.0 (http://creativecommons.org/licenses/by/4.0/).
+
+cow    "Farm Cow Animated Dairy Cattle" by Rukh3D
+       https://sketchfab.com/3d-models/farm-cow-animated-dairy-cattle-0e780cb5ab6d457198ded7d4e191a03e
+sheep  "Animated Sheep" by igor-lir
+       https://sketchfab.com/3d-models/animated-sheep-b99698502dea4905b916fce0bcf2dfc0
+wolf   "Animated Wolf" by igor-lir
+       https://sketchfab.com/3d-models/animated-wolf-23a3a563d48049d5b9844ddc1b5b6e79
+horse  "Draft Horse Walk" by honved444
+       https://sketchfab.com/3d-models/draft-horse-walk-0541f4f11cb44383bf32b906aac5288e
+
+Changes made to the models (CC-BY requires saying so):
+- All: rendered to 2D sprites in eight facings, lit and scaled for this game.
+- Cow: kept its bones; a walk and a grazing motion were written on them.
+- Sheep, wolf: their only animation (morph weights) was not used; a skeleton
+  of 4 legs, spine, neck, head and tail was added in code, skin weights taken
+  from the nearest bones, and walk, graze (sheep) and bite and fall (wolf)
+  motions written on it.
+- Horse: the model holds two horses side by side; they were separated into
+  two coats. The harness's straps, near black in the model, were dyed the
+  colour of leather. The model's own walk is used.

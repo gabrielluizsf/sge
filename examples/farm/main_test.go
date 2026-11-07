@@ -1,14 +1,14 @@
-package farm
+package main
 
 import (
 	"os"
 	"testing"
 )
 
-// TestMain gives the tests a config folder of their own: a menu may keep
-// a choice or a save, never on the player's computer.
+// TestMain gives the tests a config folder of their own: a row of the
+// creator or a menu may keep a choice, never on the player's computer.
 func TestMain(m *testing.M) {
-	dir, err := os.MkdirTemp("", "farm-config-")
+	dir, err := os.MkdirTemp("", "realfarm-config-")
 	if err != nil {
 		panic(err)
 	}

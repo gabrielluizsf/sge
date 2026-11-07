@@ -1,4 +1,4 @@
-package farm
+package main
 
 import (
 	_ "embed"
@@ -6,16 +6,16 @@ import (
 	"github.com/gabrielluizsf/antui/canvas"
 )
 
-// fontData is the HUD's typeface: Sniglet ExtraBold, round and friendly,
-// a static TrueType font from google/fonts under the SIL Open Font License
-// (fonts/OFL.txt). It is the only font the game reads, never one from the
-// player or the network.
+// fontData is the realistic farm's typeface: Source Serif 4 SemiBold, a
+// static TrueType font from Adobe's official release
+// (github.com/adobe-fonts/source-serif) under the SIL Open Font License
+// 1.1 (fonts/OFL.txt), made for legibility in interfaces. It is the only
+// font the game reads, never one from the player or the network.
 //
-//go:embed fonts/Sniglet-ExtraBold.ttf
+//go:embed fonts/SourceSerif4-Semibold.ttf
 var fontData []byte
 
-// fontPixels is the size the HUD's text is drawn at, in screen pixels:
-// the font is drawn at the screen's own resolution, never scaled up.
+// fontPixels is the size the HUD's text is drawn at, in screen pixels.
 const fontPixels = 18
 
 // hudFace is the HUD's face, read once.
