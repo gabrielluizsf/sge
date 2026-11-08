@@ -797,6 +797,48 @@ export class RootFS extends $.Native {
   }
 }
 
+// DirFS is the tree of files at dir as an fs.FS, as Go's: a name
+// fs.ValidPath refuses is an fs.ErrInvalid, the others are joined to dir
+// and opened there, links followed as Go's DirFS follows them; an error
+// names the file by its name in the tree, not its path on disk.
+export function DirFS(dir: string): DirFSys {
+  const f = new DirFSys();
+  f.dir = dir;
+  return f;
+}
+
+export class DirFSys extends $.Native {
+  dir = "";
+
+  private join(op: string, name: string): [string, any] {
+    if (!fs.ValidPath(name)) return ["", new fs.PathError(op, name, fs.ErrInvalid)];
+    const d = js(this.dir);
+    if (d === "") return ["", new fs.PathError(op, name, new osError("DirFS with empty root"))];
+    const n = js(name);
+    return [go(n === "." ? d : d.replace(/\/+$/, "") + "/" + n), null];
+  }
+
+  private named<T>(name: string, r: [T, any]): [T, any] {
+    if (r[1] instanceof fs.PathError) r[1].Path = name;
+    return r;
+  }
+
+  Open(name: string): [File | null, any] {
+    const [p, err] = this.join("open", name);
+    return err !== null ? [null, err] : this.named(name, Open(p));
+  }
+
+  Stat(name: string): [any, any] {
+    const [p, err] = this.join("stat", name);
+    return err !== null ? [null, err] : this.named(name, Stat(p));
+  }
+
+  ReadFile(name: string): [$.Slice<number> | null, any] {
+    const [p, err] = this.join("readfile", name);
+    return err !== null ? [null, err] : this.named(name, ReadFile(p));
+  }
+}
+
 // escapes is Go's error for a name that leaves its root.
 function escapes(op: string, name: string): any {
   return new fs.PathError(op, name, new osError("path escapes from parent"));
