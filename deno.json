@@ -26,11 +26,49 @@
     "./gltf": "./deno/gltf/mod.ts",
     "./bake": "./deno/bake/mod.ts",
     "./loader": "./deno/loader/mod.ts",
-    "./fetch": "./deno/fetch/mod.ts"
+    "./fetch": "./deno/fetch/mod.ts",
+    "./warm": "./deno/warm/mod.ts",
+    "./vignette": "./deno/vignette/mod.ts",
+    "./toast": "./deno/toast/mod.ts",
+    "./progress": "./deno/progress/mod.ts",
+    "./roundpic": "./deno/roundpic/mod.ts",
+    "./textfield": "./deno/textfield/mod.ts",
+    "./flora": "./deno/flora/mod.ts",
+    "./human": "./deno/human/mod.ts",
+    "./life": "./deno/life/mod.ts",
+    "./bond": "./deno/bond/mod.ts",
+    "./lineage": "./deno/lineage/mod.ts",
+    "./pose": "./deno/pose/mod.ts",
+    "./render3d": "./deno/render3d/mod.ts",
+    "./render3d/soft": "./deno/render3d/soft/mod.ts",
+    "./building": "./deno/building/mod.ts",
+    "./water": "./deno/water/mod.ts",
+    "./tree": "./deno/tree/mod.ts",
+    "./backpack": "./deno/backpack/mod.ts",
+    "./menu": "./deno/menu/mod.ts",
+    "./dialogue": "./deno/dialogue/mod.ts",
+    "./flock": "./deno/flock/mod.ts",
+    "./save": "./deno/save/mod.ts",
+    "./particle": "./deno/particle/mod.ts",
+    "./vitals": "./deno/vitals/mod.ts",
+    "./installer": "./deno/installer/mod.ts",
+    "./animal": "./deno/animal/mod.ts",
+    "./bvh": "./deno/bvh/mod.ts",
+    "./colourcode": "./deno/colourcode/mod.ts",
+    "./face": "./deno/face/mod.ts",
+    "./i18n": "./deno/i18n/mod.ts",
+    "./screenpick": "./deno/screenpick/mod.ts"
   },
   "publish": {
-    "include": ["deno/**/*.ts", "README.md", "LICENSE"],
-    "exclude": ["!deno", "deno/**/*_test.ts"]
+    "include": [
+      "deno/**/*.ts",
+      "README.md",
+      "LICENSE"
+    ],
+    "exclude": [
+      "!deno",
+      "deno/**/*_test.ts"
+    ]
   },
   "lock": false
 }

@@ -2,6 +2,7 @@
 // test becomes a Deno test) or, without Deno, as a plain script.
 import * as $ from "../../rt/mod.ts";
 import { Sprintf, Sprintln } from "../fmt/mod.ts";
+import * as syscall from "../syscall/mod.ts";
 
 class failNow {}
 class skipNow {}
@@ -102,6 +103,17 @@ export class T {
 
   Cleanup(f: () => void): void {
     this.cleanups.push(f);
+  }
+
+  // Setenv sets the environment variable key to value for the test, as
+  // Go's does: when it ends, the variable is as it was, unset if it was.
+  Setenv(key: string, value: string): void {
+    const [prev, had] = syscall.Getenv(key);
+    syscall.Setenv(key, value);
+    this.Cleanup(() => {
+      if (had) syscall.Setenv(key, prev);
+      else syscall.Unsetenv(key);
+    });
   }
 
   TempDir(): string {

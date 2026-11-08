@@ -37,9 +37,25 @@ export const StoreInt32 = store, StoreInt64 = store, StoreUint32 = store, StoreU
 export const SwapInt32 = swap, SwapInt64 = swap, SwapUint32 = swap, SwapUint64 = swap, SwapUintptr = swap, SwapPointer = swap;
 export const CompareAndSwapInt32 = cas, CompareAndSwapInt64 = cas, CompareAndSwapUint32 = cas, CompareAndSwapUint64 = cas, CompareAndSwapUintptr = cas, CompareAndSwapPointer = cas;
 
+// Counter is what the Int32, Int64, Uint32, Uint64 and Uintptr types
+// hold and do: a value, v, with atomic methods.
+export interface Counter {
+  v: any;
+  Load(): any;
+  Store(v: any): void;
+  Swap(v: any): any;
+  CompareAndSwap(old: any, v: any): boolean;
+  Add(d: any): any;
+  And(m: any): any;
+  Or(m: any): any;
+}
+
+// CounterType is one of those types, made with new.
+export type CounterType = new () => $.Native & Counter;
+
 // counter is the shape of the Int32, Int64, Uint32, Uint64 and Uintptr
 // types: a value with atomic methods.
-function counter(name: string, zero: any, wrapTo: (x: any) => any) {
+function counter(name: string, zero: any, wrapTo: (x: any) => any): CounterType {
   class C extends $.Native {
     v: any = zero;
     Load(): any { return this.v; }
@@ -73,11 +89,11 @@ function counter(name: string, zero: any, wrapTo: (x: any) => any) {
   return C;
 }
 
-export const Int32 = counter("Int32", 0, i32);
-export const Uint32 = counter("Uint32", 0, u32);
-export const Int64 = counter("Int64", 0, same);
-export const Uintptr = counter("Uintptr", 0, same);
-export const Uint64 = counter("Uint64", 0n, (x: bigint) => BigInt.asUintN(64, x));
+export const Int32: CounterType = counter("Int32", 0, i32);
+export const Uint32: CounterType = counter("Uint32", 0, u32);
+export const Int64: CounterType = counter("Int64", 0, same);
+export const Uintptr: CounterType = counter("Uintptr", 0, same);
+export const Uint64: CounterType = counter("Uint64", 0n, (x: bigint) => BigInt.asUintN(64, x));
 
 export class Bool extends $.Native {
   v = false;

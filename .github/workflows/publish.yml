@@ -15,15 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: ./.github/actions/go
         with:
-          go-version: "1.27.x"
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
+          cache: publish
+      - uses: ./.github/actions/deno
 
       # The package is the TypeScript gots writes from the Go packages.
       - name: Generate the TypeScript

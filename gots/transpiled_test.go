@@ -54,7 +54,7 @@ func engine(t *testing.T) string {
 		// The engine first: the first package's module is laid out at the
 		// top of the directory, the others' under _gots/mod.
 		var patterns []string
-		for _, p := range enginePackages {
+		for _, p := range enginePart() {
 			patterns = append(patterns, "../"+p)
 		}
 		patterns = append(patterns, "github.com/gabrielluizsf/antui/canvas")

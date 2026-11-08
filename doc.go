@@ -21,4 +21,4 @@
 // go generate writes the TypeScript to deno/.
 package sge
 
-//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game ./tilemap ./terrain ./iso ./sound ./town ./pathfind ./daytime ./scene ./inventory ./request ./random ./label ./gltf ./bake ./loader ./fetch github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas
+//go:generate go run ./cmd/gots -o deno -index ./vector ./transform ./collider ./clock ./sprite ./animation ./game ./tilemap ./terrain ./iso ./sound ./town ./pathfind ./daytime ./scene ./inventory ./request ./random ./label ./gltf ./bake ./loader ./fetch ./warm ./vignette ./toast ./progress ./roundpic ./textfield ./flora ./human ./life ./bond ./lineage ./pose ./render3d ./render3d/soft ./building ./water ./tree ./backpack ./menu ./dialogue ./flock ./save ./particle ./vitals ./installer ./animal ./bvh ./colourcode ./face ./i18n ./screenpick github.com/gabrielluizsf/antui github.com/gabrielluizsf/antui/canvas

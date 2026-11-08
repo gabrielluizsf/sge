@@ -10,7 +10,7 @@ import (
 
 // enginePackages are sge's own packages, whose Go tests must pass on Deno
 // too once transpiled.
-var enginePackages = []string{"warm", "vignette", "toast", "progress", "roundpic", "textfield", "vector", "transform", "collider", "clock", "sprite", "animation", "game", "tilemap", "terrain", "iso", "random", "inventory", "request", "pathfind", "town", "scene", "daytime", "label", "gltf", "bake", "loader", "fetch", "flora", "human", "life", "bond", "lineage", "pose", "render3d", "render3d/soft", "building", "water", "tree", "backpack", "menu", "dialogue", "flock", "save", "particle", "vitals", "installer"}
+var enginePackages = []string{"warm", "vignette", "toast", "progress", "roundpic", "textfield", "vector", "transform", "collider", "clock", "sprite", "animation", "game", "tilemap", "terrain", "iso", "random", "inventory", "request", "pathfind", "town", "scene", "daytime", "label", "gltf", "bake", "loader", "fetch", "flora", "human", "life", "bond", "lineage", "pose", "render3d", "render3d/soft", "building", "water", "tree", "backpack", "menu", "dialogue", "flock", "save", "particle", "vitals", "installer", "animal", "bvh", "colourcode", "face", "i18n", "screenpick", "sound"}
 
 // TestEngineOnDeno transpiles sge's packages with their tests and runs
 // them under deno test, from each package's directory as go test would.
@@ -21,7 +21,7 @@ func TestEngineOnDeno(t *testing.T) {
 		t.Skip("deno is not installed")
 	}
 	out := engine(t)
-	for _, p := range enginePackages {
+	for _, p := range enginePart() {
 		t.Run(p, func(t *testing.T) {
 			t.Parallel()
 			// The Go type checker has checked the module, which says so
