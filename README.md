@@ -41,6 +41,7 @@ and on Deno, and the engine's Go tests pass on Deno too.
 | `life` | years in a game's calendar: ages, stages from baby to elder, lives drawn at random, ending in old age |
 | `bond` | how people come to love each other: gifts and talk a day at a time, asking out, proposing, a wedding; grown-ups only, never kin |
 | `lineage` | a family tree: who is kin, so kin never court; who is heir, so a child takes over; a child on the way |
+| `installer` | a game installed for the player alone on Linux, Windows and macOS, from a program carrying its files, with a loading window, menu entries and uninstalling |
 | `native` | C libraries (OpenGL, EGL, X11) called from Go on linux/amd64 without cgo — or with it, unchanged; by bare soname only, never a path |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
@@ -157,6 +158,28 @@ The mix keeps every sample from -1 to 1, so no sound can click the speaker,
 and where there are no speakers the game runs in silence. Natively antui plays
 it through PulseAudio, WASAPI, CoreAudio or AAudio; on Deno through SDL2's
 audio queue, with `--allow-ffi`; in a browser with Web Audio.
+
+## Installing a game
+
+`installer` puts a game on the player's system, for that player alone and
+with no administrator, on Linux, Windows and macOS. A game's installer is
+a small program of its own, `installer.Main(setup, window)`, carrying the
+game's files after it. [`installer/pack`](installer/pack) writes it:
+
+```sh
+go run github.com/gabrielluizsf/sge/installer/pack -stub setup.exe -files build/windows -o Game-Setup.exe
+```
+
+Run, it shows a window with a bar, copies the files, runs the game's own
+`Steps`, such as baking its pictures, so it is the game's first loading
+screen too, and starts the game. On Linux the game goes in
+`~/.local/share/<ID>`, with a desktop entry and a link in `~/.local/bin`;
+on Windows in `%LOCALAPPDATA%\Programs\<ID>`, with a Start menu shortcut
+and an entry among the installed apps, which uninstalls it; on macOS it
+is a bundle in `~/Applications`. `--uninstall` takes it all away again,
+saves kept. What it copies is checked as untrusted: no name may leave the
+game's folder, no link among them is made, sizes are bounded, and a folder that is
+not the game's is never replaced.
 
 ## TypeScript (Deno)
 
@@ -321,6 +344,9 @@ gots itself has none of its own; what follows is Deno's.
 - `os.Root` checks a name a step at a time and then opens it, as Deno has no
   `openat`: a link swapped in between the check and the open is not seen,
   which Go's `Root`, opening each step from the last, would see.
+- Deno makes a link (`os.Symlink`) only with `--allow-read` and
+  `--allow-write` granted whole, not for some paths, and `installer`
+  makes one, in `~/.local/bin`.
 - Deno's permissions: `--allow-net` grants what a program connects to,
   by name and by address, and Unix sockets by path
   (`--allow-net=unix:/run/game.sock`); `--unstable-net` lets UDP and Unix

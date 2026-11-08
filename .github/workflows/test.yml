@@ -43,3 +43,27 @@ jobs:
 
       - name: Type-check the TypeScript example
         run: deno check examples/collect/collect.ts
+
+  # The installer writes to each system's own places, so it is tested on
+  # each system; build tags keep one system's tests off the others.
+  installer:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.x"
+
+      - name: Vet
+        run: go vet ./installer/...
+
+      - name: Test
+        run: go test -count=1 ./installer/...

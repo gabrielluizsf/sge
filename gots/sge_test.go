@@ -10,7 +10,7 @@ import (
 
 // enginePackages are sge's own packages, whose Go tests must pass on Deno
 // too once transpiled.
-var enginePackages = []string{"warm", "vignette", "toast", "progress", "roundpic", "textfield", "vector", "transform", "collider", "clock", "sprite", "animation", "game", "tilemap", "terrain", "iso", "random", "inventory", "request", "pathfind", "town", "scene", "daytime", "label", "gltf", "bake", "loader", "fetch", "flora", "human", "life", "bond", "lineage", "pose", "render3d", "render3d/soft", "building", "water", "tree", "backpack", "menu", "dialogue", "flock", "save", "particle", "vitals"}
+var enginePackages = []string{"warm", "vignette", "toast", "progress", "roundpic", "textfield", "vector", "transform", "collider", "clock", "sprite", "animation", "game", "tilemap", "terrain", "iso", "random", "inventory", "request", "pathfind", "town", "scene", "daytime", "label", "gltf", "bake", "loader", "fetch", "flora", "human", "life", "bond", "lineage", "pose", "render3d", "render3d/soft", "building", "water", "tree", "backpack", "menu", "dialogue", "flock", "save", "particle", "vitals", "installer"}
 
 // TestEngineOnDeno transpiles sge's packages with their tests and runs
 // them under deno test, from each package's directory as go test would.
@@ -26,7 +26,13 @@ func TestEngineOnDeno(t *testing.T) {
 			t.Parallel()
 			// The Go type checker has checked the module, which says so
 			// with @ts-nocheck: TypeScript's would only take its time.
-			cmd := exec.Command(deno, "test", "-q", "--no-check", "--no-config", "--no-lock", "--allow-read", "--allow-env", "--allow-write="+os.TempDir(), "--allow-net=127.0.0.1,[::1]", filepath.Join(out, p, "mod_test.ts"))
+			write := "--allow-write=" + os.TempDir()
+			if p == "installer" {
+				// Deno makes a link only with every write allowed; the
+				// installer's tests still write in temporary folders only.
+				write = "--allow-write"
+			}
+			cmd := exec.Command(deno, "test", "-q", "--no-check", "--no-config", "--no-lock", "--allow-read", "--allow-env", write, "--allow-net=127.0.0.1,[::1]", filepath.Join(out, p, "mod_test.ts"))
 			cmd.Dir = filepath.Join("..", p)
 			got, err := cmd.CombinedOutput()
 			if err != nil || !strings.Contains(string(got), " passed") {
