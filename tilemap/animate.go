@@ -11,6 +11,11 @@ func (s *TileSet) Animate(id int, a Animation) {
 	}
 	if s.anims[id] == nil {
 		s.animated++
+	} else if !s.anims[id].Parity {
+		s.turning--
+	}
+	if !a.Parity {
+		s.turning++
 	}
 	s.anims[id] = &a
 }

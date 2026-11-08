@@ -16,6 +16,7 @@ import (
 	"github.com/gabrielluizsf/antui/canvas"
 	"github.com/gabrielluizsf/sge/collider"
 	"github.com/gabrielluizsf/sge/game"
+	"github.com/gabrielluizsf/sge/i18n"
 	"github.com/gabrielluizsf/sge/sprite"
 	"github.com/gabrielluizsf/sge/vector"
 )
@@ -36,6 +37,9 @@ func (p *player) Update(o *game.Object, dt float64) {
 			dir = c.Transform.Position.Sub(o.Transform.Position)
 		}
 	} else if win := o.Game().Window(); win != nil {
+		if win.KeyPressed(antui.KeyL) {
+			_ = i18n.Change(1) // it changes for this run even if it cannot be kept
+		}
 		dir = keys(win)
 	}
 	if dir.SqrLength() > 0 {
@@ -84,9 +88,10 @@ func (p *player) Collision(o, other *game.Object) {
 	}
 }
 
-// Paint shows the score.
+// Paint shows the score and the language.
 func (p *player) Paint(o *game.Object, cv *canvas.Canvas) {
-	cv.Text(canvas.Point{X: 8, Y: 8}, fmt.Sprintf("score %d", p.score), canvas.RGB(240, 240, 240))
+	cv.Text(canvas.Point{X: 8, Y: 8}, i18n.T("score %d", p.score), canvas.RGB(240, 240, 240))
+	cv.Text(canvas.Point{X: 8, Y: 24}, i18n.T("Language: %s (L)", i18n.Name()), canvas.RGB(180, 180, 180))
 }
 
 var rng = rand.New(rand.NewPCG(1, 2))
@@ -102,6 +107,9 @@ func (spin) Update(o *game.Object, dt float64) { o.Transform.Rotate(vector.Vecto
 
 func main() {
 	frames, _ := strconv.Atoi(os.Getenv("COLLECT_DEMO"))
+	if frames <= 0 { // a demo plays the same everywhere
+		i18n.Load()
+	}
 	g := game.New()
 	g.Background = canvas.RGB(20, 24, 32)
 

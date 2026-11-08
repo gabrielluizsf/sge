@@ -5,9 +5,8 @@ that runs in two languages: as a Go module, and — transpiled to TypeScript by
 the `gots` transpiler in this repository — as a Deno package on JSR.
 
 The same engine, and the same game, behave the same in both: the
-[`collect`](examples/collect) and [`farm`](examples/farm) examples play frame
-for frame identically in Go and on Deno, and the engine's Go tests pass on
-Deno too.
+[`collect`](examples/collect) example plays frame for frame identically in Go
+and on Deno, and the engine's Go tests pass on Deno too.
 
 ## Packages
 
@@ -31,6 +30,19 @@ Deno too.
 | `inventory` | bags of items by name: put in, count, take out, a list at once or not at all |
 | `request` | orders of random items drawn from a book of offers, for a reward, filled from a bag |
 | `random` | a small random sequence that plays back the same in Go and on Deno |
+| `label` | text in a TrueType face, smooth at its edges and outlined, as a picture for a HUD |
+| `gltf` | glTF 2.0 and GLB models read as untrusted: meshes, materials, textures, nodes, skins, animations |
+| `bake` | 3D models rendered ahead of time into an isometric game's sprites, lit by a sun casting shadows |
+| `loader` | heavy assets loaded a few milliseconds a frame by priority, kept within a memory budget, with a loading screen |
+| `fetch` | a build's assets downloaded over HTTPS from trusted hosts, each checked against its pinned SHA-256 |
+| `flora` | crops grown in code, sprout to ripe, as glTF models: leaves painted and bent, stems, fruit |
+| `building` | houses and props built in code as glTF models: farmhouses, cottages and town houses of several styles, walls, roofs, doors, windows and chimneys, a market stall, a smithy and anvil, a well, fences; clad in tiling PBR textures at their real size |
+| `human` | realistic people from MakeHuman's CC0 assets: shaped by sex, age, ancestry and build, skinned, dressed, and moving: standing, walking, chopping, hoeing, swimming |
+| `life` | years in a game's calendar: ages, stages from baby to elder, lives drawn at random, ending in old age |
+| `bond` | how people come to love each other: gifts and talk a day at a time, asking out, proposing, a wedding; grown-ups only, never kin |
+| `lineage` | a family tree: who is kin, so kin never court; who is heir, so a child takes over; a child on the way |
+| `installer` | a game installed for the player alone on Linux, Windows and macOS, from a program carrying its files, with a loading window, menu entries and uninstalling |
+| `native` | C libraries (OpenGL, EGL, X11) called from Go on linux/amd64 without cgo — or with it, unchanged; by bare soname only, never a path |
 
 Drawing, text, SVG, windows and the speakers come from antui; `sge` does not
 draw anything itself.
@@ -108,11 +120,13 @@ cell := g.ToWorld(mouse)           // the ground under the mouse
 A projected map stands each tile on the near corner of its cell's diamond, so
 a tile taller than its diamond, a tree or a fence, reaches up out of it. A
 `Sorted` map's tiles are each drawn among the objects of its Z by the screen
-height of where they stand, as objects are by their `Footing`: a farmer in
+height of where they stand, as objects are by their `Footing`: a person in
 front of a trunk is over it, one behind it under it. `Follow` centres the
 camera, `VisibleWorld` is the patch of ground the view shows and `terrain`
 makes the chunks under it. Ground tiles, a run of opaque pixels on every row,
-are copied rather than blended, and every tile's air is cut away once.
+are copied rather than blended, and every tile's air is cut away once. A
+`tilemap.NewLazyTileSet` draws each tile the first time a map shows it, so a
+game of many tiles, drawn from SVG, starts at once.
 
 ## Towns, people and time
 
@@ -126,25 +140,6 @@ world as it was. A `terrain.World` can be edited for good (`World.Set`, a tree
 felled stays felled), and stand objects on its chunks (`World.Props`).
 A `sprite.Sprite` with `Make` is drawn the first time it is shown, so a
 character's many frames cost nothing until seen.
-
-[`examples/farm`](examples/farm) is a farming game on all of it, seen from the
-corner: buy seeds at the stall, sow, water, pick and sell, on a farm in endless
-land. Along its path lie towns of women and men of every skin, each with a
-trade they keep by the hour: farmers tend their gardens and sell at the stall,
-lumberjacks fell trees and sell their wood, the smith forges at the anvil,
-feeding the forge wood they cut or buy, and others stroll about town; at
-night everyone sleeps at home. Villagers ask for wood and crops for a reward,
-the lumberjack trades wood, and the smith gives a stone axe for an errand and
-sells iron, gold and diamond ones, each felling a tree in fewer strokes. Every
-house can be gone into. The player sleeps in their own bed; one still up a
-minute past midnight faints and loses all their money. Arrows walk the way
-they point on the screen; space, or a click on a cell within reach, which the
-mouse outlines, uses what the farmer holds; E talks, goes in, sleeps or
-shops. Every
-picture in it is SVG, drawn from a fixed palette by
-[`cmd/farmart`](examples/farm/cmd/farmart), HUD included, the ground laid on
-the diamonds and what stands on it drawn upright; `go generate` in
-`examples/farm` writes the sprites and a preview of them.
 
 ## Sound
 
@@ -162,9 +157,29 @@ wind.Fade(0.2) // eases in; Fade(0) eases out
 The mix keeps every sample from -1 to 1, so no sound can click the speaker,
 and where there are no speakers the game runs in silence. Natively antui plays
 it through PulseAudio, WASAPI, CoreAudio or AAudio; on Deno through SDL2's
-audio queue, with `--allow-ffi`; in a browser with Web Audio. The farm's
-steps, water, leaves, birds and HUD sounds are all made up in
-[`examples/farm/sfx`](examples/farm/sfx).
+audio queue, with `--allow-ffi`; in a browser with Web Audio.
+
+## Installing a game
+
+`installer` puts a game on the player's system, for that player alone and
+with no administrator, on Linux, Windows and macOS. A game's installer is
+a small program of its own, `installer.Main(setup, window)`, carrying the
+game's files after it. [`installer/pack`](installer/pack) writes it:
+
+```sh
+go run github.com/gabrielluizsf/sge/installer/pack -stub setup.exe -files build/windows -o Game-Setup.exe
+```
+
+Run, it shows a window with a bar, copies the files, runs the game's own
+`Steps`, such as baking its pictures, so it is the game's first loading
+screen too, and starts the game. On Linux the game goes in
+`~/.local/share/<ID>`, with a desktop entry and a link in `~/.local/bin`;
+on Windows in `%LOCALAPPDATA%\Programs\<ID>`, with a Start menu shortcut
+and an entry among the installed apps, which uninstalls it; on macOS it
+is a bundle in `~/Applications`. `--uninstall` takes it all away again,
+saves kept. What it copies is checked as untrusted: no name may leave the
+game's folder, no link among them is made, sizes are bounded, and a folder that is
+not the game's is never replaced.
 
 ## TypeScript (Deno)
 
@@ -209,7 +224,7 @@ A Go program runs in a browser as it runs on Deno: its window is a
 `<canvas>` on the page and its input the page's keys, mouse and wheel.
 
 ```sh
-go run ./cmd/gots -web site ./examples/farm
+go run ./cmd/gots -web site ./examples/collect
 # site/app.js and site/index.html: serve the directory, open the page
 ```
 
@@ -236,6 +251,9 @@ panics and defers. Generics are instantiated per use. The standard library is
 transpiled from Go's own source, except for what is native — `runtime`, `os`,
 `sync`, `syscall/js` and a few more are written in TypeScript — and Go
 overlays replace the handful of functions that need assembly or the runtime.
+Go's doc comments become the modules' JSDoc, the package's as the module's,
+so the TypeScript is documented as the Go is; what only the transpiled code
+uses is marked `@ignore`.
 
 `go generate .` writes the package to `deno/`. `go test ./...` runs, besides
 the Go tests, conformance programs that must print the same under `go run` and
@@ -323,12 +341,20 @@ instead of ending the program.
 
 gots itself has none of its own; what follows is Deno's.
 
+- `os.Root` checks a name a step at a time and then opens it, as Deno has no
+  `openat`: a link swapped in between the check and the open is not seen,
+  which Go's `Root`, opening each step from the last, would see.
+- Deno makes a link (`os.Symlink`) only with `--allow-read` and
+  `--allow-write` granted whole, not for some paths, and `installer`
+  makes one, in `~/.local/bin`.
 - Deno's permissions: `--allow-net` grants what a program connects to,
   by name and by address, and Unix sockets by path
   (`--allow-net=unix:/run/game.sock`); `--unstable-net` lets UDP and Unix
   datagram sockets in; `--allow-sys=ca` lets Go read the roots Deno
   verifies with, for TLS with the system's roots; `--allow-env` and
-  `--allow-read` what `os` reads.
+  `--allow-read` what `os` reads. A variable the program may not read is
+  unset to it, as `GODEBUG` is to a program not granted it, and Deno never
+  prompts for one.
 - Deno's sockets have no descriptors, so a `Control` hook that asks for one
   is told there is none; Unix packet sockets (`unixpacket`) do not exist
   in Deno; every Unix datagram socket is bound to a path, so one dialed

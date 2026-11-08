@@ -17,11 +17,9 @@ import (
 // JavaScript stack never runs out on input from outside, and the program
 // gets an error instead of dying.
 func TestDeepJSONIsRefusedNotFatal(t *testing.T) {
+	t.Parallel()
 	run := jsRuntime(t)
-	out := t.TempDir()
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./testdata/exits/jsondeep"}}); err != nil {
-		t.Fatalf("transpile: %v", err)
-	}
+	out := programs(t)
 	mod := filepath.Join(out, "gots", "testdata", "exits", "jsondeep", "mod.ts")
 	stdout, stderr, code := runProgram(exec.Command(run[0], append(run[1:], mod)...))
 	want := "arrays refused: true\nraw refused: true\nobjects refused: true\nvalid: false\nmarshal refused: true\n"
@@ -33,11 +31,9 @@ func TestDeepJSONIsRefusedNotFatal(t *testing.T) {
 // TestDeepXMLIsRefusedNotFatal is TestDeepJSONIsRefusedNotFatal for
 // encoding/xml, whose own depth limit is sized for a stack that grows.
 func TestDeepXMLIsRefusedNotFatal(t *testing.T) {
+	t.Parallel()
 	run := jsRuntime(t)
-	out := t.TempDir()
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./testdata/exits/xmldeep"}}); err != nil {
-		t.Fatalf("transpile: %v", err)
-	}
+	out := programs(t)
 	mod := filepath.Join(out, "gots", "testdata", "exits", "xmldeep", "mod.ts")
 	stdout, stderr, code := runProgram(exec.Command(run[0], append(run[1:], mod)...))
 	want := "100 true true\n300 false true\n4000 false true\n20000 false true\n"
@@ -53,6 +49,7 @@ func TestDeepXMLIsRefusedNotFatal(t *testing.T) {
 // type, which Go does not limit at all. Both are refused with an error
 // rather than end the program.
 func TestDeepGobIsRefusedNotFatal(t *testing.T) {
+	t.Parallel()
 	run := jsRuntime(t)
 	// A type nested 5000 deep.
 	nested := reflect.TypeFor[int]()
@@ -78,10 +75,7 @@ func TestDeepGobIsRefusedNotFatal(t *testing.T) {
 	if err := gob.NewEncoder(&deepData).Encode(W{Hello: 1, X: list}); err != nil {
 		t.Fatal(err)
 	}
-	out := t.TempDir()
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./testdata/exits/gobdeep"}}); err != nil {
-		t.Fatalf("transpile: %v", err)
-	}
+	out := programs(t)
 	mod := filepath.Join(out, "gots", "testdata", "exits", "gobdeep", "mod.ts")
 	for name, b := range map[string][]byte{"type": deepType.Bytes(), "data": deepData.Bytes()} {
 		in := filepath.Join(t.TempDir(), name+".gob")
@@ -102,11 +96,9 @@ func TestDeepGobIsRefusedNotFatal(t *testing.T) {
 // refuse it on Deno rather than read another length than was meant, as
 // request smuggling needs.
 func TestHugeContentLengthIsRefused(t *testing.T) {
+	t.Parallel()
 	run := jsRuntime(t)
-	out := t.TempDir()
-	if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{"./testdata/exits/hugelength"}}); err != nil {
-		t.Fatalf("transpile: %v", err)
-	}
+	out := programs(t)
 	mod := filepath.Join(out, "gots", "testdata", "exits", "hugelength", "mod.ts")
 	stdout, stderr, code := runProgram(exec.Command(run[0], append(run[1:], mod)...))
 	want := "server: \"HTTP/1.1 400 Bad Request\\r\\n\"\nclient refused: true\n"
@@ -119,6 +111,7 @@ func TestHugeContentLengthIsRefused(t *testing.T) {
 // badly, under go run and Deno: the same exit status, the same output,
 // and the line of stderr that says why.
 func TestProgramsEndAsGoDoes(t *testing.T) {
+	t.Parallel()
 	run := jsRuntime(t)
 	for _, tc := range []struct{ dir, why string }{
 		{"deadlock", "fatal error: all goroutines are asleep - deadlock!"},
@@ -127,10 +120,7 @@ func TestProgramsEndAsGoDoes(t *testing.T) {
 		t.Run(tc.dir, func(t *testing.T) {
 			dir := "./testdata/exits/" + tc.dir
 			goOut, goErr, goCode := runProgram(exec.Command("go", "run", dir))
-			out := t.TempDir()
-			if _, err := Transpile(Options{Dir: ".", Out: out, Patterns: []string{dir}}); err != nil {
-				t.Fatalf("transpile: %v", err)
-			}
+			out := programs(t)
 			mod := filepath.Join(out, "gots", "testdata", "exits", tc.dir, "mod.ts")
 			tsOut, tsErr, tsCode := runProgram(exec.Command(run[0], append(run[1:], mod)...))
 			// go run reports a program's failure as its own exit status 1.

@@ -14,6 +14,7 @@ func (m *Map) paint(col, row int) {
 	m.count(m.painted[i], -1)
 	m.count(id, 1)
 	m.painted[i] = id
+	m.version++
 	img := m.picture.Image
 	if img == nil {
 		return // painted when the picture is first wanted
@@ -23,5 +24,5 @@ func (m *Map) paint(col, row int) {
 		clearCell(img, col*w, row*h, w, h)
 		return
 	}
-	copyTile(img, col*w, row*h, m.Tiles.Tiles[id].Image)
+	copyTile(img, col*w, row*h, m.Tiles.picture(id))
 }

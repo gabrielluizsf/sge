@@ -3,6 +3,7 @@ package terrain
 import (
 	"github.com/gabrielluizsf/sge/game"
 	"github.com/gabrielluizsf/sge/tilemap"
+	"github.com/gabrielluizsf/sge/warm"
 )
 
 // World is an endless map made by a generator: chunks of Size by Size
@@ -25,7 +26,12 @@ type World struct {
 	// Props, when set, are the objects that stand on chunk cx, cy, houses
 	// say: added with its maps and destroyed with them, so they are only
 	// in the game while near the view.
-	Props  func(cx, cy int) []*game.Object
+	Props func(cx, cy int) []*game.Object
+	// Warm, when set, is given the pictures of the tiles of each chunk
+	// made, to draw a few a frame: a tile of a kind not seen yet is drawn
+	// from SVG, say, and would hold a frame up were it first drawn when
+	// it comes into view; the margin of chunks gives it the time.
+	Warm   *warm.Queue
 	chunks map[int]*chunk // by cellKey of the chunk's place
 }
 

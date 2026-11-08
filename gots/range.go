@@ -28,6 +28,7 @@ func (e *emitter) rangeStmt(w *writer, s *ast.RangeStmt, label string) {
 	t := e.typeOf(s.X)
 	head := labelPrefix(label)
 	i, n := e.sc.fresh("$i"), e.sc.fresh("$n")
+	shared := s.Value != nil && isValue(e.typeOf(s.Value)) && e.sharedRange(s)
 	switch u := t.Underlying().(type) {
 	case *types.Basic:
 		if u.Info()&types.IsString != 0 {
@@ -48,7 +49,11 @@ func (e *emitter) rangeStmt(w *writer, s *ast.RangeStmt, label string) {
 		sl := e.sc.fresh("$s")
 		e.loop(w, head+"for (let "+sl+" = "+e.expr(s.X)+", "+i+" = 0, "+n+" = $.len("+sl+"); "+i+" < "+n+"; "+i+"++)", func() {
 			e.bindRange(w, s.Key, i, types.Typ[types.Int], s.Tok)
-			e.bindRange(w, s.Value, e.cloneOf(sl+".a["+sl+".o + "+i+"]", u.Elem()), u.Elem(), s.Tok)
+			el := sl + ".a[" + sl + ".o + " + i + "]"
+			if !shared {
+				el = e.cloneOf(el, u.Elem())
+			}
+			e.bindRange(w, s.Value, el, u.Elem(), s.Tok)
 			e.stmts(w, s.Body.List)
 		})
 	case *types.Array, *types.Pointer:
@@ -61,7 +66,11 @@ func (e *emitter) rangeStmt(w *writer, s *ast.RangeStmt, label string) {
 		a := e.sc.fresh("$a")
 		e.loop(w, head+"for (let "+a+" = "+e.rangedArray(s.X)+", "+i+" = 0; "+i+" < "+a+".length; "+i+"++)", func() {
 			e.bindRange(w, s.Key, i, types.Typ[types.Int], s.Tok)
-			e.bindRange(w, s.Value, e.cloneOf(a+"["+i+"]", elem), elem, s.Tok)
+			el := a + "[" + i + "]"
+			if !shared {
+				el = e.cloneOf(el, elem)
+			}
+			e.bindRange(w, s.Value, el, elem, s.Tok)
 			e.stmts(w, s.Body.List)
 		})
 	case *types.Chan:

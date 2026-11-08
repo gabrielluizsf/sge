@@ -20,6 +20,10 @@ type playing struct {
 	clip        *Clip
 	pos, step   float64
 	left, right float32
+	alone       string
+	// out is how far it has faded out, from 0 to 1, once it fades.
+	fading bool
+	out    float32
 }
 
 // NewMixer is a mixer for a stream of rate frames a second.

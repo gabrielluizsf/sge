@@ -30,7 +30,7 @@ func TestCopiedSpansDrawAsBlitDoes(t *testing.T) {
 		b, _ := canvas.NewCanvas(40, 24)
 		a.Clear(canvas.RGB(1, 2, 3))
 		b.Clear(canvas.RGB(1, 2, 3))
-		copySpans(a, tile, at[0], at[1])
+		copySpans(a, tile, place{at[0], at[1]})
 		b.Blit(at[0], at[1], tile.img)
 		for y := range a.Height {
 			for x := range a.Width {

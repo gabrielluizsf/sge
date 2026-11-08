@@ -55,6 +55,7 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 	}
 	vals := make([]string, st.NumFields())
 	var promoted []string
+	var els []keyed
 	for i, el := range lit.Elts {
 		if kv, ok := el.(*ast.KeyValueExpr); ok {
 			name := kv.Key.(*ast.Ident).Name
@@ -62,6 +63,7 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 			for j := 0; j < st.NumFields(); j++ {
 				if st.Field(j).Name() == name {
 					vals[j] = e.value(kv.Value, st.Field(j).Type())
+					els = append(els, keyed{field: j, js: vals[j], effect: e.effectful(kv.Value)})
 					direct = true
 				}
 			}
@@ -82,6 +84,9 @@ func (e *emitter) structLit(lit *ast.CompositeLit, t types.Type, st *types.Struc
 		}
 	}
 	made := "new " + e.structClass(t) + "(" + strings.Join(vals[:n], ", ") + ")"
+	if outOfOrder(els) {
+		made = inWrittenOrder(els, vals[:n], e.structClass(t))
+	}
 	if len(promoted) == 0 {
 		return made
 	}
@@ -164,6 +169,27 @@ func (e *emitter) indexedLitIn(lit *ast.CompositeLit, elem types.Type, n int, b 
 		}
 		return "[" + strings.Join(vals, ", ") + "]"
 	}
+	// A short literal of numbers whose elements come in order, some left
+	// out, is the typed array of them, zeros between: no closure to fill
+	// one, which in a loop V8 makes anew every time.
+	ordered := b != "" && n <= maxShortLit
+	for i := 1; ordered && i < len(entries); i++ {
+		ordered = entries[i].i > entries[i-1].i
+	}
+	if ordered {
+		zero := "0"
+		if b == "BigUint64Array" {
+			zero = "0n"
+		}
+		vals := make([]string, n)
+		for i := range vals {
+			vals[i] = zero
+		}
+		for _, en := range entries {
+			vals[en.i] = en.v
+		}
+		return b + ".of(" + strings.Join(vals, ", ") + ")"
+	}
 	var zero string
 	if b != "" {
 		zero = "new " + b + "(" + itoa(n) + ")"
@@ -179,3 +205,7 @@ func (e *emitter) indexedLitIn(lit *ast.CompositeLit, elem types.Type, n int, b 
 	}
 	return "((a: any) => { " + strings.Join(sets, " ") + " return a; })(" + zero + ")"
 }
+
+// maxShortLit is the most elements a literal of numbers with some left out
+// is written whole, as the typed array of them.
+const maxShortLit = 64

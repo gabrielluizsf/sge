@@ -154,6 +154,11 @@ func (e *emitter) cloneOf(x string, t types.Type) string {
 	return x
 }
 
+// cloneFn is a function copying a value of type t.
+func (e *emitter) cloneFn(t types.Type) string {
+	return "(e: any) => " + e.cloneOf("e", t)
+}
+
 // setOf is a statement assigning src to the storage dst of type t, in
 // place when t is a value type.
 func (e *emitter) setOf(dst, src string, t types.Type) string {

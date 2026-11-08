@@ -8,6 +8,7 @@ import "github.com/gabrielluizsf/antui/canvas"
 type trimmed struct {
 	img    *canvas.Canvas
 	dx, dy int
+	w, h   int      // the whole picture's size, the tile's own
 	spans  [][2]int // its rows' opaque runs, when it has nothing else
 }
 
@@ -17,7 +18,7 @@ func (t *TileSet) trim(id int) trimmed {
 		t.trims = append(t.trims, make([]trimmed, len(t.Tiles)-len(t.trims))...)
 	}
 	if t.trims[id].img == nil {
-		t.trims[id] = cut(t.Tiles[id].Image)
+		t.trims[id] = cut(t.picture(id))
 	}
 	return t.trims[id]
 }
@@ -40,5 +41,5 @@ func cut(img *canvas.Canvas) trimmed {
 		panic(err)
 	}
 	out.Copy(-x0, -y0, img)
-	return trimmed{img: out, dx: x0, dy: y0, spans: spansOf(out)}
+	return trimmed{img: out, dx: x0, dy: y0, w: img.Width, h: img.Height, spans: spansOf(out)}
 }

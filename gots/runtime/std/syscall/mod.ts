@@ -63,8 +63,21 @@ class Errno$Val extends $.Val {
 }
 export const Errno$type = $.named("syscall.Errno", $.Uintptr, Errno$Val);
 
+// Getenv is the variable key: on Deno, unset when the program may not read
+// it, as a program not granted the environment sees it, never prompting.
 export function Getenv(key: string): [string, boolean] {
-  const v = g.Deno?.env.get($.str.fromGo(key)) ?? g.process?.env[$.str.fromGo(key)];
+  const k = $.str.fromGo(key);
+  let v: string | undefined;
+  const D = g.Deno;
+  if (D === undefined) {
+    v = g.process?.env[k];
+  } else {
+    try {
+      if (D.permissions?.querySync?.({ name: "env", variable: k })?.state === "granted") v = D.env.get(k);
+    } catch {
+      v = undefined;
+    }
+  }
   return v === undefined ? ["", false] : [$.str.toGo(v), true];
 }
 

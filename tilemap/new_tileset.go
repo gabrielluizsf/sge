@@ -12,9 +12,5 @@ func NewTileSet(sheet *canvas.Canvas, width, height int) (*TileSet, error) {
 	if err != nil {
 		return nil, err
 	}
-	opaque := make([]bool, len(tiles))
-	for i, t := range tiles {
-		opaque[i] = isOpaque(t.Image)
-	}
-	return &TileSet{Tiles: tiles, Width: width, Height: height, solid: make([]bool, len(tiles)), opaque: opaque}, nil
+	return &TileSet{Tiles: tiles, Width: width, Height: height, solid: make([]bool, len(tiles)), opaque: make([]int8, len(tiles))}, nil
 }

@@ -12,9 +12,10 @@ func (d drawing) Spread(o *game.Object, add func(float64, func(*canvas.Canvas)))
 	if !m.Sorted || o.Game() == nil || o.Game().Projection == nil {
 		return false
 	}
-	c0, r0, c1, r1 := m.isoCells()
-	for r := r0; r <= r1; r++ {
-		for c := c0; c <= c1; c++ {
+	v := m.isoCells()
+	m.catchUp(v)
+	for r := v.r0; r <= v.r1; r++ {
+		for c := v.c0; c <= v.c1; c++ {
 			if m.painted[r*m.Cols+c] != Empty {
 				add(m.isoDepth(c, r), func(cv *canvas.Canvas) { m.paintCell(cv, c, r) })
 			}

@@ -608,3 +608,254 @@ export function Stdout$set(v: File | null): void {
 export function Stderr$set(v: File | null): void {
   Stderr = v;
 }
+
+// Root is a directory files are opened within, as Go's: a name that is
+// absolute or climbs out of it with ".." is refused, and a link is
+// followed only to where it stays inside it. Deno has no openat, so the
+// name is checked and then opened: a link changed between the two is not
+// seen, which Go's Root, opening a step at a time, would see.
+export class Root extends $.Native {
+  name = "";
+  real = ""; // the directory's real path, links resolved
+  closed = false;
+
+  Name(): string {
+    return this.name;
+  }
+
+  Close(): any {
+    this.closed = true;
+    return null;
+  }
+
+  // resolve is name's path inside the root, for op, or an error. It walks
+  // the name a step at a time as Go's Root does: ".." may not climb above
+  // the root, and a link is followed only if its target is relative and
+  // stays inside; an absolute one escapes. A name not there yet resolves
+  // to its place in the directory that is, with the error of its absence.
+  private resolve(op: string, name: string): [string, any] {
+    const n = js(name);
+    if (this.closed) return ["", new fs.PathError(op, name, fs.ErrClosed)];
+    if (n.startsWith("/") || n.includes("\\") || n.includes("\0")) return ["", escapes(op, name)];
+    const todo = n.split("/").filter((p) => p !== "" && p !== ".");
+    const at: string[] = []; // the components resolved, under the root
+    let links = 0;
+    while (todo.length > 0) {
+      const p = todo.shift()!;
+      if (p === "..") {
+        if (at.length === 0) return ["", escapes(op, name)];
+        at.pop();
+        continue;
+      }
+      const path = [this.real, ...at, p].join("/");
+      let info: any;
+      try {
+        info = deno().lstatSync(path);
+      } catch (e) {
+        // Missing: only the last step may be, for a file to be made.
+        return todo.length === 0 ? [path, pathError(op, name, e)] : ["", pathError(op, name, e)];
+      }
+      if (!info.isSymlink) {
+        at.push(p);
+        continue;
+      }
+      if (++links > 255) return ["", pathError(op, name, new Error("too many links"))];
+      const target = deno().readLinkSync(path);
+      // An absolute target escapes, a Windows one too: a drive or backslash.
+      if (target.startsWith("/") || target.includes("\\") || /^[A-Za-z]:/.test(target)) return ["", escapes(op, name)];
+      todo.unshift(...target.split("/").filter((q: string) => q !== "" && q !== "."));
+    }
+    return [[this.real, ...at].join("/"), null];
+  }
+
+
+
+  OpenFile(name: string, flag: number, perm: number): [File | null, any] {
+    const [path, err] = this.resolve("openat", name);
+    if (path === "" || err !== null && (flag & O_CREATE) === 0) return [null, err];
+    const [f, oerr] = OpenFile(go(path), flag, perm);
+    if (f !== null) f.name = js(this.name) + "/" + js(name);
+    return [f, oerr === null ? null : pathError("openat", name, oerr)];
+  }
+
+  Open(name: string): [File | null, any] {
+    return this.OpenFile(name, O_RDONLY, 0);
+  }
+
+  Create(name: string): [File | null, any] {
+    return this.OpenFile(name, O_RDWR | O_CREATE | O_TRUNC, 0o666);
+  }
+
+  Stat(name: string): [any, any] {
+    const [path, err] = this.resolve("statat", name);
+    if (err !== null) return [null, err];
+    return attempt("statat", name, null, () => stat(deno().statSync(path), name));
+  }
+
+  ReadFile(name: string): [$.Slice<number> | null, any] {
+    const [path, err] = this.resolve("openat", name);
+    if (err !== null) return [null, err];
+    return attempt("openat", name, null, () => $.slice<number>(deno().readFileSync(path)));
+  }
+
+  Mkdir(name: string, perm: number): any {
+    const [path, err] = this.resolve("mkdirat", name);
+    if (path === "") return err;
+    if (err === null) return pathError("mkdirat", name, new (g.Deno.errors.AlreadyExists)("exists"));
+    const [, merr] = attempt("mkdirat", name, null, () => deno().mkdirSync(path, { mode: perm & 0o777 }));
+    return merr;
+  }
+
+  // MkdirAll makes the directory name and those above it not there yet,
+  // each inside the root.
+  MkdirAll(name: string, perm: number): any {
+    const [path, err] = this.resolve("mkdirat", name);
+    if (err === null) {
+      return deno().statSync(path).isDirectory ? null : pathError("mkdirat", name, new (g.Deno.errors.NotADirectory ?? Error)("not a directory"));
+    }
+    const n = js(name).replace(/\/+$/, "");
+    const cut = n.lastIndexOf("/");
+    if (path === "" && cut < 0) return err;
+    if (cut > 0) {
+      const perr = this.MkdirAll(go(n.slice(0, cut)), perm);
+      if (perr !== null) return perr;
+    }
+    const merr = this.Mkdir(name, perm);
+    return merr !== null && this.resolve("mkdirat", name)[1] === null ? null : merr;
+  }
+
+  WriteFile(name: string, data: $.Slice<number> | null, perm: number): any {
+    const [f, err] = this.OpenFile(name, O_WRONLY | O_CREATE | O_TRUNC, perm);
+    if (err !== null) return err;
+    const [, werr] = f!.Write(data);
+    const cerr = f!.Close();
+    return werr ?? cerr;
+  }
+
+  // Remove removes name itself, a link and not what it leads to, as Go's
+  // does: its directory resolved inside the root, its last step not
+  // followed; the root itself, ".", may not be removed.
+  Remove(name: string): any {
+    const raw = js(name);
+    // As resolve refuses them: absolute names, and on Windows a backslash
+    // or a drive, which would climb out in the last step, never resolved.
+    if (raw.startsWith("/") || raw.includes("\\") || raw.includes("\0") || /^[A-Za-z]:/.test(raw)) return escapes("removeat", name);
+    const n = raw.replace(/\/+$/, "");
+    const cut = n.lastIndexOf("/");
+    const last = n.slice(cut + 1);
+    if (last === "" || last === "." || last === "..") {
+      return new fs.PathError("removeat", name, $.val(syscall.Errno$type, 22) as any);
+    }
+    const [dir, err] = cut < 0 ? [this.real, null] : this.resolve("removeat", go(n.slice(0, cut)));
+    if (err !== null) return err;
+    const [, rerr] = attempt("removeat", name, null, () => deno().removeSync(dir + "/" + last));
+    return rerr;
+  }
+
+  Rename(oldname: string, newname: string): any {
+    const [from, err] = this.resolve("renameat", oldname);
+    if (err !== null) return err;
+    const [to, terr] = this.resolve("renameat", newname);
+    if (to === "") return terr;
+    const [, rerr] = attempt("renameat", oldname, null, () => deno().renameSync(from, to));
+    return rerr;
+  }
+
+  OpenRoot(name: string): [Root | null, any] {
+    const [path, err] = this.resolve("openat", name);
+    if (err !== null) return [null, err];
+    return newRoot(go(path), go(js(this.name) + "/" + js(name)));
+  }
+
+  // FS is the root as an fs.FS, as Go's Root.FS: names as fs.ValidPath
+  // has them, opened inside the root.
+  FS(): RootFS {
+    const f = new RootFS();
+    f.root = this;
+    return f;
+  }
+}
+
+// RootFS is a Root as an fs.FS: an fs.StatFS and an fs.ReadFileFS too. A
+// name fs.ValidPath refuses is an fs.ErrInvalid, as in Go.
+export class RootFS extends $.Native {
+  root: Root | null = null;
+
+  Open(name: string): [File | null, any] {
+    if (!fs.ValidPath(name)) return [null, new fs.PathError("open", name, fs.ErrInvalid)];
+    return this.root!.Open(name);
+  }
+
+  Stat(name: string): [any, any] {
+    if (!fs.ValidPath(name)) return [null, new fs.PathError("stat", name, fs.ErrInvalid)];
+    return this.root!.Stat(name);
+  }
+
+  ReadFile(name: string): [$.Slice<number> | null, any] {
+    if (!fs.ValidPath(name)) return [null, new fs.PathError("readfile", name, fs.ErrInvalid)];
+    return this.root!.ReadFile(name);
+  }
+}
+
+// DirFS is the tree of files at dir as an fs.FS, as Go's: a name
+// fs.ValidPath refuses is an fs.ErrInvalid, the others are joined to dir
+// and opened there, links followed as Go's DirFS follows them; an error
+// names the file by its name in the tree, not its path on disk.
+export function DirFS(dir: string): DirFSys {
+  const f = new DirFSys();
+  f.dir = dir;
+  return f;
+}
+
+export class DirFSys extends $.Native {
+  dir = "";
+
+  private join(op: string, name: string): [string, any] {
+    if (!fs.ValidPath(name)) return ["", new fs.PathError(op, name, fs.ErrInvalid)];
+    const d = js(this.dir);
+    if (d === "") return ["", new fs.PathError(op, name, new osError("DirFS with empty root"))];
+    const n = js(name);
+    return [go(n === "." ? d : d.replace(/\/+$/, "") + "/" + n), null];
+  }
+
+  private named<T>(name: string, r: [T, any]): [T, any] {
+    if (r[1] instanceof fs.PathError) r[1].Path = name;
+    return r;
+  }
+
+  Open(name: string): [File | null, any] {
+    const [p, err] = this.join("open", name);
+    return err !== null ? [null, err] : this.named(name, Open(p));
+  }
+
+  Stat(name: string): [any, any] {
+    const [p, err] = this.join("stat", name);
+    return err !== null ? [null, err] : this.named(name, Stat(p));
+  }
+
+  ReadFile(name: string): [$.Slice<number> | null, any] {
+    const [p, err] = this.join("readfile", name);
+    return err !== null ? [null, err] : this.named(name, ReadFile(p));
+  }
+}
+
+// escapes is Go's error for a name that leaves its root.
+function escapes(op: string, name: string): any {
+  return new fs.PathError(op, name, new osError("path escapes from parent"));
+}
+
+function newRoot(path: string, name: string): [Root | null, any] {
+  return attempt("open", name, null, () => {
+    const real = deno().realPathSync(js(path));
+    if (!deno().statSync(real).isDirectory) throw new (g.Deno.errors.NotADirectory ?? Error)("not a directory");
+    const r = new Root();
+    r.name = name;
+    r.real = real;
+    return r;
+  });
+}
+
+// OpenRoot opens the directory name as a Root.
+export function OpenRoot(name: string): [Root | null, any] {
+  return newRoot(name, name);
+}

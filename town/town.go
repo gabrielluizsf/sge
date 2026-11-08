@@ -25,32 +25,43 @@ type Town struct {
 	// Forge is the smith's furnace, west of the anvil: it is fed from the
 	// cell south of it.
 	Forge Cell
+	// Well is the corner, the north west one, of the cells south of the
+	// plaza's middle where a well may stand: the game says whether it has
+	// one, and how large.
+	Well Cell
+	// Reach is how far from the plaza's middle the main street runs each
+	// way, and Depth how many cells the houses and their yards reach from
+	// the street's middle on each side, as the houses' sizes make them.
+	Reach, Depth int
+	// Back is the ground behind the houses north of the street, kept clear
+	// for what the game builds there, its row in front of it free to walk
+	// along; empty when the layout keeps none.
+	Back Rect
 	// Seed is the town's own, for what is up to the game: its people.
 	Seed uint32
+	// road is the road to the town it leads to, once linked.
+	road   []Rect
+	to     *Town
+	linked bool
 }
 
-// House is a house of a town: its Size by Size cells from Col, Row, its
-// kind of look, its doorstep in the yard in front of it, and the yard's
-// other cell, a garden.
+// House is a house of a town: its Width by Depth cells from Col, Row, its
+// kind of look, its doorstep in the yard in front of it, in the middle
+// of its front, and the yard's next cell, a garden.
 type House struct {
-	Col, Row int
-	Kind     int
-	Door     Cell
-	Garden   Cell
+	Col, Row     int
+	Width, Depth int
+	Kind         int
+	Door         Cell
+	Garden       Cell
 }
 
-// The plan's measures, in cells: a house's side; how far the main street
-// runs each way from the plaza's middle; the plaza's half width and half
-// height; and how far from the middle, along the street, each house of a
-// side starts.
+// The plan's measures, in cells: the plaza's half width and half height;
+// how far from the plaza's edge the first house of a side of the street
+// stands; and the footprint a house has when the layout says none.
 const (
-	Size       = 2
-	Reach      = 9
-	plazaW     = 2
-	plazaH     = 1
-	houseDepth = Size + 1 // a house and its yard, beside the street
+	plazaW      = 2
+	plazaH      = 1
+	defaultLead = 4
+	defaultW    = 2
 )
-
-// slots are where houses may stand along a side of the street: their
-// first column, from the plaza's middle.
-var slots = []int{-8, -5, 3, 6}

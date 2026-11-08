@@ -1,10 +1,17 @@
 // collect, written in TypeScript against sge's transpiled packages: the
 // same game as examples/collect, scripts and all, in the other language.
 //
-//   deno run --allow-ffi --allow-env --allow-read examples/ts/collect.ts
+//   deno run  --allow-run  --allow-ffi --allow-env --allow-read examples/collect/collect.ts
 import { antui, canvas, collider, game, sprite, vector } from "../../deno/mod.ts";
 
 const width = 480, height = 320;
+
+// The score and the language line, in both languages; L switches them.
+const words = [
+  { score: (n: number) => `score ${n}`, line: (name: string) => `Language: ${name} (L)`, name: "English" },
+  { score: (n: number) => `pontuação ${n}`, line: (name: string) => `Idioma: ${name} (L)`, name: "Português" },
+];
+let lang = 0;
 
 // Player is a script: any class with an Update method is one, and the
 // optional Collision and Paint methods are picked up the same way.
@@ -15,6 +22,7 @@ class Player {
   Update(o: game.Object, dt: number): void {
     const win = o.Game()?.Window();
     if (!win) return;
+    if (win.KeyPressed(antui.KeyL)) lang = (lang + 1) % words.length;
     let dir = new vector.Vector3();
     if (win.KeyDown(antui.KeyLeft) || win.KeyDown(antui.KeyA)) dir = dir.Add(new vector.Vector3(-1));
     if (win.KeyDown(antui.KeyRight) || win.KeyDown(antui.KeyD)) dir = dir.Add(new vector.Vector3(1));
@@ -34,7 +42,8 @@ class Player {
   }
 
   Paint(_o: game.Object, cv: canvas.Canvas): void {
-    cv.Text(new canvas.Point(8, 8), `pontuação ${this.score}`, canvas.RGB(240, 240, 240));
+    cv.Text(new canvas.Point(8, 8), words[lang].score(this.score), canvas.RGB(240, 240, 240));
+    cv.Text(new canvas.Point(8, 24), words[lang].line(words[lang].name), canvas.RGB(180, 180, 180));
   }
 }
 

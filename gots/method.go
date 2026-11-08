@@ -45,7 +45,11 @@ func (e *emitter) method(w, funcs *writer, fd *ast.FuncDecl, inClass bool) {
 		e.functionTwins(w, e.goName(fn), sig, fd.Type, fd.Body, prologue, false)
 		return
 	}
-	// A receiver parameter, first; Cell-boxed if the body takes its address.
+	// A receiver parameter, first; Cell-boxed if the body takes its address;
+	// copied on entry, as Go copies it, if it is an array the body changes.
+	if recv := sig.Recv().Type(); recvObj != nil && !isPointer(recv) && isValue(recv) && mutates(e.info, fd.Body, recvObj) {
+		e.copied = recvObj
+	}
 	recvParam := types.NewParam(recvField.Pos(), e.tpkg, "", sig.Recv().Type())
 	params := types.NewTuple(append([]*types.Var{recvParam}, tupleVars(sig.Params())...)...)
 	withRecv := types.NewSignatureType(nil, nil, nil, params, sig.Results(), sig.Variadic())

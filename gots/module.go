@@ -146,7 +146,7 @@ func (e *emitter) module(files []*ast.File) string {
 	section(&funcs)
 	section(&vars)
 	section(&inits)
-	return strings.TrimRight(out.String(), "\n") + "\n"
+	return document(strings.TrimRight(out.String(), "\n")+"\n", e.pkg.Path, docsOf(files))
 }
 
 func inFiles(fset *token.FileSet, pos token.Pos, files []*ast.File) bool {

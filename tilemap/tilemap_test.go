@@ -152,3 +152,30 @@ func BenchmarkDrawMap(b *testing.B) {
 		g.Draw(cv)
 	}
 }
+
+// A lazy tile set draws a tile only when a map first shows it, and once.
+func TestLazyTilesAreDrawnWhenFirstShown(t *testing.T) {
+	made := map[int]int{}
+	s := NewLazyTileSet(Lazy{Count: 3, Width: 2, Height: 2, Make: func(id int) *canvas.Canvas {
+		made[id]++
+		img, _ := canvas.NewCanvas(2, 2)
+		img.Clear(canvas.RGB(uint8(id*80), 0, 0))
+		return img
+	}})
+	m, err := New("lazy", s, 2, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(made) != 0 {
+		t.Fatalf("drew %v before any was shown", made)
+	}
+	m.Set(0, 0, 2)
+	m.Set(1, 0, 2)
+	pic := m.Picture()
+	if made[2] != 1 || made[0] != 0 || made[1] != 0 {
+		t.Errorf("drew %v", made)
+	}
+	if pic.At(3, 1) != canvas.RGB(160, 0, 0) {
+		t.Errorf("the tile shows %v", pic.At(3, 1))
+	}
+}

@@ -23,6 +23,7 @@ type emitter struct {
 	pkgNames    map[string]bool            // names taken at module level
 	names       map[types.Object]string    // bindings handed out so far
 	boxed       map[types.Object]bool      // variables kept in a Cell
+	copied      types.Object               // a value receiver the method body changes, copied on entry
 	anon        map[string]string          // anonymous struct type → class
 	anonDecls   writer                     // classes for anonymous structs
 	typeConsts  map[string]string          // descriptor expression → const
@@ -37,6 +38,7 @@ type emitter struct {
 	files         []*ast.File              // the module's own files
 	info0         *types.Info              // their type information
 	localDecls    map[*types.Func]funcDecl // built by funcDeclOf on first use
+	pure          map[*types.Func]bool     // pureFunc's answers, by function
 	blk           *blocking                // built by blockingOf on first use
 	blkMay        *blocking                // built by mayBlockOf on first use
 	waiting       bool                     // the next function written is a twin that waits

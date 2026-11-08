@@ -26,6 +26,10 @@ func (e *emitter) returnStmt(w *writer, s *ast.ReturnStmt) {
 		}
 	} else {
 		for i, r := range s.Results {
+			if e.fn.frame == "" && e.dyingLocal(s, r, results.At(i).Type()) {
+				vals = append(vals, e.expr(r))
+				continue
+			}
 			vals = append(vals, e.value(r, results.At(i).Type()))
 		}
 	}

@@ -1,0 +1,27 @@
+name: Go
+description: Go, with a build cache saved after every change of the code, not only of go.sum, so a job compiles only what changed.
+
+inputs:
+  cache:
+    description: The name of the job's cache, one per job so jobs at once do not race to save it.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.27.x"
+        cache: false
+
+    - name: Restore the build cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+          ~/Library/Caches/go-build
+          ~/AppData/Local/go-build
+        key: go-${{ runner.os }}-${{ inputs.cache }}-${{ hashFiles('**/*.go', 'go.sum') }}
+        restore-keys: go-${{ runner.os }}-${{ inputs.cache }}-

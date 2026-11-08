@@ -12,6 +12,7 @@ import (
 // TestBenchmarksOnDeno runs testdata/bench's Go benchmarks under deno
 // bench, as go test -bench runs them.
 func TestBenchmarksOnDeno(t *testing.T) {
+	t.Parallel()
 	deno, err := exec.LookPath("deno")
 	if err != nil {
 		t.Skip("deno is not installed")
@@ -27,7 +28,7 @@ func TestBenchmarksOnDeno(t *testing.T) {
 	if len(mods) != 1 {
 		t.Fatalf("no mod_test.ts under %s", out)
 	}
-	got, err := exec.Command(deno, "bench", "--no-config", "--no-lock", mods[0]).CombinedOutput()
+	got, err := exec.Command(deno, "bench", "--no-check", "--no-config", "--no-lock", mods[0]).CombinedOutput()
 	if err != nil {
 		t.Fatalf("deno bench: %v\n%s", err, got)
 	}
@@ -44,7 +45,7 @@ func TestBenchmarksOnDeno(t *testing.T) {
 		}
 	}
 	// A benchmark is not a test: deno test must still pass, and run only TestSum.
-	got, err = exec.Command(deno, "test", "--no-config", "--no-lock", mods[0]).CombinedOutput()
+	got, err = exec.Command(deno, "test", "--no-check", "--no-config", "--no-lock", mods[0]).CombinedOutput()
 	if err != nil || !strings.Contains(string(got), "1 passed") {
 		t.Errorf("deno test: %v\n%s", err, got)
 	}

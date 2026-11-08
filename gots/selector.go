@@ -94,6 +94,9 @@ func (e *emitter) methodValue(x *ast.SelectorExpr, s *types.Selection) string {
 		}
 		return bound("r."+e.goName(fn)+"(...a)", twin)
 	}
+	if r := e.recvType(fn); !isPointer(r) && isValue(r) {
+		recv = e.cloneOf(recv, r)
+	}
 	twin := ""
 	if e.twin(fn) {
 		twin = e.methodFunc(fn) + "$a(r, ...a)"
@@ -141,7 +144,7 @@ func (e *emitter) receiver(x *ast.SelectorExpr, s *types.Selection) string {
 		dot := strings.LastIndex(base, ".")
 		return "new $.FieldPtr(" + base[:dot] + ", " + jsQuote(base[dot+1:]) + ")"
 	case isPointer(t):
-		return base + ".v"
+		return derefPtr(base, t)
 	}
 	return base
 }

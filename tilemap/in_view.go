@@ -2,20 +2,22 @@ package tilemap
 
 import "github.com/gabrielluizsf/sge/vector"
 
-// inView reports whether any of the map can be seen: it is drawn in the
-// game's view, or the view is not known yet.
-func (m *Map) inView() bool {
+// seen is the cells of the map that can be seen: those the game's view
+// shows, when the map is projected; otherwise all of them, when any of the
+// map is drawn in the view. All of them, too, while the view is not known
+// yet.
+func (m *Map) seen() cellRange {
+	whole := m.whole()
 	g := m.Game()
 	if g == nil {
-		return true
+		return whole
 	}
 	w, h := g.View()
 	if w == 0 || h == 0 {
-		return true
+		return whole
 	}
 	if g.Projection != nil && !m.Screen {
-		c0, r0, c1, r1 := m.isoCells()
-		return c0 <= c1 && r0 <= r1
+		return m.isoCells()
 	}
 	b := m.cellBox(0, 0)
 	b.Width *= float64(m.Cols)
@@ -24,5 +26,8 @@ func (m *Map) inView() bool {
 		p := g.ToScreen(vector.Vector3{X: b.X, Y: b.Y})
 		b.X, b.Y = p.X, p.Y
 	}
-	return b.X < float64(w) && b.Y < float64(h) && b.X+b.Width > 0 && b.Y+b.Height > 0
+	if b.X < float64(w) && b.Y < float64(h) && b.X+b.Width > 0 && b.Y+b.Height > 0 {
+		return whole
+	}
+	return cellRange{}
 }
