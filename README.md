@@ -37,7 +37,6 @@ and on Deno, and the engine's Go tests pass on Deno too.
 | `fetch` | a build's assets downloaded over HTTPS from trusted hosts, each checked against its pinned SHA-256 |
 | `flora` | crops grown in code, sprout to ripe, as glTF models: leaves painted and bent, stems, fruit |
 | `building` | houses and props built in code as glTF models: farmhouses, cottages and town houses of several styles, walls, roofs, doors, windows and chimneys, a market stall, a smithy and anvil, a well, fences; clad in tiling PBR textures at their real size |
-| `farm` | a farming life sim, logic and rules, drawn by whatever `farm.Art` a game gives it |
 | `human` | realistic people from MakeHuman's CC0 assets: shaped by sex, age, ancestry and build, skinned, dressed, and moving: standing, walking, chopping, hoeing, swimming |
 | `life` | years in a game's calendar: ages, stages from baby to elder, lives drawn at random, ending in old age |
 | `bond` | how people come to love each other: gifts and talk a day at a time, asking out, proposing, a wedding; grown-ups only, never kin |
@@ -120,7 +119,7 @@ cell := g.ToWorld(mouse)           // the ground under the mouse
 A projected map stands each tile on the near corner of its cell's diamond, so
 a tile taller than its diamond, a tree or a fence, reaches up out of it. A
 `Sorted` map's tiles are each drawn among the objects of its Z by the screen
-height of where they stand, as objects are by their `Footing`: a farmer in
+height of where they stand, as objects are by their `Footing`: a person in
 front of a trunk is over it, one behind it under it. `Follow` centres the
 camera, `VisibleWorld` is the patch of ground the view shows and `terrain`
 makes the chunks under it. Ground tiles, a run of opaque pixels on every row,
@@ -141,35 +140,6 @@ felled stays felled), and stand objects on its chunks (`World.Props`).
 A `sprite.Sprite` with `Make` is drawn the first time it is shown, so a
 character's many frames cost nothing until seen.
 
-[`examples/farm`](examples/farm) is a farming game on all of it, seen from the
-corner: buy seeds at the stall, sow, water, pick and sell, on a farm in endless
-land. Along its path lie towns of women and men of every skin, each with a
-trade they keep by the hour: farmers tend their gardens and sell at the stall,
-lumberjacks fell trees and sell their wood, the smith forges at the anvil,
-feeding the forge wood they cut or buy, and others stroll about town; at
-night everyone sleeps at home. Villagers ask for wood and crops for a reward,
-the lumberjack trades wood, and the smith gives a stone axe for an errand and
-sells iron, gold and diamond ones, each felling a tree in fewer strokes. Every
-house can be gone into. The player sleeps in their own bed; one still up a
-minute past midnight faints and loses all their money. Twenty-eight days
-make a year, and everyone ages with them: the towns' people, children to
-elders, die of old age and are born to their couples. Gifts from the hotbar
-and a chat a day make a villager fonder, hearts in the talk panel; a friend
-fond enough may be asked out, one dated asked to marry, and the spouse moves
-in. Going to bed married, the player is asked only whether to have a child,
-born a year on; when the player dies of old age their eldest child takes the
-farm over, and with no heir the line ends and the farm starts again. F9
-passes a year at once. Arrows walk the way
-they point on the screen; space, or a click on a cell within reach, which the
-mouse outlines, uses what the farmer holds; E talks, goes in, sleeps or
-shops. It is drawn from real things: its
-ground, trees, crops, houses, animals and people are baked from CC0 and CC-BY
-models into sprites when it first starts, and `go run ./examples/farm` plays it.
-The game's logic is an engine package, [`farm`](farm), which asks a `farm.Art`
-for every picture it shows, the tiles, icons, buildings and each person's clips
-in every way they face, so another look can play the same game:
-`farm.New(art, farm.Keyboard())` starts one.
-
 ## Sound
 
 A game with a `sound.Mixer` plays it while it runs: clips once, each with
@@ -186,9 +156,7 @@ wind.Fade(0.2) // eases in; Fade(0) eases out
 The mix keeps every sample from -1 to 1, so no sound can click the speaker,
 and where there are no speakers the game runs in silence. Natively antui plays
 it through PulseAudio, WASAPI, CoreAudio or AAudio; on Deno through SDL2's
-audio queue, with `--allow-ffi`; in a browser with Web Audio. The farm's
-steps, water, leaves, birds and HUD sounds are all made up in
-[`farm/sfx`](farm/sfx).
+audio queue, with `--allow-ffi`; in a browser with Web Audio.
 
 ## TypeScript (Deno)
 
