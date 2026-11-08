@@ -20,7 +20,9 @@ func (w *work) finish() error {
 			return err
 		}
 	}
-	if err := w.root.Close(); err != nil {
+	err := w.root.Close()
+	w.root = nil
+	if err != nil {
 		return err
 	}
 	_, there, err := ours(l.Dir, l.markerDir(), w.s.App)

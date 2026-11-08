@@ -21,6 +21,11 @@ func (w *work) register() error {
 		}
 	}
 	if l.system == Windows {
+		// A new user may have no Start menu folder yet, and a shortcut
+		// is saved into one that is there.
+		if err := os.MkdirAll(l.Menu, 0o755); err != nil {
+			return err
+		}
 		return runScript(w.s, windowsInstall(w.s.App, l, size(w)))
 	}
 	return nil

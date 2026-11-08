@@ -18,7 +18,7 @@ const batchBytes = 8 << 20
 // plan is the installing as jobs, run in order: everything is checked
 // before the first runs, and the files are copied into a new folder that
 // takes the old one's place only once all of them are in.
-func plan(s Setup) ([]job, error) {
+func plan(s Setup) (*work, error) {
 	if s.Files == nil {
 		return nil, errors.New("installer: no files")
 	}
@@ -43,13 +43,14 @@ func plan(s Setup) ([]job, error) {
 		return nil, errors.New("installer: the files have no " + s.App.Exe)
 	}
 	w := &work{s: s, l: l, left: s.Limits.orDefault().Bytes}
-	jobs := []job{{"prepare", w.prepare}}
-	jobs = append(jobs, w.copies(list)...)
-	jobs = append(jobs, job{"finish", w.finish}, job{"register", w.register})
+	w.jobs = []job{{"prepare", w.prepare}}
+	w.jobs = append(w.jobs, w.copies(list)...)
+	w.jobs = append(w.jobs, job{"finish", w.finish}, job{"register", w.register})
 	for _, st := range s.Steps {
-		jobs = append(jobs, job{st.Name, func() error { return st.Run(l.join(l.Dir, l.Files)) }})
+		w.jobs = append(w.jobs, job{st.Name, func() error { return st.Run(l.join(l.Dir, l.Files)) }})
 	}
-	return append(jobs, job{"cache", w.markCache}), nil
+	w.jobs = append(w.jobs, job{"cache", w.markCache})
+	return w, nil
 }
 
 func hasFile(list []entry, name string) bool {
@@ -86,10 +87,12 @@ func cutDir(p, dir string) (string, bool) {
 	return "", false
 }
 
-// work is an installing under way.
+// work is an installing under way: its jobs, and the new folder, root,
+// open while they fill it.
 type work struct {
 	s    Setup
 	l    layout
+	jobs []job
 	root *os.Root
 	left int64
 }

@@ -4,7 +4,7 @@ import "github.com/gabrielluizsf/antui"
 
 // installWindow installs s in a window of its own, closed when done.
 func installWindow(s Setup, look Window) error {
-	jobs, err := plan(s)
+	w, err := plan(s)
 	if err != nil {
 		return err
 	}
@@ -17,5 +17,5 @@ func installWindow(s Setup, look Window) error {
 		return err
 	}
 	defer win.Close()
-	return show(win, look, s, jobs)
+	return show(win, look, w)
 }

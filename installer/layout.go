@@ -12,14 +12,15 @@ import (
 // files of the system's own made inside Dir, by path in it, the marker
 // first; Outside the ones made elsewhere, by full path; Link a program
 // link to Exe (Linux); Uninstaller the path in Dir of the program that
-// takes it away ("" for none); Shortcut the Start menu's link and Key the
-// installed apps' entry (Windows).
+// takes it away ("" for none); Menu the Start menu's folder, Shortcut
+// the link in it and Key the installed apps' entry (Windows).
 type layout struct {
-	system                 string
-	Dir, Files, Exe        string
-	Inside, Outside        []made
-	Link, Uninstaller      string
-	Shortcut, Key, IconLoc string
+	system              string
+	Dir, Files, Exe     string
+	Inside, Outside     []made
+	Link, Uninstaller   string
+	Menu, Shortcut, Key string
+	IconLoc             string
 }
 
 // made is one file the installer writes itself, and its mode.

@@ -14,7 +14,8 @@ func windowsLayout(app App, p Place, icon []byte) (layout, error) {
 	l.Dir = l.join(p.Data, "Programs", app.ID)
 	l.Exe = l.join(l.Dir, app.Exe)
 	l.Uninstaller = "uninstall.exe"
-	l.Shortcut = l.join(p.Roaming, "Microsoft", "Windows", "Start Menu", "Programs", app.Name+".lnk")
+	l.Menu = l.join(p.Roaming, "Microsoft", "Windows", "Start Menu", "Programs")
+	l.Shortcut = l.join(l.Menu, app.Name+".lnk")
 	l.Key = `HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\` + app.ID
 	l.Inside = []made{markerFile(app, "")}
 	l.IconLoc = l.Exe + ",0"

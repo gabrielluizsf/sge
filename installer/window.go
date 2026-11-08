@@ -19,15 +19,15 @@ type Window struct {
 	Label             func(step string, done, asked int) *canvas.Canvas
 }
 
-// show runs jobs while the window win shows how far they have come: they
+// show runs w's jobs while the window win shows how far they have come: they
 // run beside the window, so it is drawn and answers all along. It returns
 // the jobs' error, or one for a window closed before they were done.
-func show(win *antui.Window, look Window, s Setup, jobs []job) error {
+func show(win *antui.Window, look Window, w *work) error {
 	var at atomic.Int32
 	result := make(chan error, 1)
-	go func() { result <- runJobs(s, jobs, func(i int) { at.Store(int32(i)) }) }()
+	go func() { result <- w.run(func(i int) { at.Store(int32(i)) }) }()
 	g := game.New()
-	bar := &progressBar{look: look, jobs: jobs, at: &at, shown: -1}
+	bar := &progressBar{look: look, jobs: w.jobs, at: &at, shown: -1}
 	o := game.NewObject("installer")
 	o.Screen = true
 	o.AddScript(bar)
