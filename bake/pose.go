@@ -11,13 +11,15 @@ import (
 // is turned round the vertical, counterclockwise seen from above, from
 // facing straight at the viewer; and, when Only is set, only the scene's
 // root Root, stood on its own foot: one of the variants a model of
-// plants lays out side by side.
+// plants lays out side by side. Sink is how far below the ground it stands,
+// in the model's units, for it to wade in Options' Water.
 type Shot struct {
 	Animation string
 	Time      float64
 	Yaw       float64
 	Only      bool
 	Root      int
+	Sink      float64
 }
 
 // worlds are every node's matrix in the model's space, as shot: its parents'

@@ -1,4 +1,4 @@
-// Package i18n translates the words the example games show, in the
+// Package i18n translates the words a game shows, in the
 // language the player chose. English is the default, and the English text
 // is the key of its translation: T("Save") is "Salvar" in Portuguese.
 package i18n

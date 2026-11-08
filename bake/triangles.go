@@ -67,6 +67,7 @@ func triangles(m *gltf.Model, s Shot, unit float64) []triangle {
 				}
 				full := game.mul(place)
 				verts[i].p = full.point(f3(p.Positions[i]))
+				verts[i].p[2] -= s.Sink * unit
 				if i < len(p.Normals) {
 					verts[i].n = normalize(full.dir(f3(p.Normals[i])))
 				}
